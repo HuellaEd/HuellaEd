@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HuellaED — 6to Grado</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F5F2EE;
+      min-height: 100vh;
+      color: #2D3A35;
+    }
+
+    /* HEADER */
+    header {
+      background: #2D5F4F;
+      padding: 20px 24px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .logo-svg { flex-shrink: 0; }
+
+    .header-text h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .header-text h1 span { color: #7BAE99; font-weight: 400; }
+    .header-text p {
+      font-size: 11px;
+      color: #A8C9BC;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* MAIN */
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    /* SECCIÓN */
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8A7E6A;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 28px 0 10px;
+      padding-left: 4px;
+    }
+
+    /* TARJETAS */
+    .card-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card-grid.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 1.5px solid transparent;
+    }
+
+    .card:active, .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      border-color: #7BAE99;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .card-body { flex: 1; min-width: 0; }
+    .card-body strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: #2D3A35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-body span {
+      font-size: 12px;
+      color: #8A9E96;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .card-arrow {
+      color: #C8D8D2;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* COLORES POR TIPO */
+    .ic-green  { background: #E8F4EF; }
+    .ic-blue   { background: #E8EEF8; }
+    .ic-orange { background: #FDF0E8; }
+    .ic-purple { background: #F0ECF8; }
+    .ic-red    { background: #FDE8E8; }
+    .ic-yellow { background: #FDF8E8; }
+    .ic-teal   { background: #E8F4F4; }
+
+    /* ALUMNOS GRID */
+    .alumnos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .alumno-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-decoration: none;
+      color: #2D3A35;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border: 1.5px solid transparent;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alumno-card:hover, .alumno-card:active {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-color: #C8845A;
+    }
+
+    .alumno-initial {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #E8F4EF;
+      color: #2D5F4F;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .alumno-name {
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: #B0A898;
+      letter-spacing: 1px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 400px) {
+      .card-grid.two-col { grid-template-columns: 1fr; }
+      header { padding: 16px; }
+      .header-text h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <!-- Logo SVG inline simplificado -->
+  <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 70" width="42" height="50">
+    <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round"
+      d="M 8,35 C 8,18 18,8 30,8 C 42,8 52,18 52,35 C 52,46 47,55 40,60"/>
+    <path fill="none" stroke="#7BAE99" stroke-width="2" stroke-linecap="round"
+      d="M 14,36 C 14,22 21,14 30,14 C 39,14 46,22 46,36 C 46,45 42,52 36,57"/>
+    <path fill="none" stroke="#7BAE99" stroke-width="1.8" stroke-linecap="round"
+      d="M 20,37 C 20,27 24,20 30,20 C 36,20 40,27 40,37 C 40,44 37,50 33,54"/>
+    <path fill="none" stroke="#7BAE99" stroke-width="1.5" stroke-linecap="round"
+      d="M 26,38 C 26,32 27,26 30,26 C 33,26 34,32 34,38 C 34,43 32,47 30,50"/>
+    <ellipse cx="30" cy="37" rx="4" ry="5" fill="none" stroke="#7BAE99" stroke-width="1.3"/>
+    <circle cx="52" cy="10" r="4" fill="#C8845A"/>
+  </svg>
+  <div class="header-text">
+    <h1>Huella<span>ED</span></h1>
+    <p>6to Grado · Escuela La Concepción</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ACCESOS PRINCIPALES -->
+  <div class="section-title">Accesos principales</div>
+  <div class="card-grid">
+
+    <a class="card" href="https://docs.google.com/document/d/1GAoMSKefkJL3ry4Qhj8WvyhKYMB0ZUL30Q0aQPSa1lQ" target="_blank">
+      <div class="card-icon ic-green">🏫</div>
+      <div class="card-body">
+        <strong>Perfil Áulico</strong>
+        <span>Descripción del grupo</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="https://docs.google.com/document/d/16Mnx62O48UjI8Rw2rD0Ij_aygN_Ti6JNYjHdupVIUXM" target="_blank">
+      <div class="card-icon ic-yellow">📋</div>
+      <div class="card-body">
+        <strong>Agenda</strong>
+        <span>Tareas y recordatorios</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="https://docs.google.com/forms/d/e/1FAIpQLSd-placeholder/viewform" target="_blank">
+      <div class="card-icon ic-orange">📝</div>
+      <div class="card-body">
+        <strong>Cargar Observación</strong>
+        <span>Formulario diario</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank">
+      <div class="card-icon ic-blue">📁</div>
+      <div class="card-body">
+        <strong>6to Grado</strong>
+        <span>Carpeta completa</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+  </div>
+
+  <!-- BOLETINES -->
+  <div class="section-title">Informes de boletín</div>
+  <div class="card-grid two-col">
+
+    <a class="card" href="https://drive.google.com/drive/folders/1GqMTv-KKOVTOOUZLg2huOyveel3GNxVH" target="_blank">
+      <div class="card-icon ic-teal">1️⃣</div>
+      <div class="card-body">
+        <strong>1er Trimestre</strong>
+        <span>Informes</span>
+      </div>
+    </a>
+
+    <a class="card" href="https://drive.google.com/drive/folders/1gCQNI6yjJg8nYrD8Zbkbu8B8r3vX1Pak" target="_blank">
+      <div class="card-icon ic-teal">2️⃣</div>
+      <div class="card-body">
+        <strong>2do Trimestre</strong>
+        <span>Informes</span>
+      </div>
+    </a>
+
+    <a class="card" href="https://drive.google.com/drive/folders/1OcAkBK2QubW_u5t7rDWJFlc2Oj-SxrU6" target="_blank">
+      <div class="card-icon ic-teal">3️⃣</div>
+      <div class="card-body">
+        <strong>3er Trimestre</strong>
+        <span>Informes</span>
+      </div>
+    </a>
+
+    <a class="card" href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank">
+      <div class="card-icon ic-purple">📄</div>
+      <div class="card-body">
+        <strong>Cuadernillos</strong>
+        <span>Generados</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- DOCUMENTOS -->
+  <div class="section-title">Documentos curriculares</div>
+  <div class="card-grid two-col">
+
+    <a class="card" href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank">
+      <div class="card-icon ic-blue">📚</div>
+      <div class="card-body">
+        <strong>Teóricos</strong>
+        <span>DC PBA y otros</span>
+      </div>
+    </a>
+
+    <a class="card" href="https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank">
+      <div class="card-icon ic-orange">✏️</div>
+      <div class="card-body">
+        <strong>Material docente</strong>
+        <span>Mat, CN, Lengua</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ALUMNOS -->
+  <div class="section-title">Perfiles individuales</div>
+  <div class="alumnos-grid">
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe" target="_blank">
+      <div class="alumno-initial">ZA</div>
+      <div class="alumno-name">Aguirre, Ziomara</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH" target="_blank">
+      <div class="alumno-initial">BF</div>
+      <div class="alumno-name">Barrera, Felipe</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7" target="_blank">
+      <div class="alumno-initial">BJ</div>
+      <div class="alumno-name">Barrera, Joaquín</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-" target="_blank">
+      <div class="alumno-initial">BR</div>
+      <div class="alumno-name">Bravo, Álvaro</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm" target="_blank">
+      <div class="alumno-initial">CT</div>
+      <div class="alumno-name">Carbonel, Tiziano</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k" target="_blank">
+      <div class="alumno-initial">CT</div>
+      <div class="alumno-name">Cuello, Thomas</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC" target="_blank">
+      <div class="alumno-initial">DM</div>
+      <div class="alumno-name">Diaz, Monserrat</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm" target="_blank">
+      <div class="alumno-initial">ES</div>
+      <div class="alumno-name">Espindola, Sofía</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p" target="_blank">
+      <div class="alumno-initial">GC</div>
+      <div class="alumno-name">Gamon, Ciro</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw" target="_blank">
+      <div class="alumno-initial">GM</div>
+      <div class="alumno-name">Garcia, Milton</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le" target="_blank">
+      <div class="alumno-initial">GK</div>
+      <div class="alumno-name">Godoy, Katia</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4" target="_blank">
+      <div class="alumno-initial">MM</div>
+      <div class="alumno-name">Monteros Cruz, Máximo</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g" target="_blank">
+      <div class="alumno-initial">NN</div>
+      <div class="alumno-name">Nievas, Nicolás</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt" target="_blank">
+      <div class="alumno-initial">SA</div>
+      <div class="alumno-name">Santa Cruz, Alma</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh" target="_blank">
+      <div class="alumno-initial">SB</div>
+      <div class="alumno-name">Sosa Muñoz, Benjamín</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru" target="_blank">
+      <div class="alumno-initial">TA</div>
+      <div class="alumno-name">Tabares, Andrés</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI" target="_blank">
+      <div class="alumno-initial">TS</div>
+      <div class="alumno-name">Tablada, Santino</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ" target="_blank">
+      <div class="alumno-initial">TD</div>
+      <div class="alumno-name">Tagliabue, Delfina</div>
+    </a>
+
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1FvEFURvb15x1QN1weDUmZHiF10n3rbsO" target="_blank">
+      <div class="alumno-initial">VB</div>
+      <div class="alumno-name">Villalba, Benjamín</div>
+    </a>
+
+  </div>
+
+</main>
+
+<footer>HuellaED · cada alumno, su trayecto</footer>
+
+</body>
+</html>
