@@ -194,6 +194,18 @@
       header { padding: 16px; }
       .header-text h1 { font-size: 22px; }
     }
+  
+    .prompt-card { background: #fff; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden; }
+    .prompt-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
+    .prompt-header:active { background: #f5f5f5; }
+    .prompt-num { width: 24px; height: 24px; background: #2D5F4F; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .prompt-title { flex: 1; font-size: 14px; font-weight: 600; color: #2D3A35; }
+    .prompt-toggle { color: #7BAE99; font-size: 20px; font-weight: 300; }
+    .prompt-body { padding: 0 16px 16px; }
+    .prompt-body p { font-size: 13px; color: #4A5A54; line-height: 1.6; background: #F5F2EE; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+    .copy-btn { background: #2D5F4F; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
+    .copy-btn:active { background: #1D4F3F; }
+
   </style>
 </head>
 <body>
@@ -445,7 +457,87 @@
 
 </main>
 
+
+  <!-- RESERVORIO DE PROMPTS -->
+  <div class="section-title">Reservorio de Prompts</div>
+  <div class="card-grid">
+    <div class="card" onclick="togglePrompts()" style="cursor:pointer;">
+      <div class="card-icon ic-purple">🧩</div>
+      <div class="card-body"><strong>Secuencias Didácticas</strong><span>4 prompts para planificar</span></div>
+      <div class="card-arrow" id="arrow-sec">›</div>
+    </div>
+  </div>
+  <div id="prompts-sec" style="display:none; margin-top:8px;">
+    <div class="prompt-card" id="p1">
+      <div class="prompt-header" onclick="togglePrompt('p1')">
+        <div class="prompt-num">1</div>
+        <div class="prompt-title">Bosquejo general de la secuencia</div>
+        <div class="prompt-toggle" id="tog-p1">+</div>
+      </div>
+      <div class="prompt-body" id="body-p1" style="display:none;">
+        <p id="txt-p1">Actuá como asistente pedagógico experto en el diseño de secuencias didácticas para el nivel PRIMARIO de PBA. A partir de la información que te adjunto [DISEÑO CURRICULAR, PLANIFICACIÓN ANUAL], elaborá un bosquejo general de una secuencia didáctica enmarcada en la asignatura [COMPLETAR], de [AÑO], para abordar los siguientes contenidos: [COMPLETAR]. Los objetivos son: [COMPLETAR]. La secuencia debe contemplar un momento inicial, de desarrollo y de cierre, distribuidos en [XX CLASES], con un tiempo estimado de [COMPLETAR]. Incluí una breve fundamentación. El producto final debe presentarse como un esquema general. No desarrolles aún las actividades en detalle.</p>
+        <button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button>
+      </div>
+    </div>
+    <div class="prompt-card" id="p2">
+      <div class="prompt-header" onclick="togglePrompt('p2')">
+        <div class="prompt-num">2</div>
+        <div class="prompt-title">Desarrollo de actividades</div>
+        <div class="prompt-toggle" id="tog-p2">+</div>
+      </div>
+      <div class="prompt-body" id="body-p2" style="display:none;">
+        <p id="txt-p2">A partir del bosquejo general ya elaborado, desarrollá [CANTIDAD] actividades de aprendizaje distribuidas en apertura, desarrollo y cierre. Las actividades deben orientarse a los objetivos y poner en juego las siguientes acciones cognitivas: [INTERPRETAR/ANALIZAR/RESOLVER/REFLEXIONAR]. Contemplar agrupamientos [INDIVIDUALES/PEQUEÑOS GRUPOS], espacio [AULA], duración aproximada [XX MINUTOS] cada una. Para cada actividad incluí: título, objetivo específico, descripción del procedimiento y tipo de producción esperada. No redactes aún las consignas detalladas.</p>
+        <button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button>
+      </div>
+    </div>
+    <div class="prompt-card" id="p3">
+      <div class="prompt-header" onclick="togglePrompt('p3')">
+        <div class="prompt-num">3</div>
+        <div class="prompt-title">Formulación de consignas</div>
+        <div class="prompt-toggle" id="tog-p3">+</div>
+      </div>
+      <div class="prompt-body" id="body-p3" style="display:none;">
+        <p id="txt-p3">Sobre la base de las actividades ya definidas, diseñá las consignas de trabajo correspondientes a cada una. Las consignas deben explicitar qué se espera que hagan los estudiantes, con qué propósito, mediante qué procedimiento, y qué producto se espera. Prestá especial atención al lenguaje adecuado al nivel primario, verbos precisos y evitación de ambigüedades. No modifiques la secuenciación ni los criterios de evaluación definidos.</p>
+        <button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button>
+      </div>
+    </div>
+    <div class="prompt-card" id="p4">
+      <div class="prompt-header" onclick="togglePrompt('p4')">
+        <div class="prompt-num">4</div>
+        <div class="prompt-title">Documento final integrado</div>
+        <div class="prompt-toggle" id="tog-p4">+</div>
+      </div>
+      <div class="prompt-body" id="body-p4" style="display:none;">
+        <p id="txt-p4">A partir de todo el trabajo desarrollado (bosquejo, actividades y consignas), elaborá un documento final integrado de la secuencia didáctica. Debe incluir: encabezado con datos institucionales, fundamentación pedagógica, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos. El documento debe ser claro, profesional y funcional para su implementación en el aula.</p>
+        <button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button>
+      </div>
+    </div>
+  </div>
+
+
 <footer>HuellaED · cada alumno, su trayecto</footer>
+
+
+<script>
+function togglePrompts() {
+  var sec = document.getElementById('prompts-sec');
+  var arrow = document.getElementById('arrow-sec');
+  if (sec.style.display === 'none') { sec.style.display = 'block'; arrow.textContent = '⌄'; }
+  else { sec.style.display = 'none'; arrow.textContent = '›'; }
+}
+function togglePrompt(id) {
+  var body = document.getElementById('body-' + id);
+  var tog = document.getElementById('tog-' + id);
+  if (body.style.display === 'none') { body.style.display = 'block'; tog.textContent = '−'; }
+  else { body.style.display = 'none'; tog.textContent = '+'; }
+}
+function copyText(id) {
+  var text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    alert('Prompt copiado');
+  });
+}
+</script>
 
 </body>
 </html>
