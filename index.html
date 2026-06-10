@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Huella ED App</title>
-    <!-- Configuración para PWA -->
     <link rel="manifest" href="manifest.json">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -173,7 +172,6 @@
 </head>
 <body>
 
-    <!-- Menú Lateral (Sidebar) -->
     <div class="sidebar">
         <div class="logo-container">
             <i class="fa-solid fa-graduation-cap logo-icon"></i>
@@ -195,10 +193,8 @@
         </ul>
     </div>
 
-    <!-- Contenido Principal -->
     <div class="main-content">
         
-        <!-- SECCIÓN: INICIO -->
         <div id="inicio" class="section active">
             <h2>Panel de Inicio</h2>
             <div class="grid">
@@ -215,7 +211,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: PRONTOS -->
         <div id="prompts" class="section">
             <h2>Sección Prontos</h2>
             <div class="grid">
@@ -227,7 +222,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: RECURSOS -->
         <div id="recursos" class="section">
             <h2>Recursos Educativos</h2>
             <div class="grid">
@@ -239,7 +233,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: HERRAMIENTAS -->
         <div id="herramientas" class="section">
             <h2>Herramientas Adicionales</h2>
             <div class="grid">
@@ -253,7 +246,6 @@
 
     </div>
 
-    <!-- Lógica JavaScript para el comportamiento de la App -->
     <script>
         function showSection(sectionId) {
             // Ocultar todas las secciones
