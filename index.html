@@ -283,7 +283,13 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div class="form-row"><label>Tema específico</label><input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo..."></div>
     <div class="form-row">
       <label>¿Incluir versiones para alumnos específicos?</label>
-      <p style="font-size:11px;color:#8A7E6A;margin-bottom:8px;">El prompt siempre incluye la versión general para todo el grupo. Seleccioná además los alumnos que necesiten adaptación o adecuación.</p>
+      <div style="margin-bottom:8px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:#2D3A35;">
+          <input type="checkbox" id="solo-diferenciadas" onchange="toggleSoloDif()" style="width:18px;height:18px;accent-color:#2D5F4F;">
+          Solo versiones diferenciadas <span style="font-size:11px;color:#8A7E6A;">(sin versión general del grupo)</span>
+        </label>
+      </div>
+      <p id="gen-nota-general" style="font-size:11px;color:#8A7E6A;margin-bottom:8px;">El prompt incluye la versión general para todo el grupo. Seleccioná además los alumnos que necesiten adaptación o adecuación.</p>
       <div id="alumnos-especiales" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
         <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Gamon, Ciro','adaptacion','TDL comprensivo-expresivo e IDN 74 Bajo. Consignas visuales, menos ejercicios, más espacio y tiempo.')">
           <span class="check-icon">☐</span> <span>Gamon, Ciro</span><br><small style="color:#8A7E6A;font-size:10px;">Adaptación (NEE)</small>
@@ -578,6 +584,11 @@ function cerrarGenerador(){document.getElementById('modal-generador').style.disp
 function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;}
 function selDest(el,d){document.querySelectorAll('.dest-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');destSel=d;document.getElementById('gen-alumno-row').style.display=d==='adaptada'?'block':'none';}
 var alumnosEsp=[];
+var soloDif=false;
+function toggleSoloDif(){
+  soloDif=document.getElementById('solo-diferenciadas').checked;
+  document.getElementById('gen-nota-general').style.display=soloDif?'none':'block';
+}
 function toggleAlumnoEsp(el,nombre,tipo,perfil){
   var idx=alumnosEsp.findIndex(a=>a.nombre===nombre);
   if(idx>=0){alumnosEsp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check-icon').textContent='☐';}
@@ -589,7 +600,11 @@ function generarPrompt(){
   var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación'};
   var p='Soy docente de 6to grado de la Escuela La Concepción, Provincia de Buenos Aires. Trabajo con el Diseño Curricular de PBA. Tengo 19 alumnos de nivel heterogéneo.\n\n';
   p+='Necesito que generes '+tipos[tipoSel]+' para el área de '+area+', sobre el siguiente tema: '+tema+'.\n\n';
-  p+='VERSIÓN GENERAL: Diseñá el material para todo el grupo. Consignas claras para 6to grado primaria.';
+  if(!soloDif){
+    p+='VERSIÓN GENERAL: Diseñá el material para todo el grupo. Consignas claras para 6to grado primaria.';
+  } else {
+    p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas abajo, sin versión general del grupo.';
+  }
   if(tipoSel==='cuadernillo'||tipoSel==='ficha') p+=' Listo para imprimir en A4, con espacio para trabajar en la hoja.';
   if(alumnosEsp.length>0){
     p+='\n\nADEMÁS, para los siguientes alumnos generá versiones diferenciadas dentro del mismo documento:\n';
