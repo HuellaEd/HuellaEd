@@ -253,6 +253,31 @@
   </div>
 </div>
 
+<!-- MODAL ACTA -->
+<div id="modal-acta" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:640px;margin:20px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">🖨️ Acta de Reunión</strong>
+      <button onclick="cerrarActa()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="acta-preview" style="border:1px solid #E0D8D0;border-radius:10px;padding:24px;font-family:Georgia,serif;font-size:13px;line-height:1.8;color:#2D3A35;background:#fff;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button onclick="imprimirActa()" style="flex:1;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
+      <button onclick="cerrarActa()" style="flex:1;background:#F5F2EE;color:#2D3A35;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ESTILOS PARA IMPRESIÓN -->
+<style>
+@media print {
+  body > *:not(#acta-print-container) { display:none !important; }
+  #acta-print-container { display:block !important; }
+}
+#acta-print-container { display:none; }
+</style>
+<div id="acta-print-container"></div>
+
 <!-- MODALES Y SCRIPTS -->
 <div id="modal-claude" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:20px;box-sizing:border-box;overflow-y:auto;">
   <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:40px auto;">
@@ -347,7 +372,10 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div class="form-row"><label>Resumen</label><textarea id="reunion-resumen" placeholder="¿Qué se trató?" style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:80px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row"><label>Compromisos</label><textarea id="reunion-compromisos" placeholder="¿Qué se comprometió cada parte?" style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:70px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row"><label>Seguimiento</label><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;"><div class="tipo-btn" onclick="selSeguimiento(this,'pendiente')">⏳ Pendiente</div><div class="tipo-btn" onclick="selSeguimiento(this,'cumplido')">✅ Cumplido</div><div class="tipo-btn" onclick="selSeguimiento(this,'incumplido')">❌ No cumplido</div></div></div>
-    <button onclick="generarPromptReunion()" style="width:100%;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin:8px 0;">📋 Generar registro</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;">
+      <button onclick="generarPromptReunion()" style="background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">📋 Guardar en Drive</button>
+      <button onclick="generarActa()" style="background:#C8845A;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">🖨️ Generar Acta</button>
+    </div>
     <div id="reunion-resultado" style="display:none;">
       <div id="reunion-prompt-text" style="background:#F5F2EE;border-radius:10px;padding:14px;font-size:12px;color:#2D3A35;line-height:1.6;margin-bottom:10px;border:1px solid #E0D8D0;"></div>
       <div style="display:flex;gap:8px;"><button onclick="copiarPromptReunion()" style="flex:1;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:#C8845A;color:#fff;border-radius:10px;padding:11px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a></div>
@@ -568,6 +596,99 @@ function renderAgenda() {
   var urgentes = tareas.filter(t => t.cat === 'urgente' && !t.hecha).length;
   var badge = document.getElementById('agenda-badge');
   if (badge) badge.textContent = urgentes > 0 ? '🔴 ' + urgentes : '';
+}
+
+
+function generarActa() {
+  var al = document.getElementById('reunion-alumno').value;
+  var fecha = document.getElementById('reunion-fecha').value;
+  var asist = document.getElementById('reunion-asistentes').value;
+  var res = document.getElementById('reunion-resumen').value;
+  var comp = document.getElementById('reunion-compromisos').value;
+  
+  if (!res) { alert('Completá el resumen de la reunión primero'); return; }
+
+  var motivosTexto = {academico:'Rendimiento académico / Notas', conductual:'Conducta', familiar:'Situación familiar', pedido:'A pedido de la familia', inicio:'Reunión de inicio de año', fin:'Reunión de fin de año'};
+  var seguimTexto = {pendiente:'Pendiente de seguimiento', cumplido:'Compromisos cumplidos', incumplido:'Compromisos no cumplidos'};
+  
+  var fechaFormateada = fecha ? new Date(fecha + 'T12:00:00').toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'}) : '___/___/______';
+  var tipoTexto = tipoR === 'individual' ? 'Individual' : 'Grupal';
+
+  var html = `
+    <div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:12px;margin-bottom:16px;">
+      <div style="font-size:11px;letter-spacing:2px;color:#2D5F4F;text-transform:uppercase;margin-bottom:4px;">Escuela La Concepción</div>
+      <div style="font-size:18px;font-weight:bold;color:#2D3A35;">ACTA DE REUNIÓN FAMILIAR</div>
+      <div style="font-size:11px;color:#8A7E6A;margin-top:4px;">6to Grado · Ciclo Lectivo 2026</div>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <tr>
+        <td style="padding:4px 0;width:35%;color:#8A7E6A;font-size:12px;">Fecha:</td>
+        <td style="padding:4px 0;font-weight:bold;">${fechaFormateada}</td>
+        <td style="padding:4px 0;width:25%;color:#8A7E6A;font-size:12px;">Tipo:</td>
+        <td style="padding:4px 0;">${tipoTexto}</td>
+      </tr>
+      <tr>
+        <td style="padding:4px 0;color:#8A7E6A;font-size:12px;">Alumno/a:</td>
+        <td style="padding:4px 0;font-weight:bold;" colspan="3">${al || '(Reunión grupal)'}</td>
+      </tr>
+      <tr>
+        <td style="padding:4px 0;color:#8A7E6A;font-size:12px;">Motivo:</td>
+        <td style="padding:4px 0;" colspan="3">${motivosTexto[motivoR] || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:4px 0;color:#8A7E6A;font-size:12px;">Asistentes:</td>
+        <td style="padding:4px 0;" colspan="3">${asist || '—'}</td>
+      </tr>
+    </table>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;border-bottom:1px solid #E0D8D0;padding-bottom:4px;">Resumen de lo tratado</div>
+      <div style="min-height:60px;">${res}</div>
+    </div>
+
+    <div style="margin-bottom:24px;">
+      <div style="font-size:11px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;border-bottom:1px solid #E0D8D0;padding-bottom:4px;">Compromisos acordados</div>
+      <div style="min-height:50px;">${comp || 'Sin compromisos formales registrados.'}</div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;border-bottom:1px solid #E0D8D0;padding-bottom:4px;">Seguimiento</div>
+      <div>${seguimTexto[seguimR] || '—'}</div>
+    </div>
+
+    <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:30px;">
+      <div style="text-align:center;">
+        <div style="border-top:1px solid #2D3A35;padding-top:8px;margin-top:40px;">
+          <div style="font-size:12px;color:#8A7E6A;">Firma Docente</div>
+          <div style="font-size:11px;color:#8A7E6A;margin-top:2px;">Nicolás Radaelli</div>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <div style="border-top:1px solid #2D3A35;padding-top:8px;margin-top:40px;">
+          <div style="font-size:12px;color:#8A7E6A;">Firma Familia</div>
+          <div style="font-size:11px;color:#8A7E6A;margin-top:2px;">Aclaración: ________________</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:20px;font-size:10px;color:#B0A898;">HuellaED · Escuela La Concepción · 6to Grado 2026</div>
+  `;
+
+  document.getElementById('acta-preview').innerHTML = html;
+  document.getElementById('modal-acta').style.display = 'block';
+}
+
+function imprimirActa() {
+  var contenido = document.getElementById('acta-preview').innerHTML;
+  var container = document.getElementById('acta-print-container');
+  container.innerHTML = `<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;color:#2D3A35;padding:20px;">${contenido}</div>`;
+  window.print();
+  setTimeout(() => { container.innerHTML = ''; }, 1000);
+}
+
+function cerrarActa() {
+  document.getElementById('modal-acta').style.display = 'none';
 }
 
 function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
