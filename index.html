@@ -206,6 +206,36 @@
     .copy-btn { background: #2D5F4F; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
     .copy-btn:active { background: #1D4F3F; }
 
+  
+    .panel { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #2D5F4F; color: #fff; }
+    .panel-header strong { font-size: 15px; }
+    .close-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; padding: 0 4px; }
+    .panel-body { padding: 16px; }
+    .form-row { margin-bottom: 12px; }
+    .form-row label { display: block; font-size: 12px; font-weight: 600; color: #8A7E6A; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .form-row select { width: 100%; padding: 10px 12px; border: 1.5px solid #E0D8D0; border-radius: 10px; font-size: 14px; background: #FAFAF8; color: #2D3A35; }
+    .notas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+    .nota-item label { display: block; font-size: 11px; color: #8A7E6A; margin-bottom: 3px; font-weight: 600; }
+    .nota-item input { width: 100%; padding: 8px 10px; border: 1.5px solid #E0D8D0; border-radius: 8px; font-size: 15px; text-align: center; background: #FAFAF8; }
+    .nota-item input:focus { border-color: #2D5F4F; outline: none; background: #fff; }
+    .save-btn { width: 100%; background: #2D5F4F; color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .save-btn:active { background: #1D4F3F; }
+    .stats-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tab-btn { flex: 1; padding: 8px; border: 1.5px solid #E0D8D0; border-radius: 8px; background: #F5F2EE; font-size: 13px; font-weight: 600; cursor: pointer; color: #8A7E6A; }
+    .tab-btn.active { background: #2D5F4F; color: #fff; border-color: #2D5F4F; }
+    .stat-card { background: #F5F2EE; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+    .stat-card .area-name { font-size: 12px; font-weight: 600; color: #2D3A35; margin-bottom: 4px; }
+    .stat-bar { height: 8px; border-radius: 4px; background: #E0D8D0; margin: 4px 0; overflow: hidden; }
+    .stat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .aprobado { background: #2D5F4F; }
+    .desaprobado { background: #C8845A; }
+    .stat-nums { font-size: 11px; color: #8A7E6A; display: flex; justify-content: space-between; }
+    .promedio-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-left: 8px; }
+    .badge-ok { background: #E8F4EF; color: #2D5F4F; }
+    .badge-no { background: #FDF0E8; color: #C8845A; }
+    .resumen { background: #E8F4EF; border-radius: 10px; padding: 12px; margin-bottom: 12px; font-size: 13px; color: #2D3A35; }
+
   </style>
 </head>
 <body>
@@ -275,6 +305,20 @@
   </div>
 
   <!-- BOLETINES -->
+
+  <!-- FORMULARIO EMBEBIDO -->
+  <div id="form-container" style="display:none; margin-top:8px; border-radius:14px; overflow:hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf4HnxU6mMczZXaQNw5Z8KAUfRSEJVcDTNZhxIRIglsWWpG7g/viewform?embedded=true" 
+      width="100%" 
+      height="600" 
+      frameborder="0" 
+      marginheight="0" 
+      marginwidth="0"
+      style="background:#fff;">
+      Cargando formulario...
+    </iframe>
+  </div>
+
   <div class="section-title">Informes de boletín</div>
   <div class="card-grid two-col">
 
@@ -515,10 +559,192 @@
   </div>
 
 
+
+  <!-- NOTAS Y ESTADÍSTICAS -->
+  <div class="section-title">Notas y Estadísticas</div>
+
+  <div class="card-grid two-col">
+    <div class="card" onclick="showSection('notas-carga')" style="cursor:pointer;">
+      <div class="card-icon ic-blue">📊</div>
+      <div class="card-body"><strong>Cargar Notas</strong><span>Por alumno y área</span></div>
+      <div class="card-arrow">›</div>
+    </div>
+    <div class="card" onclick="showSection('estadisticas')" style="cursor:pointer;">
+      <div class="card-icon ic-purple">📈</div>
+      <div class="card-body"><strong>Estadísticas</strong><span>Grupo e individual</span></div>
+      <div class="card-arrow">›</div>
+    </div>
+  </div>
+
+  <!-- PANEL CARGAR NOTAS -->
+  <div id="notas-carga" class="panel" style="display:none; margin-top:12px;">
+    <div class="panel-header">
+      <strong>Cargar Notas</strong>
+      <button class="close-btn" onclick="showSection(null)">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="form-row">
+        <label>Alumno</label>
+        <select id="nota-alumno">
+          <option value="">— Seleccionar —</option>
+          <option>Aguirre, Ziomara</option>
+          <option>Barrera, Felipe</option>
+          <option>Barrera, Joaquín</option>
+          <option>Bravo, Álvaro</option>
+          <option>Carbonel, Tiziano</option>
+          <option>Cuello, Thomas</option>
+          <option>Diaz, Monserrat</option>
+          <option>Espindola, Sofía</option>
+          <option>Gamon, Ciro</option>
+          <option>Garcia, Milton</option>
+          <option>Godoy, Katia</option>
+          <option>Monteros Cruz, Máximo</option>
+          <option>Nievas, Nicolás</option>
+          <option>Santa Cruz, Alma</option>
+          <option>Sosa Muñoz, Benjamín</option>
+          <option>Tabares, Andrés</option>
+          <option>Tablada, Santino</option>
+          <option>Tagliabue, Delfina</option>
+          <option>Villalba, Benjamín</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Trimestre</label>
+        <select id="nota-trimestre">
+          <option value="1">1er Trimestre</option>
+          <option value="2">2do Trimestre</option>
+          <option value="3">3er Trimestre</option>
+        </select>
+      </div>
+      <div class="notas-grid">
+        <div class="nota-item"><label>Matemática</label><input type="number" id="n-mat" min="1" max="10" placeholder="—"></div>
+        <div class="nota-item"><label>Prácticas del Lenguaje</label><input type="number" id="n-len" min="1" max="10" placeholder="—"></div>
+        <div class="nota-item"><label>Ciencias Naturales</label><input type="number" id="n-cn" min="1" max="10" placeholder="—"></div>
+        <div class="nota-item"><label>Ciencias Sociales</label><input type="number" id="n-cs" min="1" max="10" placeholder="—"></div>
+        <div class="nota-item"><label>Inglés</label><input type="number" id="n-ing" min="1" max="10" placeholder="—"></div>
+        <div class="nota-item"><label>Ed. Física</label><input type="number" id="n-ef" min="1" max="10" placeholder="—"></div>
+        <div class="nota-item"><label>Ed. Artística</label><input type="number" id="n-art" min="1" max="10" placeholder="—"></div>
+      </div>
+      <button class="save-btn" onclick="guardarNota()">💾 Guardar</button>
+      <div id="nota-msg" style="margin-top:8px; font-size:13px; color:#2D5F4F;"></div>
+    </div>
+  </div>
+
+  <!-- PANEL ESTADÍSTICAS -->
+  <div id="estadisticas" class="panel" style="display:none; margin-top:12px;">
+    <div class="panel-header">
+      <strong>Estadísticas</strong>
+      <button class="close-btn" onclick="showSection(null)">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="stats-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-grupo')">Grupo</button>
+        <button class="tab-btn" onclick="switchTab('tab-alumno')">Por alumno</button>
+      </div>
+
+      <!-- TAB GRUPO -->
+      <div id="tab-grupo" class="tab-content">
+        <div class="form-row">
+          <label>Trimestre</label>
+          <select id="stat-trimestre" onchange="renderGrupo()">
+            <option value="1">1er Trimestre</option>
+            <option value="2">2do Trimestre</option>
+            <option value="3">3er Trimestre</option>
+          </select>
+        </div>
+        <div id="grupo-stats"></div>
+        <canvas id="chart-grupo" width="300" height="300" style="max-width:100%; margin-top:12px;"></canvas>
+      </div>
+
+      <!-- TAB ALUMNO -->
+      <div id="tab-alumno" class="tab-content" style="display:none;">
+        <div class="form-row">
+          <label>Alumno</label>
+          <select id="stat-alumno" onchange="renderAlumno()">
+            <option value="">— Seleccionar —</option>
+            <option>Aguirre, Ziomara</option>
+            <option>Barrera, Felipe</option>
+            <option>Barrera, Joaquín</option>
+            <option>Bravo, Álvaro</option>
+            <option>Carbonel, Tiziano</option>
+            <option>Cuello, Thomas</option>
+            <option>Diaz, Monserrat</option>
+            <option>Espindola, Sofía</option>
+            <option>Gamon, Ciro</option>
+            <option>Garcia, Milton</option>
+            <option>Godoy, Katia</option>
+            <option>Monteros Cruz, Máximo</option>
+            <option>Nievas, Nicolás</option>
+            <option>Santa Cruz, Alma</option>
+            <option>Sosa Muñoz, Benjamín</option>
+            <option>Tabares, Andrés</option>
+            <option>Tablada, Santino</option>
+            <option>Tagliabue, Delfina</option>
+            <option>Villalba, Benjamín</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Trimestre</label>
+          <select id="stat-trimestre-alumno" onchange="renderAlumno()">
+            <option value="1">1er Trimestre</option>
+            <option value="2">2do Trimestre</option>
+            <option value="3">3er Trimestre</option>
+          </select>
+        </div>
+        <div id="alumno-stats"></div>
+        <canvas id="chart-alumno" width="300" height="300" style="max-width:100%; margin-top:12px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL CLAUDE -->
+  <div id="modal-claude" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; padding:20px; box-sizing:border-box;">
+    <div style="background:#fff; border-radius:16px; padding:20px; max-width:600px; margin:40px auto; max-height:85vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <strong style="font-size:16px; color:#2D5F4F;">🤖 Consultar a Claude</strong>
+        <button onclick="cerrarClaude()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✕</button>
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:12px;">Copiá este prompt y pegalo al inicio de una nueva conversación con Claude para que tenga todo el contexto de HuellaED:</p>
+      <div id="prompt-claude-text" style="background:#F5F2EE; border-radius:10px; padding:14px; font-size:12px; color:#2D3A35; line-height:1.6; margin-bottom:12px; border:1px solid #E0D8D0;">Soy docente de 6to grado de la Escuela La Concepción (provincia de Buenos Aires). Trabajo con un sistema pedagógico llamado HuellaED que creé junto a Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
+
+Tengo 19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
+
+Alumnos con atención diferenciada prioritaria:
+- Gamon Ciro: Trastorno del Desarrollo del Lenguaje comprensivo-expresivo + IDN 74 (Bajo). Necesita consignas visuales, menos cantidad de ejercicios y más tiempo.
+- Nievas Nicolás: dificultades en comprensión lectora, escritura y estrategia de estimación en división.
+- Godoy Katia: dificultades en lectoescritura y matemática, asistencia intermitente.
+
+Trabajo con el Diseño Curricular de PBA. Las áreas son: Matemática, Prácticas del Lenguaje, Ciencias Naturales, Ciencias Sociales, Inglés, Ed. Física y Ed. Artística. Calificaciones del 1 al 10, aprobado con 6.
+
+Todo el material está organizado en Google Drive. La app HuellaED está en https://huellaed.github.io/HuellaEd/
+
+¿En qué me podés ayudar hoy?</div>
+      <div style="display:flex; gap:8px;">
+        <button onclick="copiarPromptClaude()" style="flex:1; background:#2D5F4F; color:#fff; border:none; border-radius:10px; padding:12px; font-size:14px; font-weight:600; cursor:pointer;">📋 Copiar prompt</button>
+        <a href="https://claude.ai" target="_blank" style="flex:1; background:#C8845A; color:#fff; border:none; border-radius:10px; padding:12px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center;">Abrir Claude.ai →</a>
+      </div>
+      <div id="claude-copy-msg" style="text-align:center; font-size:12px; color:#2D5F4F; margin-top:8px;"></div>
+    </div>
+  </div>
+
 <footer>HuellaED · cada alumno, su trayecto</footer>
 
 
 <script>
+
+function toggleForm() {
+  var container = document.getElementById('form-container');
+  var arrow = document.getElementById('form-arrow');
+  if (container.style.display === 'none') {
+    container.style.display = 'block';
+    arrow.textContent = '⌄';
+  } else {
+    container.style.display = 'none';
+    arrow.textContent = '›';
+  }
+}
+
 function togglePrompts() {
   var sec = document.getElementById('prompts-sec');
   var arrow = document.getElementById('arrow-sec');
@@ -539,5 +765,192 @@ function copyText(id) {
 }
 </script>
 
+<script>
+
+const AREAS = ['Matemática','Prácticas del Lenguaje','Ciencias Naturales','Ciencias Sociales','Inglés','Ed. Física','Ed. Artística'];
+const AREA_IDS = ['mat','len','cn','cs','ing','ef','art'];
+const APROBADO = 6;
+
+// Storage en memoria
+let notasDB = {};
+
+function keyNota(alumno, trimestre) { return alumno + '||' + trimestre; }
+
+function guardarNota() {
+  const alumno = document.getElementById('nota-alumno').value;
+  const trimestre = document.getElementById('nota-trimestre').value;
+  if (!alumno) { document.getElementById('nota-msg').textContent = '⚠ Seleccioná un alumno.'; return; }
+  
+  const notas = {};
+  AREA_IDS.forEach((id, i) => {
+    const val = document.getElementById('n-' + id).value;
+    if (val !== '') notas[AREAS[i]] = parseInt(val);
+  });
+  
+  notasDB[keyNota(alumno, trimestre)] = notas;
+  document.getElementById('nota-msg').textContent = '✅ Notas guardadas para ' + alumno;
+  
+  // Limpiar inputs
+  AREA_IDS.forEach(id => { document.getElementById('n-' + id).value = ''; });
+  setTimeout(() => { document.getElementById('nota-msg').textContent = ''; }, 2500);
+}
+
+function showSection(id) {
+  document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+  if (id) document.getElementById(id).style.display = 'block';
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).style.display = 'block';
+  event.target.classList.add('active');
+  if (tabId === 'tab-grupo') renderGrupo();
+}
+
+function renderGrupo() {
+  const trimestre = document.getElementById('stat-trimestre').value;
+  const container = document.getElementById('grupo-stats');
+  
+  // Recopilar todas las notas del trimestre
+  const porArea = {};
+  AREAS.forEach(a => { porArea[a] = []; });
+  
+  Object.keys(notasDB).forEach(key => {
+    if (key.endsWith('||' + trimestre)) {
+      const notas = notasDB[key];
+      AREAS.forEach(a => { if (notas[a] !== undefined) porArea[a].push(notas[a]); });
+    }
+  });
+  
+  let html = '';
+  let aprobTotales = 0, totalTotales = 0;
+  
+  AREAS.forEach(area => {
+    const arr = porArea[area];
+    if (arr.length === 0) return;
+    const prom = (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1);
+    const aprobados = arr.filter(n => n >= APROBADO).length;
+    const pct = Math.round(aprobados / arr.length * 100);
+    aprobTotales += aprobados;
+    totalTotales += arr.length;
+    html += `<div class="stat-card">
+      <div class="area-name">${area} <span class="promedio-badge ${parseFloat(prom)>=APROBADO?'badge-ok':'badge-no'}">Prom: ${prom}</span></div>
+      <div class="stat-bar"><div class="stat-bar-fill aprobado" style="width:${pct}%"></div></div>
+      <div class="stat-nums"><span>✅ ${aprobados} aprobados (${pct}%)</span><span>❌ ${arr.length-aprobados} desaprobados</span></div>
+    </div>`;
+  });
+  
+  if (html === '') { container.innerHTML = '<div class="resumen">Sin notas cargadas para este trimestre.</div>'; drawPie('chart-grupo', [], []); return; }
+  
+  const pctTotal = totalTotales > 0 ? Math.round(aprobTotales/totalTotales*100) : 0;
+  container.innerHTML = `<div class="resumen"><b>Resumen del grupo:</b> ${pctTotal}% de aprobación general en el trimestre ${trimestre}.</div>` + html;
+  drawPie('chart-grupo', ['Aprobados', 'Desaprobados'], [aprobTotales, totalTotales-aprobTotales]);
+}
+
+function renderAlumno() {
+  const alumno = document.getElementById('stat-alumno').value;
+  const trimestre = document.getElementById('stat-trimestre-alumno').value;
+  const container = document.getElementById('alumno-stats');
+  if (!alumno) { container.innerHTML = ''; return; }
+  
+  const notas = notasDB[keyNota(alumno, trimestre)] || {};
+  if (Object.keys(notas).length === 0) {
+    container.innerHTML = '<div class="resumen">Sin notas cargadas para este alumno y trimestre.</div>';
+    drawPie('chart-alumno', [], []);
+    return;
+  }
+  
+  let html = '';
+  let aprobados = 0, total = 0;
+  const pieLabels = [], pieData = [];
+  
+  AREAS.forEach(area => {
+    if (notas[area] === undefined) return;
+    const n = notas[area];
+    const ok = n >= APROBADO;
+    if (ok) aprobados++; else total++;
+    total++;
+    pieLabels.push(area.substring(0,8));
+    pieData.push(n);
+    html += `<div class="stat-card">
+      <div class="area-name">${area} <span class="promedio-badge ${ok?'badge-ok':'badge-no'}">${n}/10 ${ok?'✅':'❌'}</span></div>
+      <div class="stat-bar"><div class="stat-bar-fill ${ok?'aprobado':'desaprobado'}" style="width:${n*10}%"></div></div>
+    </div>`;
+  });
+  
+  const prom = (Object.values(notas).reduce((a,b)=>a+b,0)/Object.values(notas).length).toFixed(1);
+  container.innerHTML = `<div class="resumen"><b>${alumno}</b> — Promedio general: <b>${prom}</b> <span class="promedio-badge ${parseFloat(prom)>=APROBADO?'badge-ok':'badge-no'}">${parseFloat(prom)>=APROBADO?'Aprobado':'En riesgo'}</span></div>` + html;
+  drawPie('chart-alumno', pieLabels, pieData);
+}
+
+function drawPie(canvasId, labels, data) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (data.length === 0) return;
+  
+  const colors = ['#2D5F4F','#7BAE99','#C8845A','#E8C49A','#4A8C7A','#A8D4C8','#8A7E6A'];
+  const total = data.reduce((a,b) => a+b, 0);
+  const cx = canvas.width/2, cy = canvas.height/2, r = Math.min(cx,cy) - 40;
+  let startAngle = -Math.PI/2;
+  
+  data.forEach((val, i) => {
+    const slice = (val/total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + slice);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Etiqueta
+    const midAngle = startAngle + slice/2;
+    const lx = cx + (r*0.65) * Math.cos(midAngle);
+    const ly = cy + (r*0.65) * Math.sin(midAngle);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], lx, ly);
+    
+    startAngle += slice;
+  });
+  
+  // Leyenda
+  let lx = 10, ly = canvas.height - 25;
+  ctx.font = '10px Arial';
+  ctx.textAlign = 'left';
+  labels.forEach((label, i) => {
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fillRect(lx, ly, 10, 10);
+    ctx.fillStyle = '#333';
+    ctx.fillText(label.substring(0,10), lx + 13, ly + 9);
+    lx += 80;
+    if (lx > canvas.width - 80) { lx = 10; ly -= 15; }
+  });
+}
+
+</script>
+<script>
+
+function abrirClaude() {
+  document.getElementById('modal-claude').style.display = 'block';
+}
+function cerrarClaude() {
+  document.getElementById('modal-claude').style.display = 'none';
+}
+function copiarPromptClaude() {
+  const text = document.getElementById('prompt-claude-text').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('claude-copy-msg').textContent = '✅ Prompt copiado — pegalo en Claude.ai';
+    setTimeout(() => { document.getElementById('claude-copy-msg').textContent = ''; }, 3000);
+  });
+}
+
+</script>
 </body>
 </html>
