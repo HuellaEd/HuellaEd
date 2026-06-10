@@ -5,257 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HuellaED — 6to Grado</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #F5F2EE;
-      min-height: 100vh;
-      color: #2D3A35;
-    }
-
-    /* HEADER */
-    header {
-      background: #2D5F4F;
-      padding: 20px 24px 16px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    }
-
-    .logo-svg { flex-shrink: 0; }
-
-    .header-text h1 {
-      font-size: 26px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
-    .header-text h1 span { color: #7BAE99; font-weight: 400; }
-    .header-text p {
-      font-size: 11px;
-      color: #A8C9BC;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 2px;
-    }
-
-    /* MAIN */
-    main {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-
-    /* SECCIÓN */
-    .section-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: #8A7E6A;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin: 28px 0 10px;
-      padding-left: 4px;
-    }
-
-    /* TARJETAS */
-    .card-grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .card-grid.two-col {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
-      color: inherit;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      transition: transform 0.15s, box-shadow 0.15s;
-      border: 1.5px solid transparent;
-    }
-
-    .card:active, .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      border-color: #7BAE99;
-    }
-
-    .card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    .card-body { flex: 1; min-width: 0; }
-    .card-body strong {
-      display: block;
-      font-size: 15px;
-      font-weight: 600;
-      color: #2D3A35;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .card-body span {
-      font-size: 12px;
-      color: #8A9E96;
-      margin-top: 2px;
-      display: block;
-    }
-
-    .card-arrow {
-      color: #C8D8D2;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    /* COLORES POR TIPO */
-    .ic-green  { background: #E8F4EF; }
-    .ic-blue   { background: #E8EEF8; }
-    .ic-orange { background: #FDF0E8; }
-    .ic-purple { background: #F0ECF8; }
-    .ic-red    { background: #FDE8E8; }
-    .ic-yellow { background: #FDF8E8; }
-    .ic-teal   { background: #E8F4F4; }
-
-    /* ALUMNOS GRID */
-    .alumnos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 8px;
-    }
-
-    .alumno-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 12px 14px;
-      text-decoration: none;
-      color: #2D3A35;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      border: 1.5px solid transparent;
-      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .alumno-card:hover, .alumno-card:active {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border-color: #C8845A;
-    }
-
-    .alumno-initial {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #E8F4EF;
-      color: #2D5F4F;
-      font-weight: 700;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .alumno-name {
-      font-size: 12px;
-      font-weight: 600;
-      line-height: 1.3;
-    }
-
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 11px;
-      color: #B0A898;
-      letter-spacing: 1px;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 400px) {
-      .card-grid.two-col { grid-template-columns: 1fr; }
-      header { padding: 16px; }
-      .header-text h1 { font-size: 22px; }
-    }
-  
-    .prompt-card { background: #fff; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden; }
-    .prompt-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
-    .prompt-header:active { background: #f5f5f5; }
-    .prompt-num { width: 24px; height: 24px; background: #2D5F4F; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-    .prompt-title { flex: 1; font-size: 14px; font-weight: 600; color: #2D3A35; }
-    .prompt-toggle { color: #7BAE99; font-size: 20px; font-weight: 300; }
-    .prompt-body { padding: 0 16px 16px; }
-    .prompt-body p { font-size: 13px; color: #4A5A54; line-height: 1.6; background: #F5F2EE; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
-    .copy-btn { background: #2D5F4F; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer; }
-    .copy-btn:active { background: #1D4F3F; }
-
-  
-    .panel { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #2D5F4F; color: #fff; }
-    .panel-header strong { font-size: 15px; }
-    .close-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; padding: 0 4px; }
-    .panel-body { padding: 16px; }
-    .form-row { margin-bottom: 12px; }
-    .form-row label { display: block; font-size: 12px; font-weight: 600; color: #8A7E6A; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
-    .form-row select { width: 100%; padding: 10px 12px; border: 1.5px solid #E0D8D0; border-radius: 10px; font-size: 14px; background: #FAFAF8; color: #2D3A35; }
-    .notas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
-    .nota-item label { display: block; font-size: 11px; color: #8A7E6A; margin-bottom: 3px; font-weight: 600; }
-    .nota-item input { width: 100%; padding: 8px 10px; border: 1.5px solid #E0D8D0; border-radius: 8px; font-size: 15px; text-align: center; background: #FAFAF8; }
-    .nota-item input:focus { border-color: #2D5F4F; outline: none; background: #fff; }
-    .save-btn { width: 100%; background: #2D5F4F; color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-    .save-btn:active { background: #1D4F3F; }
-    .stats-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-    .tab-btn { flex: 1; padding: 8px; border: 1.5px solid #E0D8D0; border-radius: 8px; background: #F5F2EE; font-size: 13px; font-weight: 600; cursor: pointer; color: #8A7E6A; }
-    .tab-btn.active { background: #2D5F4F; color: #fff; border-color: #2D5F4F; }
-    .stat-card { background: #F5F2EE; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
-    .stat-card .area-name { font-size: 12px; font-weight: 600; color: #2D3A35; margin-bottom: 4px; }
-    .stat-bar { height: 8px; border-radius: 4px; background: #E0D8D0; margin: 4px 0; overflow: hidden; }
-    .stat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
-    .aprobado { background: #2D5F4F; }
-    .desaprobado { background: #C8845A; }
-    .stat-nums { font-size: 11px; color: #8A7E6A; display: flex; justify-content: space-between; }
-    .promedio-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-left: 8px; }
-    .badge-ok { background: #E8F4EF; color: #2D5F4F; }
-    .badge-no { background: #FDF0E8; color: #C8845A; }
-    .resumen { background: #E8F4EF; border-radius: 10px; padding: 12px; margin-bottom: 12px; font-size: 13px; color: #2D3A35; }
-
-  
-    .tipo-btn, .dest-btn { padding:10px; border:1.5px solid #E0D8D0; border-radius:10px; text-align:center; font-size:13px; cursor:pointer; background:#FAFAF8; color:#2D3A35; font-weight:500; }
-    .tipo-btn.active, .dest-btn.active { background:#2D5F4F; color:#fff; border-color:#2D5F4F; }
-    .tipo-btn:active, .dest-btn:active { opacity:0.8; }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#F5F2EE; min-height:100vh; color:#2D3A35; }
+    header { background:#2D5F4F; padding:20px 24px 16px; display:flex; align-items:center; gap:16px; box-shadow:0 2px 12px rgba(0,0,0,0.15); }
+    .header-text h1 { font-size:26px; font-weight:700; color:#fff; letter-spacing:-0.5px; }
+    .header-text h1 span { color:#7BAE99; font-weight:400; }
+    .header-text p { font-size:11px; color:#A8C9BC; letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+    main { max-width:680px; margin:0 auto; padding:24px 16px 40px; }
+    .section-title { font-size:11px; font-weight:600; color:#8A7E6A; letter-spacing:2px; text-transform:uppercase; margin:28px 0 10px; padding-left:4px; }
+    .card-grid { display:grid; gap:10px; }
+    .card-grid.two-col { grid-template-columns:1fr 1fr; }
+    .card { background:#fff; border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:14px; text-decoration:none; color:inherit; box-shadow:0 1px 4px rgba(0,0,0,0.07); transition:transform 0.15s; border:1.5px solid transparent; }
+    .card:active,.card:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.12); border-color:#7BAE99; }
+    .card-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .card-body { flex:1; min-width:0; }
+    .card-body strong { display:block; font-size:15px; font-weight:600; color:#2D3A35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-body span { font-size:12px; color:#8A9E96; margin-top:2px; display:block; }
+    .card-arrow { color:#C8D8D2; font-size:18px; flex-shrink:0; }
+    .ic-green{background:#E8F4EF;} .ic-blue{background:#E8EEF8;} .ic-orange{background:#FDF0E8;}
+    .ic-purple{background:#F0ECF8;} .ic-yellow{background:#FDF8E8;} .ic-teal{background:#E8F4F4;} .ic-red{background:#FDE8E8;}
+    .alumnos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+    .alumno-card { background:#fff; border-radius:12px; padding:12px 14px; text-decoration:none; color:#2D3A35; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1.5px solid transparent; transition:transform 0.15s; display:flex; align-items:center; gap:10px; }
+    .alumno-card:hover,.alumno-card:active { transform:translateY(-2px); border-color:#C8845A; }
+    .alumno-initial { width:32px; height:32px; border-radius:50%; background:#E8F4EF; color:#2D5F4F; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .alumno-name { font-size:12px; font-weight:600; line-height:1.3; }
+    .prompt-card { background:#fff; border-radius:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.07); overflow:hidden; }
+    .prompt-header { display:flex; align-items:center; gap:10px; padding:14px 16px; cursor:pointer; }
+    .prompt-num { width:24px; height:24px; background:#2D5F4F; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+    .prompt-title { flex:1; font-size:14px; font-weight:600; color:#2D3A35; }
+    .prompt-toggle { color:#7BAE99; font-size:20px; }
+    .prompt-body { padding:0 16px 16px; }
+    .prompt-body p { font-size:13px; color:#4A5A54; line-height:1.6; background:#F5F2EE; padding:12px; border-radius:8px; margin-bottom:10px; }
+    .copy-btn { background:#2D5F4F; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; }
+    .panel { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden; }
+    .panel-header { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:#2D5F4F; color:#fff; }
+    .panel-header strong { font-size:15px; }
+    .close-btn { background:none; border:none; color:#fff; font-size:18px; cursor:pointer; }
+    .panel-body { padding:16px; }
+    .form-row { margin-bottom:12px; }
+    .form-row label { display:block; font-size:12px; font-weight:600; color:#8A7E6A; margin-bottom:4px; text-transform:uppercase; letter-spacing:1px; }
+    .form-row select,.form-row input[type=text] { width:100%; padding:10px 12px; border:1.5px solid #E0D8D0; border-radius:10px; font-size:14px; background:#FAFAF8; color:#2D3A35; }
+    .stats-tabs { display:flex; gap:8px; margin-bottom:14px; }
+    .tab-btn { flex:1; padding:8px; border:1.5px solid #E0D8D0; border-radius:8px; background:#F5F2EE; font-size:13px; font-weight:600; cursor:pointer; color:#8A7E6A; }
+    .tab-btn.active { background:#2D5F4F; color:#fff; border-color:#2D5F4F; }
+    .resumen { background:#E8F4EF; border-radius:10px; padding:12px; font-size:13px; color:#2D3A35; }
+    .tipo-btn,.dest-btn { padding:10px; border:1.5px solid #E0D8D0; border-radius:10px; text-align:center; font-size:13px; cursor:pointer; background:#FAFAF8; color:#2D3A35; font-weight:500; }
+    .tipo-btn.active,.dest-btn.active { background:#2D5F4F; color:#fff; border-color:#2D5F4F; }
+    footer { text-align:center; padding:12px; font-size:11px; color:#B0A898; }
+    .link-pie { text-align:center; padding:6px 0 2px; }
+    .link-pie a { font-size:11px; color:#B0A898; text-decoration:none; }
+    @media(max-width:400px){.card-grid.two-col{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
-
 <header>
-  <!-- Logo SVG inline simplificado -->
-  <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 70" width="42" height="50">
-    <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round"
-      d="M 8,35 C 8,18 18,8 30,8 C 42,8 52,18 52,35 C 52,46 47,55 40,60"/>
-    <path fill="none" stroke="#7BAE99" stroke-width="2" stroke-linecap="round"
-      d="M 14,36 C 14,22 21,14 30,14 C 39,14 46,22 46,36 C 46,45 42,52 36,57"/>
-    <path fill="none" stroke="#7BAE99" stroke-width="1.8" stroke-linecap="round"
-      d="M 20,37 C 20,27 24,20 30,20 C 36,20 40,27 40,37 C 40,44 37,50 33,54"/>
-    <path fill="none" stroke="#7BAE99" stroke-width="1.5" stroke-linecap="round"
-      d="M 26,38 C 26,32 27,26 30,26 C 33,26 34,32 34,38 C 34,43 32,47 30,50"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 70" width="42" height="50">
+    <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M 8,35 C 8,18 18,8 30,8 C 42,8 52,18 52,35 C 52,46 47,55 40,60"/>
+    <path fill="none" stroke="#7BAE99" stroke-width="2" stroke-linecap="round" d="M 14,36 C 14,22 21,14 30,14 C 39,14 46,22 46,36 C 46,45 42,52 36,57"/>
+    <path fill="none" stroke="#7BAE99" stroke-width="1.8" stroke-linecap="round" d="M 20,37 C 20,27 24,20 30,20 C 36,20 40,27 40,37 C 40,44 37,50 33,54"/>
+    <path fill="none" stroke="#7BAE99" stroke-width="1.5" stroke-linecap="round" d="M 26,38 C 26,32 27,26 30,26 C 33,26 34,32 34,38 C 34,43 32,47 30,50"/>
     <ellipse cx="30" cy="37" rx="4" ry="5" fill="none" stroke="#7BAE99" stroke-width="1.3"/>
     <circle cx="52" cy="10" r="4" fill="#C8845A"/>
   </svg>
@@ -264,250 +72,126 @@
     <p>6to Grado · Escuela La Concepción</p>
   </div>
 </header>
-
 <main>
-
-  <!-- ACCESOS PRINCIPALES -->
   <div class="section-title">Accesos principales</div>
   <div class="card-grid">
-
-    <a class="card" href="https://docs.google.com/document/d/1GAoMSKefkJL3ry4Qhj8WvyhKYMB0ZUL30Q0aQPSa1lQ" target="_blank">
+    <a class="card" href="https://docs.google.com/document/d/1uIrhqdqK2eFwVX-EwJl14ovgNoKSOzQah6YP2mS58kg" target="_blank">
       <div class="card-icon ic-green">🏫</div>
-      <div class="card-body">
-        <strong>Perfil Áulico</strong>
-        <span>Descripción del grupo</span>
-      </div>
+      <div class="card-body"><strong>Perfil Áulico</strong><span>Descripción del grupo</span></div>
       <div class="card-arrow">›</div>
     </a>
-
-    <a class="card" href="https://docs.google.com/document/d/16Mnx62O48UjI8Rw2rD0Ij_aygN_Ti6JNYjHdupVIUXM" target="_blank">
+    <a class="card" href="https://docs.google.com/document/d/1VSAUNUdDsk6BDQ9sclHSHwrXSL5zHNNsCwGL8HDNTSs" target="_blank">
       <div class="card-icon ic-yellow">📋</div>
-      <div class="card-body">
-        <strong>Agenda</strong>
-        <span>Tareas y recordatorios</span>
-      </div>
+      <div class="card-body"><strong>Agenda</strong><span>Tareas y recordatorios</span></div>
       <div class="card-arrow">›</div>
     </a>
-
-    <a class="card" href="https://docs.google.com/forms/d/e/1FAIpQLSf4HnxU6mMczZXaQNw5Z8KAUfRSEJVcDTNZhxIRIglsWWpG7g/viewform" target="_blank">
+    <div class="card" onclick="toggleForm()" style="cursor:pointer;">
       <div class="card-icon ic-orange">📝</div>
-      <div class="card-body">
-        <strong>Cargar Observación</strong>
-        <span>Formulario diario</span>
-      </div>
+      <div class="card-body"><strong>Cargar Observación</strong><span>Formulario diario</span></div>
+      <div class="card-arrow" id="form-arrow">›</div>
+    </div>
+    <div class="card" onclick="abrirClaude()" style="cursor:pointer;">
+      <div class="card-icon" style="background:#FEF3E2;">🤖</div>
+      <div class="card-body"><strong>Consultar a Claude</strong><span>Asistente HuellaED</span></div>
       <div class="card-arrow">›</div>
-    </a>
-
-    <a class="card" href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank">
-      <div class="card-icon ic-blue">📁</div>
-      <div class="card-body">
-        <strong>6to Grado</strong>
-        <span>Carpeta completa</span>
-      </div>
+    </div>
+    <div class="card" onclick="abrirGenerador()" style="cursor:pointer;">
+      <div class="card-icon" style="background:#F0ECF8;">✨</div>
+      <div class="card-body"><strong>Generar Material</strong><span>Cuadernillos, fichas, planif.</span></div>
       <div class="card-arrow">›</div>
-    </a>
-
+    </div>
+    <div class="card" onclick="abrirGrabador()" style="cursor:pointer;">
+      <div class="card-icon" style="background:#FDE8E8;">🎙️</div>
+      <div class="card-body"><strong>Grabar Lectura</strong><span>Evidencia de oralidad</span></div>
+      <div class="card-arrow">›</div>
+    </div>
+    <div class="card" onclick="abrirReunion()" style="cursor:pointer;">
+      <div class="card-icon" style="background:#E8EEF8;">👨‍👩‍👧</div>
+      <div class="card-body"><strong>Reunión Familiar</strong><span>Registrar entrevista</span></div>
+      <div class="card-arrow">›</div>
+    </div>
+    <div class="card" onclick="abrirNota()" style="cursor:pointer;">
+      <div class="card-icon" style="background:#FDF8E8;">🗒️</div>
+      <div class="card-body"><strong>Nota Rápida</strong><span>Escribir sin abrir el Drive</span></div>
+      <div class="card-arrow">›</div>
+    </div>
   </div>
-
-  <!-- BOLETINES -->
-
-  <!-- FORMULARIO EMBEBIDO -->
-  <div id="form-container" style="display:none; margin-top:8px; border-radius:14px; overflow:hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1);">
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf4HnxU6mMczZXaQNw5Z8KAUfRSEJVcDTNZhxIRIglsWWpG7g/viewform?embedded=true" 
-      width="100%" 
-      height="600" 
-      frameborder="0" 
-      marginheight="0" 
-      marginwidth="0"
-      style="background:#fff;">
-      Cargando formulario...
-    </iframe>
+  <div id="form-container" style="display:none; margin-top:8px; border-radius:14px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf4HnxU6mMczZXaQNw5Z8KAUfRSEJVcDTNZhxIRIglsWWpG7g/viewform?embedded=true" width="100%" height="600" frameborder="0">Cargando...</iframe>
   </div>
 
   <div class="section-title">Informes de boletín</div>
   <div class="card-grid two-col">
-
     <a class="card" href="https://drive.google.com/drive/folders/1GqMTv-KKOVTOOUZLg2huOyveel3GNxVH" target="_blank">
       <div class="card-icon ic-teal">1️⃣</div>
-      <div class="card-body">
-        <strong>1er Trimestre</strong>
-        <span>Informes</span>
-      </div>
+      <div class="card-body"><strong>1er Trimestre</strong><span>Informes</span></div>
     </a>
-
     <a class="card" href="https://drive.google.com/drive/folders/1gCQNI6yjJg8nYrD8Zbkbu8B8r3vX1Pak" target="_blank">
       <div class="card-icon ic-teal">2️⃣</div>
-      <div class="card-body">
-        <strong>2do Trimestre</strong>
-        <span>Informes</span>
-      </div>
+      <div class="card-body"><strong>2do Trimestre</strong><span>Informes</span></div>
     </a>
-
     <a class="card" href="https://drive.google.com/drive/folders/1OcAkBK2QubW_u5t7rDWJFlc2Oj-SxrU6" target="_blank">
       <div class="card-icon ic-teal">3️⃣</div>
-      <div class="card-body">
-        <strong>3er Trimestre</strong>
-        <span>Informes</span>
-      </div>
+      <div class="card-body"><strong>3er Trimestre</strong><span>Informes</span></div>
     </a>
-
     <a class="card" href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank">
       <div class="card-icon ic-purple">📄</div>
-      <div class="card-body">
-        <strong>Cuadernillos</strong>
-        <span>Generados</span>
-      </div>
+      <div class="card-body"><strong>Cuadernillos</strong><span>Generados</span></div>
     </a>
-
   </div>
 
-  <!-- DOCUMENTOS -->
+  <div class="section-title">Notas y Estadísticas</div>
+  <div class="card-grid two-col">
+    <a class="card" href="https://drive.google.com/drive/folders/1GqMTv-KKOVTOOUZLg2huOyveel3GNxVH" target="_blank">
+      <div class="card-icon ic-blue">📊</div>
+      <div class="card-body"><strong>Informe de Notas</strong><span>1er Trimestre</span></div>
+    </a>
+    <div class="card" onclick="showSection('estadisticas')" style="cursor:pointer;">
+      <div class="card-icon ic-purple">📈</div>
+      <div class="card-body"><strong>Estadísticas</strong><span>Grupo e individual</span></div>
+      <div class="card-arrow">›</div>
+    </div>
+  </div>
+  <div id="estadisticas" class="panel" style="display:none; margin-top:10px;">
+    <div class="panel-header"><strong>Estadísticas</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-body">
+      <div class="stats-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-grupo',event)">Grupo</button>
+        <button class="tab-btn" onclick="switchTab('tab-alumno',event)">Por alumno</button>
+      </div>
+      <div id="tab-grupo"><div class="resumen">📸 Mandá la foto del listado de notas a Claude y las cargo automáticamente.</div></div>
+      <div id="tab-alumno" style="display:none;"><div class="resumen">📸 Las estadísticas individuales se generan cuando Claude carga las notas del listado.</div></div>
+    </div>
+  </div>
+
   <div class="section-title">Asistencia</div>
   <div class="card-grid two-col">
-
     <a class="card" href="https://drive.google.com/drive/folders/1uMswr06jqXieJBvaATPr-_6Ie3XYP2Ru" target="_blank">
       <div class="card-icon ic-red">📷</div>
-      <div class="card-body"><strong>Registros mensuales</strong><span>Fotos del registro</span></div>
+      <div class="card-body"><strong>Registros</strong><span>Fotos mensuales</span></div>
     </a>
-
     <a class="card" href="https://drive.google.com/drive/folders/1ezFmCVQ1QH9NampY6FCQl_NDW_JS_yM2" target="_blank">
       <div class="card-icon ic-red">📊</div>
       <div class="card-body"><strong>Informes</strong><span>Estadísticas y alertas</span></div>
     </a>
-
-    <a class="card" href="https://docs.google.com/document/d/1bHLn_iKHW9BIVlSOXrKJk-M9a_6sZh5TnSd5XC6J7uw" target="_blank">
+    <a class="card" href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank">
       <div class="card-icon ic-orange">📋</div>
       <div class="card-body"><strong>Criterios</strong><span>Tipos y alertas</span></div>
     </a>
-
   </div>
 
   <div class="section-title">Documentos curriculares</div>
   <div class="card-grid two-col">
-
     <a class="card" href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank">
       <div class="card-icon ic-blue">📚</div>
-      <div class="card-body">
-        <strong>Teóricos</strong>
-        <span>DC PBA y otros</span>
-      </div>
+      <div class="card-body"><strong>Teóricos</strong><span>DC PBA y otros</span></div>
     </a>
-
     <a class="card" href="https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank">
       <div class="card-icon ic-orange">✏️</div>
-      <div class="card-body">
-        <strong>Material docente</strong>
-        <span>Mat, CN, Lengua</span>
-      </div>
+      <div class="card-body"><strong>Material docente</strong><span>Mat, CN, Lengua</span></div>
     </a>
-
   </div>
 
-  <!-- ALUMNOS -->
-  <div class="section-title">Perfiles individuales</div>
-  <div class="alumnos-grid">
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe" target="_blank">
-      <div class="alumno-initial">ZA</div>
-      <div class="alumno-name">Aguirre, Ziomara</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH" target="_blank">
-      <div class="alumno-initial">BF</div>
-      <div class="alumno-name">Barrera, Felipe</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7" target="_blank">
-      <div class="alumno-initial">BJ</div>
-      <div class="alumno-name">Barrera, Joaquín</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-" target="_blank">
-      <div class="alumno-initial">BR</div>
-      <div class="alumno-name">Bravo, Álvaro</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm" target="_blank">
-      <div class="alumno-initial">CT</div>
-      <div class="alumno-name">Carbonel, Tiziano</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k" target="_blank">
-      <div class="alumno-initial">CT</div>
-      <div class="alumno-name">Cuello, Thomas</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC" target="_blank">
-      <div class="alumno-initial">DM</div>
-      <div class="alumno-name">Diaz, Monserrat</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm" target="_blank">
-      <div class="alumno-initial">ES</div>
-      <div class="alumno-name">Espindola, Sofía</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p" target="_blank">
-      <div class="alumno-initial">GC</div>
-      <div class="alumno-name">Gamon, Ciro</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw" target="_blank">
-      <div class="alumno-initial">GM</div>
-      <div class="alumno-name">Garcia, Milton</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le" target="_blank">
-      <div class="alumno-initial">GK</div>
-      <div class="alumno-name">Godoy, Katia</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4" target="_blank">
-      <div class="alumno-initial">MM</div>
-      <div class="alumno-name">Monteros Cruz, Máximo</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g" target="_blank">
-      <div class="alumno-initial">NN</div>
-      <div class="alumno-name">Nievas, Nicolás</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt" target="_blank">
-      <div class="alumno-initial">SA</div>
-      <div class="alumno-name">Santa Cruz, Alma</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh" target="_blank">
-      <div class="alumno-initial">SB</div>
-      <div class="alumno-name">Sosa Muñoz, Benjamín</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru" target="_blank">
-      <div class="alumno-initial">TA</div>
-      <div class="alumno-name">Tabares, Andrés</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI" target="_blank">
-      <div class="alumno-initial">TS</div>
-      <div class="alumno-name">Tablada, Santino</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ" target="_blank">
-      <div class="alumno-initial">TD</div>
-      <div class="alumno-name">Tagliabue, Delfina</div>
-    </a>
-
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1FvEFURvb15x1QN1weDUmZHiF10n3rbsO" target="_blank">
-      <div class="alumno-initial">VB</div>
-      <div class="alumno-name">Villalba, Benjamín</div>
-    </a>
-
-  </div>
-
-</main>
-
-
-  <!-- RESERVORIO DE PROMPTS -->
   <div class="section-title">Reservorio de Prompts</div>
   <div class="card-grid">
     <div class="card" onclick="togglePrompts()" style="cursor:pointer;">
@@ -518,617 +202,575 @@
   </div>
   <div id="prompts-sec" style="display:none; margin-top:8px;">
     <div class="prompt-card" id="p1">
-      <div class="prompt-header" onclick="togglePrompt('p1')">
-        <div class="prompt-num">1</div>
-        <div class="prompt-title">Bosquejo general de la secuencia</div>
-        <div class="prompt-toggle" id="tog-p1">+</div>
-      </div>
-      <div class="prompt-body" id="body-p1" style="display:none;">
-        <p id="txt-p1">Actuá como asistente pedagógico experto en el diseño de secuencias didácticas para el nivel PRIMARIO de PBA. A partir de la información que te adjunto [DISEÑO CURRICULAR, PLANIFICACIÓN ANUAL], elaborá un bosquejo general de una secuencia didáctica enmarcada en la asignatura [COMPLETAR], de [AÑO], para abordar los siguientes contenidos: [COMPLETAR]. Los objetivos son: [COMPLETAR]. La secuencia debe contemplar un momento inicial, de desarrollo y de cierre, distribuidos en [XX CLASES], con un tiempo estimado de [COMPLETAR]. Incluí una breve fundamentación. El producto final debe presentarse como un esquema general. No desarrolles aún las actividades en detalle.</p>
-        <button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button>
-      </div>
+      <div class="prompt-header" onclick="togglePrompt('p1')"><div class="prompt-num">1</div><div class="prompt-title">Bosquejo general</div><div class="prompt-toggle" id="tog-p1">+</div></div>
+      <div class="prompt-body" id="body-p1" style="display:none;"><p id="txt-p1">Actuá como asistente pedagógico experto en diseño de secuencias didácticas para nivel PRIMARIO de PBA. A partir del diseño curricular, elaborá un bosquejo general de una secuencia en [ÁREA], [AÑO], sobre [CONTENIDOS]. Objetivos: [COMPLETAR]. Contemplar inicio, desarrollo y cierre en [XX CLASES]. Incluí fundamentación breve. Presentar como esquema general, sin desarrollar actividades en detalle.</p><button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button></div>
     </div>
     <div class="prompt-card" id="p2">
-      <div class="prompt-header" onclick="togglePrompt('p2')">
-        <div class="prompt-num">2</div>
-        <div class="prompt-title">Desarrollo de actividades</div>
-        <div class="prompt-toggle" id="tog-p2">+</div>
-      </div>
-      <div class="prompt-body" id="body-p2" style="display:none;">
-        <p id="txt-p2">A partir del bosquejo general ya elaborado, desarrollá [CANTIDAD] actividades de aprendizaje distribuidas en apertura, desarrollo y cierre. Las actividades deben orientarse a los objetivos y poner en juego las siguientes acciones cognitivas: [INTERPRETAR/ANALIZAR/RESOLVER/REFLEXIONAR]. Contemplar agrupamientos [INDIVIDUALES/PEQUEÑOS GRUPOS], espacio [AULA], duración aproximada [XX MINUTOS] cada una. Para cada actividad incluí: título, objetivo específico, descripción del procedimiento y tipo de producción esperada. No redactes aún las consignas detalladas.</p>
-        <button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button>
-      </div>
+      <div class="prompt-header" onclick="togglePrompt('p2')"><div class="prompt-num">2</div><div class="prompt-title">Desarrollo de actividades</div><div class="prompt-toggle" id="tog-p2">+</div></div>
+      <div class="prompt-body" id="body-p2" style="display:none;"><p id="txt-p2">A partir del bosquejo, desarrollá [CANTIDAD] actividades distribuidas en apertura, desarrollo y cierre. Orientadas a: [INTERPRETAR/ANALIZAR/RESOLVER/REFLEXIONAR]. Agrupamientos: [INDIVIDUAL/GRUPOS]. Duración: [XX MIN] cada una. Para cada actividad: título, objetivo, procedimiento y producción esperada. Sin consignas detalladas aún.</p><button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button></div>
     </div>
     <div class="prompt-card" id="p3">
-      <div class="prompt-header" onclick="togglePrompt('p3')">
-        <div class="prompt-num">3</div>
-        <div class="prompt-title">Formulación de consignas</div>
-        <div class="prompt-toggle" id="tog-p3">+</div>
-      </div>
-      <div class="prompt-body" id="body-p3" style="display:none;">
-        <p id="txt-p3">Sobre la base de las actividades ya definidas, diseñá las consignas de trabajo correspondientes a cada una. Las consignas deben explicitar qué se espera que hagan los estudiantes, con qué propósito, mediante qué procedimiento, y qué producto se espera. Prestá especial atención al lenguaje adecuado al nivel primario, verbos precisos y evitación de ambigüedades. No modifiques la secuenciación ni los criterios de evaluación definidos.</p>
-        <button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button>
-      </div>
+      <div class="prompt-header" onclick="togglePrompt('p3')"><div class="prompt-num">3</div><div class="prompt-title">Formulación de consignas</div><div class="prompt-toggle" id="tog-p3">+</div></div>
+      <div class="prompt-body" id="body-p3" style="display:none;"><p id="txt-p3">Sobre las actividades definidas, diseñá las consignas de trabajo. Deben explicitar qué hacer, con qué propósito, mediante qué procedimiento y qué producto se espera. Lenguaje adecuado al nivel primario, verbos precisos, sin ambigüedades.</p><button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button></div>
     </div>
     <div class="prompt-card" id="p4">
-      <div class="prompt-header" onclick="togglePrompt('p4')">
-        <div class="prompt-num">4</div>
-        <div class="prompt-title">Documento final integrado</div>
-        <div class="prompt-toggle" id="tog-p4">+</div>
-      </div>
-      <div class="prompt-body" id="body-p4" style="display:none;">
-        <p id="txt-p4">A partir de todo el trabajo desarrollado (bosquejo, actividades y consignas), elaborá un documento final integrado de la secuencia didáctica. Debe incluir: encabezado con datos institucionales, fundamentación pedagógica, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos. El documento debe ser claro, profesional y funcional para su implementación en el aula.</p>
-        <button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button>
-      </div>
+      <div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-toggle" id="tog-p4">+</div></div>
+      <div class="prompt-body" id="body-p4" style="display:none;"><p id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos. Claro, profesional y funcional para implementar en el aula.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div>
     </div>
   </div>
 
+  <div class="section-title">Perfiles individuales</div>
+  <div class="alumnos-grid">
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe" target="_blank"><div class="alumno-initial">ZA</div><div class="alumno-name">Aguirre, Ziomara</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH" target="_blank"><div class="alumno-initial">BF</div><div class="alumno-name">Barrera, Felipe</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7" target="_blank"><div class="alumno-initial">BJ</div><div class="alumno-name">Barrera, Joaquín</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-" target="_blank"><div class="alumno-initial">BR</div><div class="alumno-name">Bravo, Álvaro</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm" target="_blank"><div class="alumno-initial">CT</div><div class="alumno-name">Carbonel, Tiziano</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k" target="_blank"><div class="alumno-initial">CT</div><div class="alumno-name">Cuello, Thomas</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC" target="_blank"><div class="alumno-initial">DM</div><div class="alumno-name">Diaz, Monserrat</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm" target="_blank"><div class="alumno-initial">ES</div><div class="alumno-name">Espindola, Sofía</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p" target="_blank"><div class="alumno-initial">GC</div><div class="alumno-name">Gamon, Ciro</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw" target="_blank"><div class="alumno-initial">GM</div><div class="alumno-name">Garcia, Milton</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le" target="_blank"><div class="alumno-initial">GK</div><div class="alumno-name">Godoy, Katia</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4" target="_blank"><div class="alumno-initial">MM</div><div class="alumno-name">Monteros Cruz, Máximo</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g" target="_blank"><div class="alumno-initial">NN</div><div class="alumno-name">Nievas, Nicolás</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt" target="_blank"><div class="alumno-initial">SA</div><div class="alumno-name">Santa Cruz, Alma</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh" target="_blank"><div class="alumno-initial">SB</div><div class="alumno-name">Sosa Muñoz, Benjamín</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru" target="_blank"><div class="alumno-initial">TA</div><div class="alumno-name">Tabares, Andrés</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI" target="_blank"><div class="alumno-initial">TS</div><div class="alumno-name">Tablada, Santino</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ" target="_blank"><div class="alumno-initial">TD</div><div class="alumno-name">Tagliabue, Delfina</div></a>
+    <a class="alumno-card" href="https://drive.google.com/drive/folders/1FvEFURvb15x1QN1weDUmZHiF10n3rbsO" target="_blank"><div class="alumno-initial">VB</div><div class="alumno-name">Villalba, Benjamín</div></a>
+  </div>
 
-
-  <!-- NOTAS Y ESTADÍSTICAS -->
-  <div class="section-title">Notas y Estadísticas</div>
-
-  <div class="card-grid two-col">
-    <div class="card" onclick="showSection('notas-carga')" style="cursor:pointer;">
-      <div class="card-icon ic-blue">📊</div>
-      <div class="card-body"><strong>Cargar Notas</strong><span>Por alumno y área</span></div>
+  <div style="margin-top:16px;">
+    <a class="card" href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" style="opacity:0.75;">
+      <div class="card-icon ic-blue">📁</div>
+      <div class="card-body"><strong>Carpeta completa 6to Grado</strong><span>Ver todo en Drive</span></div>
       <div class="card-arrow">›</div>
+    </a>
+  </div>
+</main>
+
+<!-- MODAL CLAUDE -->
+<div id="modal-claude" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:20px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:40px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">🤖 Consultar a Claude</strong>
+      <button onclick="cerrarClaude()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
     </div>
-    <div class="card" onclick="showSection('estadisticas')" style="cursor:pointer;">
-      <div class="card-icon ic-purple">📈</div>
-      <div class="card-body"><strong>Estadísticas</strong><span>Grupo e individual</span></div>
-      <div class="card-arrow">›</div>
+    <p style="font-size:13px;color:#666;margin-bottom:12px;">Copiá este prompt y pegalo al inicio de una nueva conversación con Claude:</p>
+    <div id="prompt-claude-text" style="background:#F5F2EE;border-radius:10px;padding:14px;font-size:12px;color:#2D3A35;line-height:1.6;margin-bottom:12px;border:1px solid #E0D8D0;">Soy docente de 6to grado de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
+
+19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
+
+Atención diferenciada: Gamon Ciro (TDL + IDN 74 Bajo — consignas visuales, menos ejercicios, más tiempo), Nievas Nicolás (dificultad lectoescritura y estrategia de estimación), Godoy Katia (dificultad lectoescritura y matemática, ausentismo).
+
+DC PBA. Áreas: Matemática, Prácticas del Lenguaje, Cs. Naturales, Cs. Sociales, Inglés, Ed. Física, Ed. Artística. Aprobado con 7.
+
+App: https://huellaed.github.io/HuellaEd/</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="copiarPromptClaude()" style="flex:1;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copiar prompt</button>
+      <a href="https://claude.ai" target="_blank" style="flex:1;background:#C8845A;color:#fff;border-radius:10px;padding:12px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude.ai →</a>
+    </div>
+    <div id="claude-copy-msg" style="text-align:center;font-size:12px;color:#2D5F4F;margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- MODAL GENERADOR -->
+<div id="modal-generador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:20px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">✨ Generar Material</strong>
+      <button onclick="cerrarGenerador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="form-row">
+      <label>¿Qué querés generar?</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+        <div class="tipo-btn" onclick="selTipo(this,'cuadernillo')">📓 Cuadernillo</div>
+        <div class="tipo-btn" onclick="selTipo(this,'ficha')">📄 Ficha de trabajo</div>
+        <div class="tipo-btn" onclick="selTipo(this,'planificacion')">📋 Planificación</div>
+        <div class="tipo-btn" onclick="selTipo(this,'evaluacion')">📝 Evaluación</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Área</label>
+      <select id="gen-area">
+        <option value="">— Seleccionar —</option>
+        <option>Matemática</option><option>Prácticas del Lenguaje</option>
+        <option>Ciencias Naturales</option><option>Ciencias Sociales</option>
+        <option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Tema específico</label>
+      <input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo...">
+    </div>
+    <div class="form-row">
+      <label>¿Para quién?</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+        <div class="dest-btn active" onclick="selDest(this,'grupo')">👥 Todo el grupo</div>
+        <div class="dest-btn" onclick="selDest(this,'adaptada')">🎯 Versión adaptada</div>
+      </div>
+    </div>
+    <div class="form-row" id="gen-alumno-row" style="display:none;">
+      <label>Alumno con adaptación</label>
+      <select id="gen-alumno">
+        <option value="">— Seleccionar —</option>
+        <option>Gamon, Ciro (TDL + IDN bajo)</option>
+        <option>Nievas, Nicolás (lectoescritura y división)</option>
+        <option>Godoy, Katia (lectoescritura y matemática)</option>
+        <option>Carbonel, Tiziano (lectoescritura)</option>
+        <option>Otro alumno</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Detalles adicionales (opcional)</label>
+      <textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, con espacio para procedimiento..." style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:70px;resize:none;box-sizing:border-box;"></textarea>
+    </div>
+    <button onclick="generarPrompt()" style="width:100%;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;">✨ Armar prompt</button>
+    <div id="gen-resultado" style="display:none;">
+      <div style="font-size:12px;font-weight:600;color:#8A7E6A;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Prompt generado</div>
+      <div id="gen-prompt-text" style="background:#F5F2EE;border-radius:10px;padding:14px;font-size:12px;color:#2D3A35;line-height:1.6;margin-bottom:10px;border:1px solid #E0D8D0;"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="copiarPromptGen()" style="flex:1;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copiar</button>
+        <a href="https://claude.ai" target="_blank" style="flex:1;background:#C8845A;color:#fff;border-radius:10px;padding:11px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a>
+      </div>
+      <div id="gen-copy-msg" style="text-align:center;font-size:12px;color:#2D5F4F;margin-top:6px;"></div>
     </div>
   </div>
+</div>
 
-  <!-- PANEL CARGAR NOTAS -->
-  <div id="notas-carga" class="panel" style="display:none; margin-top:12px;">
-    <div class="panel-header">
-      <strong>Cargar Notas</strong>
-      <button class="close-btn" onclick="showSection(null)">✕</button>
+<!-- MODAL GRABADOR -->
+<div id="modal-grabador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:16px;box-sizing:border-box;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:500px;margin:40px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">🎙️ Grabar Lectura</strong>
+      <button onclick="cerrarGrabador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
     </div>
-    <div class="panel-body">
-      <div class="form-row">
-        <label>Alumno</label>
-        <select id="nota-alumno">
-          <option value="">— Seleccionar —</option>
-          <option>Aguirre, Ziomara</option>
-          <option>Barrera, Felipe</option>
-          <option>Barrera, Joaquín</option>
-          <option>Bravo, Álvaro</option>
-          <option>Carbonel, Tiziano</option>
-          <option>Cuello, Thomas</option>
-          <option>Diaz, Monserrat</option>
-          <option>Espindola, Sofía</option>
-          <option>Gamon, Ciro</option>
-          <option>Garcia, Milton</option>
-          <option>Godoy, Katia</option>
-          <option>Monteros Cruz, Máximo</option>
-          <option>Nievas, Nicolás</option>
-          <option>Santa Cruz, Alma</option>
-          <option>Sosa Muñoz, Benjamín</option>
-          <option>Tabares, Andrés</option>
-          <option>Tablada, Santino</option>
-          <option>Tagliabue, Delfina</option>
-          <option>Villalba, Benjamín</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label>Trimestre</label>
-        <select id="nota-trimestre">
-          <option value="1">1er Trimestre</option>
-          <option value="2">2do Trimestre</option>
-          <option value="3">3er Trimestre</option>
-        </select>
-      </div>
-      <div class="notas-grid">
-        <div class="nota-item"><label>Matemática</label><input type="number" id="n-mat" min="1" max="10" placeholder="—"></div>
-        <div class="nota-item"><label>Prácticas del Lenguaje</label><input type="number" id="n-len" min="1" max="10" placeholder="—"></div>
-        <div class="nota-item"><label>Ciencias Naturales</label><input type="number" id="n-cn" min="1" max="10" placeholder="—"></div>
-        <div class="nota-item"><label>Ciencias Sociales</label><input type="number" id="n-cs" min="1" max="10" placeholder="—"></div>
-        <div class="nota-item"><label>Inglés</label><input type="number" id="n-ing" min="1" max="10" placeholder="—"></div>
-        <div class="nota-item"><label>Ed. Física</label><input type="number" id="n-ef" min="1" max="10" placeholder="—"></div>
-        <div class="nota-item"><label>Ed. Artística</label><input type="number" id="n-art" min="1" max="10" placeholder="—"></div>
-      </div>
-      <button class="save-btn" onclick="guardarNota()">💾 Guardar</button>
-      <div id="nota-msg" style="margin-top:8px; font-size:13px; color:#2D5F4F;"></div>
+    <div class="form-row">
+      <label>Alumno</label>
+      <select id="grab-alumno">
+        <option value="">— Seleccionar —</option>
+        <option>Aguirre_Ziomara</option><option>Barrera_Felipe</option><option>Barrera_Joaquin</option>
+        <option>Bravo_Alvaro</option><option>Carbonel_Tiziano</option><option>Cuello_Thomas</option>
+        <option>Diaz_Monserrat</option><option>Espindola_Sofia</option><option>Gamon_Ciro</option>
+        <option>Garcia_Milton</option><option>Godoy_Katia</option><option>Monteros_Maximo</option>
+        <option>Nievas_Nicolas</option><option>Santa_Cruz_Alma</option><option>Sosa_Munoz_Benjamin</option>
+        <option>Tabares_Andres</option><option>Tablada_Santino</option><option>Tagliabue_Delfina</option>
+        <option>Villalba_Benjamin</option>
+      </select>
+    </div>
+    <div style="text-align:center;margin:20px 0;">
+      <div id="grab-status" style="font-size:13px;color:#8A7E6A;margin-bottom:12px;">Seleccioná el alumno y tocá Grabar</div>
+      <div id="grab-timer" style="font-size:32px;font-weight:700;color:#2D5F4F;margin-bottom:16px;display:none;">00:00</div>
+      <button id="grab-btn" onclick="toggleGrabacion()" style="width:80px;height:80px;border-radius:50%;background:#C8845A;border:none;font-size:32px;cursor:pointer;color:#fff;box-shadow:0 4px 12px rgba(200,132,90,0.4);">🎙️</button>
+      <div style="margin-top:8px;font-size:12px;color:#8A7E6A;" id="grab-hint">Tocá para grabar</div>
+    </div>
+    <div id="grab-resultado" style="display:none;text-align:center;">
+      <div style="font-size:13px;color:#2D5F4F;margin-bottom:8px;">✅ Grabación lista</div>
+      <audio id="grab-audio" controls style="width:100%;margin-bottom:12px;"></audio>
+      <button onclick="descargarAudio()" style="width:100%;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">⬇️ Descargar — luego subir al Drive del alumno</button>
+      <div style="font-size:11px;color:#8A7E6A;margin-top:6px;" id="grab-filename"></div>
     </div>
   </div>
+</div>
 
-  <!-- PANEL ESTADÍSTICAS -->
-  <div id="estadisticas" class="panel" style="display:none; margin-top:12px;">
-    <div class="panel-header">
-      <strong>Estadísticas</strong>
-      <button class="close-btn" onclick="showSection(null)">✕</button>
+<!-- MODAL REUNION FAMILIAR -->
+<div id="modal-reunion" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:20px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">👨‍👩‍👧 Registrar Reunión Familiar</strong>
+      <button onclick="cerrarReunion()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
     </div>
-    <div class="panel-body">
-      <div class="stats-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-grupo')">Grupo</button>
-        <button class="tab-btn" onclick="switchTab('tab-alumno')">Por alumno</button>
-      </div>
 
-      <!-- TAB GRUPO -->
-      <div id="tab-grupo" class="tab-content">
-        <div class="form-row">
-          <label>Trimestre</label>
-          <select id="stat-trimestre" onchange="renderGrupo()">
-            <option value="1">1er Trimestre</option>
-            <option value="2">2do Trimestre</option>
-            <option value="3">3er Trimestre</option>
-          </select>
-        </div>
-        <div id="grupo-stats"></div>
-        <canvas id="chart-grupo" width="300" height="300" style="max-width:100%; margin-top:12px;"></canvas>
-      </div>
-
-      <!-- TAB ALUMNO -->
-      <div id="tab-alumno" class="tab-content" style="display:none;">
-        <div class="form-row">
-          <label>Alumno</label>
-          <select id="stat-alumno" onchange="renderAlumno()">
-            <option value="">— Seleccionar —</option>
-            <option>Aguirre, Ziomara</option>
-            <option>Barrera, Felipe</option>
-            <option>Barrera, Joaquín</option>
-            <option>Bravo, Álvaro</option>
-            <option>Carbonel, Tiziano</option>
-            <option>Cuello, Thomas</option>
-            <option>Diaz, Monserrat</option>
-            <option>Espindola, Sofía</option>
-            <option>Gamon, Ciro</option>
-            <option>Garcia, Milton</option>
-            <option>Godoy, Katia</option>
-            <option>Monteros Cruz, Máximo</option>
-            <option>Nievas, Nicolás</option>
-            <option>Santa Cruz, Alma</option>
-            <option>Sosa Muñoz, Benjamín</option>
-            <option>Tabares, Andrés</option>
-            <option>Tablada, Santino</option>
-            <option>Tagliabue, Delfina</option>
-            <option>Villalba, Benjamín</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>Trimestre</label>
-          <select id="stat-trimestre-alumno" onchange="renderAlumno()">
-            <option value="1">1er Trimestre</option>
-            <option value="2">2do Trimestre</option>
-            <option value="3">3er Trimestre</option>
-          </select>
-        </div>
-        <div id="alumno-stats"></div>
-        <canvas id="chart-alumno" width="300" height="300" style="max-width:100%; margin-top:12px;"></canvas>
+    <div class="form-row">
+      <label>Tipo de reunión</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+        <div class="tipo-btn active" onclick="selTipoReunion(this,'individual')" id="tr-ind">👤 Individual</div>
+        <div class="tipo-btn" onclick="selTipoReunion(this,'grupal')" id="tr-grp">👥 Grupal</div>
       </div>
     </div>
-  </div>
 
+    <div id="reunion-alumno-row" class="form-row">
+      <label>Alumno</label>
+      <select id="reunion-alumno">
+        <option value="">— Seleccionar —</option>
+        <option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option>
+        <option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option>
+        <option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option>
+        <option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option>
+        <option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option>
+        <option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option>
+        <option>Villalba, Benjamín</option>
+      </select>
+    </div>
 
-  <!-- MODAL CLAUDE -->
-  <div id="modal-claude" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; padding:20px; box-sizing:border-box;">
-    <div style="background:#fff; border-radius:16px; padding:20px; max-width:600px; margin:40px auto; max-height:85vh; overflow-y:auto;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <strong style="font-size:16px; color:#2D5F4F;">🤖 Consultar a Claude</strong>
-        <button onclick="cerrarClaude()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✕</button>
+    <div class="form-row">
+      <label>Fecha</label>
+      <input type="date" id="reunion-fecha" style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;">
+    </div>
+
+    <div class="form-row">
+      <label>Motivo</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+        <div class="tipo-btn" onclick="selMotivo(this,'academico')">📊 Académico</div>
+        <div class="tipo-btn" onclick="selMotivo(this,'conductual')">⚠️ Conductual</div>
+        <div class="tipo-btn" onclick="selMotivo(this,'familiar')">🏠 Familiar</div>
+        <div class="tipo-btn" onclick="selMotivo(this,'pedido')">📞 A pedido de la familia</div>
+        <div class="tipo-btn" onclick="selMotivo(this,'inicio')">🗓️ Inicio de año</div>
+        <div class="tipo-btn" onclick="selMotivo(this,'fin')">🎓 Fin de año</div>
       </div>
-      <p style="font-size:13px; color:#666; margin-bottom:12px;">Copiá este prompt y pegalo al inicio de una nueva conversación con Claude para que tenga todo el contexto de HuellaED:</p>
-      <div id="prompt-claude-text" style="background:#F5F2EE; border-radius:10px; padding:14px; font-size:12px; color:#2D3A35; line-height:1.6; margin-bottom:12px; border:1px solid #E0D8D0;">Soy docente de 6to grado de la Escuela La Concepción (provincia de Buenos Aires). Trabajo con un sistema pedagógico llamado HuellaED que creé junto a Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
+    </div>
 
-Tengo 19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
+    <div class="form-row">
+      <label>¿Quién asistió?</label>
+      <input type="text" id="reunion-asistentes" placeholder="Ej: madre, padre, abuela...">
+    </div>
 
-Alumnos con atención diferenciada prioritaria:
-- Gamon Ciro: Trastorno del Desarrollo del Lenguaje comprensivo-expresivo + IDN 74 (Bajo). Necesita consignas visuales, menos cantidad de ejercicios y más tiempo.
-- Nievas Nicolás: dificultades en comprensión lectora, escritura y estrategia de estimación en división.
-- Godoy Katia: dificultades en lectoescritura y matemática, asistencia intermitente.
+    <div class="form-row">
+      <label>Resumen de lo hablado</label>
+      <textarea id="reunion-resumen" placeholder="¿Qué se trató en la reunión?" style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:80px;resize:none;box-sizing:border-box;"></textarea>
+    </div>
 
-Trabajo con el Diseño Curricular de PBA. Las áreas son: Matemática, Prácticas del Lenguaje, Ciencias Naturales, Ciencias Sociales, Inglés, Ed. Física y Ed. Artística. Calificaciones del 1 al 10, aprobado con 7.
+    <div class="form-row">
+      <label>Compromisos acordados</label>
+      <textarea id="reunion-compromisos" placeholder="¿Qué se comprometió cada parte? (familia y escuela)" style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:70px;resize:none;box-sizing:border-box;"></textarea>
+    </div>
 
-Todo el material está organizado en Google Drive. La app HuellaED está en https://huellaed.github.io/HuellaEd/
-
-¿En qué me podés ayudar hoy?</div>
-      <div style="display:flex; gap:8px;">
-        <button onclick="copiarPromptClaude()" style="flex:1; background:#2D5F4F; color:#fff; border:none; border-radius:10px; padding:12px; font-size:14px; font-weight:600; cursor:pointer;">📋 Copiar prompt</button>
-        <a href="https://claude.ai" target="_blank" style="flex:1; background:#C8845A; color:#fff; border:none; border-radius:10px; padding:12px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center;">Abrir Claude.ai →</a>
+    <div class="form-row">
+      <label>Seguimiento</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;">
+        <div class="tipo-btn" onclick="selSeguimiento(this,'pendiente')">⏳ Pendiente</div>
+        <div class="tipo-btn" onclick="selSeguimiento(this,'cumplido')">✅ Cumplido</div>
+        <div class="tipo-btn" onclick="selSeguimiento(this,'incumplido')">❌ No cumplido</div>
       </div>
-      <div id="claude-copy-msg" style="text-align:center; font-size:12px; color:#2D5F4F; margin-top:8px;"></div>
+    </div>
+
+    <button onclick="generarPromptReunion()" style="width:100%;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;margin-top:8px;">📋 Generar registro</button>
+
+    <div id="reunion-resultado" style="display:none;">
+      <div style="font-size:12px;font-weight:600;color:#8A7E6A;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Prompt para Claude</div>
+      <div id="reunion-prompt-text" style="background:#F5F2EE;border-radius:10px;padding:14px;font-size:12px;color:#2D3A35;line-height:1.6;margin-bottom:10px;border:1px solid #E0D8D0;"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="copiarPromptReunion()" style="flex:1;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copiar</button>
+        <a href="https://claude.ai" target="_blank" style="flex:1;background:#C8845A;color:#fff;border-radius:10px;padding:11px;font-size:14px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a>
+      </div>
+      <div id="reunion-copy-msg" style="text-align:center;font-size:12px;color:#2D5F4F;margin-top:6px;"></div>
     </div>
   </div>
+</div>
 
-  <!-- MODAL GENERAR MATERIAL -->
-  <div id="modal-generador" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; padding:16px; box-sizing:border-box; overflow-y:auto;">
-    <div style="background:#fff; border-radius:16px; padding:20px; max-width:600px; margin:20px auto;">
-      
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <strong style="font-size:16px; color:#2D5F4F;">✨ Generar Material</strong>
-        <button onclick="cerrarGenerador()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#888;">✕</button>
+<!-- MODAL NOTA RAPIDA -->
+<div id="modal-nota" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:40px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">🗒️ Nota Rápida</strong>
+      <button onclick="cerrarNota()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+
+    <div class="form-row">
+      <label>Destino</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;">
+        <div class="tipo-btn active" onclick="selDestinoNota(this,'agenda')" id="nd-agenda">📋 Agenda</div>
+        <div class="tipo-btn" onclick="selDestinoNota(this,'alumno')" id="nd-alumno">👤 Perfil alumno</div>
       </div>
+    </div>
 
-      <!-- Tipo de material -->
-      <div class="form-row">
-        <label>¿Qué querés generar?</label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
-          <div class="tipo-btn" onclick="selTipo(this,'cuadernillo')" data-tipo="cuadernillo">📓 Cuadernillo</div>
-          <div class="tipo-btn" onclick="selTipo(this,'ficha')" data-tipo="ficha">📄 Ficha de trabajo</div>
-          <div class="tipo-btn" onclick="selTipo(this,'planificacion')" data-tipo="planificacion">📋 Planificación</div>
-          <div class="tipo-btn" onclick="selTipo(this,'evaluacion')" data-tipo="evaluacion">📝 Evaluación</div>
-        </div>
-      </div>
+    <div class="form-row" id="nota-alumno-row" style="display:none;">
+      <label>Alumno</label>
+      <select id="nota-alumno">
+        <option value="">— Seleccionar —</option>
+        <option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option>
+        <option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option>
+        <option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option>
+        <option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option>
+        <option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option>
+        <option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option>
+        <option>Villalba, Benjamín</option>
+      </select>
+    </div>
 
-      <!-- Área -->
-      <div class="form-row">
-        <label>Área</label>
-        <select id="gen-area">
-          <option value="">— Seleccionar —</option>
-          <option>Matemática</option>
-          <option>Prácticas del Lenguaje</option>
-          <option>Ciencias Naturales</option>
-          <option>Ciencias Sociales</option>
-          <option>Inglés</option>
-          <option>Ed. Física</option>
-          <option>Ed. Artística</option>
-        </select>
-      </div>
+    <div class="form-row">
+      <label>Nota</label>
+      <textarea id="nota-texto" placeholder="Escribí lo que querés registrar..." style="width:100%;padding:12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:15px;background:#FAFAF8;height:160px;resize:none;box-sizing:border-box;"></textarea>
+    </div>
 
-      <!-- Contenido -->
-      <div class="form-row">
-        <label>Tema o contenido específico</label>
-        <input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo..." style="width:100%; padding:10px 12px; border:1.5px solid #E0D8D0; border-radius:10px; font-size:14px; background:#FAFAF8; box-sizing:border-box;">
-      </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="guardarNotaLocal()" style="flex:1;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">💾 Guardar nota</button>
+      <button onclick="generarPromptNota()" style="flex:1;background:#C8845A;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">📋 Generar prompt para Claude</button>
+    </div>
+    <div id="nota-save-msg" style="text-align:center;font-size:12px;color:#2D5F4F;margin-top:8px;"></div>
 
-      <!-- Para quién -->
-      <div class="form-row">
-        <label>¿Para quién?</label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px;">
-          <div class="dest-btn active" onclick="selDest(this,'grupo')" data-dest="grupo">👥 Todo el grupo</div>
-          <div class="dest-btn" onclick="selDest(this,'adaptada')" data-dest="adaptada">🎯 Versión adaptada</div>
-        </div>
-      </div>
+    <!-- Notas guardadas -->
+    <div id="notas-guardadas-container" style="margin-top:16px;display:none;">
+      <div style="font-size:11px;font-weight:600;color:#8A7E6A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Notas guardadas</div>
+      <div id="notas-lista"></div>
+    </div>
 
-      <!-- Alumno específico (solo si adaptada) -->
-      <div class="form-row" id="gen-alumno-row" style="display:none;">
-        <label>Alumno/s con adaptación</label>
-        <select id="gen-alumno">
-          <option value="">— Seleccionar —</option>
-          <option>Gamon, Ciro (TDL + IDN bajo)</option>
-          <option>Nievas, Nicolás (dificultad lectoescritura y div.)</option>
-          <option>Godoy, Katia (dificultad lectoescritura y mat.)</option>
-          <option>Carbonel, Tiziano (dificultad lectoescritura)</option>
-          <option>Otro alumno</option>
-        </select>
-      </div>
-
-      <!-- Detalles adicionales -->
-      <div class="form-row">
-        <label>Detalles adicionales (opcional)</label>
-        <textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, con espacio para procedimiento..." style="width:100%; padding:10px 12px; border:1.5px solid #E0D8D0; border-radius:10px; font-size:14px; background:#FAFAF8; height:70px; resize:none; box-sizing:border-box;"></textarea>
-      </div>
-
-      <button onclick="generarPrompt()" style="width:100%; background:#2D5F4F; color:#fff; border:none; border-radius:10px; padding:12px; font-size:15px; font-weight:600; cursor:pointer; margin-bottom:12px;">✨ Armar prompt</button>
-
-      <!-- Resultado -->
-      <div id="gen-resultado" style="display:none;">
-        <div style="font-size:12px; font-weight:600; color:#8A7E6A; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Prompt generado</div>
-        <div id="gen-prompt-text" style="background:#F5F2EE; border-radius:10px; padding:14px; font-size:12px; color:#2D3A35; line-height:1.6; margin-bottom:10px; border:1px solid #E0D8D0;"></div>
-        <div style="display:flex; gap:8px;">
-          <button onclick="copiarPromptGen()" style="flex:1; background:#2D5F4F; color:#fff; border:none; border-radius:10px; padding:11px; font-size:14px; font-weight:600; cursor:pointer;">📋 Copiar</button>
-          <a href="https://claude.ai" target="_blank" style="flex:1; background:#C8845A; color:#fff; border:none; border-radius:10px; padding:11px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center;">Abrir Claude →</a>
-        </div>
-        <div id="gen-copy-msg" style="text-align:center; font-size:12px; color:#2D5F4F; margin-top:6px;"></div>
-      </div>
-
+    <!-- Prompt generado -->
+    <div id="nota-prompt-container" style="display:none;margin-top:12px;">
+      <div style="font-size:12px;font-weight:600;color:#8A7E6A;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Prompt para Claude</div>
+      <div id="nota-prompt-text" style="background:#F5F2EE;border-radius:10px;padding:14px;font-size:12px;color:#2D3A35;line-height:1.6;margin-bottom:10px;border:1px solid #E0D8D0;"></div>
+      <button onclick="copiarPromptNota()" style="width:100%;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">📋 Copiar prompt</button>
+      <div id="nota-prompt-msg" style="text-align:center;font-size:12px;color:#2D5F4F;margin-top:6px;"></div>
     </div>
   </div>
+</div>
 
-<footer>
-  HuellaED · cada alumno, su trayecto<br>
-  <a href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" style="font-size:10px; color:#B0A898; text-decoration:none;">📁 Ver carpeta 6to Grado en Drive</a>
-</footer>
-
+<footer>HuellaED · cada alumno, su trayecto</footer>
 
 <script>
-
-function toggleForm() {
-  var container = document.getElementById('form-container');
-  var arrow = document.getElementById('form-arrow');
-  if (container.style.display === 'none') {
-    container.style.display = 'block';
-    arrow.textContent = '⌄';
-  } else {
-    container.style.display = 'none';
-    arrow.textContent = '›';
+function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');if(c.style.display==='none'){c.style.display='block';a.textContent='⌄';}else{c.style.display='none';a.textContent='›';}}
+function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id)document.getElementById(id).style.display='block';}
+function switchTab(id,e){document.querySelectorAll('.tab-content,.tab-content~div[id^="tab"]').forEach(t=>t.style.display='none');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));var el=document.getElementById(id);if(el)el.style.display='block';if(e)e.target.classList.add('active');}
+function togglePrompts(){var s=document.getElementById('prompts-sec'),a=document.getElementById('arrow-sec');if(s.style.display==='none'){s.style.display='block';a.textContent='⌄';}else{s.style.display='none';a.textContent='›';}}
+function togglePrompt(id){var b=document.getElementById('body-'+id),t=document.getElementById('tog-'+id);if(b.style.display==='none'){b.style.display='block';t.textContent='−';}else{b.style.display='none';t.textContent='+';}}
+function copyText(id){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert('Prompt copiado'));}
+function abrirClaude(){document.getElementById('modal-claude').style.display='block';}
+function cerrarClaude(){document.getElementById('modal-claude').style.display='none';}
+function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementById('prompt-claude-text').innerText).then(()=>{document.getElementById('claude-copy-msg').textContent='✅ Copiado — pegalo en Claude.ai';setTimeout(()=>{document.getElementById('claude-copy-msg').textContent='';},3000);});}
+var tipoSel='',destSel='grupo';
+function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
+function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';}
+function selTipo(el,tipo){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=tipo;}
+function selDest(el,dest){document.querySelectorAll('.dest-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');destSel=dest;document.getElementById('gen-alumno-row').style.display=dest==='adaptada'?'block':'none';}
+function generarPrompt(){
+  var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,detalles=document.getElementById('gen-detalles').value,alumno=document.getElementById('gen-alumno').value;
+  if(!tipoSel){alert('Seleccioná el tipo');return;}if(!area){alert('Seleccioná el área');return;}if(!tema){alert('Escribí el tema');return;}
+  var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación'};
+  var dest='para todo el grupo (19 alumnos de 6to grado)',perfil='';
+  if(destSel==='adaptada'&&alumno){dest='en versión adaptada';if(alumno.includes('Ciro'))perfil='TDL comprensivo-expresivo e IDN 74 (Bajo). Necesita: consignas visuales, menos ejercicios, más espacio y tiempo.';else if(alumno.includes('Nicolás'))perfil='Dificultades en comprensión lectora, escritura y estrategia de estimación. Necesita recordatorio visual de pasos.';else if(alumno.includes('Katia'))perfil='Dificultades en lectoescritura y matemática. Necesita estructura clara y guiada.';else if(alumno.includes('Tiziano'))perfil='Dificultades en lectoescritura y timidez. Necesita consignas claras y apoyo visual.';}
+  var prompt='Soy docente de 6to grado de la Escuela La Concepción, Provincia de Buenos Aires. Diseño Curricular de PBA. 19 alumnos de nivel heterogéneo.\n\nNecesito que generes '+tipos[tipoSel]+' '+dest+' para '+area+', sobre: '+tema+'.';
+  if(perfil)prompt+='\n\nPerfil del alumno: '+perfil;
+  if(detalles)prompt+='\n\nDetalles: '+detalles;
+  if(tipoSel==='cuadernillo'||tipoSel==='ficha')prompt+='\n\nListo para imprimir en A4, con espacio para trabajar. Consignas claras para 6to primaria.';
+  if(destSel==='adaptada')prompt+='\n\nIncluí nota pedagógica explicando las adaptaciones.';
+  document.getElementById('gen-prompt-text').textContent=prompt;
+  document.getElementById('gen-resultado').style.display='block';
+  document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
+}
+function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(()=>{document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('gen-copy-msg').textContent='';},3000);});}
+var mediaRecorder=null,audioChunks=[],grabando=false,timerInterval=null,segundos=0,audioBlob=null;
+function abrirGrabador(){document.getElementById('modal-grabador').style.display='block';document.getElementById('grab-resultado').style.display='none';document.getElementById('grab-timer').style.display='none';document.getElementById('grab-btn').style.background='#C8845A';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-status').textContent='Seleccioná el alumno y tocá Grabar';segundos=0;}
+function cerrarGrabador(){if(grabando)toggleGrabacion();document.getElementById('modal-grabador').style.display='none';}
+function toggleGrabacion(){
+  var alumno=document.getElementById('grab-alumno').value;
+  if(!alumno&&!grabando){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno primero';return;}
+  if(!grabando){
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+      audioChunks=[];mediaRecorder=new MediaRecorder(stream);
+      mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+      mediaRecorder.onstop=()=>{audioBlob=new Blob(audioChunks,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(audioBlob);document.getElementById('grab-resultado').style.display='block';var fecha=new Date().toISOString().slice(0,10);document.getElementById('grab-filename').textContent='Lectura_'+alumno+'_'+fecha+'.webm';};
+      mediaRecorder.start();grabando=true;segundos=0;
+      document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';
+      document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';
+      document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';
+      timerInterval=setInterval(()=>{segundos++;document.getElementById('grab-timer').textContent=String(Math.floor(segundos/60)).padStart(2,'0')+':'+String(segundos%60).padStart(2,'0');},1000);
+    }).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});
+  }else{
+    mediaRecorder.stop();mediaRecorder.stream.getTracks().forEach(t=>t.stop());grabando=false;clearInterval(timerInterval);
+    document.getElementById('grab-btn').style.background='#C8845A';document.getElementById('grab-btn').textContent='🎙️';
+    document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Grabación completada';
   }
 }
+function descargarAudio(){var alumno=document.getElementById('grab-alumno').value,fecha=new Date().toISOString().slice(0,10),a=document.createElement('a');a.href=URL.createObjectURL(audioBlob);a.download='Lectura_'+alumno+'_'+fecha+'.webm';a.click();}
 
-function togglePrompts() {
-  var sec = document.getElementById('prompts-sec');
-  var arrow = document.getElementById('arrow-sec');
-  if (sec.style.display === 'none') { sec.style.display = 'block'; arrow.textContent = '⌄'; }
-  else { sec.style.display = 'none'; arrow.textContent = '›'; }
-}
-function togglePrompt(id) {
-  var body = document.getElementById('body-' + id);
-  var tog = document.getElementById('tog-' + id);
-  if (body.style.display === 'none') { body.style.display = 'block'; tog.textContent = '−'; }
-  else { body.style.display = 'none'; tog.textContent = '+'; }
-}
-function copyText(id) {
-  var text = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(function() {
-    alert('Prompt copiado');
-  });
+// Fix tab switching
+document.addEventListener('DOMContentLoaded',function(){
+  var tabs=['tab-grupo','tab-alumno'];
+  tabs.forEach(function(id){var el=document.getElementById(id);if(el)el.classList.add('tab-content');});
+});
+function switchTab(id,e){
+  ['tab-grupo','tab-alumno'].forEach(function(t){var el=document.getElementById(t);if(el)el.style.display='none';});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  var el=document.getElementById(id);if(el)el.style.display='block';
+  if(e&&e.target)e.target.classList.add('active');
 }
 </script>
-
 <script>
 
-const AREAS = ['Matemática','Prácticas del Lenguaje','Ciencias Naturales','Ciencias Sociales','Inglés','Ed. Física','Ed. Artística'];
-const AREA_IDS = ['mat','len','cn','cs','ing','ef','art'];
-const APROBADO = 7;
+var tipoReunion = 'individual';
+var motivoReunion = '';
+var seguimientoReunion = '';
 
-// Storage en memoria
-let notasDB = {};
+function abrirReunion() {
+  document.getElementById('modal-reunion').style.display = 'block';
+  document.getElementById('reunion-fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('reunion-resultado').style.display = 'none';
+}
+function cerrarReunion() { document.getElementById('modal-reunion').style.display = 'none'; }
 
-function keyNota(alumno, trimestre) { return alumno + '||' + trimestre; }
+function selTipoReunion(el, tipo) {
+  document.querySelectorAll('#tr-ind,#tr-grp').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  tipoReunion = tipo;
+  document.getElementById('reunion-alumno-row').style.display = tipo === 'individual' ? 'block' : 'none';
+}
+function selMotivo(el, motivo) {
+  document.querySelectorAll('.tipo-btn').forEach(b => { if(['academico','conductual','familiar','pedido','inicio','fin'].includes(b.getAttribute('onclick')?.match(/selMotivo\(this,'(.*?)'\)/)?.[1])) b.classList.remove('active'); });
+  el.classList.add('active');
+  motivoReunion = motivo;
+}
+function selSeguimiento(el, seg) {
+  ['pendiente','cumplido','incumplido'].forEach(s => {
+    document.querySelectorAll('.tipo-btn').forEach(b => { if(b.getAttribute('onclick')?.includes(s)) b.classList.remove('active'); });
+  });
+  el.classList.add('active');
+  seguimientoReunion = seg;
+}
 
-function guardarNota() {
+function generarPromptReunion() {
+  const alumno = document.getElementById('reunion-alumno').value;
+  const fecha = document.getElementById('reunion-fecha').value;
+  const asistentes = document.getElementById('reunion-asistentes').value;
+  const resumen = document.getElementById('reunion-resumen').value;
+  const compromisos = document.getElementById('reunion-compromisos').value;
+
+  if (tipoReunion === 'individual' && !alumno) { alert('Seleccioná el alumno'); return; }
+  if (!fecha) { alert('Ingresá la fecha'); return; }
+  if (!resumen) { alert('Escribí el resumen de la reunión'); return; }
+
+  const motivosTexto = {
+    academico: 'Académico (rendimiento/notas)',
+    conductual: 'Conductual',
+    familiar: 'Situación familiar',
+    pedido: 'A pedido de la familia',
+    inicio: 'Reunión de inicio de año',
+    fin: 'Reunión de fin de año'
+  };
+  const seguimientoTexto = {
+    pendiente: 'Pendiente de seguimiento',
+    cumplido: 'Compromisos cumplidos',
+    incumplido: 'Compromisos no cumplidos'
+  };
+
+  let prompt = `Registrá la siguiente reunión familiar en el Drive de HuellaED.
+
+`;
+  prompt += `TIPO: ${tipoReunion === 'individual' ? 'Individual — ' + alumno : 'Grupal'}
+`;
+  prompt += `FECHA: ${fecha}
+`;
+  prompt += `MOTIVO: ${motivosTexto[motivoReunion] || 'No especificado'}
+`;
+  if (asistentes) prompt += `ASISTENTES: ${asistentes}
+`;
+  prompt += `
+RESUMEN: ${resumen}
+`;
+  if (compromisos) prompt += `
+COMPROMISOS: ${compromisos}
+`;
+  prompt += `
+SEGUIMIENTO: ${seguimientoTexto[seguimientoReunion] || 'Sin definir'}
+`;
+  prompt += `
+Creá un documento Google en la carpeta "Reuniones con Familia" del alumno ${alumno || 'correspondiente'} con esta información, usando el formato de registro de reunión.`;
+
+  document.getElementById('reunion-prompt-text').textContent = prompt;
+  document.getElementById('reunion-resultado').style.display = 'block';
+  document.getElementById('reunion-resultado').scrollIntoView({ behavior: 'smooth' });
+}
+function copiarPromptReunion() {
+  navigator.clipboard.writeText(document.getElementById('reunion-prompt-text').textContent).then(() => {
+    document.getElementById('reunion-copy-msg').textContent = '✅ Copiado — pegalo en Claude';
+    setTimeout(() => { document.getElementById('reunion-copy-msg').textContent = ''; }, 3000);
+  });
+}
+
+</script>
+<script>
+
+var destinoNota = 'agenda';
+var notasGuardadas = JSON.parse(localStorage.getItem('huellaed_notas') || '[]');
+
+function abrirNota() {
+  document.getElementById('modal-nota').style.display = 'block';
+  document.getElementById('nota-prompt-container').style.display = 'none';
+  document.getElementById('nota-texto').value = '';
+  renderNotasGuardadas();
+}
+function cerrarNota() { document.getElementById('modal-nota').style.display = 'none'; }
+
+function selDestinoNota(el, dest) {
+  document.querySelectorAll('#nd-agenda,#nd-alumno').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  destinoNota = dest;
+  document.getElementById('nota-alumno-row').style.display = dest === 'alumno' ? 'block' : 'none';
+}
+
+function guardarNotaLocal() {
+  const texto = document.getElementById('nota-texto').value.trim();
   const alumno = document.getElementById('nota-alumno').value;
-  const trimestre = document.getElementById('nota-trimestre').value;
-  if (!alumno) { document.getElementById('nota-msg').textContent = '⚠ Seleccioná un alumno.'; return; }
+  if (!texto) { document.getElementById('nota-save-msg').textContent = '⚠️ Escribí algo primero'; return; }
+  if (destinoNota === 'alumno' && !alumno) { document.getElementById('nota-save-msg').textContent = '⚠️ Seleccioná el alumno'; return; }
   
-  const notas = {};
-  AREA_IDS.forEach((id, i) => {
-    const val = document.getElementById('n-' + id).value;
-    if (val !== '') notas[AREAS[i]] = parseInt(val);
+  const nota = {
+    id: Date.now(),
+    fecha: new Date().toLocaleDateString('es-AR'),
+    hora: new Date().toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'}),
+    destino: destinoNota,
+    alumno: alumno || '',
+    texto: texto,
+    sincronizada: false
+  };
+  
+  notasGuardadas.unshift(nota);
+  try { localStorage.setItem('huellaed_notas', JSON.stringify(notasGuardadas)); } catch(e) {}
+  
+  document.getElementById('nota-texto').value = '';
+  document.getElementById('nota-save-msg').textContent = '✅ Nota guardada — recordá sincronizar con Claude';
+  setTimeout(() => { document.getElementById('nota-save-msg').textContent = ''; }, 3000);
+  renderNotasGuardadas();
+}
+
+function renderNotasGuardadas() {
+  const lista = document.getElementById('notas-lista');
+  const container = document.getElementById('notas-guardadas-container');
+  if (notasGuardadas.length === 0) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  lista.innerHTML = notasGuardadas.slice(0,5).map(n => `
+    <div style="background:#F5F2EE;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+      <div style="flex:1;">
+        <div style="font-size:11px;color:#8A7E6A;margin-bottom:3px;">${n.fecha} ${n.hora} · ${n.destino === 'alumno' ? n.alumno : 'Agenda'} ${!n.sincronizada ? '· <span style=color:#C8845A>pendiente sincronizar</span>' : '· <span style=color:#2D5F4F>✓ sincronizada</span>'}</div>
+        <div style="font-size:13px;color:#2D3A35;">${n.texto.substring(0,120)}${n.texto.length > 120 ? '...' : ''}</div>
+      </div>
+      <button onclick="borrarNota(${n.id})" style="background:none;border:none;color:#AAAAAA;cursor:pointer;font-size:16px;flex-shrink:0;">✕</button>
+    </div>
+  `).join('');
+}
+
+function borrarNota(id) {
+  notasGuardadas = notasGuardadas.filter(n => n.id !== id);
+  try { localStorage.setItem('huellaed_notas', JSON.stringify(notasGuardadas)); } catch(e) {}
+  renderNotasGuardadas();
+}
+
+function generarPromptNota() {
+  const pendientes = notasGuardadas.filter(n => !n.sincronizada);
+  if (pendientes.length === 0) { document.getElementById('nota-save-msg').textContent = '⚠️ No hay notas pendientes de sincronizar'; return; }
+  
+  let prompt = 'Tengo las siguientes notas rápidas para incorporar al sistema HuellaED:\n\n';
+  pendientes.forEach((n, i) => {
+    prompt += `${i+1}. [${n.fecha} ${n.hora}] `;
+    prompt += n.destino === 'alumno' ? `PERFIL DE ${n.alumno}: ` : 'AGENDA: ';
+    prompt += n.texto + '\n';
   });
+  prompt += '\nPor favor incorporá cada nota donde corresponde — las de agenda a la Agenda del Drive, las de alumno al perfil individual correspondiente.';
   
-  notasDB[keyNota(alumno, trimestre)] = notas;
-  document.getElementById('nota-msg').textContent = '✅ Notas guardadas para ' + alumno;
+  document.getElementById('nota-prompt-text').textContent = prompt;
+  document.getElementById('nota-prompt-container').style.display = 'block';
   
-  // Limpiar inputs
-  AREA_IDS.forEach(id => { document.getElementById('n-' + id).value = ''; });
-  setTimeout(() => { document.getElementById('nota-msg').textContent = ''; }, 2500);
+  // Marcar como sincronizadas
+  notasGuardadas = notasGuardadas.map(n => ({...n, sincronizada: true}));
+  try { localStorage.setItem('huellaed_notas', JSON.stringify(notasGuardadas)); } catch(e) {}
+  renderNotasGuardadas();
 }
 
-function showSection(id) {
-  document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
-  if (id) document.getElementById(id).style.display = 'block';
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabId).style.display = 'block';
-  event.target.classList.add('active');
-  if (tabId === 'tab-grupo') renderGrupo();
-}
-
-function renderGrupo() {
-  const trimestre = document.getElementById('stat-trimestre').value;
-  const container = document.getElementById('grupo-stats');
-  
-  // Recopilar todas las notas del trimestre
-  const porArea = {};
-  AREAS.forEach(a => { porArea[a] = []; });
-  
-  Object.keys(notasDB).forEach(key => {
-    if (key.endsWith('||' + trimestre)) {
-      const notas = notasDB[key];
-      AREAS.forEach(a => { if (notas[a] !== undefined) porArea[a].push(notas[a]); });
-    }
-  });
-  
-  let html = '';
-  let aprobTotales = 0, totalTotales = 0;
-  
-  AREAS.forEach(area => {
-    const arr = porArea[area];
-    if (arr.length === 0) return;
-    const prom = (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1);
-    const aprobados = arr.filter(n => n >= APROBADO).length;
-    const pct = Math.round(aprobados / arr.length * 100);
-    aprobTotales += aprobados;
-    totalTotales += arr.length;
-    html += `<div class="stat-card">
-      <div class="area-name">${area} <span class="promedio-badge ${parseFloat(prom)>=APROBADO?'badge-ok':'badge-no'}">Prom: ${prom}</span></div>
-      <div class="stat-bar"><div class="stat-bar-fill aprobado" style="width:${pct}%"></div></div>
-      <div class="stat-nums"><span>✅ ${aprobados} aprobados (${pct}%)</span><span>❌ ${arr.length-aprobados} desaprobados</span></div>
-    </div>`;
-  });
-  
-  if (html === '') { container.innerHTML = '<div class="resumen">Sin notas cargadas para este trimestre.</div>'; drawPie('chart-grupo', [], []); return; }
-  
-  const pctTotal = totalTotales > 0 ? Math.round(aprobTotales/totalTotales*100) : 0;
-  container.innerHTML = `<div class="resumen"><b>Resumen del grupo:</b> ${pctTotal}% de aprobación general en el trimestre ${trimestre}.</div>` + html;
-  drawPie('chart-grupo', ['Aprobados', 'Desaprobados'], [aprobTotales, totalTotales-aprobTotales]);
-}
-
-function renderAlumno() {
-  const alumno = document.getElementById('stat-alumno').value;
-  const trimestre = document.getElementById('stat-trimestre-alumno').value;
-  const container = document.getElementById('alumno-stats');
-  if (!alumno) { container.innerHTML = ''; return; }
-  
-  const notas = notasDB[keyNota(alumno, trimestre)] || {};
-  if (Object.keys(notas).length === 0) {
-    container.innerHTML = '<div class="resumen">Sin notas cargadas para este alumno y trimestre.</div>';
-    drawPie('chart-alumno', [], []);
-    return;
-  }
-  
-  let html = '';
-  let aprobados = 0, total = 0;
-  const pieLabels = [], pieData = [];
-  
-  AREAS.forEach(area => {
-    if (notas[area] === undefined) return;
-    const n = notas[area];
-    const ok = n >= APROBADO;
-    if (ok) aprobados++; else total++;
-    total++;
-    pieLabels.push(area.substring(0,8));
-    pieData.push(n);
-    html += `<div class="stat-card">
-      <div class="area-name">${area} <span class="promedio-badge ${ok?'badge-ok':'badge-no'}">${n}/10 ${ok?'✅':'❌'}</span></div>
-      <div class="stat-bar"><div class="stat-bar-fill ${ok?'aprobado':'desaprobado'}" style="width:${n*10}%"></div></div>
-    </div>`;
-  });
-  
-  const prom = (Object.values(notas).reduce((a,b)=>a+b,0)/Object.values(notas).length).toFixed(1);
-  container.innerHTML = `<div class="resumen"><b>${alumno}</b> — Promedio general: <b>${prom}</b> <span class="promedio-badge ${parseFloat(prom)>=APROBADO?'badge-ok':'badge-no'}">${parseFloat(prom)>=APROBADO?'Aprobado':'En riesgo'}</span></div>` + html;
-  drawPie('chart-alumno', pieLabels, pieData);
-}
-
-function drawPie(canvasId, labels, data) {
-  const canvas = document.getElementById(canvasId);
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (data.length === 0) return;
-  
-  const colors = ['#2D5F4F','#7BAE99','#C8845A','#E8C49A','#4A8C7A','#A8D4C8','#8A7E6A'];
-  const total = data.reduce((a,b) => a+b, 0);
-  const cx = canvas.width/2, cy = canvas.height/2, r = Math.min(cx,cy) - 40;
-  let startAngle = -Math.PI/2;
-  
-  data.forEach((val, i) => {
-    const slice = (val/total) * 2 * Math.PI;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, startAngle, startAngle + slice);
-    ctx.closePath();
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // Etiqueta
-    const midAngle = startAngle + slice/2;
-    const lx = cx + (r*0.65) * Math.cos(midAngle);
-    const ly = cy + (r*0.65) * Math.sin(midAngle);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 11px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(labels[i], lx, ly);
-    
-    startAngle += slice;
-  });
-  
-  // Leyenda
-  let lx = 10, ly = canvas.height - 25;
-  ctx.font = '10px Arial';
-  ctx.textAlign = 'left';
-  labels.forEach((label, i) => {
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.fillRect(lx, ly, 10, 10);
-    ctx.fillStyle = '#333';
-    ctx.fillText(label.substring(0,10), lx + 13, ly + 9);
-    lx += 80;
-    if (lx > canvas.width - 80) { lx = 10; ly -= 15; }
-  });
-}
-
-</script>
-<script>
-
-function abrirClaude() {
-  document.getElementById('modal-claude').style.display = 'block';
-}
-function cerrarClaude() {
-  document.getElementById('modal-claude').style.display = 'none';
-}
-function copiarPromptClaude() {
-  const text = document.getElementById('prompt-claude-text').innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById('claude-copy-msg').textContent = '✅ Prompt copiado — pegalo en Claude.ai';
-    setTimeout(() => { document.getElementById('claude-copy-msg').textContent = ''; }, 3000);
-  });
-}
-
-</script>
-<script>
-
-var tipoSel = '';
-var destSel = 'grupo';
-
-function abrirGenerador() {
-  document.getElementById('modal-generador').style.display = 'block';
-}
-function cerrarGenerador() {
-  document.getElementById('modal-generador').style.display = 'none';
-  document.getElementById('gen-resultado').style.display = 'none';
-}
-function selTipo(el, tipo) {
-  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  tipoSel = tipo;
-}
-function selDest(el, dest) {
-  document.querySelectorAll('.dest-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  destSel = dest;
-  document.getElementById('gen-alumno-row').style.display = dest === 'adaptada' ? 'block' : 'none';
-}
-function generarPrompt() {
-  const area = document.getElementById('gen-area').value;
-  const tema = document.getElementById('gen-tema').value;
-  const detalles = document.getElementById('gen-detalles').value;
-  const alumno = document.getElementById('gen-alumno').value;
-
-  if (!tipoSel) { alert('Seleccioná el tipo de material'); return; }
-  if (!area) { alert('Seleccioná el área'); return; }
-  if (!tema) { alert('Escribí el tema o contenido'); return; }
-
-  const tipos = { cuadernillo:'un cuadernillo imprimible', ficha:'una ficha de trabajo imprimible', planificacion:'una planificación de clase', evaluacion:'una evaluación' };
-  const tipoTexto = tipos[tipoSel] || tipoSel;
-
-  let destinatario = 'para todo el grupo (19 alumnos de 6to grado)';
-  let perfil = '';
-  if (destSel === 'adaptada' && alumno) {
-    destinatario = 'en versión adaptada';
-    if (alumno.includes('Ciro')) {
-      perfil = 'El alumno tiene Trastorno del Desarrollo del Lenguaje comprensivo-expresivo e IDN 74 (Bajo). Necesita: consignas visuales y simples, menos cantidad de ejercicios, más espacio de trabajo, tiempo adicional.';
-    } else if (alumno.includes('Nicolás')) {
-      perfil = 'El alumno tiene dificultades en comprensión lectora, escritura y en la estrategia de estimación en divisiones. Necesita recordatorio visual de los pasos.';
-    } else if (alumno.includes('Katia')) {
-      perfil = 'La alumna tiene dificultades en lectoescritura y matemática, con asistencia intermitente. Necesita actividades con estructura clara y guiada.';
-    } else if (alumno.includes('Tiziano')) {
-      perfil = 'El alumno tiene dificultades en lectoescritura y timidez marcada. Necesita consignas claras y actividades con apoyo visual.';
-    }
-  }
-
-  const contexto = `Soy docente de 6to grado de la Escuela La Concepción, Provincia de Buenos Aires. Trabajo con el Diseño Curricular de PBA. Tengo 19 alumnos de nivel heterogéneo.`;
-
-  let prompt = `${contexto}
-
-Necesito que generes ${tipoTexto} ${destinatario} para el área de ${area}, sobre el siguiente tema: ${tema}.`;
-
-  if (perfil) prompt += `
-
-Perfil del alumno: ${perfil}`;
-  if (detalles) prompt += `
-
-Detalles adicionales: ${detalles}`;
-
-  if (tipoSel === 'cuadernillo' || tipoSel === 'ficha') {
-    prompt += `
-
-El material debe estar listo para imprimir en A4, con espacio suficiente para que el alumno trabaje en la hoja. Incluí consignas claras en lenguaje accesible para 6to grado primaria.`;
-  }
-  if (destSel === 'adaptada') {
-    prompt += `
-
-Además de la versión adaptada, incluí una nota pedagógica breve explicando las adaptaciones realizadas.`;
-  }
-
-  document.getElementById('gen-prompt-text').textContent = prompt;
-  document.getElementById('gen-resultado').style.display = 'block';
-  document.getElementById('gen-resultado').scrollIntoView({ behavior: 'smooth' });
-}
-function copiarPromptGen() {
-  const text = document.getElementById('gen-prompt-text').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById('gen-copy-msg').textContent = '✅ Copiado — pegalo en Claude.ai o en el chat';
-    setTimeout(() => { document.getElementById('gen-copy-msg').textContent = ''; }, 3000);
+function copiarPromptNota() {
+  navigator.clipboard.writeText(document.getElementById('nota-prompt-text').textContent).then(() => {
+    document.getElementById('nota-prompt-msg').textContent = '✅ Copiado — pegalo en Claude';
+    setTimeout(() => { document.getElementById('nota-prompt-msg').textContent = ''; }, 3000);
   });
 }
 
