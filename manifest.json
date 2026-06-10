@@ -1,0 +1,16 @@
+{
+  "short_name": "Huella ED",
+  "name": "Huella ED App",
+  "icons": [
+    {
+      "src": "logo-huellaed.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "theme_color": "#000000"
+}
