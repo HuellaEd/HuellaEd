@@ -50,6 +50,10 @@
     .tab-btn.active{background:#2D5F4F;color:#fff;border-color:#2D5F4F;}
     .resumen{background:#E8F4EF;border-radius:10px;padding:12px;font-size:13px;color:#2D3A35;}
     .tipo-btn,.dest-btn{padding:10px;border:1.5px solid #E0D8D0;border-radius:10px;text-align:center;font-size:13px;cursor:pointer;background:#FAFAF8;color:#2D3A35;font-weight:500;}
+
+    .alumno-check { padding:8px 10px; border:1.5px solid #E0D8D0; border-radius:10px; cursor:pointer; background:#FAFAF8; font-size:13px; transition:all 0.15s; }
+    .alumno-check.selected { background:#E8F4EF; border-color:#2D5F4F; }
+    .alumno-check .check-icon { font-size:15px; }
     .tipo-btn.active,.dest-btn.active{background:#2D5F4F;color:#fff;border-color:#2D5F4F;}
     footer{text-align:center;padding:12px;font-size:11px;color:#B0A898;}
     .link-pie{text-align:center;padding:6px 0 2px;}
@@ -164,10 +168,8 @@
   </div>
 
   <div class="section-title">Asistencia</div>
-  <div class="card-grid two-col">
-    <a class="card" href="https://drive.google.com/drive/folders/1uMswr06jqXieJBvaATPr-_6Ie3XYP2Ru" target="_blank"><div class="card-icon ic-red">📷</div><div class="card-body"><strong>Registros</strong><span>Fotos mensuales</span></div></a>
-    <a class="card" href="https://drive.google.com/drive/folders/1ezFmCVQ1QH9NampY6FCQl_NDW_JS_yM2" target="_blank"><div class="card-icon ic-red">📊</div><div class="card-body"><strong>Informes</strong><span>Estadísticas y alertas</span></div></a>
-    <a class="card" href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank"><div class="card-icon ic-orange">📋</div><div class="card-body"><strong>Criterios</strong><span>Tipos y alertas</span></div></a>
+  <div class="card-grid">
+    <a class="card" href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank"><div class="card-icon ic-orange">📋</div><div class="card-body"><strong>Criterios de Asistencia</strong><span>Tipos y alertas</span></div><div class="card-arrow">›</div></a>
   </div>
 
   <div class="section-title">Documentos curriculares</div>
@@ -248,8 +250,27 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;"><div class="tipo-btn" onclick="selTipo(this,'cuadernillo')">📓 Cuadernillo</div><div class="tipo-btn" onclick="selTipo(this,'ficha')">📄 Ficha</div><div class="tipo-btn" onclick="selTipo(this,'planificacion')">📋 Planificación</div><div class="tipo-btn" onclick="selTipo(this,'evaluacion')">📝 Evaluación</div></div></div>
     <div class="form-row"><label>Área</label><select id="gen-area"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
     <div class="form-row"><label>Tema específico</label><input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo..."></div>
-    <div class="form-row"><label>¿Para quién?</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;"><div class="dest-btn active" onclick="selDest(this,'grupo')">👥 Todo el grupo</div><div class="dest-btn" onclick="selDest(this,'adaptada')">🎯 Adaptada</div></div></div>
-    <div class="form-row" id="gen-alumno-row" style="display:none;"><label>Alumno</label><select id="gen-alumno"><option value="">— Seleccionar —</option><option>Gamon, Ciro (TDL + IDN bajo)</option><option>Nievas, Nicolás (lectoescritura y div.)</option><option>Godoy, Katia (lectoescritura y mat.)</option><option>Carbonel, Tiziano (lectoescritura)</option><option>Otro alumno</option></select></div>
+    <div class="form-row">
+      <label>¿Incluir versiones para alumnos específicos?</label>
+      <p style="font-size:11px;color:#8A7E6A;margin-bottom:8px;">El prompt siempre incluye la versión general para todo el grupo. Seleccioná además los alumnos que necesiten adaptación o adecuación.</p>
+      <div id="alumnos-especiales" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
+        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Gamon, Ciro','adaptacion','TDL comprensivo-expresivo e IDN 74 Bajo. Consignas visuales, menos ejercicios, más espacio y tiempo.')">
+          <span class="check-icon">☐</span> <span>Gamon, Ciro</span><br><small style="color:#8A7E6A;font-size:10px;">Adaptación (NEE)</small>
+        </div>
+        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Nievas, Nicolás','adecuacion','Dificultades en lectoescritura y estrategia de estimación. Necesita recordatorio visual de pasos y estructura guiada.')">
+          <span class="check-icon">☐</span> <span>Nievas, Nicolás</span><br><small style="color:#8A7E6A;font-size:10px;">Adecuación</small>
+        </div>
+        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Godoy, Katia','adecuacion','Dificultades en lectoescritura y matemática. Necesita estructura clara, consignas simples y guiadas.')">
+          <span class="check-icon">☐</span> <span>Godoy, Katia</span><br><small style="color:#8A7E6A;font-size:10px;">Adecuación</small>
+        </div>
+        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Carbonel, Tiziano','adecuacion','Dificultades en lectoescritura y timidez marcada. Necesita consignas claras y apoyo visual.')">
+          <span class="check-icon">☐</span> <span>Carbonel, Tiziano</span><br><small style="color:#8A7E6A;font-size:10px;">Adecuación</small>
+        </div>
+        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Cuello, Thomas','adecuacion','Dificultad sostenida de concentración — no completa las actividades propuestas. Necesita consignas más cortas, revisión frecuente y actividades con menor extensión.')">
+          <span class="check-icon">☐</span> <span>Cuello, Thomas</span><br><small style="color:#8A7E6A;font-size:10px;">Adecuación</small>
+        </div>
+      </div>
+    </div>
     <div class="form-row"><label>Detalles (opcional)</label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir..." style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:70px;resize:none;box-sizing:border-box;"></textarea></div>
     <button onclick="generarPrompt()" style="width:100%;background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;">✨ Armar prompt</button>
     <div id="gen-resultado" style="display:none;">
@@ -421,17 +442,32 @@ function abrirGenerador(){document.getElementById('modal-generador').style.displ
 function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';}
 function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;}
 function selDest(el,d){document.querySelectorAll('.dest-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');destSel=d;document.getElementById('gen-alumno-row').style.display=d==='adaptada'?'block':'none';}
+var alumnosEsp=[];
+function toggleAlumnoEsp(el,nombre,tipo,perfil){
+  var idx=alumnosEsp.findIndex(a=>a.nombre===nombre);
+  if(idx>=0){alumnosEsp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check-icon').textContent='☐';}
+  else{alumnosEsp.push({nombre,tipo,perfil});el.classList.add('selected');el.querySelector('.check-icon').textContent='☑';}
+}
 function generarPrompt(){
-  var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value,al=document.getElementById('gen-alumno').value;
+  var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
   if(!tipoSel){alert('Seleccioná el tipo');return;}if(!area){alert('Seleccioná el área');return;}if(!tema){alert('Escribí el tema');return;}
   var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación'};
-  var dest='para todo el grupo (19 alumnos de 6to grado)',perf='';
-  if(destSel==='adaptada'&&al){dest='en versión adaptada';if(al.includes('Ciro'))perf='TDL comprensivo-expresivo e IDN 74 (Bajo). Consignas visuales, menos ejercicios, más espacio y tiempo.';else if(al.includes('Nicolás'))perf='Dificultades en comprensión lectora y estrategia de estimación. Necesita recordatorio visual de pasos.';else if(al.includes('Katia'))perf='Dificultades en lectoescritura y matemática. Necesita estructura clara y guiada.';}
-  var p='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel]+' '+dest+' para '+area+', sobre: '+tema+'.';
-  if(perf)p+='\n\nPerfil: '+perf;if(det)p+='\n\nDetalles: '+det;
-  if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\n\nListo para imprimir en A4. Consignas claras para 6to primaria.';
-  if(destSel==='adaptada')p+='\n\nIncluí nota pedagógica explicando las adaptaciones.';
-  document.getElementById('gen-prompt-text').textContent=p;document.getElementById('gen-resultado').style.display='block';document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
+  var p='Soy docente de 6to grado de la Escuela La Concepción, Provincia de Buenos Aires. Trabajo con el Diseño Curricular de PBA. Tengo 19 alumnos de nivel heterogéneo.\n\n';
+  p+='Necesito que generes '+tipos[tipoSel]+' para el área de '+area+', sobre el siguiente tema: '+tema+'.\n\n';
+  p+='VERSIÓN GENERAL: Diseñá el material para todo el grupo. Consignas claras para 6to grado primaria.';
+  if(tipoSel==='cuadernillo'||tipoSel==='ficha') p+=' Listo para imprimir en A4, con espacio para trabajar en la hoja.';
+  if(alumnosEsp.length>0){
+    p+='\n\nADEMÁS, para los siguientes alumnos generá versiones diferenciadas dentro del mismo documento:\n';
+    alumnosEsp.forEach(a=>{
+      var tipoLabel=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos y/o contenidos — el alumno tiene NEE con diagnóstico formal)':'ADECUACIÓN (mantiene los mismos objetivos pero cambia la forma, el tiempo, los apoyos o la cantidad)';
+      p+='\n• '+a.nombre+' — '+tipoLabel+'\n  Perfil: '+a.perfil;
+    });
+    p+='\n\nCada versión diferenciada debe incluir una nota pedagógica breve que explique qué se modificó y por qué.';
+  }
+  if(det) p+='\n\nDetalles adicionales: '+det;
+  document.getElementById('gen-prompt-text').textContent=p;
+  document.getElementById('gen-resultado').style.display='block';
+  document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
 }
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(()=>{document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('gen-copy-msg').textContent='';},3000);});}
 var mr=null,ac=[],grab=false,ti=null,seg=0,ab=null;
