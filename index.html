@@ -125,19 +125,27 @@
   </svg>
   <div class="header-text">
     <h1>Huella<span>ED</span></h1>
-    <p>6to Grado · La Concepción</p>
+    <p>cada alumno, su trayecto</p>
   </div>
 </header>
 
 <main>
 
-  <!-- EL GRUPO — centro de HuellaED -->
-  <div style="background:linear-gradient(135deg,#2D5F4F 0%,#3A7A65 100%);border-radius:16px;padding:20px 20px 18px;margin-bottom:12px;text-align:center;">
-    <div style="font-size:11px;color:rgba(168,201,188,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;">Escuela La Concepción</div>
-    <div style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1.1;">6to Grado <span style="color:#7BAE99;font-weight:300;">· 2026</span></div>
-    <div style="font-size:11px;color:rgba(168,201,188,0.65);letter-spacing:1.5px;margin-top:6px;text-transform:uppercase;">cada alumno, su trayecto</div>
+  <!-- BANNER -->
+  <div style="background:linear-gradient(135deg,#2D5F4F 0%,#3A7A65 100%);border-radius:16px;padding:18px 20px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden;">
+    <!-- decoración sutil -->
+    <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(123,174,153,0.12);"></div>
+    <div style="position:absolute;bottom:-15px;left:-15px;width:60px;height:60px;border-radius:50%;background:rgba(200,132,90,0.1);"></div>
+    <div style="position:relative;">
+      <div style="font-size:10px;color:rgba(168,201,188,0.7);letter-spacing:3px;text-transform:uppercase;margin-bottom:5px;">Escuela La Concepción</div>
+      <div style="font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;">6° Año</div>
+      <div style="font-size:13px;color:#7BAE99;font-weight:400;margin-top:2px;letter-spacing:0.5px;">2026</div>
+
+    </div>
   </div>
-  <div class="grid grid-2" style="margin-bottom:4px;">  <div class="grid grid-2" style="margin-bottom:4px;">
+
+  <!-- EL GRUPO -->
+  <div class="grid grid-2" style="margin-bottom:4px;">
     <a class="card" href="https://docs.google.com/document/d/1uIrhqdqK2eFwVX-EwJl14ovgNoKSOzQah6YP2mS58kg" target="_blank" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);">
       <div class="card-icon ic-v" style="width:52px;height:52px;font-size:26px;">🏫</div>
       <div><strong style="font-size:13px;">Perfil Áulico</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;">El grupo completo</span></div>
@@ -215,47 +223,20 @@
     <div class="subcard" onclick="togglePrompts()"><span class="subcard-icon">🧩</span><span class="subcard-label">Prompts</span><span class="subcard-sub">Secuencias didácticas</span></div>
   </div>
 
-  <!-- PANELES NOTAS E INASISTENCIAS -->
+  <!-- PANELES -->
   <div id="tabla-notas" class="panel" style="display:none;margin-top:10px;">
     <div class="panel-head"><strong>Notas — 1er Trimestre · Aprobado: 7</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('tabla-notas')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
-    <div class="panel-body">
-      <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;">
-        <thead><tr style="background:var(--verde);color:#fff;">
-          <th style="padding:7px 5px;text-align:left;">Alumno</th>
-          <th style="padding:7px 3px;text-align:center;">L</th><th style="padding:7px 3px;text-align:center;">M</th>
-          <th style="padding:7px 3px;text-align:center;">CS</th><th style="padding:7px 3px;text-align:center;">CN</th>
-          <th style="padding:7px 3px;text-align:center;">I</th><th style="padding:7px 3px;text-align:center;">EA</th>
-          <th style="padding:7px 3px;text-align:center;">EF</th><th style="padding:7px 3px;text-align:center;">Prom</th>
-        </tr></thead>
-        <tbody id="notas-tbody"></tbody>
-      </table>
-      <div style="margin-top:7px;font-size:10px;color:var(--gris);">L=Lengua · M=Matemática · CS=Cs.Sociales · CN=Cs.Naturales · I=Inglés · EA=Ed.Artística · EF=Ed.Física</div>
-      <div style="margin-top:14px;"><div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:7px;">Estadísticas por área</div><div id="stats-areas"></div></div>
-    </div>
+    <div class="panel-body"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;"><thead><tr style="background:var(--verde);color:#fff;"><th style="padding:7px 5px;text-align:left;">Alumno</th><th style="padding:7px 3px;text-align:center;">L</th><th style="padding:7px 3px;text-align:center;">M</th><th style="padding:7px 3px;text-align:center;">CS</th><th style="padding:7px 3px;text-align:center;">CN</th><th style="padding:7px 3px;text-align:center;">I</th><th style="padding:7px 3px;text-align:center;">EA</th><th style="padding:7px 3px;text-align:center;">EF</th><th style="padding:7px 3px;text-align:center;">Prom</th></tr></thead><tbody id="notas-tbody"></tbody></table>
+    <div style="margin-top:7px;font-size:10px;color:var(--gris);">L=Lengua · M=Mat · CS=Cs.Soc · CN=Cs.Nat · I=Inglés · EA=Ed.Art · EF=Ed.Fís</div>
+    <div style="margin-top:14px;"><div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:7px;">Estadísticas por área</div><div id="stats-areas"></div></div></div>
   </div>
 
   <div id="tabla-inasistencias" class="panel" style="display:none;margin-top:10px;">
     <div class="panel-head"><strong>Inasistencias — 55 días hábiles</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('tabla-inasistencias')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
-    <div class="panel-body">
-      <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:380px;">
-        <thead><tr style="background:var(--verde);color:#fff;">
-          <th style="padding:7px 5px;text-align:left;">Alumno</th>
-          <th style="padding:7px 3px;text-align:center;">Mar</th><th style="padding:7px 3px;text-align:center;">Abr</th>
-          <th style="padding:7px 3px;text-align:center;">May</th><th style="padding:7px 3px;text-align:center;">Total</th>
-          <th style="padding:7px 3px;text-align:center;">%</th><th style="padding:7px 5px;text-align:left;">Estado</th>
-        </tr></thead>
-        <tbody id="inasist-tbody"></tbody>
-      </table>
-      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;font-size:10px;">
-        <span style="background:#FDE8E8;padding:2px 7px;border-radius:5px;">🔴 Crítico: +10</span>
-        <span style="background:#FDF0E8;padding:2px 7px;border-radius:5px;">🟠 Acumulación: 7-9</span>
-        <span style="background:#FDFAE8;padding:2px 7px;border-radius:5px;">🟡 Intermitente: 5-6</span>
-        <span style="background:var(--verde-bg);padding:2px 7px;border-radius:5px;">✅ OK</span>
-      </div>
-    </div>
+    <div class="panel-body"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:380px;"><thead><tr style="background:var(--verde);color:#fff;"><th style="padding:7px 5px;text-align:left;">Alumno</th><th style="padding:7px 3px;text-align:center;">Mar</th><th style="padding:7px 3px;text-align:center;">Abr</th><th style="padding:7px 3px;text-align:center;">May</th><th style="padding:7px 3px;text-align:center;">Total</th><th style="padding:7px 3px;text-align:center;">%</th><th style="padding:7px 5px;text-align:left;">Estado</th></tr></thead><tbody id="inasist-tbody"></tbody></table>
+    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;font-size:10px;"><span style="background:#FDE8E8;padding:2px 7px;border-radius:5px;">🔴 +10</span><span style="background:#FDF0E8;padding:2px 7px;border-radius:5px;">🟠 7-9</span><span style="background:#FDFAE8;padding:2px 7px;border-radius:5px;">🟡 5-6</span><span style="background:var(--verde-bg);padding:2px 7px;border-radius:5px;">✅ OK</span></div></div>
   </div>
 
-  <!-- PROMPTS -->
   <div id="prompts-sec" style="display:none;margin-top:10px;">
     <div class="prompt-card" id="p1"><div class="prompt-header" onclick="togglePrompt('p1')"><div class="prompt-num">1</div><div class="prompt-title">Bosquejo general</div><div class="prompt-tog" id="tog-p1">+</div></div><div class="prompt-body" id="body-p1" style="display:none;"><p class="prompt-txt" id="txt-p1">Actuá como asistente pedagógico experto en diseño de secuencias didácticas para nivel PRIMARIO de PBA. A partir del diseño curricular, elaborá un bosquejo general de una secuencia en [ÁREA], [AÑO], sobre [CONTENIDOS]. Objetivos: [COMPLETAR]. Contemplar inicio, desarrollo y cierre en [XX CLASES]. Incluí fundamentación breve. Presentar como esquema general, sin desarrollar actividades en detalle.</p><button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button></div></div>
     <div class="prompt-card" id="p2"><div class="prompt-header" onclick="togglePrompt('p2')"><div class="prompt-num">2</div><div class="prompt-title">Desarrollo de actividades</div><div class="prompt-tog" id="tog-p2">+</div></div><div class="prompt-body" id="body-p2" style="display:none;"><p class="prompt-txt" id="txt-p2">A partir del bosquejo, desarrollá [CANTIDAD] actividades distribuidas en apertura, desarrollo y cierre. Para cada actividad: título, objetivo, procedimiento y producción esperada.</p><button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button></div></div>
@@ -263,32 +244,31 @@
     <div class="prompt-card" id="p4"><div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-tog" id="tog-p4">+</div></div><div class="prompt-body" id="body-p4" style="display:none;"><p class="prompt-txt" id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div></div>
   </div>
 
-  <!-- BOLETINES -->
+  <!-- NOTAS E INASISTENCIAS -->
   <div class="section-label">Notas e Inasistencias</div>
   <div class="grid grid-2">
     <div class="card" onclick="showSection('panel-boletin-1')">
       <div class="card-icon ic-t">1️⃣</div><div class="card-body"><strong>1er Trimestre</strong><span>Notas e inasistencias</span></div><div class="card-arr">›</div>
     </div>
-    <div class="card" onclick="showSection('panel-boletin-2')">
-      <div class="card-icon ic-t" style="opacity:0.4;">2️⃣</div><div class="card-body"><strong style="color:var(--gris);">2do Trimestre</strong><span>Próximamente</span></div>
+    <div class="card" style="opacity:0.5;">
+      <div class="card-icon ic-t">2️⃣</div><div class="card-body"><strong style="color:var(--gris);">2do Trimestre</strong><span>Próximamente</span></div>
     </div>
-    <div class="card" onclick="showSection('panel-boletin-3')">
-      <div class="card-icon ic-t" style="opacity:0.4;">3️⃣</div><div class="card-body"><strong style="color:var(--gris);">3er Trimestre</strong><span>Próximamente</span></div>
+    <div class="card" style="opacity:0.5;">
+      <div class="card-icon ic-t">3️⃣</div><div class="card-body"><strong style="color:var(--gris);">3er Trimestre</strong><span>Próximamente</span></div>
     </div>
   </div>
 
-  <!-- PANEL BOLETÍN 1er TRIMESTRE -->
   <div id="panel-boletin-1" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-head"><strong>Boletín 1er Trimestre · Aprobado: 7</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('panel-boletin-1')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
+    <div class="panel-head"><strong>1er Trimestre · Aprobado: 7</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('panel-boletin-1')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
     <div class="panel-body" style="overflow-x:auto;"><div id="boletin-1-contenido"></div></div>
   </div>
   <div id="panel-boletin-2" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-head"><strong>Boletín 2do Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
-    <div class="panel-body"><div class="resumen">📅 El 2do trimestre aún no ha concluido.</div></div>
+    <div class="panel-head"><strong>2do Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-body"><div class="resumen">📅 Aún no ha concluido.</div></div>
   </div>
   <div id="panel-boletin-3" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-head"><strong>Boletín 3er Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
-    <div class="panel-body"><div class="resumen">📅 El 3er trimestre aún no ha concluido.</div></div>
+    <div class="panel-head"><strong>3er Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-body"><div class="resumen">📅 Aún no ha concluido.</div></div>
   </div>
 
   <!-- PIE DISCRETO -->
@@ -297,9 +277,9 @@
     <div style="display:flex;flex-wrap:wrap;gap:6px;">
       <a href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank" class="pie-link">📄 Cuadernillos</a>
       <a href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank" class="pie-link">📋 Criterios asistencia</a>
-      <a href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank" class="pie-link">📚 Documentos curriculares</a>
+      <a href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank" class="pie-link">📚 Docs curriculares</a>
       <a href="https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank" class="pie-link">✏️ Material docente</a>
-      <a href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" class="pie-link">📁 Carpeta 6to Grado</a>
+      <a href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" class="pie-link">📁 Carpeta 6to</a>
       <a href="https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank" class="pie-link">📥 Material generado</a>
       <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" class="pie-link">📥 Evidencias</a>
     </div>
