@@ -116,6 +116,7 @@
     <a class="card" href="https://drive.google.com/drive/folders/1gCQNI6yjJg8nYrD8Zbkbu8B8r3vX1Pak" target="_blank"><div class="card-icon ic-teal">2️⃣</div><div class="card-body"><strong>2do Trimestre</strong><span>Informes</span></div></a>
     <a class="card" href="https://drive.google.com/drive/folders/1OcAkBK2QubW_u5t7rDWJFlc2Oj-SxrU6" target="_blank"><div class="card-icon ic-teal">3️⃣</div><div class="card-body"><strong>3er Trimestre</strong><span>Informes</span></div></a>
     <a class="card" href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank"><div class="card-icon ic-purple">📄</div><div class="card-body"><strong>Cuadernillos</strong><span>Generados</span></div></a>
+    <a class="card" href="https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank"><div class="card-icon ic-orange">📥</div><div class="card-body"><strong>Material — Para organizar</strong><span>Bandeja de entrada</span></div></a>
   </div>
 
   <div class="section-title">Notas y Estadísticas</div>
@@ -280,6 +281,79 @@
 #acta-print-container { display:none; }
 </style>
 <div id="acta-print-container"></div>
+
+<!-- MODAL EVIDENCIA PEDAGÓGICA -->
+<div id="modal-evidencia" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:20px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong style="font-size:16px;color:#2D5F4F;">📷 Evidencia Pedagógica</strong>
+      <button onclick="cerrarEvidencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+
+    <div class="form-row">
+      <label>Alumno</label>
+      <select id="ev-alumno">
+        <option value="">— Seleccionar —</option>
+        <option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option>
+        <option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option>
+        <option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option>
+        <option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option>
+        <option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option>
+        <option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option>
+        <option>Villalba, Benjamín</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Área</label>
+      <select id="ev-area">
+        <option value="">— Seleccionar —</option>
+        <option>Matemática</option><option>Prácticas del Lenguaje</option>
+        <option>Ciencias Naturales</option><option>Ciencias Sociales</option>
+        <option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Tema o actividad</label>
+      <input type="text" id="ev-tema" placeholder="Ej: Algoritmo de división, Texto narrativo...">
+    </div>
+
+    <div class="form-row">
+      <label>Observación breve (opcional)</label>
+      <textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia? ¿Qué logró o dificultó el alumno?" style="width:100%;padding:10px 12px;border:1.5px solid #E0D8D0;border-radius:10px;font-size:14px;background:#FAFAF8;height:70px;resize:none;box-sizing:border-box;"></textarea>
+    </div>
+
+    <!-- Nombre de archivo preview -->
+    <div id="ev-nombre-preview" style="background:#E8F4EF;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#2D5F4F;display:none;">
+      <strong>Nombre del archivo:</strong> <span id="ev-nombre-txt"></span>
+    </div>
+
+    <!-- Botón de cámara -->
+    <input type="file" id="ev-file-input" accept="image/*" capture="environment" style="display:none;" onchange="procesarFoto(this)">
+    <input type="file" id="ev-file-input-gallery" accept="image/*" style="display:none;" onchange="procesarFoto(this)">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <button onclick="abrirCamara()" style="background:#2D5F4F;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">📷 Sacar foto</button>
+      <button onclick="elegirDeGaleria()" style="background:#7BAE99;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galería / Archivo</button>
+    </div>
+
+    <!-- Preview de la foto -->
+    <div id="ev-preview-container" style="display:none;text-align:center;margin-bottom:12px;">
+      <img id="ev-preview-img" style="max-width:100%;border-radius:10px;border:1px solid #E0D8D0;max-height:200px;object-fit:contain;">
+    </div>
+
+    <button id="ev-descargar-btn" onclick="descargarEvidencia()" style="display:none;width:100%;background:#C8845A;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;">⬇️ Descargar foto con nombre</button>
+    
+    <a id="ev-drive-link" href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" style="display:block;text-align:center;font-size:12px;color:#2D5F4F;margin-bottom:8px;">📁 Abrir carpeta de evidencias en Drive</a>
+
+    <!-- Registro local -->
+    <div id="ev-registros-container" style="margin-top:16px;display:none;">
+      <div style="font-size:11px;font-weight:600;color:#8A7E6A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Registros guardados</div>
+      <div id="ev-registros-lista"></div>
+    </div>
+  </div>
+</div>
 
 <!-- MODALES Y SCRIPTS -->
 <div id="modal-claude" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;padding:20px;box-sizing:border-box;overflow-y:auto;">
@@ -743,6 +817,117 @@ function imprimirActa() {
 
 function cerrarActa() {
   document.getElementById('modal-acta').style.display = 'none';
+}
+
+
+var evFile = null;
+var evRegistros = JSON.parse(localStorage.getItem('huellaed_evidencias') || '[]');
+
+function abrirEvidencia() {
+  document.getElementById('modal-evidencia').style.display = 'block';
+  document.getElementById('ev-preview-container').style.display = 'none';
+  document.getElementById('ev-descargar-btn').style.display = 'none';
+  document.getElementById('ev-nombre-preview').style.display = 'none';
+  evFile = null;
+  renderEvidencias();
+  actualizarNombrePreview();
+}
+function cerrarEvidencia() { document.getElementById('modal-evidencia').style.display = 'none'; }
+
+function actualizarNombrePreview() {
+  var alumno = document.getElementById('ev-alumno').value;
+  var area = document.getElementById('ev-area').value;
+  var tema = document.getElementById('ev-tema').value;
+  if (!alumno && !tema) { document.getElementById('ev-nombre-preview').style.display = 'none'; return; }
+  var fecha = new Date().toISOString().slice(0,10);
+  var alumnoSlug = alumno.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,'').replace(/ /g,'_');
+  var temaSlug = tema.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').trim().replace(/ /g,'_').substring(0,30);
+  var areaSlug = area ? '_' + area.replace(/ /g,'_') : '';
+  var nombre = 'Evidencia_' + alumnoSlug + areaSlug + (temaSlug?'_'+temaSlug:'') + '_' + fecha;
+  document.getElementById('ev-nombre-txt').textContent = nombre + '.jpg';
+  document.getElementById('ev-nombre-preview').style.display = 'block';
+  return nombre;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  ['ev-alumno','ev-area','ev-tema'].forEach(id => {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', actualizarNombrePreview);
+    if (el) el.addEventListener('input', actualizarNombrePreview);
+  });
+});
+
+function abrirCamara() {
+  var al = document.getElementById('ev-alumno').value;
+  var tm = document.getElementById('ev-tema').value;
+  if (!al) { alert('Seleccioná el alumno primero'); return; }
+  if (!tm) { alert('Escribí el tema primero'); return; }
+  document.getElementById('ev-file-input').click();
+}
+
+function elegirDeGaleria() {
+  document.getElementById('ev-file-input-gallery').click();
+}
+
+function procesarFoto(input) {
+  if (!input.files || !input.files[0]) return;
+  evFile = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('ev-preview-img').src = e.target.result;
+    document.getElementById('ev-preview-container').style.display = 'block';
+    document.getElementById('ev-descargar-btn').style.display = 'block';
+  };
+  reader.readAsDataURL(evFile);
+}
+
+function descargarEvidencia() {
+  if (!evFile) return;
+  var nombre = actualizarNombrePreview();
+  if (!nombre) { alert('Completá el alumno y el tema'); return; }
+  
+  // Guardar registro local
+  var registro = {
+    id: Date.now(),
+    alumno: document.getElementById('ev-alumno').value,
+    area: document.getElementById('ev-area').value,
+    tema: document.getElementById('ev-tema').value,
+    obs: document.getElementById('ev-obs').value,
+    fecha: new Date().toLocaleDateString('es-AR'),
+    archivo: nombre + '.jpg'
+  };
+  evRegistros.unshift(registro);
+  try { localStorage.setItem('huellaed_evidencias', JSON.stringify(evRegistros)); } catch(e) {}
+  
+  // Descargar con el nombre armado
+  var ext = evFile.type.includes('png') ? '.png' : '.jpg';
+  var url = URL.createObjectURL(evFile);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = nombre + ext;
+  a.click();
+  
+  renderEvidencias();
+  
+  // Sugerencia post-descarga
+  setTimeout(() => {
+    document.getElementById('ev-descargar-btn').textContent = '✅ Descargada — subila a la carpeta del Drive';
+    document.getElementById('ev-descargar-btn').style.background = '#2D5F4F';
+  }, 500);
+}
+
+function renderEvidencias() {
+  var lista = document.getElementById('ev-registros-lista');
+  var cont = document.getElementById('ev-registros-container');
+  if (evRegistros.length === 0) { cont.style.display = 'none'; return; }
+  cont.style.display = 'block';
+  lista.innerHTML = evRegistros.slice(0,8).map(r => `
+    <div style="background:#F5F2EE;border-radius:10px;padding:8px 12px;margin-bottom:6px;font-size:12px;">
+      <div style="font-weight:600;color:#2D3A35;">${r.alumno} · ${r.area || ''} · ${r.fecha}</div>
+      <div style="color:#8A7E6A;">📎 ${r.archivo}</div>
+      ${r.obs ? '<div style="color:#2D3A35;margin-top:2px;font-style:italic;">'+r.obs+'</div>' : ''}
+    </div>
+  `).join('');
 }
 
 function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
