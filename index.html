@@ -129,7 +129,7 @@
   </div>
 
   <div id="tabla-notas" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-header"><strong>Notas — 1er Trimestre · Aprobado: 7</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-header"><strong>Notas — 1er Trimestre · Aprobado: 7</strong><div style="display:flex;gap:8px;align-items:center;"><button onclick="imprimirPanel('tabla-notas')" style="background:#C8845A;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">🖨️ Imprimir</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
     <div class="panel-body" style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:500px;">
         <thead><tr style="background:#2D5F4F;color:#fff;">
@@ -147,7 +147,7 @@
   </div>
 
   <div id="tabla-inasistencias" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-header"><strong>Inasistencias — 1er Trimestre · 55 días hábiles</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-header"><strong>Inasistencias — 1er Trimestre · 55 días hábiles</strong><div style="display:flex;gap:8px;align-items:center;"><button onclick="imprimirPanel('tabla-inasistencias')" style="background:#C8845A;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">🖨️ Imprimir</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
     <div class="panel-body" style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:400px;">
         <thead><tr style="background:#2D5F4F;color:#fff;">
@@ -227,7 +227,10 @@
   <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:20px auto;max-height:90vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <strong style="font-size:16px;color:#2D5F4F;">📋 Agenda</strong>
-      <button onclick="cerrarAgenda()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="imprimirAgenda()" style="background:#C8845A;color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">🖨️ Imprimir</button>
+        <button onclick="cerrarAgenda()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      </div>
     </div>
 
     <!-- Agregar tarea -->
@@ -304,7 +307,8 @@ App: https://huellaed.github.io/HuellaEd/</div>
   <div style="background:#fff;border-radius:16px;padding:20px;max-width:600px;margin:20px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><strong style="font-size:16px;color:#2D5F4F;">✨ Generar Material</strong><button onclick="cerrarGenerador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;"><div class="tipo-btn" onclick="selTipo(this,'cuadernillo')">📓 Cuadernillo</div><div class="tipo-btn" onclick="selTipo(this,'ficha')">📄 Ficha</div><div class="tipo-btn" onclick="selTipo(this,'planificacion')">📋 Planificación</div><div class="tipo-btn" onclick="selTipo(this,'evaluacion')">📝 Evaluación</div></div></div>
-    <div class="form-row"><label>Área</label><select id="gen-area"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
+    <div class="form-row" id="gen-area-row"><label>Área</label><select id="gen-area"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
+    <div class="form-row" id="gen-areas-multi-row" style="display:none;"><label>Áreas que integra</label><input type="text" id="gen-areas-multi" placeholder="Ej: Matemática y Ciencias Naturales"></div>
     <div class="form-row"><label>Tema específico</label><input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo..."></div>
     <div class="form-row">
       <label>¿Incluir versiones para alumnos específicos?</label>
@@ -599,6 +603,56 @@ function renderAgenda() {
 }
 
 
+
+function imprimirPanel(id) {
+  var panel = document.getElementById(id);
+  var contenido = panel.querySelector('.panel-body').innerHTML;
+  var titulo = panel.querySelector('.panel-header strong').textContent;
+  var container = document.getElementById('acta-print-container');
+  container.innerHTML = `<div style="font-family:Arial,sans-serif;padding:20px;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:11px;letter-spacing:2px;color:#2D5F4F;text-transform:uppercase;">Escuela La Concepción · 6to Grado · 2026</div>
+      <div style="font-size:16px;font-weight:bold;margin-top:4px;">${titulo}</div>
+    </div>
+    ${contenido}
+    <div style="text-align:center;margin-top:20px;font-size:10px;color:#999;">HuellaED · impreso el ${new Date().toLocaleDateString('es-AR')}</div>
+  </div>`;
+  window.print();
+  setTimeout(() => { container.innerHTML = ''; }, 1000);
+}
+
+function imprimirAgenda() {
+  var cats = {urgente:'🔴 Urgente', importante:'🟡 Importante', proceso:'🔵 En proceso', idea:'💡 Ideas'};
+  var grupos = {};
+  tareas.forEach(t => { if(!grupos[t.cat]) grupos[t.cat]=[]; grupos[t.cat].push(t); });
+  
+  var html = `<div style="font-family:Arial,sans-serif;padding:20px;">
+    <div style="text-align:center;margin-bottom:20px;border-bottom:2px solid #2D5F4F;padding-bottom:12px;">
+      <div style="font-size:11px;letter-spacing:2px;color:#2D5F4F;text-transform:uppercase;">Escuela La Concepción · 6to Grado · 2026</div>
+      <div style="font-size:16px;font-weight:bold;margin-top:4px;">AGENDA DE TRABAJO</div>
+      <div style="font-size:11px;color:#999;margin-top:2px;">Impreso el ${new Date().toLocaleDateString('es-AR')}</div>
+    </div>`;
+  
+  ['urgente','importante','proceso','idea'].forEach(cat => {
+    if (!grupos[cat] || grupos[cat].length === 0) return;
+    html += `<div style="margin-bottom:16px;">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:6px;">${cats[cat]}</div>`;
+    grupos[cat].forEach(t => {
+      html += `<div style="display:flex;gap:10px;align-items:flex-start;padding:4px 0;border-bottom:1px solid #EEE;">
+        <span style="font-size:14px;margin-top:1px;">${t.hecha ? '☑' : '☐'}</span>
+        <span style="font-size:12px;${t.hecha?'text-decoration:line-through;color:#999;':''}">${t.texto}</span>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  
+  html += `<div style="text-align:center;margin-top:20px;font-size:10px;color:#999;">HuellaED · cada alumno, su trayecto</div></div>`;
+  
+  document.getElementById('acta-print-container').innerHTML = html;
+  window.print();
+  setTimeout(() => { document.getElementById('acta-print-container').innerHTML = ''; }, 1000);
+}
+
 function generarActa() {
   var al = document.getElementById('reunion-alumno').value;
   var fecha = document.getElementById('reunion-fecha').value;
@@ -702,7 +756,16 @@ function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementB
 var tipoSel='',destSel='grupo';
 function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
 function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';}
-function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;}
+function selTipo(el,t){
+  document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');tipoSel=t;
+  var esProyecto=t==='proyecto';
+  document.getElementById('gen-area-row').style.display=esProyecto?'none':'block';
+  document.getElementById('gen-areas-multi-row').style.display=esProyecto?'block':'none';
+  if(t==='problemas'){
+    document.getElementById('gen-area').value='Matemática';
+  }
+}
 function selDest(el,d){document.querySelectorAll('.dest-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');destSel=d;document.getElementById('gen-alumno-row').style.display=d==='adaptada'?'block':'none';}
 var alumnosEsp=[];
 var soloDif=false;
@@ -718,7 +781,7 @@ function toggleAlumnoEsp(el,nombre,tipo,perfil){
 function generarPrompt(){
   var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
   if(!tipoSel){alert('Seleccioná el tipo');return;}if(!area){alert('Seleccioná el área');return;}if(!tema){alert('Escribí el tema');return;}
-  var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación'};
+  var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador que cruce dos o más áreas'};
   var p='Soy docente de 6to grado de la Escuela La Concepción, Provincia de Buenos Aires. Trabajo con el Diseño Curricular de PBA. Tengo 19 alumnos de nivel heterogéneo.\n\n';
   p+='Necesito que generes '+tipos[tipoSel]+' para el área de '+area+', sobre el siguiente tema: '+tema+'.\n\n';
   if(!soloDif){
