@@ -131,12 +131,47 @@
 
 <main>
 
-  <!-- ACCESOS DIRECTOS -->
-  <div class="section-label">Accesos directos</div>
-  <div class="grid">
-    <a class="card" href="https://docs.google.com/document/d/1uIrhqdqK2eFwVX-EwJl14ovgNoKSOzQah6YP2mS58kg" target="_blank">
-      <div class="card-icon ic-v">🏫</div><div class="card-body"><strong>Perfil Áulico</strong><span>Descripción del grupo</span></div><div class="card-arr">›</div>
+  <!-- EL GRUPO — centro de HuellaED -->
+  <div style="background:linear-gradient(135deg,#2D5F4F 0%,#3A7A65 100%);border-radius:16px;padding:20px 20px 18px;margin-bottom:12px;text-align:center;">
+    <div style="font-size:11px;color:rgba(168,201,188,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;">Escuela La Concepción</div>
+    <div style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1.1;">6to Grado <span style="color:#7BAE99;font-weight:300;">· 2026</span></div>
+    <div style="font-size:11px;color:rgba(168,201,188,0.65);letter-spacing:1.5px;margin-top:6px;text-transform:uppercase;">cada alumno, su trayecto</div>
+  </div>
+  <div class="grid grid-2" style="margin-bottom:4px;">  <div class="grid grid-2" style="margin-bottom:4px;">
+    <a class="card" href="https://docs.google.com/document/d/1uIrhqdqK2eFwVX-EwJl14ovgNoKSOzQah6YP2mS58kg" target="_blank" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);">
+      <div class="card-icon ic-v" style="width:52px;height:52px;font-size:26px;">🏫</div>
+      <div><strong style="font-size:13px;">Perfil Áulico</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;">El grupo completo</span></div>
     </a>
+    <div class="card" onclick="toggleGrupo('perfiles')" id="btn-perfiles" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);cursor:pointer;">
+      <div class="card-icon ic-v" style="width:52px;height:52px;font-size:26px;">👤</div>
+      <div><strong style="font-size:13px;">Perfiles individuales</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;">19 alumnos</span></div>
+    </div>
+  </div>
+  <div class="grupo-panel" id="panel-perfiles" style="grid-template-columns:1fr 1fr 1fr;">
+    <a class="subcard" href="https://drive.google.com/drive/folders/1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">ZA</div><span class="subcard-label">Aguirre, Ziomara</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">BF</div><span class="subcard-label">Barrera, Felipe</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">BJ</div><span class="subcard-label">Barrera, Joaquín</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">BR</div><span class="subcard-label">Bravo, Álvaro</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">CT</div><span class="subcard-label">Carbonel, Tiziano</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">CT</div><span class="subcard-label">Cuello, Thomas</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">DM</div><span class="subcard-label">Diaz, Monserrat</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">ES</div><span class="subcard-label">Espindola, Sofía</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">GC</div><span class="subcard-label">Gamon, Ciro</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">GM</div><span class="subcard-label">Garcia, Milton</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">GK</div><span class="subcard-label">Godoy, Katia</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">MM</div><span class="subcard-label">Monteros Cruz</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">NN</div><span class="subcard-label">Nievas, Nicolás</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">SA</div><span class="subcard-label">Santa Cruz, Alma</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">SB</div><span class="subcard-label">Sosa Muñoz, B.</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">TA</div><span class="subcard-label">Tabares, Andrés</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">TS</div><span class="subcard-label">Tablada, Santino</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">TD</div><span class="subcard-label">Tagliabue, Delfina</span></a>
+    <a class="subcard" href="https://drive.google.com/drive/folders/1FvEFURvb15x1QN1weDUmZHiF10n3rbsO" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">VB</div><span class="subcard-label">Villalba, Benjamín</span></a>
+  </div>
+
+  <!-- ACCESOS RÁPIDOS -->
+  <div class="section-label">Accesos rápidos</div>
+  <div class="grid">
     <div class="card" onclick="abrirAgenda()">
       <div class="card-icon ic-y">📋</div><div class="card-body"><strong>Agenda</strong><span id="agenda-sub">Tareas y recordatorios</span></div><div class="card-arr" id="agenda-badge"></div>
     </div>
@@ -223,62 +258,51 @@
   <!-- PROMPTS -->
   <div id="prompts-sec" style="display:none;margin-top:10px;">
     <div class="prompt-card" id="p1"><div class="prompt-header" onclick="togglePrompt('p1')"><div class="prompt-num">1</div><div class="prompt-title">Bosquejo general</div><div class="prompt-tog" id="tog-p1">+</div></div><div class="prompt-body" id="body-p1" style="display:none;"><p class="prompt-txt" id="txt-p1">Actuá como asistente pedagógico experto en diseño de secuencias didácticas para nivel PRIMARIO de PBA. A partir del diseño curricular, elaborá un bosquejo general de una secuencia en [ÁREA], [AÑO], sobre [CONTENIDOS]. Objetivos: [COMPLETAR]. Contemplar inicio, desarrollo y cierre en [XX CLASES]. Incluí fundamentación breve. Presentar como esquema general, sin desarrollar actividades en detalle.</p><button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button></div></div>
-    <div class="prompt-card" id="p2"><div class="prompt-header" onclick="togglePrompt('p2')"><div class="prompt-num">2</div><div class="prompt-title">Desarrollo de actividades</div><div class="prompt-tog" id="tog-p2">+</div></div><div class="prompt-body" id="body-p2" style="display:none;"><p class="prompt-txt" id="txt-p2">A partir del bosquejo, desarrollá [CANTIDAD] actividades distribuidas en apertura, desarrollo y cierre. Orientadas a: [INTERPRETAR/ANALIZAR/RESOLVER/REFLEXIONAR]. Agrupamientos: [INDIVIDUAL/GRUPOS]. Duración: [XX MIN] cada una. Para cada actividad: título, objetivo, procedimiento y producción esperada. Sin consignas detalladas aún.</p><button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button></div></div>
-    <div class="prompt-card" id="p3"><div class="prompt-header" onclick="togglePrompt('p3')"><div class="prompt-num">3</div><div class="prompt-title">Formulación de consignas</div><div class="prompt-tog" id="tog-p3">+</div></div><div class="prompt-body" id="body-p3" style="display:none;"><p class="prompt-txt" id="txt-p3">Sobre las actividades definidas, diseñá las consignas. Deben explicitar qué hacer, con qué propósito, mediante qué procedimiento y qué producto se espera. Lenguaje adecuado al nivel primario, verbos precisos, sin ambigüedades.</p><button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button></div></div>
-    <div class="prompt-card" id="p4"><div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-tog" id="tog-p4">+</div></div><div class="prompt-body" id="body-p4" style="display:none;"><p class="prompt-txt" id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos. Claro, profesional y funcional para implementar en el aula.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div></div>
+    <div class="prompt-card" id="p2"><div class="prompt-header" onclick="togglePrompt('p2')"><div class="prompt-num">2</div><div class="prompt-title">Desarrollo de actividades</div><div class="prompt-tog" id="tog-p2">+</div></div><div class="prompt-body" id="body-p2" style="display:none;"><p class="prompt-txt" id="txt-p2">A partir del bosquejo, desarrollá [CANTIDAD] actividades distribuidas en apertura, desarrollo y cierre. Para cada actividad: título, objetivo, procedimiento y producción esperada.</p><button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button></div></div>
+    <div class="prompt-card" id="p3"><div class="prompt-header" onclick="togglePrompt('p3')"><div class="prompt-num">3</div><div class="prompt-title">Formulación de consignas</div><div class="prompt-tog" id="tog-p3">+</div></div><div class="prompt-body" id="body-p3" style="display:none;"><p class="prompt-txt" id="txt-p3">Sobre las actividades definidas, diseñá las consignas. Lenguaje adecuado al nivel primario, verbos precisos, sin ambigüedades.</p><button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button></div></div>
+    <div class="prompt-card" id="p4"><div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-tog" id="tog-p4">+</div></div><div class="prompt-body" id="body-p4" style="display:none;"><p class="prompt-txt" id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div></div>
   </div>
 
   <!-- BOLETINES -->
-  <div class="section-label">Informes de boletín</div>
+  <div class="section-label">Notas e Inasistencias</div>
   <div class="grid grid-2">
-    <a class="card" href="https://drive.google.com/drive/folders/1GqMTv-KKOVTOOUZLg2huOyveel3GNxVH" target="_blank"><div class="card-icon ic-t">1️⃣</div><div class="card-body"><strong>1er Trimestre</strong><span>Informes</span></div></a>
-    <a class="card" href="https://drive.google.com/drive/folders/1gCQNI6yjJg8nYrD8Zbkbu8B8r3vX1Pak" target="_blank"><div class="card-icon ic-t">2️⃣</div><div class="card-body"><strong>2do Trimestre</strong><span>Informes</span></div></a>
-    <a class="card" href="https://drive.google.com/drive/folders/1OcAkBK2QubW_u5t7rDWJFlc2Oj-SxrU6" target="_blank"><div class="card-icon ic-t">3️⃣</div><div class="card-body"><strong>3er Trimestre</strong><span>Informes</span></div></a>
-    <a class="card" href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank"><div class="card-icon ic-p">📄</div><div class="card-body"><strong>Cuadernillos</strong><span>Generados</span></div></a>
+    <div class="card" onclick="showSection('panel-boletin-1')">
+      <div class="card-icon ic-t">1️⃣</div><div class="card-body"><strong>1er Trimestre</strong><span>Notas e inasistencias</span></div><div class="card-arr">›</div>
+    </div>
+    <div class="card" onclick="showSection('panel-boletin-2')">
+      <div class="card-icon ic-t" style="opacity:0.4;">2️⃣</div><div class="card-body"><strong style="color:var(--gris);">2do Trimestre</strong><span>Próximamente</span></div>
+    </div>
+    <div class="card" onclick="showSection('panel-boletin-3')">
+      <div class="card-icon ic-t" style="opacity:0.4;">3️⃣</div><div class="card-body"><strong style="color:var(--gris);">3er Trimestre</strong><span>Próximamente</span></div>
+    </div>
   </div>
 
-  <!-- ASISTENCIA -->
-  <div class="section-label">Asistencia</div>
-  <div class="grid">
-    <a class="card" href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank"><div class="card-icon ic-o">📋</div><div class="card-body"><strong>Criterios de Asistencia</strong><span>Tipos y alertas</span></div><div class="card-arr">›</div></a>
+  <!-- PANEL BOLETÍN 1er TRIMESTRE -->
+  <div id="panel-boletin-1" class="panel" style="display:none;margin-top:10px;">
+    <div class="panel-head"><strong>Boletín 1er Trimestre · Aprobado: 7</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('panel-boletin-1')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
+    <div class="panel-body" style="overflow-x:auto;"><div id="boletin-1-contenido"></div></div>
+  </div>
+  <div id="panel-boletin-2" class="panel" style="display:none;margin-top:10px;">
+    <div class="panel-head"><strong>Boletín 2do Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-body"><div class="resumen">📅 El 2do trimestre aún no ha concluido.</div></div>
+  </div>
+  <div id="panel-boletin-3" class="panel" style="display:none;margin-top:10px;">
+    <div class="panel-head"><strong>Boletín 3er Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
+    <div class="panel-body"><div class="resumen">📅 El 3er trimestre aún no ha concluido.</div></div>
   </div>
 
-  <!-- DOCUMENTOS -->
-  <div class="section-label">Documentos curriculares</div>
-  <div class="grid grid-2">
-    <a class="card" href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank"><div class="card-icon ic-b">📚</div><div class="card-body"><strong>Teóricos</strong><span>DC PBA</span></div></a>
-    <a class="card" href="https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank"><div class="card-icon ic-o">✏️</div><div class="card-body"><strong>Material docente</strong><span>Mat, CN, Lengua</span></div></a>
-  </div>
-
-  <!-- PERFILES -->
-  <div class="section-label">Perfiles individuales</div>
-  <div class="alumnos-grid">
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe" target="_blank"><div class="alumno-ini">ZA</div><div class="alumno-nom">Aguirre, Ziomara</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH" target="_blank"><div class="alumno-ini">BF</div><div class="alumno-nom">Barrera, Felipe</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7" target="_blank"><div class="alumno-ini">BJ</div><div class="alumno-nom">Barrera, Joaquín</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-" target="_blank"><div class="alumno-ini">BR</div><div class="alumno-nom">Bravo, Álvaro</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm" target="_blank"><div class="alumno-ini">CT</div><div class="alumno-nom">Carbonel, Tiziano</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k" target="_blank"><div class="alumno-ini">CT</div><div class="alumno-nom">Cuello, Thomas</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC" target="_blank"><div class="alumno-ini">DM</div><div class="alumno-nom">Diaz, Monserrat</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm" target="_blank"><div class="alumno-ini">ES</div><div class="alumno-nom">Espindola, Sofía</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p" target="_blank"><div class="alumno-ini">GC</div><div class="alumno-nom">Gamon, Ciro</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw" target="_blank"><div class="alumno-ini">GM</div><div class="alumno-nom">Garcia, Milton</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le" target="_blank"><div class="alumno-ini">GK</div><div class="alumno-nom">Godoy, Katia</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4" target="_blank"><div class="alumno-ini">MM</div><div class="alumno-nom">Monteros Cruz, Máximo</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g" target="_blank"><div class="alumno-ini">NN</div><div class="alumno-nom">Nievas, Nicolás</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt" target="_blank"><div class="alumno-ini">SA</div><div class="alumno-nom">Santa Cruz, Alma</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh" target="_blank"><div class="alumno-ini">SB</div><div class="alumno-nom">Sosa Muñoz, Benjamín</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru" target="_blank"><div class="alumno-ini">TA</div><div class="alumno-nom">Tabares, Andrés</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI" target="_blank"><div class="alumno-ini">TS</div><div class="alumno-nom">Tablada, Santino</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ" target="_blank"><div class="alumno-ini">TD</div><div class="alumno-nom">Tagliabue, Delfina</div></a>
-    <a class="alumno-card" href="https://drive.google.com/drive/folders/1FvEFURvb15x1QN1weDUmZHiF10n3rbsO" target="_blank"><div class="alumno-ini">VB</div><div class="alumno-nom">Villalba, Benjamín</div></a>
-  </div>
-
-  <!-- PIE -->
-  <div class="pie-links">
-    <a class="pie-link" href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank">📁 Carpeta 6to Grado</a>
-    <a class="pie-link" href="https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank">📥 Material generado</a>
-    <a class="pie-link" href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank">📥 Evidencias</a>
+  <!-- PIE DISCRETO -->
+  <div style="margin-top:28px;padding-top:16px;border-top:1px solid var(--gris-claro);">
+    <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Recursos y documentos</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <a href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank" class="pie-link">📄 Cuadernillos</a>
+      <a href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank" class="pie-link">📋 Criterios asistencia</a>
+      <a href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank" class="pie-link">📚 Documentos curriculares</a>
+      <a href="https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank" class="pie-link">✏️ Material docente</a>
+      <a href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" class="pie-link">📁 Carpeta 6to Grado</a>
+      <a href="https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank" class="pie-link">📥 Material generado</a>
+      <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" class="pie-link">📥 Evidencias</a>
+    </div>
   </div>
 
 </main>
@@ -346,20 +370,80 @@ App: https://huellaed.github.io/HuellaEd/</div>
 </div>
 
 <!-- GRABADOR -->
-<div id="modal-grabador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:480px;margin:30px auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🎙️ Grabar Lectura</strong><button onclick="cerrarGrabador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <div class="form-row"><label>Alumno</label><select id="grab-alumno"><option value="">— Seleccionar —</option><option>Aguirre_Ziomara</option><option>Barrera_Felipe</option><option>Barrera_Joaquin</option><option>Bravo_Alvaro</option><option>Carbonel_Tiziano</option><option>Cuello_Thomas</option><option>Diaz_Monserrat</option><option>Espindola_Sofia</option><option>Gamon_Ciro</option><option>Garcia_Milton</option><option>Godoy_Katia</option><option>Monteros_Maximo</option><option>Nievas_Nicolas</option><option>Santa_Cruz_Alma</option><option>Sosa_Munoz_Benjamin</option><option>Tabares_Andres</option><option>Tablada_Santino</option><option>Tagliabue_Delfina</option><option>Villalba_Benjamin</option></select></div>
-    <div style="text-align:center;margin:18px 0;">
+<div id="modal-grabador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:520px;margin:16px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">🎙️ Grabar Lectura</strong>
+      <button onclick="cerrarGrabador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Modo sesión de lectura -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:var(--verde-bg);border-radius:9px;padding:10px 12px;cursor:pointer;" onclick="toggleSesionLectura()">
+      <input type="checkbox" id="grab-sesion-modo" style="width:17px;height:17px;accent-color:var(--verde);flex-shrink:0;pointer-events:none;">
+      <div><div style="font-size:13px;font-weight:600;color:var(--verde);">📖 Sesión de lectura grupal</div><div style="font-size:11px;color:var(--gris);">Cargá el texto una vez — grabás alumno por alumno</div></div>
+    </div>
+
+    <!-- Texto a leer (solo en modo sesión) -->
+    <div id="grab-texto-container" style="display:none;">
+      <div class="form-row">
+        <label>Título del texto</label>
+        <input type="text" id="grab-titulo-texto" placeholder="Ej: El camino de Miguitas — capítulo 3">
+      </div>
+      <div class="form-row">
+        <label>Texto a leer</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;">
+          <button onclick="document.getElementById('grab-foto-texto').click()" style="background:#fff;border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;color:var(--negro);">📷 Foto del texto</button>
+          <button onclick="toggleTextoManual()" id="btn-texto-manual" style="background:#fff;border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;color:var(--negro);">⌨️ Escribir texto</button>
+        </div>
+        <input type="file" id="grab-foto-texto" accept="image/*" capture="environment" style="display:none;" onchange="cargarFotoTexto(this)">
+        <!-- Preview foto del texto -->
+        <div id="grab-foto-preview" style="display:none;margin-bottom:8px;text-align:center;">
+          <img id="grab-foto-img" style="max-width:100%;max-height:160px;border-radius:9px;border:1px solid var(--gris-claro);object-fit:contain;">
+          <div style="font-size:10px;color:var(--verde);margin-top:4px;">✅ Foto del texto cargada — se mostrará durante la grabación</div>
+        </div>
+        <!-- Campo texto manual (opcional) -->
+        <div id="grab-texto-manual-container" style="display:none;">
+          <textarea id="grab-texto" placeholder="Pegá o escribí el texto acá..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:90px;resize:none;box-sizing:border-box;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel sesión: lista de alumnos -->
+    <div id="grab-sesion-panel" style="display:none;background:var(--crema);border-radius:9px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Tocá el alumno para grabar su lectura</div>
+      <div id="grab-sesion-alumnos" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;"></div>
+    </div>
+
+    <!-- Campo alumno individual (se oculta en sesión) -->
+    <div id="grab-campo-alumno" class="form-row">
+      <label>Alumno</label>
+      <select id="grab-alumno"><option value="">— Seleccionar —</option><option>Aguirre_Ziomara</option><option>Barrera_Felipe</option><option>Barrera_Joaquin</option><option>Bravo_Alvaro</option><option>Carbonel_Tiziano</option><option>Cuello_Thomas</option><option>Diaz_Monserrat</option><option>Espindola_Sofia</option><option>Gamon_Ciro</option><option>Garcia_Milton</option><option>Godoy_Katia</option><option>Monteros_Maximo</option><option>Nievas_Nicolas</option><option>Santa_Cruz_Alma</option><option>Sosa_Munoz_Benjamin</option><option>Tabares_Andres</option><option>Tablada_Santino</option><option>Tagliabue_Delfina</option><option>Villalba_Benjamin</option></select>
+    </div>
+
+    <!-- Texto visible durante grabación -->
+    <div id="grab-texto-visible" style="display:none;background:#F0F7F4;border-radius:9px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;" id="grab-titulo-visible"></div>
+      <!-- Foto del texto durante grabación -->
+      <div id="grab-foto-durante" style="display:none;text-align:center;">
+        <img id="grab-foto-durante-img" style="max-width:100%;max-height:200px;border-radius:7px;object-fit:contain;">
+      </div>
+      <!-- Texto escrito durante grabación -->
+      <div style="font-size:13px;color:var(--negro);line-height:1.7;max-height:140px;overflow-y:auto;" id="grab-texto-display"></div>
+    </div>
+
+    <!-- Grabador -->
+    <div style="text-align:center;margin:16px 0;">
       <div id="grab-status" style="font-size:12px;color:var(--gris);margin-bottom:10px;">Seleccioná el alumno y tocá Grabar</div>
       <div id="grab-timer" style="font-size:30px;font-weight:700;color:var(--verde);margin-bottom:14px;display:none;">00:00</div>
       <button id="grab-btn" onclick="toggleGrabacion()" style="width:76px;height:76px;border-radius:50%;background:var(--terracota);border:none;font-size:30px;cursor:pointer;color:#fff;box-shadow:0 4px 14px rgba(200,132,90,0.4);">🎙️</button>
       <div style="margin-top:7px;font-size:11px;color:var(--gris);" id="grab-hint">Tocá para grabar</div>
     </div>
+
     <div id="grab-resultado" style="display:none;text-align:center;">
       <audio id="grab-audio" controls style="width:100%;margin-bottom:10px;"></audio>
       <button onclick="descargarAudio()" class="save-btn">⬇️ Descargar</button>
       <div style="font-size:10px;color:var(--gris);margin-top:5px;" id="grab-filename"></div>
+      <button id="grab-siguiente-btn" style="display:none;width:100%;background:var(--verde-claro);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:7px;" onclick="siguienteAlumnoLectura()">Siguiente alumno →</button>
     </div>
   </div>
 </div>
@@ -368,10 +452,25 @@ App: https://huellaed.github.io/HuellaEd/</div>
 <div id="modal-evidencia" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:560px;margin:20px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">📷 Evidencia Pedagógica</strong><button onclick="cerrarEvidencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <div class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv()"><option value="">— Seleccionar —</option><option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option><option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option><option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option><option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option><option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option><option>Villalba, Benjamín</option></select></div>
-    <div class="form-row"><label>Área</label><select id="ev-area" onchange="actualizarNombreEv()"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
-    <div class="form-row"><label>Tema o actividad</label><input type="text" id="ev-tema" placeholder="Ej: Algoritmo de división, Texto narrativo..." oninput="actualizarNombreEv()"></div>
-    <div class="form-row"><label>Observación (opcional)</label><textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:60px;resize:none;box-sizing:border-box;"></textarea></div>
+    <!-- Modo sesión -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:var(--verde-bg);border-radius:9px;padding:10px 12px;cursor:pointer;" onclick="toggleSesion()">
+      <input type="checkbox" id="ev-sesion-modo" style="width:17px;height:17px;accent-color:var(--verde);flex-shrink:0;pointer-events:none;">
+      <div><div style="font-size:13px;font-weight:600;color:var(--verde);">📸 Modo sesión</div><div style="font-size:11px;color:var(--gris);">Fijá área y tema una vez — elegís alumno y sacás foto</div></div>
+    </div>
+
+    <div class="form-row"><label>Área</label><select id="ev-area" onchange="actualizarNombreEv();if(evSesionActivo)renderSesionAlumnos()"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
+    <div class="form-row"><label>Tema o actividad</label><input type="text" id="ev-tema" placeholder="Ej: Cálculo mental y estimación..." oninput="actualizarNombreEv();if(evSesionActivo)renderSesionAlumnos()"></div>
+
+    <!-- Panel sesión -->
+    <div id="ev-sesion-panel" style="display:none;background:var(--crema);border-radius:9px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Tocá el alumno para sacarle la foto</div>
+      <div id="ev-sesion-alumnos" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;"></div>
+      <div id="ev-sesion-status" style="text-align:center;font-size:12px;color:var(--verde);margin-top:8px;font-weight:600;min-height:18px;"></div>
+    </div>
+
+    <!-- Campo alumno individual -->
+    <div id="ev-campo-alumno" class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv()"><option value="">— Seleccionar —</option><option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option><option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option><option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option><option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option><option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option><option>Villalba, Benjamín</option></select></div>
+    <div id="ev-campo-obs" class="form-row"><label>Observación (opcional)</label><textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:55px;resize:none;box-sizing:border-box;"></textarea></div>
     <div id="ev-nombre-preview" style="background:var(--verde-bg);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);display:none;"><strong>Nombre:</strong> <span id="ev-nombre-txt"></span></div>
     <input type="file" id="ev-camara" accept="image/*" capture="environment" style="display:none;" onchange="procesarFoto(this)">
     <input type="file" id="ev-galeria" accept="image/*" style="display:none;" onchange="procesarFoto(this)">
@@ -492,9 +591,79 @@ function toggleGrupo(id){
 function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
 
 // ── PANELS ──
-function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')renderNotas();if(id==='tabla-inasistencias')renderInasistencias();}}
+function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')renderNotas();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1')renderBoletin1();}}
 
 // ── NOTAS ──
+function renderBoletin1(){
+  var areas=['L','M','CS','CN','I','EA','EF'];
+  var html='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;">';
+  html+='<thead><tr style="background:var(--verde);color:#fff;">';
+  html+='<th style="padding:7px 5px;text-align:left;">Alumno</th>';
+  areas.forEach(a=>{html+=`<th style="padding:7px 3px;text-align:center;">${a}</th>`;});
+  html+='<th style="padding:7px 3px;text-align:center;">Prom</th>';
+  html+='<th style="padding:7px 3px;text-align:center;">Faltas</th>';
+  html+='<th style="padding:7px 5px;text-align:left;">Estado</th>';
+  html+='</tr></thead><tbody>';
+
+  NOTAS_DATA.forEach((r,i)=>{
+    var prom=(r.n.reduce((a,b)=>a+b,0)/r.n.length).toFixed(1);
+    var desap=r.n.filter(n=>n<APROBADO).length;
+    var inasist=INASIST_DATA.find(x=>x.a===r.a)||{m:0,ab:0,my:0};
+    var totalF=inasist.m+inasist.ab+inasist.my;
+    var bg=i%2===0?'#fff':'#F5F2EE';
+
+    // Estado combinado
+    var alertaF=totalF>=10?'🔴':totalF>=7?'🟠':totalF>=5?'🟡':'';
+    var alertaN=desap>0?`✗${desap}`:'';
+    var estado=(alertaF||alertaN)?[alertaF,alertaN].filter(Boolean).join(' '):'✅';
+
+    var cells=r.n.map(n=>`<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`).join('');
+    var pc=parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
+    var fcol=totalF>=10?'#C0392B':totalF>=7?'var(--terracota)':totalF>=5?'#B7950B':'var(--negro)';
+
+    html+=`<tr style="background:${bg};">
+      <td style="padding:5px;font-size:10px;">${r.a}</td>
+      ${cells}
+      <td style="padding:5px 3px;text-align:center;font-weight:bold;color:${pc};">${prom}</td>
+      <td style="padding:5px 3px;text-align:center;font-weight:bold;color:${fcol};">${totalF}</td>
+      <td style="padding:5px;font-size:10px;">${estado}</td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  html+='<div style="margin-top:7px;font-size:10px;color:var(--gris);">L=Lengua · M=Matemática · CS=Cs.Sociales · CN=Cs.Naturales · I=Inglés · EA=Ed.Artística · EF=Ed.Física · Faltas: 🔴+10 · 🟠7-9 · 🟡5-6</div>';
+
+  // Sección resumen inasistencias
+  html+='<div style="margin-top:16px;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--negro);">Inasistencias — 1er Trimestre</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">';
+  html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--verde);">55</div><div style="font-size:10px;color:var(--gris);">Días hábiles</div><div style="font-size:9px;color:var(--gris);">Mar:20 · Abr:16 · May:19</div></div>';
+  
+  var criticos=INASIST_DATA.filter(r=>r.m+r.ab+r.my>=10);
+  var acumulacion=INASIST_DATA.filter(r=>{var t=r.m+r.ab+r.my;return t>=7&&t<10;});
+  var intermitente=INASIST_DATA.filter(r=>{var t=r.m+r.ab+r.my;return t>=5&&t<7;});
+  var promFaltas=(INASIST_DATA.reduce((s,r)=>s+r.m+r.ab+r.my,0)/INASIST_DATA.length).toFixed(1);
+  
+  html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--verde);">'+promFaltas+'</div><div style="font-size:10px;color:var(--gris);">Promedio faltas</div><div style="font-size:9px;color:var(--gris);">por alumno</div></div>';
+  html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:'+(criticos.length>0?'#C0392B':'var(--verde)')+'">'+criticos.length+'</div><div style="font-size:10px;color:var(--gris);">Alertas críticas</div><div style="font-size:9px;color:var(--gris);">+10 faltas</div></div>';
+  html+='</div>';
+
+  // Tabla inasistencias compacta
+  html+='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:360px;">';
+  html+='<thead><tr style="background:var(--verde);color:#fff;"><th style="padding:6px 5px;text-align:left;">Alumno</th><th style="padding:6px 3px;text-align:center;">Mar</th><th style="padding:6px 3px;text-align:center;">Abr</th><th style="padding:6px 3px;text-align:center;">May</th><th style="padding:6px 3px;text-align:center;">Total</th><th style="padding:6px 3px;text-align:center;">%</th><th style="padding:6px 5px;text-align:left;">Estado</th></tr></thead><tbody>';
+  INASIST_DATA.forEach((r,i)=>{
+    var t=r.m+r.ab+r.my;
+    var pct=Math.round((55-t)/55*100);
+    var est,bg;
+    if(t>=10){est='🔴 Crítico';bg='#FDE8E8';}
+    else if(t>=7){est='🟠 Acum.';bg='#FDF0E8';}
+    else if(t>=5){est='🟡 Interm.';bg='#FDFAE8';}
+    else{est='✅';bg=i%2===0?'#fff':'#F5F2EE';}
+    html+=`<tr style="background:${bg};"><td style="padding:5px;font-size:10px;">${r.a}</td><td style="padding:5px 3px;text-align:center;">${r.m}</td><td style="padding:5px 3px;text-align:center;">${r.ab}</td><td style="padding:5px 3px;text-align:center;">${r.my}</td><td style="padding:5px 3px;text-align:center;font-weight:bold;">${t}</td><td style="padding:5px 3px;text-align:center;">${pct}%</td><td style="padding:5px;font-size:10px;">${est}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  
+  document.getElementById('boletin-1-contenido').innerHTML=html;
+}
+
 function renderNotas(){var tb=document.getElementById('notas-tbody');if(!tb)return;tb.innerHTML=NOTAS_DATA.map((r,i)=>{var p=(r.n.reduce((a,b)=>a+b,0)/r.n.length).toFixed(1);var d=r.n.filter(n=>n<APROBADO).length;var bg=i%2===0?'#fff':'#F5F2EE';var cells=r.n.map(n=>`<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`).join('');var pc=parseFloat(p)>=APROBADO?'var(--verde)':'#C0392B';return `<tr style="background:${bg};"><td style="padding:5px;font-size:10px;">${r.a}${d>0?` <span style="font-size:9px;color:#C0392B;">(${d}✗)</span>`:''}</td>${cells}<td style="padding:5px 3px;text-align:center;font-weight:bold;color:${pc};">${p}</td></tr>`;}).join('');var sd=document.getElementById('stats-areas');sd.innerHTML=['L','M','CS','CN','I','EA','EF'].map((area,i)=>{var vals=NOTAS_DATA.map(r=>r.n[i]);var p=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);var ap=vals.filter(v=>v>=APROBADO).length;var pct=Math.round(ap/vals.length*100);var col=pct>=80?'var(--verde)':pct>=60?'var(--terracota)':'#C0392B';return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="width:26px;font-size:10px;font-weight:700;">${area}</div><div style="flex:1;height:7px;background:var(--gris-claro);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px;"></div></div><div style="font-size:10px;color:${col};font-weight:700;width:55px;">${pct}% · ${p}</div></div>`;}).join('');}
 
 // ── INASISTENCIAS ──
@@ -521,19 +690,216 @@ function generarPrompt(){var area=document.getElementById('gen-area').value,tema
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(()=>{document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
 // ── GRABADOR ──
+
+var grabSesionActivo=false;
+var grabSesionAlumnoActual='';
+const GRAB_ALUMNOS=['Aguirre_Ziomara','Barrera_Felipe','Barrera_Joaquin','Bravo_Alvaro','Carbonel_Tiziano','Cuello_Thomas','Diaz_Monserrat','Espindola_Sofia','Gamon_Ciro','Garcia_Milton','Godoy_Katia','Monteros_Maximo','Nievas_Nicolas','Santa_Cruz_Alma','Sosa_Munoz_Benjamin','Tabares_Andres','Tablada_Santino','Tagliabue_Delfina','Villalba_Benjamin'];
+var grabAlumnosCompletados=[];
+
+var grabFotoTextoURL = null;
+
+function cargarFotoTexto(input){
+  if(!input.files||!input.files[0])return;
+  var file=input.files[0];
+  grabFotoTextoURL=URL.createObjectURL(file);
+  document.getElementById('grab-foto-img').src=grabFotoTextoURL;
+  document.getElementById('grab-foto-preview').style.display='block';
+  // Limpiar texto manual si había
+  document.getElementById('grab-texto').value='';
+}
+
+function toggleTextoManual(){
+  var c=document.getElementById('grab-texto-manual-container');
+  var btn=document.getElementById('btn-texto-manual');
+  var visible=c.style.display!=='none';
+  c.style.display=visible?'none':'block';
+  btn.style.background=visible?'#fff':'var(--verde-bg)';
+  btn.style.borderColor=visible?'var(--gris-claro)':'var(--verde)';
+}
+
+function toggleSesionLectura(){
+  grabSesionActivo=!grabSesionActivo;
+  document.getElementById('grab-sesion-modo').checked=grabSesionActivo;
+  document.getElementById('grab-texto-container').style.display=grabSesionActivo?'block':'none';
+  document.getElementById('grab-sesion-panel').style.display=grabSesionActivo?'block':'none';
+  document.getElementById('grab-campo-alumno').style.display=grabSesionActivo?'none':'block';
+  document.getElementById('grab-siguiente-btn').style.display=grabSesionActivo?'block':'none';
+  document.getElementById('grab-resultado').style.display='none';
+  document.getElementById('grab-timer').style.display='none';
+  document.getElementById('grab-btn').style.background='var(--terracota)';
+  document.getElementById('grab-btn').textContent='🎙️';
+  document.getElementById('grab-status').textContent='Seleccioná el alumno y tocá Grabar';
+  grabAlumnosCompletados=[];
+  if(grabSesionActivo) renderSesionLectura();
+}
+
+function renderSesionLectura(){
+  var titulo=document.getElementById('grab-titulo-texto').value;
+  var texto=document.getElementById('grab-texto').value;
+  var panel=document.getElementById('grab-sesion-alumnos');
+  panel.innerHTML=GRAB_ALUMNOS.map(a=>{
+    var nombre=a.replace(/_/g,' ');
+    var ini=nombre.split(' ').slice(0,2).map(p=>p[0]).join('');
+    var completado=grabAlumnosCompletados.includes(a);
+    return `<button onclick="sesionElegirAlumnoLectura('${a}')" 
+      style="display:flex;align-items:center;gap:6px;padding:8px 10px;border:1.5px solid ${completado?'var(--verde)':'var(--gris-claro)'};border-radius:9px;background:${completado?'var(--verde-bg)':'#fff'};cursor:pointer;font-size:11px;text-align:left;transition:all 0.12s;" 
+      id="grab-btn-${a}">
+      <span style="width:24px;height:24px;border-radius:50%;background:${completado?'var(--verde)':'var(--verde-bg)'};color:${completado?'#fff':'var(--verde)'};font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${completado?'✓':ini}</span>
+      <span style="line-height:1.2;">${nombre}</span>
+    </button>`;
+  }).join('');
+}
+
+function sesionElegirAlumnoLectura(alumno){
+  grabSesionAlumnoActual=alumno;
+  document.getElementById('grab-alumno').value=alumno;
+  // Mostrar foto o texto
+  var titulo=document.getElementById('grab-titulo-texto').value;
+  var texto=document.getElementById('grab-texto').value;
+  var hayContenido=grabFotoTextoURL||texto;
+  if(hayContenido){
+    document.getElementById('grab-titulo-visible').textContent=titulo||'Texto de lectura';
+    if(grabFotoTextoURL){
+      document.getElementById('grab-foto-durante-img').src=grabFotoTextoURL;
+      document.getElementById('grab-foto-durante').style.display='block';
+      document.getElementById('grab-texto-display').textContent='';
+    } else {
+      document.getElementById('grab-foto-durante').style.display='none';
+      document.getElementById('grab-texto-display').textContent=texto;
+    }
+    document.getElementById('grab-texto-visible').style.display='block';
+  }
+  document.getElementById('grab-status').textContent='📖 '+alumno.replace(/_/g,' ')+' — listo para grabar';
+  document.getElementById('grab-resultado').style.display='none';
+  document.getElementById('grab-timer').style.display='none';
+  document.getElementById('grab-btn').style.background='var(--terracota)';
+  document.getElementById('grab-btn').textContent='🎙️';
+  document.getElementById('grab-hint').textContent='Tocá para grabar';
+  // Scroll al grabador
+  document.getElementById('grab-btn').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function siguienteAlumnoLectura(){
+  document.getElementById('grab-resultado').style.display='none';
+  document.getElementById('grab-texto-visible').style.display='none';
+  document.getElementById('grab-status').textContent='Seleccioná el siguiente alumno';
+  renderSesionLectura();
+  document.getElementById('grab-sesion-panel').scrollIntoView({behavior:'smooth'});
+}
+
 var mr=null,ac=[],grab=false,ti=null,seg=0,ab=null;
 function abrirGrabador(){document.getElementById('modal-grabador').style.display='block';document.getElementById('grab-resultado').style.display='none';document.getElementById('grab-timer').style.display='none';document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-status').textContent='Seleccioná el alumno y tocá Grabar';seg=0;}
 function cerrarGrabador(){if(grab)toggleGrabacion();document.getElementById('modal-grabador').style.display='none';}
 function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];mr=new MediaRecorder(st);mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
-function descargarAudio(){var al=document.getElementById('grab-alumno').value,a=document.createElement('a');a.href=URL.createObjectURL(ab);a.download='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';a.click();}
+function descargarAudio(){
+  var al=document.getElementById('grab-alumno').value;
+  var titulo=document.getElementById('grab-titulo-texto').value;
+  var tituloSlug=titulo?'_'+titulo.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').trim().replace(/ /g,'_').substring(0,20):'';
+  var nombre='Lectura_'+al+tituloSlug+'_'+new Date().toISOString().slice(0,10);
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(ab);
+  a.download=nombre+'.webm';
+  a.click();
+  document.getElementById('grab-filename').textContent=nombre+'.webm';
+  // Marcar completado en sesión
+  if(grabSesionActivo&&al){
+    if(!grabAlumnosCompletados.includes(al)) grabAlumnosCompletados.push(al);
+    document.getElementById('grab-siguiente-btn').style.display='block';
+    renderSesionLectura();
+  }
+}
 
 // ── EVIDENCIA ──
 var evFile=null,evReg=[];
 function abrirEvidencia(){document.getElementById('modal-evidencia').style.display='block';document.getElementById('ev-preview-container').style.display='none';document.getElementById('ev-descargar-btn').style.display='none';document.getElementById('ev-nombre-preview').style.display='none';evFile=null;renderEvidencias();}
 function cerrarEvidencia(){document.getElementById('modal-evidencia').style.display='none';}
 function actualizarNombreEv(){var al=document.getElementById('ev-alumno').value,ar=document.getElementById('ev-area').value,tm=document.getElementById('ev-tema').value;if(!al&&!tm){document.getElementById('ev-nombre-preview').style.display='none';return;}var fecha=new Date().toISOString().slice(0,10);var alS=al.replace(/[^a-zA-Z ]/g,'').replace(/ /g,'_');var arS=ar?'_'+ar.replace(/ /g,'_'):'';var tmS=tm.trim().replace(/ /g,'_').substring(0,25);var nombre='Evidencia_'+alS+arS+(tmS?'_'+tmS:'')+'_'+fecha;document.getElementById('ev-nombre-txt').textContent=nombre+'.jpg';document.getElementById('ev-nombre-preview').style.display='block';return nombre;}
-function procesarFoto(input){if(!input.files||!input.files[0])return;evFile=input.files[0];var r=new FileReader();r.onload=function(e){document.getElementById('ev-preview-img').src=e.target.result;document.getElementById('ev-preview-container').style.display='block';document.getElementById('ev-descargar-btn').style.display='block';};r.readAsDataURL(evFile);}
+function procesarFoto(input){
+  if(!input.files||!input.files[0])return;
+  evFile=input.files[0];
+  var r=new FileReader();
+  r.onload=function(e){
+    document.getElementById('ev-preview-img').src=e.target.result;
+    document.getElementById('ev-preview-container').style.display='block';
+    document.getElementById('ev-descargar-btn').style.display='block';
+    if(evSesionActivo){
+      // En modo sesión descarga automáticamente
+      setTimeout(()=>descargarEvidenciaSesion(),300);
+    }
+  };
+  r.readAsDataURL(evFile);
+}
+
+function descargarEvidenciaSesion(){
+  if(!evFile)return;
+  var nombre=actualizarNombreEv();
+  if(!nombre)return;
+  var alActual=document.getElementById('ev-alumno').value;
+  evReg.unshift({id:Date.now(),alumno:alActual,area:document.getElementById('ev-area').value,tema:document.getElementById('ev-tema').value,obs:'',fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});
+  if(!evSesionCompletados.includes(alActual)) evSesionCompletados.push(alActual);
+  var ext=evFile.type.includes('png')?'.png':'.jpg';
+  var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();
+  // Feedback y reset
+  var alumnoNombre=document.getElementById('ev-alumno').value.split(',')[0];
+  document.getElementById('ev-sesion-status').textContent='✅ '+alumnoNombre+' guardado — elegí el siguiente';
+  // Marcar botón como completado
+  var btnId='ev-btn-'+document.getElementById('ev-alumno').value.replace(/[^a-zA-Z]/g,'_');
+  var btn=document.getElementById(btnId);
+  if(btn){btn.style.background='var(--verde-bg)';btn.style.borderColor='var(--verde)';}
+  document.getElementById('ev-preview-container').style.display='none';
+  document.getElementById('ev-descargar-btn').style.display='none';
+  evFile=null;
+  renderEvidencias();
+}
 function descargarEvidencia(){if(!evFile)return;var nombre=actualizarNombreEv();if(!nombre){alert('Completá el alumno y el tema');return;}evReg.unshift({id:Date.now(),alumno:document.getElementById('ev-alumno').value,area:document.getElementById('ev-area').value,tema:document.getElementById('ev-tema').value,obs:document.getElementById('ev-obs').value,fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});var ext=evFile.type.includes('png')?'.png':'.jpg';var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();renderEvidencias();}
+var evSesionActivo=false;
+var evSesionAlumnoActual='';
+const EV_ALUMNOS=['Aguirre, Ziomara','Barrera, Felipe','Barrera, Joaquín','Bravo, Álvaro','Carbonel, Tiziano','Cuello, Thomas','Diaz, Monserrat','Espindola, Sofía','Gamon, Ciro','Garcia, Milton','Godoy, Katia','Monteros Cruz, Máximo','Nievas, Nicolás','Santa Cruz, Alma','Sosa Muñoz, Benjamín','Tabares, Andrés','Tablada, Santino','Tagliabue, Delfina','Villalba, Benjamín'];
+
+function toggleSesion(){
+  evSesionActivo=!evSesionActivo;
+  document.getElementById('ev-sesion-modo').checked=evSesionActivo;
+  document.getElementById('ev-sesion-panel').style.display=evSesionActivo?'block':'none';
+  document.getElementById('ev-campo-alumno').style.display=evSesionActivo?'none':'block';
+  document.getElementById('ev-campo-obs').style.display=evSesionActivo?'none':'block';
+  document.getElementById('ev-preview-container').style.display='none';
+  document.getElementById('ev-descargar-btn').style.display='none';
+  evSesionCompletados=[];
+  if(evSesionActivo) renderSesionAlumnos();
+}
+
+var evSesionCompletados=[];
+function renderSesionAlumnos(){
+  var tema=document.getElementById('ev-tema').value;
+  var area=document.getElementById('ev-area').value;
+  if(!tema||!area){
+    document.getElementById('ev-sesion-alumnos').innerHTML='<div style="grid-column:span 2;text-align:center;font-size:12px;color:var(--gris);">Completá el área y el tema primero</div>';
+    return;
+  }
+  document.getElementById('ev-sesion-alumnos').innerHTML=EV_ALUMNOS.map(a=>{
+    var ini=a.split(',').map(p=>p.trim()).map(p=>p[0]).join('');
+    var hecho=evSesionCompletados.includes(a);
+    return `<button onclick="sesionElegirAlumno('${a}')" style="display:flex;align-items:center;gap:6px;padding:8px 10px;border:1.5px solid ${hecho?'var(--verde)':'var(--gris-claro)'};border-radius:9px;background:${hecho?'var(--verde-bg)':'#fff'};cursor:pointer;font-size:12px;text-align:left;" id="ev-btn-${a.replace(/[^a-zA-Z]/g,'_')}">
+      <span style="width:26px;height:26px;border-radius:50%;background:${hecho?'var(--verde)':'var(--verde-bg)'};color:${hecho?'#fff':'var(--verde)'};font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${hecho?'✓':ini}</span>
+      <span style="line-height:1.2;">${a}</span>
+    </button>`;
+  }).join('');
+}
+
+function sesionElegirAlumno(nombre){
+  evSesionAlumnoActual=nombre;
+  document.getElementById('ev-alumno').value=nombre;
+  actualizarNombreEv();
+  document.getElementById('ev-sesion-status').textContent='📷 Sacando foto de '+nombre.split(',')[0]+'...';
+  // Resetear previa
+  document.getElementById('ev-preview-container').style.display='none';
+  document.getElementById('ev-descargar-btn').style.display='none';
+  evFile=null;
+  // Abrir cámara automáticamente
+  document.getElementById('ev-camara').value='';
+  document.getElementById('ev-camara').click();
+}
+
 function renderEvidencias(){var l=document.getElementById('ev-registros-lista'),c=document.getElementById('ev-registros-container');if(evReg.length===0){c.style.display='none';return;}c.style.display='block';l.innerHTML=evReg.slice(0,6).map(r=>'<div style="background:var(--crema);border-radius:9px;padding:8px 11px;margin-bottom:5px;font-size:11px;"><div style="font-weight:600;">'+r.alumno+' · '+r.fecha+'</div><div style="color:var(--gris);">'+r.archivo+'</div></div>').join('');}
 
 // ── REUNION ──
