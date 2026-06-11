@@ -1,0 +1,24 @@
+{
+  "name": "HuellaED 5°",
+  "short_name": "HuellaED 5°",
+  "description": "Sistema pedagógico — 5° Año · Escuela La Concepción",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2D4A6B",
+  "theme_color": "#2D4A6B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192-5to.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512-5to.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
