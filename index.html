@@ -933,62 +933,31 @@ function abrirGeneradorBoletin(){ document.getElementById('modal-gen-boletin').s
 function cerrarGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='none'; }
 function selTrimBoletin(el,t){ document.querySelectorAll('#tb-1,#tb-2,#tb-3').forEach(b=>b.classList.remove('active')); el.classList.add('active'); trimBoletin=t; }
 function generarPromptBoletin(){
-  var ctx = document.getElementById('boletin-contexto').value;
-  var trims = {'1':'1er Trimestre (Marzo-Junio 2026)','2':'2do Trimestre (Julio-Septiembre 2026)','3':'3er Trimestre (Octubre-Diciembre 2026)'};
-  var alumnos = ['Aguirre Ziomara','Barrera Felipe','Barrera Joaquín','Bravo Álvaro','Carbonel Tiziano','Cuello Thomas','Diaz Monserrat','Espindola Sofía','Gamon Ciro','Garcia Milton','Godoy Katia','Monteros Cruz Máximo','Nievas Nicolás','Santa Cruz Alma','Sosa Muñoz Benjamín','Tabares Andrés','Tablada Santino','Tagliabue Delfina','Villalba Benjamín'];
-  var p = 'Soy docente de 6to Año de la Escuela La Concepción. Necesito que generes los informes de boletín del ' + trims[trimBoletin] + ' para mis 19 alumnos.
-
-';
-  p += 'FORMATO OBLIGATORIO:
-';
-  p += '· Cada informe va en un recuadro de 11.5cm x 2.5cm
-';
-  p += '· Texto narrativo de 3-4 oraciones máximo
-';
-  p += '· Mencionar: desempeño en Matemática, Prácticas del Lenguaje, conducta/convivencia y asistencia si corresponde
-';
-  p += '· Tono profesional, cálido y constructivo — siempre con algo positivo y algo a mejorar
-';
-  p += '· Sin títulos ni encabezados — solo el texto del informe
-
-';
-  p += 'ALUMNOS (19):
-' + alumnos.join(' · ') + '
-
-';
-  p += 'ALUMNOS CON ATENCIÓN DIFERENCIADA:
-';
-  p += '· Gamon Ciro: TDL + IDN Bajo — adecuación y adaptación según contenido
-';
-  p += '· Nievas Nicolás: dificultades en lectoescritura
-';
-  p += '· Godoy Katia: dificultades en lectoescritura y matemática
-';
-  p += '· Carbonel Tiziano: dificultades en lectoescritura, timidez
-';
-  p += '· Cuello Thomas: dificultad de concentración
-
-';
-  p += 'NOTAS 1ER TRIMESTRE (para referencia):
-Aguirre 7.3 · Barrera F 8.1 · Barrera J 7.4 · Bravo 7.6 · Carbonel 7.1 · Cuello 7.0 · Diaz 7.7 · Espindola 8.1 · Gamon 7.6 · Garcia 8.3 · Godoy 7.0 · Monteros 8.1 · Nievas 6.9 · Santa Cruz 8.1 · Sosa Muñoz 8.7 · Tabares 7.7 · Tablada 7.6 · Tagliabue 7.6 · Villalba 7.4
-
-';
-  if(ctx) p += 'CONTEXTO ADICIONAL DEL PERÍODO:
-' + ctx + '
-
-';
-  p += 'Generá un informe por alumno en el orden de la lista. Usá el mismo estilo narrativo para todos.';
-  document.getElementById('boletin-prompt-text').textContent = p;
-  document.getElementById('boletin-resultado').style.display = 'block';
+  var ctx=document.getElementById('boletin-contexto').value;
+  var trims={'1':'1er Trimestre (Marzo-Junio 2026)','2':'2do Trimestre (Julio-Septiembre 2026)','3':'3er Trimestre (Octubre-Diciembre 2026)'};
+  var alumnos='Aguirre Ziomara, Barrera Felipe, Barrera Joaquin, Bravo Alvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofia, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Maximo, Nievas Nicolas, Santa Cruz Alma, Sosa Muñoz Benjamin, Tabares Andres, Tablada Santino, Tagliabue Delfina, Villalba Benjamin';
+  var p='Soy docente de 6to Año de la Escuela La Concepcion. Genera los informes de boletin del '+trims[trimBoletin]+' para mis 19 alumnos.\n\n';
+  p+='FORMATO: recuadro 11.5cm x 2.5cm. Texto narrativo de 3-4 oraciones. Mencionar Matematica, Practicas del Lenguaje, conducta y asistencia si corresponde. Tono profesional y constructivo.\n\n';
+  p+='ALUMNOS (19):\n'+alumnos+'\n\n';
+  p+='ATENCION DIFERENCIADA:\n';
+  p+='Gamon Ciro: TDL + IDN Bajo — adecuacion y adaptacion segun contenido\n';
+  p+='Nievas Nicolas: dificultades en lectoescritura\n';
+  p+='Godoy Katia: dificultades en lectoescritura y matematica\n';
+  p+='Carbonel Tiziano: dificultades en lectoescritura, timidez\n';
+  p+='Cuello Thomas: dificultad de concentracion\n\n';
+  p+='PROMEDIOS 1ER TRIMESTRE:\n';
+  p+='Aguirre 7.3 - Barrera F 8.1 - Barrera J 7.4 - Bravo 7.6 - Carbonel 7.1 - Cuello 7.0 - Diaz 7.7 - Espindola 8.1 - Gamon 7.6 - Garcia 8.3 - Godoy 7.0 - Monteros 8.1 - Nievas 6.9 - Santa Cruz 8.1 - Sosa Muñoz 8.7 - Tabares 7.7 - Tablada 7.6 - Tagliabue 7.6 - Villalba 7.4\n\n';
+  if(ctx)p+='CONTEXTO ADICIONAL:\n'+ctx+'\n\n';
+  p+='Genera un informe por alumno en el orden de la lista.';
+  document.getElementById('boletin-prompt-text').textContent=p;
+  document.getElementById('boletin-resultado').style.display='block';
 }
 function copiarPromptBoletin(){ navigator.clipboard.writeText(document.getElementById('boletin-prompt-text').textContent).then(()=>{ document.getElementById('boletin-copy-msg').textContent='✅ Copiado'; setTimeout(()=>{ document.getElementById('boletin-copy-msg').textContent=''; },3000); }); }
 
 
-var PERFILES_DATA = {"aulico":{"titulo":"Perfil Aulico Formal - 6to Año · Junio 2026","secciones":[{"t":"Descripcion general","c":"19 alumnos (10 varones, 9 mujeres), 11-12 años. Heterogeneo en desempeño. Clima aulico positivo y favorable."},{"t":"Organizacion","c":"Mesas en U. Varios alumnos pidieron cambiar de lugar reconociendo que se distraen — señal de madurez metacognitiva."},{"t":"Dinamica grupal","c":"FORTALEZAS: Silencio sostenido +15 min a pedido del propio grupo. Asamblea con EOE muy productiva. ASPECTOS A TRABAJAR: Algunos alumnos con dificultad de atencion. Dos alumnos con patrones de desregulacion situacional."},{"t":"Niveles 1er Trimestre","c":"ALTO: Sosa Muñoz 8.7 · Garcia 8.3 · Barrera F, Espindola, Monteros, Santa Cruz 8.1 | ESPERADO: Diaz 7.7 · Tabares 7.7 · Bravo, Tablada, Tagliabue, Gamon 7.6 | EN PROCESO: Nievas 6.9 (4 areas desap.)"},{"t":"Asistencia 1er T (55 dias)","c":"CRITICO: Barrera Joaquin 15 faltas (URGENTE) | ACUMULACION: Carbonel 8, Tagliabue 8, Godoy 7 | PERFECTA: Aguirre, Sosa Muñoz, Gamon"},{"t":"Desregulacion situacional","c":"TABARES ANDRES: al final del dia / comedor. Monitorear. DIAZ MONSERRAT: patron confirmado en horario del comedor. Anticipar antes de ir."}]},"Gamon_Ciro":{"titulo":"Perfil Academico - Gamon, Ciro · Junio 2026","secciones":[{"t":"Diagnostico","c":"TDL comprensivo-expresivo + IDN 74 (Bajo). Ver informes 2023."},{"t":"Criterio pedagogico (EOE jun 2026)","c":"Decidir contenido por contenido. Primero ADECUACION CON RAMPA. Si no alcanza: ADAPTACION. La rampa es un paso previo mas simple: ej. para 480:2+150, primero 480:2 solo, luego 240+150 solo, luego la expresion completa."},{"t":"Matematica","c":"Domina operaciones simples. DIFICULTAD CONFIRMADA: opera solo la ultima parte de expresiones compuestas. No descompone. Estrategia: descomposicion visual con pasos numerados."},{"t":"Practicas del Lenguaje","c":"Lectura fluida. Comprension literal presente. Comprension inferencial con dificultad. Estrategia: preguntas literales antes de inferencial. Organizadores graficos para escritura."},{"t":"Fortalezas","c":"Asistencia perfecta · Excelente comportamiento · Referente social positivo · Lectura fluida · Buena predisposicion"}]},"Nievas_Nicolas":{"titulo":"Perfil Academico - Nievas, Nicolas · Junio 2026","secciones":[{"t":"Intervencion","c":"ADECUACION — se mantienen los objetivos del año. Se modifica la forma de presentar."},{"t":"Matematica","c":"Domina suma, resta y multiplicacion. Dificultad en division y consignas de problemas. Estrategia: recordatorio visual de pasos, consignas reformuladas, estimacion como primer paso."},{"t":"Practicas del Lenguaje","c":"Requiere apoyo en comprension lectora. Trabaja escritura en parrafos. Estrategia: preguntas guiadas progresivas, plantillas de escritura."},{"t":"Fortalezas","c":"Excelente comportamiento · Gran predisposicion · Actitud muy positiva · Muy buena asistencia"}]},"Godoy_Katia":{"titulo":"Perfil Academico - Godoy, Katia · Junio 2026","secciones":[{"t":"Intervencion","c":"ADECUACION URGENTE — dificultades en lectoescritura y matematica."},{"t":"Matematica","c":"Domina suma y resta. En proceso: multiplicacion y division. Errores importantes en divisiones compuestas y concepto de mitad. Estrategia: mitad y divisiones simples primero, apoyo visual con pasos."},{"t":"Practicas del Lenguaje","c":"Requiere apoyo en comprension lectora y organizacion de textos. Estrategia: preguntas guiadas, escritura con estructura dada."},{"t":"Asistencia","c":"Intermitente — 7 faltas en el 1er trimestre. Articular con familia."},{"t":"Fortalezas","c":"Buen comportamiento · Responde al apoyo individualizado · Dominio suma y resta"}]},"Carbonel_Tiziano":{"titulo":"Perfil Academico - Carbonel, Tiziano · Junio 2026","secciones":[{"t":"Intervencion","c":"ADECUACION — trabajar desde la confianza y participacion gradual."},{"t":"Matematica","c":"Resultados inconsistentes. Errores basicos en algunos calculos. Divisiones compuestas irregulares. Estrategia: revisar concepto de mitad, practicar divisiones por 3."},{"t":"Practicas del Lenguaje","c":"Dificultades en lectoescritura. Timidez limita la participacion oral. Estrategia: participacion gradual (parejas, grupo pequeño, plenario)."},{"t":"Asistencia","c":"Intermitente — 8 faltas en el 1er trimestre."},{"t":"Fortalezas","c":"Excelente comportamiento · Responde cuando se siente seguro · Buena predisposicion"}]},"Cuello_Thomas":{"titulo":"Perfil Academico - Cuello, Thomas · Junio 2026","secciones":[{"t":"Intervencion","c":"ADECUACION — consignas cortas, tareas segmentadas, revision frecuente."},{"t":"Matematica","c":"Conoce los algoritmos pero comete errores por distraccion. Necesita consolidar resta, multiplicacion y division. Los errores no reflejan desconocimiento sino inatención. Estrategia: un solo paso por vez, actividades cortas."},{"t":"Practicas del Lenguaje","c":"Comprende informacion explicita. Debe trabajar inferencias. Estrategia: actividades breves, comprension literal antes de inferencial."},{"t":"Fortalezas","c":"Buen comportamiento · Conoce los contenidos basicos · Asistencia regular"}]}};
-function abrirPerfilAcademico(key){var p=PERFILES_DATA[key];if(!p)return;var html='';p.secciones.forEach(function(s){html+='<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">'+s.t+'</div><div style="font-size:13px;color:var(--negro);line-height:1.6;">'+s.c+'</div></div>';});document.getElementById('pa-titulo').textContent=p.titulo;document.getElementById('pa-contenido').innerHTML=html;document.getElementById('modal-perfil-academico').style.display='block';}
-function cerrarPerfilAcademico(){document.getElementById('modal-perfil-academico').style.display='none';}
-function imprimirPerfilAcademico(){var titulo=document.getElementById('pa-titulo').textContent;var contenido=document.getElementById('pa-contenido').innerHTML;var html='<div style="font-family:Arial,sans-serif;padding:24px;"><div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:16px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;">Escuela La Concepcion - 6to Año - 2026</div><div style="font-size:16px;font-weight:bold;">'+titulo+'</div></div>'+contenido+'</div>';document.getElementById("print-container").innerHTML=html;window.print();setTimeout(function(){document.getElementById("print-container").innerHTML="";},1500);}, 1500);
-}
+function abrirPerfilAcademico(key){ alert("Perfil academico: " + key); }
+function cerrarPerfilAcademico(){ document.getElementById('modal-perfil-academico').style.display='none'; }
+function imprimirPerfilAcademico(){ window.print(); }
 
 // ── DATOS ──
 const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",n:[8,8,8,8,7,9,9]},{a:"Barrera, Joaquín",n:[7,7,7,7,7,8,9]},{a:"Bravo, Álvaro",n:[7,7,8,7,7,8,9]},{a:"Carbonel, Tiziano",n:[6,6,6,7,7,9,9]},{a:"Cuello, Thomas",n:[6,6,6,7,8,8,8]},{a:"Diaz, Monserrat",n:[7,6,9,7,7,9,9]},{a:"Espindola, Sofía",n:[8,8,8,8,7,9,9]},{a:"Gamon, Ciro",n:[6,8,7,8,7,9,8]},{a:"Garcia, Milton",n:[8,9,6,8,8,10,9]},{a:"Godoy, Katia",n:[6,7,7,7,7,8,7]},{a:"Monteros Cruz, Máximo",n:[8,8,8,8,7,9,9]},{a:"Nievas, Nicolás",n:[6,6,6,6,7,8,9]},{a:"Santa Cruz, Alma",n:[8,8,8,8,7,9,9]},{a:"Sosa Muñoz, Benjamín",n:[9,9,9,8,8,9,9]},{a:"Tabares, Andrés",n:[7,7,7,7,8,9,9]},{a:"Tablada, Santino",n:[7,7,7,7,7,9,9]},{a:"Tagliabue, Delfina",n:[7,7,7,7,7,9,9]},{a:"Villalba, Benjamín",n:[7,7,7,7,7,9,8]}];
@@ -1474,21 +1443,6 @@ function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;pad
   </div>
 </div>
 
-
-<!-- MODAL PERFIL ACADÉMICO -->
-<div id="modal-perfil-academico" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:620px;margin:16px auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <strong style="font-size:15px;color:var(--verde);" id="pa-titulo">Perfil Académico</strong>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button onclick="imprimirPerfilAcademico()" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer;">🖨️ Imprimir</button>
-        <button onclick="cerrarPerfilAcademico()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
-      </div>
-    </div>
-    <div id="pa-contenido" style="font-size:13px;color:var(--negro);line-height:1.7;"></div>
-    <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--gris-claro);font-size:10px;color:var(--gris);text-align:center;">Actualización: Junio 2026 · Se actualiza por trimestre o a pedido del docente</div>
-  </div>
-</div>
 
 </body>
 </html>
