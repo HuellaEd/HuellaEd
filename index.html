@@ -421,8 +421,18 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
     <div id="grab-resultado" style="display:none;text-align:center;">
       <audio id="grab-audio" controls style="width:100%;margin-bottom:10px;"></audio>
-      <button onclick="descargarAudio()" class="save-btn">⬇️ Descargar</button>
-      <div style="font-size:10px;color:var(--gris);margin-top:5px;" id="grab-filename"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;">
+        <button onclick="descargarAudio()" style="background:var(--verde-claro);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">⬇️ Descargar</button>
+        <button onclick="analizarConGemini()" style="background:#1a73e8;color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">🤖 Analizar lectura</button>
+      </div>
+      <div style="font-size:10px;color:var(--gris);margin-bottom:6px;" id="grab-filename"></div>
+      <!-- Resultado del análisis Gemini -->
+      <div id="gemini-resultado" style="display:none;background:#EEF4FF;border-radius:10px;padding:12px;text-align:left;margin-bottom:8px;border:1px solid #c5d8f8;">
+        <div style="font-size:11px;font-weight:700;color:#1a73e8;margin-bottom:6px;">🤖 Análisis Gemini — <span id="gemini-alumno-label"></span></div>
+        <div id="gemini-analisis-texto" style="font-size:12px;color:var(--negro);line-height:1.7;"></div>
+        <button onclick="copiarAnalisisGemini()" style="margin-top:8px;background:#1a73e8;color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer;">📋 Copiar análisis</button>
+      </div>
+      <div id="gemini-loading" style="display:none;text-align:center;padding:12px;font-size:12px;color:#1a73e8;">⏳ Analizando audio con Gemini...</div>
       <button id="grab-siguiente-btn" style="display:none;width:100%;background:var(--verde-claro);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:7px;" onclick="siguienteAlumnoLectura()">Siguiente alumno →</button>
     </div>
   </div>
@@ -551,6 +561,125 @@ App: https://huellaed.github.io/HuellaEd/</div>
 <footer>HuellaED · cada alumno, su trayecto</footer>
 
 <script>
+
+// ── INTEGRACIÓN GEMINI PARA ANÁLISIS DE LECTURA ──
+
+function getApiKey() {
+  return localStorage.getItem('huellaed_gemini_key') || '';
+}
+
+function guardarApiKey() {
+  var key = document.getElementById('gemini-api-key-input').value.trim();
+  if (!key) { alert('Ingresá la API Key'); return; }
+  localStorage.setItem('huellaed_gemini_key', key);
+  document.getElementById('modal-gemini-config').style.display = 'none';
+  analizarConGemini(); // Continúa el análisis
+}
+
+async function analizarConGemini() {
+  var apiKey = getApiKey();
+  if (!apiKey) {
+    document.getElementById('modal-gemini-config').style.display = 'block';
+    return;
+  }
+  if (!ab) { alert('No hay audio grabado'); return; }
+
+  var alumno = document.getElementById('grab-alumno').value || 'Alumno';
+  document.getElementById('gemini-loading').style.display = 'block';
+  document.getElementById('gemini-resultado').style.display = 'none';
+  document.getElementById('gemini-alumno-label').textContent = alumno.replace(/_/g, ' ');
+
+  try {
+    // Convertir Blob a Base64
+    const base64Audio = await blobToBase64(ab);
+    const base64Data = base64Audio.split(',')[1]; // Sacar el prefijo data:audio/webm;base64,
+
+    const promptPedagogico = `Sos un especialista en evaluación de lectura oral para nivel primario. 
+Analizá este audio de lectura de un alumno de 6to año de primaria (11-12 años).
+
+Evaluá y respondé en formato estructurado:
+
+**FLUIDEZ:** [Fluida / Con pausas leves / Con pausas frecuentes / Lenta / Muy lenta]
+
+**ERRORES DETECTADOS:**
+- Omisiones: [palabras omitidas, o "ninguna"]
+- Sustituciones: [palabras cambiadas, o "ninguna"] 
+- Repeticiones: [palabras repetidas, o "ninguna"]
+- Autocorrecciones: [sí/no — es positivo si las hay]
+
+**ENTONACIÓN:** [Adecuada / Monótona / Inadecuada / No evaluable]
+
+**RITMO:** [Adecuado / Apresurado / Lento]
+
+**NIVEL LECTOR ESTIMADO:** [Avanzado / Esperado para el año / En proceso / Con dificultades]
+
+**OBSERVACIÓN PEDAGÓGICA:** [2-3 oraciones concretas para el docente sobre lo más importante que observaste]
+
+Sé preciso y conciso. Si el audio es muy corto o hay ruido, indicalo.`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: promptPedagogico },
+              {
+                inline_data: {
+                  mime_type: 'audio/webm',
+                  data: base64Data
+                }
+              }
+            ]
+          }]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+
+    const texto = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta';
+    
+    document.getElementById('gemini-loading').style.display = 'none';
+    document.getElementById('gemini-analisis-texto').innerHTML = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    document.getElementById('gemini-resultado').style.display = 'block';
+
+  } catch (error) {
+    document.getElementById('gemini-loading').style.display = 'none';
+    var msg = error.message || 'Error desconocido';
+    if (msg.includes('API_KEY') || msg.includes('401')) {
+      localStorage.removeItem('huellaed_gemini_key');
+      alert('API Key inválida. Volvé a ingresarla.');
+      document.getElementById('modal-gemini-config').style.display = 'block';
+    } else {
+      document.getElementById('gemini-analisis-texto').textContent = 'Error: ' + msg;
+      document.getElementById('gemini-resultado').style.display = 'block';
+    }
+  }
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function copiarAnalisisGemini() {
+  var alumno = document.getElementById('grab-alumno').value.replace(/_/g, ' ');
+  var texto = document.getElementById('gemini-analisis-texto').innerText;
+  var fecha = new Date().toLocaleDateString('es-AR');
+  navigator.clipboard.writeText(`Análisis de lectura — ${alumno} — ${fecha}\n\n${texto}`);
+}
+
 // ── DATOS ──
 const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",n:[8,8,8,8,7,9,9]},{a:"Barrera, Joaquín",n:[7,7,7,7,7,8,9]},{a:"Bravo, Álvaro",n:[7,7,8,7,7,8,9]},{a:"Carbonel, Tiziano",n:[6,6,6,7,7,9,9]},{a:"Cuello, Thomas",n:[6,6,6,7,8,8,8]},{a:"Diaz, Monserrat",n:[7,6,9,7,7,9,9]},{a:"Espindola, Sofía",n:[8,8,8,8,7,9,9]},{a:"Gamon, Ciro",n:[6,8,7,8,7,9,8]},{a:"Garcia, Milton",n:[8,9,6,8,8,10,9]},{a:"Godoy, Katia",n:[6,7,7,7,7,8,7]},{a:"Monteros Cruz, Máximo",n:[8,8,8,8,7,9,9]},{a:"Nievas, Nicolás",n:[6,6,6,6,7,8,9]},{a:"Santa Cruz, Alma",n:[8,8,8,8,7,9,9]},{a:"Sosa Muñoz, Benjamín",n:[9,9,9,8,8,9,9]},{a:"Tabares, Andrés",n:[7,7,7,7,8,9,9]},{a:"Tablada, Santino",n:[7,7,7,7,7,9,9]},{a:"Tagliabue, Delfina",n:[7,7,7,7,7,9,9]},{a:"Villalba, Benjamín",n:[7,7,7,7,7,9,8]}];
 const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
