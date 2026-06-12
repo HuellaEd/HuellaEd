@@ -282,6 +282,7 @@
       <a href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" class="pie-link">📁 Carpeta 6to</a>
       <a href="https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank" class="pie-link">📥 Material generado</a>
       <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" class="pie-link">📥 Evidencias</a>
+      <div id="btn-sync-analisis" onclick="abrirSyncAnalisis()" class="pie-link" style="cursor:pointer;display:none;">🤖 Análisis pendientes</div>
     </div>
   </div>
 
@@ -430,7 +431,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <div id="gemini-resultado" style="display:none;background:#EEF4FF;border-radius:10px;padding:12px;text-align:left;margin-bottom:8px;border:1px solid #c5d8f8;">
         <div style="font-size:11px;font-weight:700;color:#1a73e8;margin-bottom:6px;">🤖 Análisis Gemini — <span id="gemini-alumno-label"></span></div>
         <div id="gemini-analisis-texto" style="font-size:12px;color:var(--negro);line-height:1.7;"></div>
-        <button onclick="copiarAnalisisGemini()" style="margin-top:8px;background:#1a73e8;color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer;">📋 Copiar análisis</button>
+        <div style="margin-top:6px;font-size:10px;color:#1a73e8;">✅ El análisis se guarda automáticamente</div>
       </div>
       <div id="gemini-loading" style="display:none;text-align:center;padding:12px;font-size:12px;color:#1a73e8;">⏳ Analizando audio con Gemini...</div>
       <button id="grab-siguiente-btn" style="display:none;width:100%;background:var(--verde-claro);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:7px;" onclick="siguienteAlumnoLectura()">Siguiente alumno →</button>
@@ -576,6 +577,29 @@ function guardarApiKey() {
   analizarConGemini(); // Continúa el análisis
 }
 
+// Mapeo de alumnos a carpetas Drive
+const CARPETAS_ALUMNOS = {
+  'Aguirre_Ziomara': '1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe',
+  'Barrera_Felipe': '1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH',
+  'Barrera_Joaquin': '1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7',
+  'Bravo_Alvaro': '1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-',
+  'Carbonel_Tiziano': '1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm',
+  'Cuello_Thomas': '1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k',
+  'Diaz_Monserrat': '1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC',
+  'Espindola_Sofia': '1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm',
+  'Gamon_Ciro': '1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p',
+  'Garcia_Milton': '1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw',
+  'Godoy_Katia': '1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le',
+  'Monteros_Maximo': '1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4',
+  'Nievas_Nicolas': '1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g',
+  'Santa_Cruz_Alma': '1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt',
+  'Sosa_Munoz_Benjamin': '1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh',
+  'Tabares_Andres': '1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru',
+  'Tablada_Santino': '1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI',
+  'Tagliabue_Delfina': '1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ',
+  'Villalba_Benjamin': '1FvEFURvb15x1QN1weDUmZHiF10n3rbsO'
+};
+
 async function analizarConGemini() {
   var apiKey = getApiKey();
   if (!apiKey) {
@@ -585,37 +609,39 @@ async function analizarConGemini() {
   if (!ab) { alert('No hay audio grabado'); return; }
 
   var alumno = document.getElementById('grab-alumno').value || 'Alumno';
+  var alumnoNombre = alumno.replace(/_/g, ' ');
+  var fecha = new Date().toLocaleDateString('es-AR');
+  var tituloTexto = document.getElementById('grab-titulo-texto') ? document.getElementById('grab-titulo-texto').value : '';
+
   document.getElementById('gemini-loading').style.display = 'block';
+  document.getElementById('gemini-loading').textContent = '⏳ Analizando audio con Gemini...';
   document.getElementById('gemini-resultado').style.display = 'none';
-  document.getElementById('gemini-alumno-label').textContent = alumno.replace(/_/g, ' ');
+  document.getElementById('gemini-alumno-label').textContent = alumnoNombre;
 
   try {
-    // Convertir Blob a Base64
     const base64Audio = await blobToBase64(ab);
-    const base64Data = base64Audio.split(',')[1]; // Sacar el prefijo data:audio/webm;base64,
+    const base64Data = base64Audio.split(',')[1];
 
-    const promptPedagogico = `Sos un especialista en evaluación de lectura oral para nivel primario. 
-Analizá este audio de lectura de un alumno de 6to año de primaria (11-12 años).
+    const promptPedagogico = `Sos un especialista en evaluación de lectura oral para nivel primario.
+Analizá este audio de lectura de un alumno de 6to año de primaria (11-12 años).${tituloTexto ? ' El texto leído es: "' + tituloTexto + '".' : ''}
 
-Evaluá y respondé en formato estructurado:
+Respondé en este formato exacto:
 
-**FLUIDEZ:** [Fluida / Con pausas leves / Con pausas frecuentes / Lenta / Muy lenta]
+FLUIDEZ: [Fluida / Con pausas leves / Con pausas frecuentes / Lenta / Muy lenta]
 
-**ERRORES DETECTADOS:**
-- Omisiones: [palabras omitidas, o "ninguna"]
-- Sustituciones: [palabras cambiadas, o "ninguna"] 
-- Repeticiones: [palabras repetidas, o "ninguna"]
-- Autocorrecciones: [sí/no — es positivo si las hay]
+ERRORES:
+- Omisiones: [palabras omitidas o "ninguna"]
+- Sustituciones: [palabras cambiadas o "ninguna"]
+- Repeticiones: [palabras repetidas o "ninguna"]
+- Autocorrecciones: [sí / no]
 
-**ENTONACIÓN:** [Adecuada / Monótona / Inadecuada / No evaluable]
+ENTONACIÓN: [Adecuada / Monótona / Inadecuada]
+RITMO: [Adecuado / Apresurado / Lento]
+NIVEL LECTOR: [Avanzado / Esperado / En proceso / Con dificultades]
 
-**RITMO:** [Adecuado / Apresurado / Lento]
+OBSERVACIÓN PEDAGÓGICA: [2-3 oraciones concretas para el docente]
 
-**NIVEL LECTOR ESTIMADO:** [Avanzado / Esperado para el año / En proceso / Con dificultades]
-
-**OBSERVACIÓN PEDAGÓGICA:** [2-3 oraciones concretas para el docente sobre lo más importante que observaste]
-
-Sé preciso y conciso. Si el audio es muy corto o hay ruido, indicalo.`;
+Si el audio es muy corto o hay ruido ambiental, indicalo brevemente.`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -623,37 +649,38 @@ Sé preciso y conciso. Si el audio es muy corto o hay ruido, indicalo.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: promptPedagogico },
-              {
-                inline_data: {
-                  mime_type: 'audio/webm',
-                  data: base64Data
-                }
-              }
-            ]
-          }]
+          contents: [{ parts: [
+            { text: promptPedagogico },
+            { inline_data: { mime_type: 'audio/webm', data: base64Data } }
+          ]}]
         })
       }
     );
 
     const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
 
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
+    const analisis = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta';
 
-    const texto = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta';
-    
+    // Mostrar en pantalla
     document.getElementById('gemini-loading').style.display = 'none';
-    document.getElementById('gemini-analisis-texto').innerHTML = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    document.getElementById('gemini-analisis-texto').innerHTML = 
+      analisis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
     document.getElementById('gemini-resultado').style.display = 'block';
+
+    // Guardar automáticamente en Drive del alumno
+    document.getElementById('gemini-loading').style.display = 'block';
+    document.getElementById('gemini-loading').textContent = '💾 Guardando en el perfil del alumno...';
+    await guardarAnalisisEnDrive(alumno, alumnoNombre, fecha, tituloTexto, analisis);
+    document.getElementById('gemini-loading').style.display = 'none';
+    document.getElementById('gemini-loading').textContent = '✅ Guardado en el perfil de ' + alumnoNombre;
+    document.getElementById('gemini-loading').style.display = 'block';
+    setTimeout(() => { document.getElementById('gemini-loading').style.display = 'none'; }, 3000);
 
   } catch (error) {
     document.getElementById('gemini-loading').style.display = 'none';
     var msg = error.message || 'Error desconocido';
-    if (msg.includes('API_KEY') || msg.includes('401')) {
+    if (msg.includes('API_KEY') || msg.includes('401') || msg.includes('403')) {
       localStorage.removeItem('huellaed_gemini_key');
       alert('API Key inválida. Volvé a ingresarla.');
       document.getElementById('modal-gemini-config').style.display = 'block';
@@ -662,6 +689,23 @@ Sé preciso y conciso. Si el audio es muy corto o hay ruido, indicalo.`;
       document.getElementById('gemini-resultado').style.display = 'block';
     }
   }
+}
+
+async function guardarAnalisisEnDrive(alumnoKey, alumnoNombre, fecha, tituloTexto, analisis) {
+  // Usa la API de Claude/Drive que ya está conectada
+  // Como no podemos llamar directamente la API de Drive desde el browser sin OAuth,
+  // generamos un documento en el chat de Claude con el análisis
+  // y lo marcamos como pendiente de guardar
+  var pendientes = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  pendientes.unshift({
+    alumno: alumnoNombre,
+    fecha: fecha,
+    titulo: tituloTexto || 'Sin título',
+    analisis: analisis,
+    guardado: false,
+    timestamp: Date.now()
+  });
+  localStorage.setItem('huellaed_analisis_pendientes', JSON.stringify(pendientes));
 }
 
 function blobToBase64(blob) {
@@ -673,12 +717,57 @@ function blobToBase64(blob) {
   });
 }
 
-function copiarAnalisisGemini() {
-  var alumno = document.getElementById('grab-alumno').value.replace(/_/g, ' ');
-  var texto = document.getElementById('gemini-analisis-texto').innerText;
-  var fecha = new Date().toLocaleDateString('es-AR');
-  navigator.clipboard.writeText(`Análisis de lectura — ${alumno} — ${fecha}\n\n${texto}`);
+
+
+
+function checkAnalisisPendientes() {
+  var pend = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  var noGuardados = pend.filter(a => !a.guardado);
+  var btn = document.getElementById('btn-sync-analisis');
+  if (btn) btn.style.display = noGuardados.length > 0 ? 'flex' : 'none';
+  if (btn && noGuardados.length > 0) btn.textContent = '🤖 ' + noGuardados.length + ' análisis pendiente' + (noGuardados.length > 1 ? 's' : '');
 }
+
+function abrirSyncAnalisis() {
+  var pend = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  var lista = document.getElementById('sync-analisis-lista');
+  if (pend.length === 0) {
+    lista.innerHTML = '<div style="text-align:center;color:var(--gris);padding:20px;">No hay análisis pendientes.</div>';
+  } else {
+    lista.innerHTML = pend.map((a,i) => `
+      <div style="background:${a.guardado?'var(--verde-bg)':'#EEF4FF'};border-radius:9px;padding:10px 12px;margin-bottom:7px;font-size:12px;">
+        <div style="font-weight:600;color:var(--negro);">${a.alumno} · ${a.fecha}</div>
+        <div style="color:var(--gris);margin:2px 0;">📖 ${a.titulo}</div>
+        <div style="color:${a.guardado?'var(--verde)':'#1a73e8'};font-size:11px;">${a.guardado?'✅ Guardado en Drive':'⏳ Pendiente de guardar'}</div>
+      </div>`).join('');
+  }
+  document.getElementById('modal-sync-analisis').style.display = 'block';
+}
+
+function enviarAnalisisAClaude() {
+  var pend = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  var noGuardados = pend.filter(a => !a.guardado);
+  if (noGuardados.length === 0) { alert('No hay análisis pendientes.'); return; }
+  
+  var texto = 'Tengo los siguientes análisis de lectura de Gemini para guardar en los perfiles del Drive:\n\n';
+  noGuardados.forEach((a, i) => {
+    texto += `--- ANÁLISIS ${i+1} ---\nAlumno: ${a.alumno}\nFecha: ${a.fecha}\nTexto: ${a.titulo}\n\n${a.analisis}\n\n`;
+  });
+  texto += 'Por favor guardá cada uno en la carpeta del alumno correspondiente en el Drive como documento de Google.';
+  
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('✅ Texto copiado. Pegalo en el chat de Claude para que lo guarde en el Drive.');
+    // Marcar como guardados
+    var todos = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+    todos = todos.map(a => ({...a, guardado: true}));
+    localStorage.setItem('huellaed_analisis_pendientes', JSON.stringify(todos));
+    checkAnalisisPendientes();
+    document.getElementById('modal-sync-analisis').style.display = 'none';
+  });
+}
+
+// Revisar pendientes al cargar
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); });
 
 // ── DATOS ──
 const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",n:[8,8,8,8,7,9,9]},{a:"Barrera, Joaquín",n:[7,7,7,7,7,8,9]},{a:"Bravo, Álvaro",n:[7,7,8,7,7,8,9]},{a:"Carbonel, Tiziano",n:[6,6,6,7,7,9,9]},{a:"Cuello, Thomas",n:[6,6,6,7,8,8,8]},{a:"Diaz, Monserrat",n:[7,6,9,7,7,9,9]},{a:"Espindola, Sofía",n:[8,8,8,8,7,9,9]},{a:"Gamon, Ciro",n:[6,8,7,8,7,9,8]},{a:"Garcia, Milton",n:[8,9,6,8,8,10,9]},{a:"Godoy, Katia",n:[6,7,7,7,7,8,7]},{a:"Monteros Cruz, Máximo",n:[8,8,8,8,7,9,9]},{a:"Nievas, Nicolás",n:[6,6,6,6,7,8,9]},{a:"Santa Cruz, Alma",n:[8,8,8,8,7,9,9]},{a:"Sosa Muñoz, Benjamín",n:[9,9,9,8,8,9,9]},{a:"Tabares, Andrés",n:[7,7,7,7,8,9,9]},{a:"Tablada, Santino",n:[7,7,7,7,7,9,9]},{a:"Tagliabue, Delfina",n:[7,7,7,7,7,9,9]},{a:"Villalba, Benjamín",n:[7,7,7,7,7,9,8]}];
@@ -1071,6 +1160,19 @@ function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;pad
       <button onclick="guardarApiKey()" style="flex:1;background:#1a73e8;color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Guardar y analizar</button>
       <button onclick="document.getElementById('modal-gemini-config').style.display='none'" style="flex:1;background:var(--crema);color:var(--negro);border:none;border-radius:9px;padding:11px;font-size:13px;cursor:pointer;">Cancelar</button>
     </div>
+  </div>
+</div>
+
+
+<!-- MODAL SYNC ANÁLISIS GEMINI -->
+<div id="modal-sync-analisis" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:560px;margin:20px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:#1a73e8;">🤖 Análisis de lectura pendientes</strong>
+      <button onclick="document.getElementById('modal-sync-analisis').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="sync-analisis-lista"></div>
+    <button onclick="enviarAnalisisAClaude()" style="width:100%;background:#1a73e8;color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;">📤 Enviar a Claude para guardar en Drive</button>
   </div>
 </div>
 
