@@ -1053,5 +1053,26 @@ function imprimirPanel(id){var panel=document.getElementById(id);var c=panel.que
 function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#2D5F4F;">Agenda — '+new Date().toLocaleDateString('es-AR')+'</h2>';['urgente','importante','proceso','idea'].forEach(cat=>{var g=tareas.filter(t=>t.cat===cat);if(!g.length)return;html+='<h3 style="margin-top:14px;">'+cat+'</h3>';g.forEach(t=>{html+='<div style="padding:3px 0;font-size:12px;">'+(t.hecha?'☑':'☐')+' '+t.texto+'</div>';});});html+='</div>';document.getElementById('print-container').innerHTML=html;window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 </script>
 
+
+<!-- MODAL CONFIG GEMINI -->
+<div id="modal-gemini-config" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:3000;padding:16px;box-sizing:border-box;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:480px;margin:60px auto;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:32px;margin-bottom:8px;">🔑</div>
+      <strong style="font-size:16px;color:var(--verde);">Configurar análisis de lectura</strong>
+      <p style="font-size:12px;color:var(--gris);margin-top:6px;">Ingresá tu API Key de Google Gemini. Se guarda solo en este dispositivo, nunca en el servidor.</p>
+    </div>
+    <div class="form-row">
+      <label>API Key de Gemini</label>
+      <input type="password" id="gemini-api-key-input" placeholder="AIza..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;box-sizing:border-box;">
+    </div>
+    <p style="font-size:11px;color:var(--gris);margin-bottom:12px;">Obtenés tu clave gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#1a73e8;">aistudio.google.com/app/apikey</a></p>
+    <div style="display:flex;gap:8px;">
+      <button onclick="guardarApiKey()" style="flex:1;background:#1a73e8;color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">Guardar y analizar</button>
+      <button onclick="document.getElementById('modal-gemini-config').style.display='none'" style="flex:1;background:var(--crema);color:var(--negro);border:none;border-radius:9px;padding:11px;font-size:13px;cursor:pointer;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
