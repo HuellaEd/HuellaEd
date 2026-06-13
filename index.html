@@ -119,6 +119,17 @@
     .ficha-chip.activo{background:var(--verde);color:#fff;border-color:var(--verde);}
     .ficha-txt{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;background:#fff;resize:none;height:55px;box-sizing:border-box;margin-top:4px;font-family:inherit;}
 
+    /* ASISTENCIA */
+    .asist-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--gris-claro);}
+    .asist-row:last-child{border-bottom:none;}
+    .asist-nom{flex:1;font-size:12px;font-weight:600;color:var(--negro);}
+    .asist-btns{display:flex;gap:4px;flex-shrink:0;}
+    .asist-btn{padding:5px 9px;border:1.5px solid var(--gris-claro);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;transition:all 0.12s;}
+    .asist-btn.ap{background:var(--verde-bg);border-color:var(--verde);color:var(--verde);}
+    .asist-btn.aa{background:#FDE8E8;border-color:#C0392B;color:#C0392B;}
+    .asist-btn.aj{background:#E8EEF8;border-color:#5A7EB8;color:#5A7EB8;}
+    .asist-btn.at{background:var(--terracota-bg);border-color:var(--terracota);color:var(--terracota);}
+
     @media(max-width:380px){.grid-2{grid-template-columns:1fr;}.alumnos-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}}
     @media print{body>*:not(#print-container){display:none!important;}#print-container{display:block!important;}}
     #print-container{display:none;}
@@ -198,6 +209,7 @@
     <span class="card-arr">›</span>
   </button>
   <div class="grupo-panel" id="panel-registrar">
+    <div class="subcard" onclick="abrirAsistencia()"><span class="subcard-icon">📅</span><span class="subcard-label">Tomar asistencia</span><span class="subcard-sub">Registro diario</span></div>
     <div class="subcard" onclick="abrirEvidencia()"><span class="subcard-icon">📷</span><span class="subcard-label">Evidencia</span><span class="subcard-sub">Foto + registro</span></div>
     <div class="subcard" onclick="abrirGrabador()"><span class="subcard-icon">🎙️</span><span class="subcard-label">Grabar lectura</span><span class="subcard-sub">Audio + nombre</span></div>
     <div class="subcard" onclick="abrirNota()"><span class="subcard-icon">🗒️</span><span class="subcard-label">Nota rápida</span><span class="subcard-sub">Sin abrir Drive</span></div>
@@ -496,6 +508,24 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <div id="reunion-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);"></div>
       <div style="display:flex;gap:7px;"><button onclick="copiarPromptReunion()" class="save-btn">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:10px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a></div>
     </div>
+  </div>
+</div>
+
+<!-- ASISTENCIA -->
+<div id="modal-asistencia" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">📅 Asistencia</strong>
+      <button onclick="cerrarAsistencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;">Fecha</label>
+      <input type="date" id="asist-fecha" onchange="cargarAsistenciaFecha()" style="flex:1;padding:8px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
+    </div>
+    <div id="asist-resumen" style="display:none;background:var(--verde-bg);border-radius:9px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);line-height:1.6;"></div>
+    <div id="asist-lista" style="margin-bottom:16px;"></div>
+    <div id="asist-msg" style="font-size:12px;text-align:center;margin-bottom:10px;display:none;"></div>
+    <button id="asist-guardar-btn" onclick="guardarAsistencia()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;">Guardar asistencia</button>
   </div>
 </div>
 
@@ -1536,6 +1566,121 @@ function copiarPromptReunion(){navigator.clipboard.writeText(document.getElement
 function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Grado · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Grado 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
+
+// ── ASISTENCIA ──
+var asistenciaHoy = {};
+
+function abrirAsistencia() {
+  document.getElementById('modal-asistencia').style.display = 'block';
+  document.getElementById('asist-fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('asist-msg').style.display = 'none';
+  cargarAsistenciaFecha();
+}
+
+function cerrarAsistencia() {
+  document.getElementById('modal-asistencia').style.display = 'none';
+}
+
+async function cargarAsistenciaFecha() {
+  var fecha = document.getElementById('asist-fecha').value;
+  if (!fecha || !window.__students || !window.__students.length) return;
+
+  asistenciaHoy = {};
+  window.__students.forEach(function(s) {
+    asistenciaHoy[s.id] = { status: 'presente', notes: '' };
+  });
+
+  if (window.__sb) {
+    var user = (await window.__sb.auth.getUser()).data.user;
+    if (user) {
+      var { data } = await window.__sb.from('attendance')
+        .select('student_id, status, notes')
+        .eq('teacher_id', user.id)
+        .eq('date', fecha);
+      if (data && data.length) {
+        data.forEach(function(r) {
+          asistenciaHoy[r.student_id] = { status: r.status, notes: r.notes || '' };
+        });
+      }
+    }
+  }
+
+  renderAsistencia();
+}
+
+function renderAsistencia() {
+  if (!window.__students) return;
+  var statuses = ['presente','ausente','justificado','tardanza'];
+  var labels   = { presente:'P', ausente:'A', justificado:'J', tardanza:'T' };
+  var clases   = { presente:'ap', ausente:'aa', justificado:'aj', tardanza:'at' };
+
+  document.getElementById('asist-lista').innerHTML = window.__students.map(function(s) {
+    var estado = (asistenciaHoy[s.id] || {}).status || 'presente';
+    var btns = statuses.map(function(st) {
+      var cls = 'asist-btn' + (estado === st ? ' ' + clases[st] : '');
+      return '<button class="' + cls + '" onclick="setEstadoAlumno(\'' + s.id + '\',\'' + st + '\')">' + labels[st] + '</button>';
+    }).join('');
+    return '<div class="asist-row" id="asist-row-' + s.id + '">'
+      + '<span class="asist-nom">' + s.full_name + '</span>'
+      + '<div class="asist-btns">' + btns + '</div>'
+      + '</div>';
+  }).join('');
+
+  actualizarResumenAsist();
+}
+
+function setEstadoAlumno(studentId, status) {
+  if (!asistenciaHoy[studentId]) asistenciaHoy[studentId] = {};
+  asistenciaHoy[studentId].status = status;
+  var clases = { presente:'ap', ausente:'aa', justificado:'aj', tardanza:'at' };
+  var statuses = ['presente','ausente','justificado','tardanza'];
+  var row = document.getElementById('asist-row-' + studentId);
+  if (row) row.querySelectorAll('.asist-btn').forEach(function(btn, i) {
+    btn.className = 'asist-btn' + (statuses[i] === status ? ' ' + clases[status] : '');
+  });
+  actualizarResumenAsist();
+}
+
+function actualizarResumenAsist() {
+  var c = { presente:0, ausente:0, justificado:0, tardanza:0 };
+  Object.values(asistenciaHoy).forEach(function(v) { if (c[v.status] !== undefined) c[v.status]++; });
+  var el = document.getElementById('asist-resumen');
+  el.style.display = 'block';
+  el.innerHTML = '✅ ' + c.presente + ' presentes &nbsp;·&nbsp; ❌ ' + c.ausente + ' ausentes &nbsp;·&nbsp; 📝 ' + c.justificado + ' justificados &nbsp;·&nbsp; ⏰ ' + c.tardanza + ' tardanzas';
+}
+
+async function guardarAsistencia() {
+  var fecha = document.getElementById('asist-fecha').value;
+  var btn = document.getElementById('asist-guardar-btn');
+  var msg = document.getElementById('asist-msg');
+  if (!window.__sb || !window.__students || !fecha) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+  msg.style.display = 'none';
+
+  var user = (await window.__sb.auth.getUser()).data.user;
+  if (!user) { btn.disabled = false; btn.textContent = 'Guardar asistencia'; return; }
+
+  var records = window.__students.map(function(s) {
+    var est = asistenciaHoy[s.id] || {};
+    return { student_id: s.id, teacher_id: user.id, date: fecha, status: est.status || 'presente', notes: est.notes || null };
+  });
+
+  var { error } = await window.__sb.from('attendance').upsert(records, { onConflict: 'student_id,date' });
+
+  btn.disabled = false;
+  btn.textContent = 'Guardar asistencia';
+  msg.style.display = 'block';
+  if (error) {
+    msg.style.color = '#C0392B';
+    msg.textContent = 'Error: ' + error.message;
+  } else {
+    msg.style.color = 'var(--verde)';
+    msg.textContent = '✅ Asistencia guardada';
+    setTimeout(function(){ msg.style.display = 'none'; }, 3000);
+  }
+}
 
 // ── NOTA RÁPIDA ──
 var destN='agenda',notasG=[];
