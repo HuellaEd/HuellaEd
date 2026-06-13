@@ -22,6 +22,16 @@ import { supabase } from './supabase.js'
 
 const TEACHER_ID = '4815b0cb-dd24-4770-8c64-bc0c1edd7220'
 
+const SUBJECTS = [
+  { id: '10000000-0000-0000-0000-000000000001', code: 'L',  name: 'Lengua' },
+  { id: '10000000-0000-0000-0000-000000000002', code: 'M',  name: 'Matemática' },
+  { id: '10000000-0000-0000-0000-000000000003', code: 'CS', name: 'Cs.Sociales' },
+  { id: '10000000-0000-0000-0000-000000000004', code: 'CN', name: 'Cs.Naturales' },
+  { id: '10000000-0000-0000-0000-000000000005', code: 'I',  name: 'Inglés' },
+  { id: '10000000-0000-0000-0000-000000000006', code: 'EA', name: 'Ed.Artística' },
+  { id: '10000000-0000-0000-0000-000000000007', code: 'EF', name: 'Ed.Física' },
+]
+
 const ALUMNOS = [
   { full_name: 'Aguirre, Ziomara',       has_differential: false },
   { full_name: 'Barrera, Felipe',        has_differential: false },
@@ -55,7 +65,18 @@ window.seed = async function () {
   btn.disabled = true
   log.innerHTML = ''
 
-  // 1. Insertar docente
+  // 1. Insertar materias
+  print('── Insertando materias…', 'info')
+  const { error: subjectsErr } = await supabase.from('subjects').upsert(SUBJECTS, { onConflict: 'id' })
+  if (subjectsErr) {
+    print(`❌ Error al insertar materias: ${subjectsErr.message}`, 'err')
+    btn.disabled = false
+    return
+  }
+  print('✅ 7 materias insertadas', 'ok')
+  print('')
+
+  // 2. Insertar docente
   print('── Insertando docente…', 'info')
   const { error: teacherErr } = await supabase.from('teachers').upsert({
     id: TEACHER_ID,

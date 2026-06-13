@@ -1231,6 +1231,8 @@ const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",
 const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
 const APROBADO=7,DIAS=55;
 var AREAS=['L','M','CS','CN','I','EA','EF'];
+var SUBJECT_IDS={L:'10000000-0000-0000-0000-000000000001',M:'10000000-0000-0000-0000-000000000002',CS:'10000000-0000-0000-0000-000000000003',CN:'10000000-0000-0000-0000-000000000004',I:'10000000-0000-0000-0000-000000000005',EA:'10000000-0000-0000-0000-000000000006',EF:'10000000-0000-0000-0000-000000000007'};
+var SUBJECT_CODES={};Object.keys(SUBJECT_IDS).forEach(function(c){SUBJECT_CODES[SUBJECT_IDS[c]]=c;});
 var gradesData={};
 var gradesPeriodo='1';
 
@@ -1400,7 +1402,7 @@ async function initGrades(){
   var res=await window.__sb.from('grades').select('student_id,subject_id,score').eq('teacher_id',user.id).eq('period',gradesPeriodo);
   gradesData={};
   if(res.data&&res.data.length){
-    res.data.forEach(function(g){if(!gradesData[g.student_id])gradesData[g.student_id]={};gradesData[g.student_id][g.subject_id]=g.score;});
+    res.data.forEach(function(g){if(!gradesData[g.student_id])gradesData[g.student_id]={};var code=SUBJECT_CODES[g.subject_id];if(code)gradesData[g.student_id][code]=g.score;});
   }else if(gradesPeriodo==='1'){
     var nameMap={};window.__students.forEach(function(s){nameMap[s.full_name]=s.id;});
     NOTAS_DATA.forEach(function(r){var sid=nameMap[r.a];if(!sid)return;gradesData[sid]={};AREAS.forEach(function(area,i){gradesData[sid][area]=r.n[i];});});
@@ -1420,7 +1422,7 @@ async function guardarNotas(){
     AREAS.forEach(function(area){
       var score=gradesData[s.id]&&gradesData[s.id][area]!=null?gradesData[s.id][area]:null;
       if(score===null)return;
-      records.push({student_id:s.id,teacher_id:user.id,subject_id:area,period:gradesPeriodo,score:parseFloat(score),updated_at:new Date().toISOString()});
+      records.push({student_id:s.id,teacher_id:user.id,subject_id:SUBJECT_IDS[area],period:gradesPeriodo,score:parseFloat(score),updated_at:new Date().toISOString()});
     });
   });
   var res=await window.__sb.from('grades').upsert(records,{onConflict:'student_id,subject_id,period'});

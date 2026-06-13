@@ -14,12 +14,36 @@ alter table fichas enable row level security;
 create policy "Docentes gestionan sus fichas" on fichas for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Catálogo de materias (UUIDs fijos, no varían)
+create table subjects (
+  id uuid primary key,
+  code text not null unique,
+  name text not null
+);
+alter table subjects enable row level security;
+create policy "Subjects legibles para autenticados" on subjects
+  for select using (auth.role() = 'authenticated');
+create policy "Subjects insertables para autenticados" on subjects
+  for insert with check (auth.role() = 'authenticated');
+
+-- Seed de materias (ejecutar una sola vez)
+insert into subjects (id, code, name) values
+  ('10000000-0000-0000-0000-000000000001', 'L',  'Lengua'),
+  ('10000000-0000-0000-0000-000000000002', 'M',  'Matemática'),
+  ('10000000-0000-0000-0000-000000000003', 'CS', 'Cs.Sociales'),
+  ('10000000-0000-0000-0000-000000000004', 'CN', 'Cs.Naturales'),
+  ('10000000-0000-0000-0000-000000000005', 'I',  'Inglés'),
+  ('10000000-0000-0000-0000-000000000006', 'EA', 'Ed.Artística'),
+  ('10000000-0000-0000-0000-000000000007', 'EF', 'Ed.Física')
+on conflict (id) do nothing;
+
 -- Calificaciones por alumno, materia y período
+drop table if exists grades;
 create table grades (
   id uuid default gen_random_uuid() primary key,
   student_id uuid references students(id) not null,
   teacher_id uuid references auth.users not null,
-  subject_id text not null,
+  subject_id uuid references subjects(id) not null,
   period text not null,
   score numeric(4,1),
   notes text,
