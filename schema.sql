@@ -14,6 +14,20 @@ alter table fichas enable row level security;
 create policy "Docentes gestionan sus fichas" on fichas for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Notas rápidas del docente
+create table notas_rapidas (
+  id bigint primary key,
+  user_id uuid references auth.users not null,
+  fecha text,
+  destino text,
+  alumno text default '',
+  texto text not null,
+  created_at timestamptz default now()
+);
+alter table notas_rapidas enable row level security;
+create policy "Docentes gestionan sus notas" on notas_rapidas for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
 -- Agenda (tareas del docente)
 create table agenda (
   id bigint primary key,

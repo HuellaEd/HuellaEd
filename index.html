@@ -875,6 +875,18 @@ async function initStudents() {
       }).join('');
 }
 
+async function initNotas() {
+  if (!window.__sb) return;
+  var user = (await window.__sb.auth.getUser()).data.user;
+  if (!user) return;
+  var { data } = await window.__sb.from('notas_rapidas').select('*')
+    .eq('user_id', user.id).order('created_at', { ascending: false }).limit(20);
+  if (!data || !data.length) return;
+  notasG = data.map(function(n) {
+    return { id: n.id, fecha: n.fecha, destino: n.destino, alumno: n.alumno, texto: n.texto };
+  });
+}
+
 async function initFichas() {
   if (!window.__sb) return;
   var user = (await window.__sb.auth.getUser()).data.user;
@@ -897,7 +909,7 @@ async function initAgenda() {
   localStorage.setItem('huellaed_agenda', JSON.stringify(tareas));
 }
 
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initFichas(); initAgenda(); });
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initFichas(); initAgenda(); });
 
 
 function configurarScriptURL() {
@@ -1537,45 +1549,45 @@ async function guardarNotaLocal(){
   if(destN==='alumno'&&!al){document.getElementById('nota-save-msg').textContent='⚠️ Seleccioná el alumno';return;}
   
   document.getElementById('nota-save-msg').textContent='💾 Guardando...';
-  
-  // Intentar guardar en Drive vía Apps Script
-  if(APPS_SCRIPT_URL){
-    try {
-      var alumnoKey = al ? al.replace(/[^a-zA-Z]/g,'_').replace(/__+/g,'_') : '';
-      var fecha = new Date().toLocaleDateString('es-AR');
-      var hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-      var resp = await fetch(APPS_SCRIPT_URL, {
-        method:'POST',
-        headers:{'Content-Type':'text/plain'},
-        body: JSON.stringify({
-          tipo: 'nota',
-          destino: destN,
-          alumnoKey: alumnoKey,
-          alumnoNombre: al || '',
-          fecha: fecha,
-          hora: hora,
-          texto: t
-        })
+
+  var fecha = new Date().toLocaleDateString('es-AR');
+  var nota = { id: Date.now(), fecha: fecha, destino: destN, alumno: al||'', texto: t };
+
+  if (window.__sb) {
+    var user = (await window.__sb.auth.getUser()).data.user;
+    if (user) {
+      var { error } = await window.__sb.from('notas_rapidas').insert({
+        id: nota.id, user_id: user.id, fecha: fecha, destino: destN, alumno: al||'', texto: t
       });
-      var data = await resp.json();
-      if(data.ok){
+      if (!error) {
+        notasG.unshift(nota);
         document.getElementById('nota-texto').value='';
-        document.getElementById('nota-save-msg').textContent='✅ Guardada en Drive';
+        document.getElementById('nota-save-msg').textContent='✅ Guardada';
         setTimeout(()=>{document.getElementById('nota-save-msg').textContent='';},3000);
+        renderNotasGuardadas();
         return;
       }
-    } catch(err){ /* si falla, guardar local */ }
+    }
   }
-  
-  // Guardar local si no hay script o falló
-  notasG.unshift({id:Date.now(),fecha:new Date().toLocaleDateString('es-AR'),destino:destN,alumno:al||'',texto:t,sync:false});
+
+  // Fallback: solo en memoria
+  notasG.unshift(nota);
   document.getElementById('nota-texto').value='';
   document.getElementById('nota-save-msg').textContent='✅ Guardada localmente';
   setTimeout(()=>{document.getElementById('nota-save-msg').textContent='';},3000);
   renderNotasGuardadas();
 }
 function renderNotasGuardadas(){var l=document.getElementById('notas-lista'),c=document.getElementById('notas-guardadas-container');if(notasG.length===0){c.style.display='none';return;}c.style.display='block';l.innerHTML=notasG.slice(0,5).map(n=>'<div style="background:var(--crema);border-radius:9px;padding:8px 11px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:flex-start;gap:7px;"><div style="flex:1;"><div style="font-size:10px;color:var(--gris);">'+n.fecha+' · '+(n.destino==='alumno'?n.alumno:'Agenda')+'</div><div style="font-size:12px;">'+n.texto.substring(0,100)+'</div></div><button onclick="borrarNota('+n.id+')" style="background:none;border:none;color:#CCC;cursor:pointer;">✕</button></div>').join('');}
-function borrarNota(id){notasG=notasG.filter(n=>n.id!==id);renderNotasGuardadas();}
+function borrarNota(id){
+  notasG=notasG.filter(n=>n.id!==id);
+  renderNotasGuardadas();
+  if (window.__sb) {
+    (async function(){
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if (user) await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('user_id',user.id);
+    })();
+  }
+}
 function generarPromptNota(){var pend=notasG.filter(n=>!n.sync);if(!pend.length)return;var p='Notas rápidas para HuellaED:\n\n';pend.forEach((n,i)=>{p+=(i+1)+'. ['+n.fecha+'] '+(n.destino==='alumno'?'PERFIL DE '+n.alumno:'AGENDA')+': '+n.texto+'\n';});p+='\nIncorporá cada nota donde corresponde.';document.getElementById('nota-prompt-text').textContent=p;document.getElementById('nota-prompt-container').style.display='block';notasG=notasG.map(n=>({...n,sync:true}));renderNotasGuardadas();}
 function copiarPromptNota(){navigator.clipboard.writeText(document.getElementById('nota-prompt-text').textContent);}
 
