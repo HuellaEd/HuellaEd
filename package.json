@@ -1,0 +1,24 @@
+{
+  "name": "huellaed",
+  "version": "1.0.0",
+  "description": "<!--\r **HuellaEd/HuellaEd** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HuellaEd/HuellaEd.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/HuellaEd/HuellaEd/issues"
+  },
+  "homepage": "https://github.com/HuellaEd/HuellaEd#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.1"
+  }
+}

@@ -22,6 +22,8 @@
 
     /* HEADER */
     header{background:var(--verde);padding:18px 20px 14px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);}
+    .btn-logout{margin-left:auto;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.5px;transition:background 0.15s;}
+    .btn-logout:active{background:rgba(255,255,255,0.22);}
     .logo-svg{flex-shrink:0;}
     .header-text h1{font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1;}
     .header-text h1 span{color:var(--verde-claro);font-weight:300;}
@@ -137,6 +139,7 @@
     <h1>Huella<span>ED</span></h1>
     <p>cada alumno, su trayecto</p>
   </div>
+  <button class="btn-logout" id="btn-logout">Salir</button>
 </header>
 
 <main>
@@ -581,6 +584,17 @@ App: https://huellaed.github.io/HuellaEd/</div>
 <div id="print-container"></div>
 <footer>HuellaED · cada alumno, su trayecto</footer>
 
+<script type="module">
+  import { supabase } from './supabase.js'
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) window.location.replace('login.html')
+  window.__sb = supabase
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabase.auth.signOut()
+    window.location.replace('login.html')
+  })
+</script>
+
 <script>
 
 // ── INTEGRACIÓN GEMINI PARA ANÁLISIS DE LECTURA ──
@@ -819,7 +833,29 @@ function enviarAnalisisAClaude() {
 }
 
 // Revisar pendientes al cargar
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); });
+async function initFichas() {
+  if (!window.__sb) return;
+  var user = (await window.__sb.auth.getUser()).data.user;
+  if (!user) return;
+  var { data } = await window.__sb.from('fichas').select('*').eq('user_id', user.id);
+  if (!data || !data.length) return;
+  data.forEach(function(f) {
+    fichasGuardadas[f.alumno] = { alumno: f.alumno, fecha: f.fecha, chips: f.chips || [], textos: f.textos || {} };
+  });
+  localStorage.setItem('huellaed_fichas', JSON.stringify(fichasGuardadas));
+}
+
+async function initAgenda() {
+  if (!window.__sb) return;
+  var user = (await window.__sb.auth.getUser()).data.user;
+  if (!user) return;
+  var { data } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
+  if (!data || !data.length) return;
+  tareas = data.map(function(t) { return { id: t.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; });
+  localStorage.setItem('huellaed_agenda', JSON.stringify(tareas));
+}
+
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initFichas(); initAgenda(); });
 
 
 function configurarScriptURL() {
@@ -1031,6 +1067,18 @@ function guardarFicha(){
   };
   localStorage.setItem('huellaed_fichas',JSON.stringify(fichasGuardadas));
   document.getElementById('ficha-msg').textContent='✅ Ficha guardada — '+new Date().toLocaleDateString('es-AR');
+  if (window.__sb) {
+    (async function() {
+      var user = (await window.__sb.auth.getUser()).data.user;
+      if (!user) return;
+      await window.__sb.from('fichas').upsert({
+        user_id: user.id, alumno: alumno,
+        fecha: fichasGuardadas[alumno].fecha,
+        chips: chips, textos: textos,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,alumno' });
+    })();
+  }
 }
 
 function generarPromptFicha(){
@@ -1493,7 +1541,20 @@ function copiarPromptNota(){navigator.clipboard.writeText(document.getElementByI
 const TAREAS_INICIALES=[{id:1,texto:"Hablar con familia de Barrera Joaquín por ausentismo crítico",cat:"urgente",hecha:false},{id:2,texto:"Articular con EOE caso Tablada Santino",cat:"urgente",hecha:false},{id:3,texto:"Hablar con familias de Barrera Felipe, Godoy, Carbonel, Tagliabue por asistencia",cat:"urgente",hecha:false},{id:4,texto:"Acto 9 de julio — coordinar con Karen y Laura",cat:"importante",hecha:false},{id:5,texto:"Completar perfiles 5to con Myriam Rastelli",cat:"importante",hecha:false},{id:6,texto:"Revisar y ampliar reservorio de prompts",cat:"importante",hecha:false},{id:7,texto:"Expandir HuellaED a los 6 grados",cat:"proceso",hecha:false},{id:8,texto:"Incorporar observaciones grupales al formulario",cat:"proceso",hecha:false},{id:9,texto:"Evaluar integración WhatsApp para familias",cat:"idea",hecha:false},{id:10,texto:"Sistema de info desde gabinete (Soledad)",cat:"idea",hecha:false}];
 var tareas=JSON.parse(localStorage.getItem('huellaed_agenda')||'null')||TAREAS_INICIALES;
 var filtroActual='todas';
-function guardarTareas(){try{localStorage.setItem('huellaed_agenda',JSON.stringify(tareas));}catch(e){}}
+function guardarTareas(){
+  try{ localStorage.setItem('huellaed_agenda',JSON.stringify(tareas)); }catch(e){}
+  if (!window.__sb) return;
+  (async function() {
+    var user = (await window.__sb.auth.getUser()).data.user;
+    if (!user) return;
+    await window.__sb.from('agenda').delete().eq('user_id', user.id);
+    if (tareas.length > 0) {
+      await window.__sb.from('agenda').insert(
+        tareas.map(function(t) { return { id: t.id, user_id: user.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; })
+      );
+    }
+  })();
+}
 function abrirAgenda(){document.getElementById('modal-agenda').style.display='block';renderAgenda();}
 function cerrarAgenda(){document.getElementById('modal-agenda').style.display='none';}
 function agregarTarea(){var txt=document.getElementById('nueva-tarea').value.trim(),cat=document.getElementById('tarea-cat').value;if(!txt)return;tareas.unshift({id:Date.now(),texto:txt,cat:cat,hecha:false});guardarTareas();document.getElementById('nueva-tarea').value='';renderAgenda();}
