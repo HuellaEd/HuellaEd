@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>HuellaED — Seed</title>
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:520px;margin:40px auto;padding:0 16px;background:#F5F2EE;color:#2D3A35;}
+    h2{color:#2D5F4F;}
+    .log{background:#fff;border-radius:10px;padding:16px;font-size:13px;line-height:1.7;border:1.5px solid #E8E4DF;margin-top:16px;white-space:pre-wrap;}
+    .ok{color:#2D5F4F;} .err{color:#C0392B;} .info{color:#8A7E6A;}
+    button{background:#2D5F4F;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;cursor:pointer;margin-top:12px;}
+    button:disabled{opacity:.5;cursor:not-allowed;}
+  </style>
+</head>
+<body>
+  <h2>Seed — Docente + Alumnos</h2>
+  <button id="btn" onclick="seed()">Insertar docente y alumnos</button>
+  <div class="log" id="log">Esperando…</div>
+
+<script type="module">
+import { supabase } from './supabase.js'
+
+const TEACHER_ID = '4815b0cb-dd24-4770-8c64-bc0c1edd7220'
+
+const ALUMNOS = [
+  { full_name: 'Aguirre, Ziomara',       has_differential: false },
+  { full_name: 'Barrera, Felipe',        has_differential: false },
+  { full_name: 'Barrera, Joaquín',       has_differential: false },
+  { full_name: 'Bravo, Álvaro',          has_differential: false },
+  { full_name: 'Carbonel, Tiziano',      has_differential: false },
+  { full_name: 'Cuello, Thomas',         has_differential: true  },
+  { full_name: 'Diaz, Monserrat',        has_differential: false },
+  { full_name: 'Espindola, Sofía',       has_differential: false },
+  { full_name: 'Gamon, Ciro',            has_differential: true  },
+  { full_name: 'Garcia, Milton',         has_differential: false },
+  { full_name: 'Godoy, Katia',           has_differential: true  },
+  { full_name: 'Monteros Cruz, Máximo',  has_differential: false },
+  { full_name: 'Nievas, Nicolás',        has_differential: true  },
+  { full_name: 'Santa Cruz, Alma',       has_differential: false },
+  { full_name: 'Sosa Muñoz, Benjamín',   has_differential: false },
+  { full_name: 'Tabares, Andrés',        has_differential: false },
+  { full_name: 'Tablada, Santino',       has_differential: false },
+  { full_name: 'Tagliabue, Delfina',     has_differential: false },
+  { full_name: 'Villalba, Benjamín',     has_differential: false },
+]
+
+const log = document.getElementById('log')
+const btn = document.getElementById('btn')
+
+function print(msg, cls = '') {
+  log.innerHTML += `<span class="${cls}">${msg}</span>\n`
+}
+
+window.seed = async function () {
+  btn.disabled = true
+  log.innerHTML = ''
+
+  // 1. Insertar docente
+  print('── Insertando docente…', 'info')
+  const { error: teacherErr } = await supabase.from('teachers').upsert({
+    id: TEACHER_ID,
+    email: 'nradaelli122680@gmail.com',
+    full_name: 'Docente HuellaED',
+    grade: '6to grado',
+  }, { onConflict: 'id' })
+
+  if (teacherErr) {
+    print(`❌ Error al insertar docente: ${teacherErr.message}`, 'err')
+    btn.disabled = false
+    return
+  }
+  print('✅ Docente insertado', 'ok')
+  print('')
+
+  // 2. Insertar alumnos
+  print('── Insertando alumnos…', 'info')
+  let ok = 0, fail = 0
+
+  for (const alumno of ALUMNOS) {
+    const { error } = await supabase.from('students').insert({
+      teacher_id: TEACHER_ID,
+      full_name: alumno.full_name,
+      has_differential: alumno.has_differential,
+    })
+    if (error) {
+      print(`❌ ${alumno.full_name} — ${error.message}`, 'err')
+      fail++
+    } else {
+      print(`✅ ${alumno.full_name}${alumno.has_differential ? ' ⚡' : ''}`, 'ok')
+      ok++
+    }
+  }
+
+  print('')
+  print(`Listo: ${ok} insertados, ${fail} errores.`, ok === 19 ? 'ok' : 'err')
+  btn.disabled = false
+}
+</script>
+</body>
+</html>

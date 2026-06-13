@@ -165,29 +165,11 @@
     </a>
     <div class="card" onclick="toggleGrupo('perfiles')" id="btn-perfiles" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);cursor:pointer;">
       <div class="card-icon ic-v" style="width:52px;height:52px;font-size:26px;">👤</div>
-      <div><strong style="font-size:13px;">Perfiles individuales</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;">19 alumnos</span></div>
+      <div><strong style="font-size:13px;">Perfiles individuales</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;"><span id="students-count">—</span> alumnos</span></div>
     </div>
   </div>
   <div class="grupo-panel" id="panel-perfiles" style="grid-template-columns:1fr 1fr 1fr;">
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1UJIdfDIGQ89oHMKuYteEQwAErz_HhoGe" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">ZA</div><span class="subcard-label">Aguirre, Ziomara</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1vszUiGUKLuDdrpEcZMWSEw0NwcrHMioH" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">BF</div><span class="subcard-label">Barrera, Felipe</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1zdTw8ARpYXCc-TdGBtrRJrYoVNYsfgl7" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">BJ</div><span class="subcard-label">Barrera, Joaquín</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1Ixg69VqCM95EjbsuGdoHpeDvXGJtRBb-" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">BR</div><span class="subcard-label">Bravo, Álvaro</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1lIN6H4FyZKSmzoW8DGnaHQe5OeeBY5Fm" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">CT</div><span class="subcard-label">Carbonel, Tiziano</span><span class="subcard-sub" onclick="event.stopPropagation();event.preventDefault();abrirPerfilAcademico('Carbonel_Tiziano')" style="color:var(--verde);font-weight:600;margin-top:2px;">📄 Perfil</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1esR1SeoLuGmRtYgPZRWn7xfGcXBn4m3k" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">CT</div><span class="subcard-label">Cuello, Thomas</span><span class="subcard-sub" onclick="event.stopPropagation();event.preventDefault();abrirPerfilAcademico('Cuello_Thomas')" style="color:var(--verde);font-weight:600;margin-top:2px;">📄 Perfil</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1SEH4241vv0vuHiHFwJAsFA3Z_Dp42JoC" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">DM</div><span class="subcard-label">Diaz, Monserrat</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1BOYgi0FsCXoW2E8c3_x5spguJQ_O-FSm" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">ES</div><span class="subcard-label">Espindola, Sofía</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1ociwAjrdclVQHaEsfmiIB6yilIgB-K9p" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">GC</div><span class="subcard-label">Gamon, Ciro</span><span class="subcard-sub" onclick="event.stopPropagation();event.preventDefault();abrirPerfilAcademico('Gamon_Ciro')" style="color:var(--verde);font-weight:600;margin-top:2px;">📄 Perfil</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1T8bC7hXP6GsN4bPHrYRQ0YTU_gpr53Uw" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">GM</div><span class="subcard-label">Garcia, Milton</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1Iiz0-Zy61hZDGdbmFqPV7ZbK1D-ta0Le" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">GK</div><span class="subcard-label">Godoy, Katia</span><span class="subcard-sub" onclick="event.stopPropagation();event.preventDefault();abrirPerfilAcademico('Godoy_Katia')" style="color:var(--verde);font-weight:600;margin-top:2px;">📄 Perfil</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1pAR6bkAa8s6Qcr47rGbw4kyW8ldUXkv4" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">MM</div><span class="subcard-label">Monteros Cruz</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1l3tpF-fEfJT83wI2lFxQlItt7bj8-A3g" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">NN</div><span class="subcard-label">Nievas, Nicolás</span><span class="subcard-sub" onclick="event.stopPropagation();event.preventDefault();abrirPerfilAcademico('Nievas_Nicolas')" style="color:var(--verde);font-weight:600;margin-top:2px;">📄 Perfil</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1Hgcr2ThNawSFJ4zp5FSyVnMtsfzkgRRt" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">SA</div><span class="subcard-label">Santa Cruz, Alma</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1Z4zBZdDi1k0DPHX8zWDkqZp480POTPLh" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">SB</div><span class="subcard-label">Sosa Muñoz, B.</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1dVSKBOTyGuAvn3hMb1N5WVgEd8-GT8Ru" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">TA</div><span class="subcard-label">Tabares, Andrés</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1EqgWdD3WeT9H8YCLOmaKEPbyOudB5rtI" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">TS</div><span class="subcard-label">Tablada, Santino</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1E7wuiDYInB0_R8UXswVRnyVWPnGuYaOJ" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">TD</div><span class="subcard-label">Tagliabue, Delfina</span></a>
-    <a class="subcard" href=?authuser=0"https://drive.google.com/drive/folders/1FvEFURvb15x1QN1weDUmZHiF10n3rbsO" target="_blank" style="text-decoration:none;"><div class="alumno-ini" style="margin:0 auto 4px;">VB</div><span class="subcard-label">Villalba, Benjamín</span></a>
+    <div style="grid-column:span 3;text-align:center;padding:16px;font-size:12px;color:var(--gris);">Cargando alumnos…</div>
   </div>
 
   <!-- ACCESOS RÁPIDOS -->
@@ -413,7 +395,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <!-- Campo alumno individual (se oculta en sesión) -->
     <div id="grab-campo-alumno" class="form-row">
       <label>Alumno</label>
-      <select id="grab-alumno"><option value="">— Seleccionar —</option><option>Aguirre_Ziomara</option><option>Barrera_Felipe</option><option>Barrera_Joaquin</option><option>Bravo_Alvaro</option><option>Carbonel_Tiziano</option><option>Cuello_Thomas</option><option>Diaz_Monserrat</option><option>Espindola_Sofia</option><option>Gamon_Ciro</option><option>Garcia_Milton</option><option>Godoy_Katia</option><option>Monteros_Maximo</option><option>Nievas_Nicolas</option><option>Santa_Cruz_Alma</option><option>Sosa_Munoz_Benjamin</option><option>Tabares_Andres</option><option>Tablada_Santino</option><option>Tagliabue_Delfina</option><option>Villalba_Benjamin</option></select>
+      <select id="grab-alumno"><option value="">— Seleccionar —</option></select>
     </div>
 
     <!-- Texto visible durante grabación -->
@@ -475,7 +457,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
 
     <!-- Campo alumno individual -->
-    <div id="ev-campo-alumno" class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv()"><option value="">— Seleccionar —</option><option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option><option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option><option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option><option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option><option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option><option>Villalba, Benjamín</option></select></div>
+    <div id="ev-campo-alumno" class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv()"><option value="">— Seleccionar —</option></select></div>
     <div id="ev-campo-obs" class="form-row"><label>Observación (opcional)</label><textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:55px;resize:none;box-sizing:border-box;"></textarea></div>
     <div id="ev-nombre-preview" style="background:var(--verde-bg);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);display:none;"><strong>Nombre:</strong> <span id="ev-nombre-txt"></span></div>
     <input type="file" id="ev-camara" accept="image/*" capture="environment" style="display:none;" onchange="procesarFoto(this)">
@@ -499,7 +481,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">👨‍👩‍👧 Reunión Familiar</strong><button onclick="cerrarReunion()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn active" onclick="selTipoReunion(this,'individual')" id="tr-ind">👤 Individual</div><div class="tipo-btn" onclick="selTipoReunion(this,'grupal')" id="tr-grp">👥 Grupal</div></div></div>
-    <div id="reunion-alumno-row" class="form-row"><label>Alumno</label><select id="reunion-alumno"><option value="">— Seleccionar —</option><option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option><option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option><option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option><option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option><option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option><option>Villalba, Benjamín</option></select></div>
+    <div id="reunion-alumno-row" class="form-row"><label>Alumno</label><select id="reunion-alumno"><option value="">— Seleccionar —</option></select></div>
     <div class="form-row"><label>Fecha</label><input type="date" id="reunion-fecha" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;"></div>
     <div class="form-row"><label>Motivo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn" onclick="selMotivo(this,'academico')">📊 Académico</div><div class="tipo-btn" onclick="selMotivo(this,'conductual')">⚠️ Conductual</div><div class="tipo-btn" onclick="selMotivo(this,'familiar')">🏠 Familiar</div><div class="tipo-btn" onclick="selMotivo(this,'pedido')">📞 A pedido</div><div class="tipo-btn" onclick="selMotivo(this,'inicio')">🗓️ Inicio de año</div><div class="tipo-btn" onclick="selMotivo(this,'fin')">🎓 Fin de año</div></div></div>
     <div class="form-row"><label>Asistentes</label><input type="text" id="reunion-asistentes" placeholder="Ej: madre, padre..."></div>
@@ -534,7 +516,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🗒️ Nota Rápida</strong><button onclick="cerrarNota()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <div class="form-row"><label>Destino</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn active" onclick="selDestinoNota(this,'agenda')" id="nd-agenda">📋 Agenda</div><div class="tipo-btn" onclick="selDestinoNota(this,'alumno')" id="nd-alumno">👤 Perfil alumno</div></div></div>
-    <div class="form-row" id="nota-alumno-row" style="display:none;"><label>Alumno</label><select id="nota-alumno"><option value="">— Seleccionar —</option><option>Aguirre, Ziomara</option><option>Barrera, Felipe</option><option>Barrera, Joaquín</option><option>Bravo, Álvaro</option><option>Carbonel, Tiziano</option><option>Cuello, Thomas</option><option>Diaz, Monserrat</option><option>Espindola, Sofía</option><option>Gamon, Ciro</option><option>Garcia, Milton</option><option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option><option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option><option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option><option>Tablada, Santino</option><option>Tagliabue, Delfina</option><option>Villalba, Benjamín</option></select></div>
+    <div class="form-row" id="nota-alumno-row" style="display:none;"><label>Alumno</label><select id="nota-alumno"><option value="">— Seleccionar —</option></select></div>
     <div class="form-row">
       <label>Nota</label>
       <textarea id="nota-texto" placeholder="Escribí o dictá lo que querés registrar..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;"></textarea>
@@ -833,6 +815,66 @@ function enviarAnalisisAClaude() {
 }
 
 // Revisar pendientes al cargar
+function nameToInitials(n) {
+  var p = n.split(',').map(function(s){ return s.trim(); });
+  var ap = (p[0] || '')[0] || '';
+  var nom = (p[1] || '')[0] || '';
+  return (ap + nom).toUpperCase();
+}
+
+function nameToKey(n) {
+  return n.normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/,\s*/g,'_').replace(/\s+/g,'_').replace(/[^a-zA-Z_]/g,'');
+}
+
+async function initStudents() {
+  if (!window.__sb) return;
+  var user = (await window.__sb.auth.getUser()).data.user;
+  if (!user) return;
+  var { data: students, error } = await window.__sb
+    .from('students')
+    .select('id, full_name, has_differential')
+    .eq('teacher_id', user.id)
+    .order('full_name');
+  if (error || !students || !students.length) return;
+
+  window.__students = students;
+
+  var countEl = document.getElementById('students-count');
+  if (countEl) countEl.textContent = students.length;
+
+  var panel = document.getElementById('panel-perfiles');
+  if (panel) {
+    panel.innerHTML = students.map(function(s) {
+      var ini = nameToInitials(s.full_name);
+      var badge = s.has_differential
+        ? '<span class="subcard-sub" style="color:var(--terracota);font-weight:600;margin-top:2px;">⚡ Dif.</span>'
+        : '';
+      return '<div class="subcard"><div class="alumno-ini" style="margin:0 auto 4px;">' + ini + '</div>'
+        + '<span class="subcard-label">' + s.full_name + '</span>' + badge + '</div>';
+    }).join('');
+  }
+
+  var displayOpts = '<option value="">— Seleccionar —</option>'
+    + students.map(function(s){ return '<option>' + s.full_name + '</option>'; }).join('');
+  ['ev-alumno','reunion-alumno','nota-alumno'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = displayOpts;
+  });
+
+  var fichaEl = document.getElementById('ficha-alumno');
+  if (fichaEl) fichaEl.innerHTML = '<option value="">— Seleccionar alumno —</option>'
+    + students.map(function(s){ return '<option>' + s.full_name + '</option>'; }).join('');
+
+  GRAB_ALUMNOS = students.map(function(s){ return nameToKey(s.full_name); });
+  EV_ALUMNOS = students.map(function(s){ return s.full_name; });
+  var grabEl = document.getElementById('grab-alumno');
+  if (grabEl) grabEl.innerHTML = '<option value="">— Seleccionar —</option>'
+    + students.map(function(s){
+        return '<option value="' + nameToKey(s.full_name) + '">' + s.full_name + '</option>';
+      }).join('');
+}
+
 async function initFichas() {
   if (!window.__sb) return;
   var user = (await window.__sb.auth.getUser()).data.user;
@@ -855,7 +897,7 @@ async function initAgenda() {
   localStorage.setItem('huellaed_agenda', JSON.stringify(tareas));
 }
 
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initFichas(); initAgenda(); });
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initFichas(); initAgenda(); });
 
 
 function configurarScriptURL() {
@@ -1261,7 +1303,7 @@ function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById
 
 var grabSesionActivo=false;
 var grabSesionAlumnoActual='';
-const GRAB_ALUMNOS=['Aguirre_Ziomara','Barrera_Felipe','Barrera_Joaquin','Bravo_Alvaro','Carbonel_Tiziano','Cuello_Thomas','Diaz_Monserrat','Espindola_Sofia','Gamon_Ciro','Garcia_Milton','Godoy_Katia','Monteros_Maximo','Nievas_Nicolas','Santa_Cruz_Alma','Sosa_Munoz_Benjamin','Tabares_Andres','Tablada_Santino','Tagliabue_Delfina','Villalba_Benjamin'];
+var GRAB_ALUMNOS=[];
 var grabAlumnosCompletados=[];
 
 var grabFotoTextoURL = null;
@@ -1422,7 +1464,7 @@ function descargarEvidenciaSesion(){
 function descargarEvidencia(){if(!evFile)return;var nombre=actualizarNombreEv();if(!nombre){alert('Completá el alumno y el tema');return;}evReg.unshift({id:Date.now(),alumno:document.getElementById('ev-alumno').value,area:document.getElementById('ev-area').value,tema:document.getElementById('ev-tema').value,obs:document.getElementById('ev-obs').value,fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});var ext=evFile.type.includes('png')?'.png':'.jpg';var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();renderEvidencias();}
 var evSesionActivo=false;
 var evSesionAlumnoActual='';
-const EV_ALUMNOS=['Aguirre, Ziomara','Barrera, Felipe','Barrera, Joaquín','Bravo, Álvaro','Carbonel, Tiziano','Cuello, Thomas','Diaz, Monserrat','Espindola, Sofía','Gamon, Ciro','Garcia, Milton','Godoy, Katia','Monteros Cruz, Máximo','Nievas, Nicolás','Santa Cruz, Alma','Sosa Muñoz, Benjamín','Tabares, Andrés','Tablada, Santino','Tagliabue, Delfina','Villalba, Benjamín'];
+var EV_ALUMNOS=[];
 
 function toggleSesion(){
   evSesionActivo=!evSesionActivo;
@@ -1655,16 +1697,6 @@ function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;pad
       <label>Alumno</label>
       <select id="ficha-alumno" onchange="cargarFicha()" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
         <option value="">— Seleccionar alumno —</option>
-        <option>Aguirre, Ziomara</option><option>Barrera, Felipe</option>
-        <option>Barrera, Joaquín</option><option>Bravo, Álvaro</option>
-        <option>Carbonel, Tiziano</option><option>Cuello, Thomas</option>
-        <option>Diaz, Monserrat</option><option>Espindola, Sofía</option>
-        <option>Gamon, Ciro</option><option>Garcia, Milton</option>
-        <option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option>
-        <option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option>
-        <option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option>
-        <option>Tablada, Santino</option><option>Tagliabue, Delfina</option>
-        <option>Villalba, Benjamín</option>
       </select>
     </div>
 
