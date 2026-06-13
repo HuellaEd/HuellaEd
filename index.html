@@ -107,6 +107,16 @@
     .pie-link:active{background:rgba(0,0,0,0.08);}
     footer{text-align:center;padding:10px;font-size:10px;color:var(--gris);letter-spacing:1px;}
 
+
+    .ficha-seccion{background:var(--crema);border-radius:12px;padding:14px;margin-bottom:10px;}
+    .ficha-titulo{font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+    .ficha-preg{font-size:12px;font-weight:600;color:var(--negro);margin-bottom:6px;margin-top:10px;}
+    .ficha-preg:first-of-type{margin-top:0;}
+    .ficha-opciones{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
+    .ficha-chip{padding:6px 12px;border:1.5px solid var(--gris-claro);border-radius:18px;font-size:11px;cursor:pointer;background:#fff;color:var(--negro);transition:all 0.12s;user-select:none;-webkit-user-select:none;}
+    .ficha-chip.activo{background:var(--verde);color:#fff;border-color:var(--verde);}
+    .ficha-txt{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;background:#fff;resize:none;height:55px;box-sizing:border-box;margin-top:4px;font-family:inherit;}
+
     @media(max-width:380px){.grid-2{grid-template-columns:1fr;}.alumnos-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}}
     @media print{body>*:not(#print-container){display:none!important;}#print-container{display:block!important;}}
     #print-container{display:none;}
@@ -207,6 +217,7 @@
     <div class="subcard" onclick="abrirGrabador()"><span class="subcard-icon">🎙️</span><span class="subcard-label">Grabar lectura</span><span class="subcard-sub">Audio + nombre</span></div>
     <div class="subcard" onclick="abrirNota()"><span class="subcard-icon">🗒️</span><span class="subcard-label">Nota rápida</span><span class="subcard-sub">Sin abrir Drive</span></div>
     <div class="subcard" onclick="abrirReunion()"><span class="subcard-icon">👨‍👩‍👧</span><span class="subcard-label">Reunión familiar</span><span class="subcard-sub">Registro + acta</span></div>
+    <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
   </div>
 
   <!-- GENERAR -->
@@ -959,6 +970,127 @@ function abrirPerfilAcademico(key){ alert("Perfil academico: " + key); }
 function cerrarPerfilAcademico(){ document.getElementById('modal-perfil-academico').style.display='none'; }
 function imprimirPerfilAcademico(){ window.print(); }
 
+
+var fichasGuardadas = JSON.parse(localStorage.getItem('huellaed_fichas') || '{}');
+
+function abrirFicha(){
+  document.getElementById('modal-ficha').style.display='block';
+  document.getElementById('ficha-fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ficha-contenido').style.display='none';
+  document.getElementById('ficha-alumno').value='';
+  document.getElementById('ficha-prompt-container').style.display='none';
+  document.getElementById('ficha-msg').textContent='';
+}
+
+function cerrarFicha(){
+  document.getElementById('modal-ficha').style.display='none';
+}
+
+function toggleChip(el){
+  el.classList.toggle('activo');
+}
+
+function cargarFicha(){
+  var alumno = document.getElementById('ficha-alumno').value;
+  if(!alumno){ document.getElementById('ficha-contenido').style.display='none'; return; }
+  document.getElementById('ficha-contenido').style.display='block';
+  document.getElementById('ficha-prompt-container').style.display='none';
+  // Limpiar todo
+  document.querySelectorAll('.ficha-chip').forEach(c=>c.classList.remove('activo'));
+  document.querySelectorAll('.ficha-txt').forEach(t=>t.value='');
+  // Cargar si existe
+  if(fichasGuardadas[alumno]){
+    var f = fichasGuardadas[alumno];
+    if(f.fecha) document.getElementById('ficha-fecha').value=f.fecha;
+    if(f.chips) f.chips.forEach(function(txt){
+      document.querySelectorAll('.ficha-chip').forEach(function(c){
+        if(c.textContent.trim()===txt) c.classList.add('activo');
+      });
+    });
+    if(f.textos) Object.keys(f.textos).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.value=f.textos[id];
+    });
+    document.getElementById('ficha-msg').textContent='✏️ Ficha existente cargada — podés modificarla';
+  }
+}
+
+function guardarFicha(){
+  var alumno = document.getElementById('ficha-alumno').value;
+  if(!alumno){alert('Seleccioná un alumno');return;}
+  var chips=[];
+  document.querySelectorAll('.ficha-chip.activo').forEach(c=>chips.push(c.textContent.trim()));
+  var textos={};
+  document.querySelectorAll('.ficha-txt').forEach(t=>{ if(t.value.trim()) textos[t.id]=t.value.trim(); });
+  fichasGuardadas[alumno]={
+    alumno:alumno,
+    fecha:document.getElementById('ficha-fecha').value,
+    chips:chips,
+    textos:textos,
+    guardado:new Date().toLocaleDateString('es-AR')
+  };
+  localStorage.setItem('huellaed_fichas',JSON.stringify(fichasGuardadas));
+  document.getElementById('ficha-msg').textContent='✅ Ficha guardada — '+new Date().toLocaleDateString('es-AR');
+}
+
+function generarPromptFicha(){
+  var alumno = document.getElementById('ficha-alumno').value;
+  if(!alumno){alert('Seleccioná un alumno');return;}
+  guardarFicha();
+  var f = fichasGuardadas[alumno];
+  var p = 'Incorporá esta Ficha de Conocimiento al perfil académico de '+alumno+' en HuellaED.\n\n';
+  p += 'ALUMNO: '+alumno+'\n';
+  p += 'FECHA: '+f.fecha+'\n\n';
+  if(f.chips && f.chips.length>0) p += 'OBSERVACIONES MARCADAS:\n'+f.chips.join(' · ')+'\n\n';
+  var campos = {
+    'f1-nota1':'Primera impresión',
+    'f2-trabajo':'Cómo trabaja',
+    'f3-bien':'Matemática — fortalezas',
+    'f3-traba':'Matemática — dificultades',
+    'f3-funciona':'Matemática — qué le funciona',
+    'f4-lengua':'Lengua — observaciones',
+    'f5-funciona':'Lo que le funciona',
+    'f5-evitar':'Lo que hay que evitar',
+    'f5-apoyo':'Apoyos necesarios',
+    'f6-libre':'Observación libre'
+  };
+  if(f.textos) Object.keys(campos).forEach(function(id){
+    if(f.textos[id]) p+=campos[id].toUpperCase()+':\n'+f.textos[id]+'\n\n';
+  });
+  p += 'Actualizá el Perfil Académico del alumno en el Drive con esta información.';
+  document.getElementById('ficha-prompt-text').textContent=p;
+  document.getElementById('ficha-prompt-container').style.display='block';
+}
+
+function copiarPromptFicha(){
+  navigator.clipboard.writeText(document.getElementById('ficha-prompt-text').textContent).then(function(){
+    document.getElementById('ficha-msg').textContent='✅ Copiado — pegalo en Claude';
+  });
+}
+
+function imprimirFicha(){
+  var alumno = document.getElementById('ficha-alumno').value || '___________';
+  var fecha = document.getElementById('ficha-fecha').value || '___/___/______';
+  var chips=[];
+  document.querySelectorAll('.ficha-chip.activo').forEach(c=>chips.push(c.textContent.trim()));
+  var html = '<div style="font-family:Arial,sans-serif;padding:20px;max-width:600px;">';
+  html += '<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:8px;margin-bottom:14px;">';
+  html += '<div style="font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;">Escuela La Concepción · 6to Año · HuellaED</div>';
+  html += '<div style="font-size:16px;font-weight:bold;">FICHA DE CONOCIMIENTO DEL ALUMNO</div>';
+  html += '<div style="font-size:11px;color:#888;margin-top:3px;">Alumno: '+alumno+' · Fecha: '+fecha+'</div>';
+  html += '</div>';
+  if(chips.length>0) html += '<p style="font-size:11px;"><strong>Observaciones:</strong> '+chips.join(' · ')+'</p>';
+  var campos = {'f1-nota1':'Primera impresión','f2-trabajo':'Cómo trabaja','f3-bien':'Matemática — fortalezas','f3-traba':'Matemática — dificultades','f3-funciona':'Matemática — qué le funciona','f4-lengua':'Lengua','f5-funciona':'Lo que le funciona','f5-evitar':'Lo que hay que evitar','f5-apoyo':'Apoyos','f6-libre':'Observación libre'};
+  Object.keys(campos).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&el.value.trim()) html+='<p style="font-size:11px;margin-top:8px;"><strong>'+campos[id]+':</strong><br>'+el.value+'</p>';
+  });
+  html += '<div style="margin-top:24px;font-size:9px;color:#999;text-align:center;">HuellaED · cada alumno, su trayecto</div></div>';
+  document.getElementById('print-container').innerHTML=html;
+  window.print();
+  setTimeout(function(){document.getElementById('print-container').innerHTML='';},1500);
+}
+
 // ── DATOS ──
 const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",n:[8,8,8,8,7,9,9]},{a:"Barrera, Joaquín",n:[7,7,7,7,7,8,9]},{a:"Bravo, Álvaro",n:[7,7,8,7,7,8,9]},{a:"Carbonel, Tiziano",n:[6,6,6,7,7,9,9]},{a:"Cuello, Thomas",n:[6,6,6,7,8,8,8]},{a:"Diaz, Monserrat",n:[7,6,9,7,7,9,9]},{a:"Espindola, Sofía",n:[8,8,8,8,7,9,9]},{a:"Gamon, Ciro",n:[6,8,7,8,7,9,8]},{a:"Garcia, Milton",n:[8,9,6,8,8,10,9]},{a:"Godoy, Katia",n:[6,7,7,7,7,8,7]},{a:"Monteros Cruz, Máximo",n:[8,8,8,8,7,9,9]},{a:"Nievas, Nicolás",n:[6,6,6,6,7,8,9]},{a:"Santa Cruz, Alma",n:[8,8,8,8,7,9,9]},{a:"Sosa Muñoz, Benjamín",n:[9,9,9,8,8,9,9]},{a:"Tabares, Andrés",n:[7,7,7,7,8,9,9]},{a:"Tablada, Santino",n:[7,7,7,7,7,9,9]},{a:"Tagliabue, Delfina",n:[7,7,7,7,7,9,9]},{a:"Villalba, Benjamín",n:[7,7,7,7,7,9,8]}];
 const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
@@ -1443,6 +1575,203 @@ function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;pad
   </div>
 </div>
 
+
+
+<!-- MODAL FICHA DE CONOCIMIENTO -->
+<div id="modal-ficha" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:600px;margin:16px auto;">
+    
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">📋 Ficha de Conocimiento</strong>
+      <div style="display:flex;gap:6px;">
+        <button onclick="imprimirFicha()" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer;">🖨️</button>
+        <button onclick="cerrarFicha()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      </div>
+    </div>
+
+    <!-- Selector de alumno -->
+    <div class="form-row" style="margin-bottom:14px;">
+      <label>Alumno</label>
+      <select id="ficha-alumno" onchange="cargarFicha()" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
+        <option value="">— Seleccionar alumno —</option>
+        <option>Aguirre, Ziomara</option><option>Barrera, Felipe</option>
+        <option>Barrera, Joaquín</option><option>Bravo, Álvaro</option>
+        <option>Carbonel, Tiziano</option><option>Cuello, Thomas</option>
+        <option>Diaz, Monserrat</option><option>Espindola, Sofía</option>
+        <option>Gamon, Ciro</option><option>Garcia, Milton</option>
+        <option>Godoy, Katia</option><option>Monteros Cruz, Máximo</option>
+        <option>Nievas, Nicolás</option><option>Santa Cruz, Alma</option>
+        <option>Sosa Muñoz, Benjamín</option><option>Tabares, Andrés</option>
+        <option>Tablada, Santino</option><option>Tagliabue, Delfina</option>
+        <option>Villalba, Benjamín</option>
+      </select>
+    </div>
+
+    <div id="ficha-contenido" style="display:none;">
+
+      <!-- Fecha -->
+      <div style="font-size:10px;color:var(--gris);text-align:right;margin-bottom:12px;">
+        Fecha: <input type="date" id="ficha-fecha" style="border:none;border-bottom:1px solid var(--gris-claro);font-size:10px;color:var(--gris);background:transparent;">
+      </div>
+
+      <!-- PARTE 1 -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">1 · La primera impresión</div>
+        
+        <div class="ficha-preg">¿Cómo llega al aula?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Tranquilo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Activo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Disperso</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Ansioso</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Variable</div>
+        </div>
+
+        <div class="ficha-preg">¿Qué es lo primero que notás de él/ella?</div>
+        <textarea class="ficha-txt" id="f1-nota1" placeholder="Lo que salta a la vista en los primeros días..."></textarea>
+
+        <div class="ficha-preg">¿Cómo se relaciona con los compañeros?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Busca a todos</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Tiene su grupito</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Va solo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Le cuesta el contacto</div>
+        </div>
+
+        <div class="ficha-preg">¿Y con vos como adulto?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Se acerca seguido</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Es distante</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Busca aprobación</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Es autónomo</div>
+        </div>
+      </div>
+
+      <!-- PARTE 2 -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">2 · Cómo aprende</div>
+
+        <div class="ficha-preg">Cuando no entiende algo, ¿qué hace?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Pregunta</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Espera que le muestren</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Lo intenta igual</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se bloquea</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se distrae</div>
+        </div>
+
+        <div class="ficha-preg">¿Cómo aprende mejor?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Con ejemplos primero</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Escuchando</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Haciendo solo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Con un compañero</div>
+        </div>
+
+        <div class="ficha-preg">¿Cuánto sostiene la atención?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Todo el tiempo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Un rato, después se va</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Poco, necesita cambios</div>
+        </div>
+
+        <div class="ficha-preg">¿Necesita que le vayas chequeando?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Sí, seguido</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">A veces</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">No, trabaja solo</div>
+        </div>
+
+        <div class="ficha-preg">Contame cómo es cuando trabaja:</div>
+        <textarea class="ficha-txt" id="f2-trabajo" placeholder="Descripción libre..."></textarea>
+      </div>
+
+      <!-- PARTE 3 -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">3 · Matemática</div>
+
+        <div class="ficha-preg">¿Qué sabe hacer bien?</div>
+        <textarea class="ficha-txt" id="f3-bien" placeholder="Lo que domina o se destaca..."></textarea>
+
+        <div class="ficha-preg">¿Dónde se traba?</div>
+        <textarea class="ficha-txt" id="f3-traba" placeholder="Lo que le cuesta o no llega..."></textarea>
+
+        <div class="ficha-preg">¿Qué le funciona cuando no entiende?</div>
+        <textarea class="ficha-txt" id="f3-funciona" placeholder="Estrategias que le ayudan..."></textarea>
+      </div>
+
+      <!-- PARTE 4 -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">4 · Lectura y escritura</div>
+
+        <div class="ficha-preg">Lectura</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Fluida</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Silabea</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Lee pero no comprende</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Le cuesta en voz alta</div>
+        </div>
+
+        <div class="ficha-preg">¿Comprende lo que lee?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Sí, todo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Lo explícito sí, lo implícito no</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Necesita releer</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">No comprende</div>
+        </div>
+
+        <div class="ficha-preg">Escritura</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Organizada</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Le cuesta armar oraciones</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Muchos errores ortográficos</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">No logra párrafos</div>
+        </div>
+
+        <div class="ficha-preg">Algo más que notaste en lengua:</div>
+        <textarea class="ficha-txt" id="f4-lengua" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+
+      <!-- PARTE 5 -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">5 · Lo que funciona y lo que no</div>
+
+        <div class="ficha-preg">Una cosa que le funciona muy bien con este chico:</div>
+        <textarea class="ficha-txt" id="f5-funciona" placeholder="La estrategia o situación que mejor le sale..."></textarea>
+
+        <div class="ficha-preg">Una cosa que no funciona o que hay que evitar:</div>
+        <textarea class="ficha-txt" id="f5-evitar" placeholder="Lo que no conviene hacer con este alumno..."></textarea>
+
+        <div class="ficha-preg">¿Necesita algún apoyo especial?</div>
+        <textarea class="ficha-txt" id="f5-apoyo" placeholder="Adecuaciones, adaptaciones, soportes que usaste..."></textarea>
+      </div>
+
+      <!-- PARTE 6 -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">6 · Algo más</div>
+        <div class="ficha-preg">Lo que sentís que el próximo docente necesita saber:</div>
+        <textarea class="ficha-txt" id="f6-libre" placeholder="Todo lo que no entra en ninguna casilla..." style="height:80px;"></textarea>
+      </div>
+
+      <!-- Botones -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;">
+        <button onclick="guardarFicha()" class="save-btn">💾 Guardar ficha</button>
+        <button onclick="generarPromptFicha()" class="sec-btn">📋 Enviar a Claude</button>
+      </div>
+      <div id="ficha-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
+
+      <!-- Resultado prompt -->
+      <div id="ficha-prompt-container" style="display:none;margin-top:10px;">
+        <div id="ficha-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);max-height:180px;overflow-y:auto;"></div>
+        <div style="display:flex;gap:7px;">
+          <button onclick="copiarPromptFicha()" class="save-btn">📋 Copiar</button>
+          <a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:10px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a>
+        </div>
+      </div>
+
+    </div><!-- fin ficha-contenido -->
+  </div>
+</div>
 
 </body>
 </html>
