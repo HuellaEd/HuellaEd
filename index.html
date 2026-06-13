@@ -234,10 +234,13 @@
 
   <!-- PANELES -->
   <div id="tabla-notas" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-head"><strong>Notas — 1er Trimestre · Aprobado: 7</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('tabla-notas')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
-    <div class="panel-body"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;"><thead><tr style="background:var(--verde);color:#fff;"><th style="padding:7px 5px;text-align:left;">Alumno</th><th style="padding:7px 3px;text-align:center;">L</th><th style="padding:7px 3px;text-align:center;">M</th><th style="padding:7px 3px;text-align:center;">CS</th><th style="padding:7px 3px;text-align:center;">CN</th><th style="padding:7px 3px;text-align:center;">I</th><th style="padding:7px 3px;text-align:center;">EA</th><th style="padding:7px 3px;text-align:center;">EF</th><th style="padding:7px 3px;text-align:center;">Prom</th></tr></thead><tbody id="notas-tbody"></tbody></table>
+    <div class="panel-head"><strong>Notas · Aprobado: 7</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('tabla-notas')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
+    <div style="display:flex;gap:6px;padding:10px 12px 0;"><button onclick="cambiarPeriodoNotas('1')" id="notas-p1" class="tab-btn active">1er Trim.</button><button onclick="cambiarPeriodoNotas('2')" id="notas-p2" class="tab-btn">2do Trim.</button><button onclick="cambiarPeriodoNotas('3')" id="notas-p3" class="tab-btn">3er Trim.</button></div>
+    <div class="panel-body"><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;"><thead><tr style="background:var(--verde);color:#fff;"><th style="padding:7px 5px;text-align:left;">Alumno</th><th style="padding:7px 3px;text-align:center;">L</th><th style="padding:7px 3px;text-align:center;">M</th><th style="padding:7px 3px;text-align:center;">CS</th><th style="padding:7px 3px;text-align:center;">CN</th><th style="padding:7px 3px;text-align:center;">I</th><th style="padding:7px 3px;text-align:center;">EA</th><th style="padding:7px 3px;text-align:center;">EF</th><th style="padding:7px 3px;text-align:center;">Prom</th></tr></thead><tbody id="notas-tbody"></tbody></table></div>
     <div style="margin-top:7px;font-size:10px;color:var(--gris);">L=Lengua · M=Mat · CS=Cs.Soc · CN=Cs.Nat · I=Inglés · EA=Ed.Art · EF=Ed.Fís</div>
-    <div style="margin-top:14px;"><div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:7px;">Estadísticas por área</div><div id="stats-areas"></div></div></div>
+    <div style="margin-top:14px;"><div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:7px;">Estadísticas por área</div><div id="stats-areas"></div></div>
+    <div id="notas-save-msg" style="font-size:12px;text-align:center;margin:10px 0;display:none;"></div>
+    <button id="notas-save-btn" onclick="guardarNotas()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit;">Guardar notas</button></div>
   </div>
 
   <div id="tabla-inasistencias" class="panel" style="display:none;margin-top:10px;">
@@ -1227,6 +1230,9 @@ function imprimirFicha(){
 const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",n:[8,8,8,8,7,9,9]},{a:"Barrera, Joaquín",n:[7,7,7,7,7,8,9]},{a:"Bravo, Álvaro",n:[7,7,8,7,7,8,9]},{a:"Carbonel, Tiziano",n:[6,6,6,7,7,9,9]},{a:"Cuello, Thomas",n:[6,6,6,7,8,8,8]},{a:"Diaz, Monserrat",n:[7,6,9,7,7,9,9]},{a:"Espindola, Sofía",n:[8,8,8,8,7,9,9]},{a:"Gamon, Ciro",n:[6,8,7,8,7,9,8]},{a:"Garcia, Milton",n:[8,9,6,8,8,10,9]},{a:"Godoy, Katia",n:[6,7,7,7,7,8,7]},{a:"Monteros Cruz, Máximo",n:[8,8,8,8,7,9,9]},{a:"Nievas, Nicolás",n:[6,6,6,6,7,8,9]},{a:"Santa Cruz, Alma",n:[8,8,8,8,7,9,9]},{a:"Sosa Muñoz, Benjamín",n:[9,9,9,8,8,9,9]},{a:"Tabares, Andrés",n:[7,7,7,7,8,9,9]},{a:"Tablada, Santino",n:[7,7,7,7,7,9,9]},{a:"Tagliabue, Delfina",n:[7,7,7,7,7,9,9]},{a:"Villalba, Benjamín",n:[7,7,7,7,7,9,8]}];
 const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
 const APROBADO=7,DIAS=55;
+var AREAS=['L','M','CS','CN','I','EA','EF'];
+var gradesData={};
+var gradesPeriodo='1';
 
 // ── GRUPOS EXPANDIBLES ──
 function toggleGrupo(id){
@@ -1243,11 +1249,14 @@ function toggleGrupo(id){
 function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
 
 // ── PANELS ──
-function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')renderNotas();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1')renderBoletin1();}}
+function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')initGrades();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1'){if(Object.keys(gradesData).length===0)initGrades().then(renderBoletin1);else renderBoletin1();}}}
 
 // ── NOTAS ──
 function renderBoletin1(){
-  var areas=['L','M','CS','CN','I','EA','EF'];
+  var areas=AREAS;
+  var rowList=window.__students&&Object.keys(gradesData).length>0
+    ?window.__students.map(function(s){return {a:s.full_name,n:areas.map(function(area){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;})};})
+    :NOTAS_DATA.map(function(r){return {a:r.a,n:r.n.slice()};});
   var html='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;">';
   html+='<thead><tr style="background:var(--verde);color:#fff;">';
   html+='<th style="padding:7px 5px;text-align:left;">Alumno</th>';
@@ -1257,20 +1266,20 @@ function renderBoletin1(){
   html+='<th style="padding:7px 5px;text-align:left;">Estado</th>';
   html+='</tr></thead><tbody>';
 
-  NOTAS_DATA.forEach((r,i)=>{
-    var prom=(r.n.reduce((a,b)=>a+b,0)/r.n.length).toFixed(1);
-    var desap=r.n.filter(n=>n<APROBADO).length;
+  rowList.forEach((r,i)=>{
+    var validScores=r.n.filter(function(v){return v!=null;});
+    var prom=validScores.length?(validScores.reduce((a,b)=>a+b,0)/validScores.length).toFixed(1):'—';
+    var desap=validScores.filter(n=>n<APROBADO).length;
     var inasist=INASIST_DATA.find(x=>x.a===r.a)||{m:0,ab:0,my:0};
     var totalF=inasist.m+inasist.ab+inasist.my;
     var bg=i%2===0?'#fff':'#F5F2EE';
 
-    // Estado combinado
     var alertaF=totalF>=10?'🔴':totalF>=7?'🟠':totalF>=5?'🟡':'';
     var alertaN=desap>0?`✗${desap}`:'';
     var estado=(alertaF||alertaN)?[alertaF,alertaN].filter(Boolean).join(' '):'✅';
 
-    var cells=r.n.map(n=>`<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`).join('');
-    var pc=parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
+    var cells=r.n.map(n=>n!=null?`<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`:'<td style="padding:5px 3px;text-align:center;color:var(--gris);">—</td>').join('');
+    var pc=prom!=='—'&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
     var fcol=totalF>=10?'#C0392B':totalF>=7?'var(--terracota)':totalF>=5?'#B7950B':'var(--negro)';
 
     html+=`<tr style="background:${bg};">
@@ -1316,7 +1325,110 @@ function renderBoletin1(){
   document.getElementById('boletin-1-contenido').innerHTML=html;
 }
 
-function renderNotas(){var tb=document.getElementById('notas-tbody');if(!tb)return;tb.innerHTML=NOTAS_DATA.map((r,i)=>{var p=(r.n.reduce((a,b)=>a+b,0)/r.n.length).toFixed(1);var d=r.n.filter(n=>n<APROBADO).length;var bg=i%2===0?'#fff':'#F5F2EE';var cells=r.n.map(n=>`<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`).join('');var pc=parseFloat(p)>=APROBADO?'var(--verde)':'#C0392B';return `<tr style="background:${bg};"><td style="padding:5px;font-size:10px;">${r.a}${d>0?` <span style="font-size:9px;color:#C0392B;">(${d}✗)</span>`:''}</td>${cells}<td style="padding:5px 3px;text-align:center;font-weight:bold;color:${pc};">${p}</td></tr>`;}).join('');var sd=document.getElementById('stats-areas');sd.innerHTML=['L','M','CS','CN','I','EA','EF'].map((area,i)=>{var vals=NOTAS_DATA.map(r=>r.n[i]);var p=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);var ap=vals.filter(v=>v>=APROBADO).length;var pct=Math.round(ap/vals.length*100);var col=pct>=80?'var(--verde)':pct>=60?'var(--terracota)':'#C0392B';return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="width:26px;font-size:10px;font-weight:700;">${area}</div><div style="flex:1;height:7px;background:var(--gris-claro);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px;"></div></div><div style="font-size:10px;color:${col};font-weight:700;width:55px;">${pct}% · ${p}</div></div>`;}).join('');}
+function renderNotas(){
+  var tb=document.getElementById('notas-tbody');
+  if(!tb||!window.__students)return;
+  tb.innerHTML=window.__students.map(function(s,i){
+    var bg=i%2===0?'#fff':'#F5F2EE';
+    var cells=AREAS.map(function(area){
+      var sc=gradesData[s.id]&&gradesData[s.id][area]!=null?gradesData[s.id][area]:'';
+      var low=sc!==''&&parseFloat(sc)<APROBADO;
+      return '<td style="padding:3px 2px;text-align:center;"><input type="number" min="1" max="10" step="0.5" value="'+sc+'" data-sid="'+s.id+'" data-area="'+area+'" onchange="updateGrade(this)" style="width:36px;padding:3px 2px;text-align:center;border:1.5px solid '+(low?'#C0392B':'var(--gris-claro)')+';border-radius:6px;font-size:12px;background:'+(low?'#FDE8E8':'transparent')+';font-weight:'+(low?'bold':'normal')+';font-family:inherit;color:inherit;"></td>';
+    }).join('');
+    var vals=AREAS.map(function(area){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;}).filter(function(v){return v!==null;});
+    var prom=vals.length?(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1):'—';
+    var pc=vals.length&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
+    return '<tr style="background:'+bg+'"><td style="padding:5px;font-size:10px;white-space:nowrap;">'+s.full_name+'</td>'+cells+'<td style="padding:5px 3px;text-align:center;font-weight:bold;color:'+pc+';font-size:12px;">'+prom+'</td></tr>';
+  }).join('');
+  renderStatsAreas();
+}
+
+function renderStatsAreas(){
+  var sd=document.getElementById('stats-areas');
+  if(!sd||!window.__students)return;
+  sd.innerHTML=AREAS.map(function(area){
+    var vals=window.__students.map(function(s){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;}).filter(function(v){return v!==null;});
+    if(!vals.length)return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="width:26px;font-size:10px;font-weight:700;">'+area+'</div><div style="font-size:10px;color:var(--gris);">—</div></div>';
+    var p=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);
+    var ap=vals.filter(function(v){return v>=APROBADO;}).length;
+    var pct=Math.round(ap/vals.length*100);
+    var col=pct>=80?'var(--verde)':pct>=60?'var(--terracota)':'#C0392B';
+    return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="width:26px;font-size:10px;font-weight:700;">'+area+'</div><div style="flex:1;height:7px;background:var(--gris-claro);border-radius:3px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:3px;"></div></div><div style="font-size:10px;color:'+col+';font-weight:700;width:55px;">'+pct+'% · '+p+'</div></div>';
+  }).join('');
+}
+
+function updateGrade(input){
+  var sid=input.dataset.sid;
+  var area=input.dataset.area;
+  var val=input.value!==''?parseFloat(input.value):null;
+  if(!gradesData[sid])gradesData[sid]={};
+  gradesData[sid][area]=val;
+  var low=val!==null&&val<APROBADO;
+  input.style.borderColor=low?'#C0392B':'var(--gris-claro)';
+  input.style.background=low?'#FDE8E8':'transparent';
+  input.style.fontWeight=low?'bold':'normal';
+  var row=input.closest('tr');
+  if(row){
+    var vals=AREAS.map(function(a){return gradesData[sid]&&gradesData[sid][a]!=null?parseFloat(gradesData[sid][a]):null;}).filter(function(v){return v!==null;});
+    var prom=vals.length?(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1):'—';
+    var pc=vals.length&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
+    var cells=row.querySelectorAll('td');
+    var promCell=cells[cells.length-1];
+    if(promCell){promCell.textContent=prom;promCell.style.color=pc;}
+  }
+  renderStatsAreas();
+}
+
+function cambiarPeriodoNotas(p){
+  gradesPeriodo=p;
+  ['1','2','3'].forEach(function(n){var btn=document.getElementById('notas-p'+n);if(btn)btn.className='tab-btn'+(n===p?' active':'');});
+  initGrades();
+}
+
+async function initGrades(){
+  if(!window.__students)return;
+  if(!window.__sb){
+    if(gradesPeriodo==='1'){
+      var nameMap={};window.__students.forEach(function(s){nameMap[s.full_name]=s.id;});
+      gradesData={};
+      NOTAS_DATA.forEach(function(r){var sid=nameMap[r.a];if(!sid)return;gradesData[sid]={};AREAS.forEach(function(area,i){gradesData[sid][area]=r.n[i];});});
+    }else{gradesData={};}
+    renderNotas();return;
+  }
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var res=await window.__sb.from('grades').select('student_id,subject_id,score').eq('teacher_id',user.id).eq('period',gradesPeriodo);
+  gradesData={};
+  if(res.data&&res.data.length){
+    res.data.forEach(function(g){if(!gradesData[g.student_id])gradesData[g.student_id]={};gradesData[g.student_id][g.subject_id]=g.score;});
+  }else if(gradesPeriodo==='1'){
+    var nameMap={};window.__students.forEach(function(s){nameMap[s.full_name]=s.id;});
+    NOTAS_DATA.forEach(function(r){var sid=nameMap[r.a];if(!sid)return;gradesData[sid]={};AREAS.forEach(function(area,i){gradesData[sid][area]=r.n[i];});});
+  }
+  renderNotas();
+}
+
+async function guardarNotas(){
+  if(!window.__sb||!window.__students)return;
+  var btn=document.getElementById('notas-save-btn');
+  var msg=document.getElementById('notas-save-msg');
+  btn.disabled=true;btn.textContent='Guardando…';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user){btn.disabled=false;btn.textContent='Guardar notas';return;}
+  var records=[];
+  window.__students.forEach(function(s){
+    AREAS.forEach(function(area){
+      var score=gradesData[s.id]&&gradesData[s.id][area]!=null?gradesData[s.id][area]:null;
+      if(score===null)return;
+      records.push({student_id:s.id,teacher_id:user.id,subject_id:area,period:gradesPeriodo,score:parseFloat(score),updated_at:new Date().toISOString()});
+    });
+  });
+  var res=await window.__sb.from('grades').upsert(records,{onConflict:'student_id,subject_id,period'});
+  btn.disabled=false;btn.textContent='Guardar notas';
+  msg.style.display='block';
+  if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
+  else{msg.style.color='var(--verde)';msg.textContent='✅ Notas guardadas';setTimeout(function(){msg.style.display='none';},3000);}
+}
 
 // ── INASISTENCIAS ──
 function renderInasistencias(){var tb=document.getElementById('inasist-tbody');if(!tb)return;tb.innerHTML=INASIST_DATA.map((r,i)=>{var t=r.m+r.ab+r.my;var pct=Math.round((DIAS-t)/DIAS*100);var est,bg;if(t>=10){est='🔴 Crítico';bg='#FDE8E8';}else if(t>=7){est='🟠 Acum.';bg='#FDF0E8';}else if(t>=5){est='🟡 Interm.';bg='#FDFAE8';}else{est='✅';bg=i%2===0?'#fff':'#F5F2EE';}return `<tr style="background:${bg};"><td style="padding:5px;font-size:10px;">${r.a}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${r.m}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${r.ab}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${r.my}</td><td style="padding:5px 3px;text-align:center;font-size:11px;font-weight:bold;">${t}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${pct}%</td><td style="padding:5px;font-size:10px;">${est}</td></tr>`;}).join('');}
