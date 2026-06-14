@@ -104,6 +104,15 @@ alter table family_meetings enable row level security;
 create policy "Docentes gestionan sus reuniones" on family_meetings for all
   using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
 
+-- Columnas de la ficha pedagógica en differential_profiles (ejecutar si la tabla ya existe)
+-- alter table differential_profiles
+--   add column if not exists primera_impresion text default '',
+--   add column if not exists como_aprende text default '',
+--   add column if not exists matematica text default '',
+--   add column if not exists lectura_escritura text default '',
+--   add column if not exists funciona_no text default '',
+--   add column if not exists algo_mas text default '';
+
 -- Notas rápidas del docente
 create table notas_rapidas (
   id bigint primary key,

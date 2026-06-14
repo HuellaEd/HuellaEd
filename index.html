@@ -1013,7 +1013,7 @@ async function initTeacher(){
   if(banner&&data.grade)banner.textContent=data.grade;
 }
 
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initFichas(); initAgenda(); initTeacher(); });
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); });
 
 
 function configurarScriptURL() {
@@ -1738,7 +1738,6 @@ async function borrarPlanif(id){
 }
 
 
-var fichasGuardadas = JSON.parse(localStorage.getItem('huellaed_fichas') || '{}');
 
 function abrirFicha(){
   document.getElementById('modal-ficha').style.display='block';
@@ -1757,71 +1756,72 @@ function toggleChip(el){
   el.classList.toggle('activo');
 }
 
-function cargarFicha(){
-  var alumno = document.getElementById('ficha-alumno').value;
-  if(!alumno){ document.getElementById('ficha-contenido').style.display='none'; return; }
+async function cargarFicha(){
+  var alumno=document.getElementById('ficha-alumno').value;
+  if(!alumno){document.getElementById('ficha-contenido').style.display='none';return;}
   document.getElementById('ficha-contenido').style.display='block';
   document.getElementById('ficha-prompt-container').style.display='none';
-  // Limpiar todo
-  document.querySelectorAll('.ficha-chip').forEach(c=>c.classList.remove('activo'));
-  document.querySelectorAll('.ficha-txt').forEach(t=>t.value='');
-  // Cargar si existe
-  if(fichasGuardadas[alumno]){
-    var f = fichasGuardadas[alumno];
-    if(f.fecha) document.getElementById('ficha-fecha').value=f.fecha;
-    if(f.chips) f.chips.forEach(function(txt){
-      document.querySelectorAll('.ficha-chip').forEach(function(c){
-        if(c.textContent.trim()===txt) c.classList.add('activo');
-      });
-    });
-    if(f.textos) Object.keys(f.textos).forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.value=f.textos[id];
-    });
-    document.getElementById('ficha-msg').textContent='✏️ Ficha existente cargada — podés modificarla';
-  }
+  document.getElementById('ficha-msg').textContent='';
+  document.querySelectorAll('.ficha-chip').forEach(function(c){c.classList.remove('activo');});
+  document.querySelectorAll('.ficha-txt').forEach(function(t){t.value='';});
+  if(!window.__sb)return;
+  var s=(window.__students||[]).find(function(x){return x.full_name===alumno;});
+  if(!s)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {data}=await window.__sb.from('differential_profiles')
+    .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas,updated_at')
+    .eq('student_id',s.id)
+    .maybeSingle();
+  if(!data)return;
+  var set=function(id,val){var el=document.getElementById(id);if(el)el.value=val||'';};
+  set('f1-nota1',data.primera_impresion);
+  set('f2-trabajo',data.como_aprende);
+  set('f4-lengua',data.lectura_escritura);
+  set('f6-libre',data.algo_mas);
+  if(data.matematica){var mp=data.matematica.split('|||');set('f3-bien',mp[0]);set('f3-traba',mp[1]||'');set('f3-funciona',mp[2]||'');}
+  if(data.funciona_no){var fp=data.funciona_no.split('|||');set('f5-funciona',fp[0]);set('f5-evitar',fp[1]||'');set('f5-apoyo',fp[2]||'');}
+  document.getElementById('ficha-msg').textContent='✏️ Ficha cargada — '+new Date(data.updated_at).toLocaleDateString('es-AR');
 }
 
-function guardarFicha(){
-  var alumno = document.getElementById('ficha-alumno').value;
+async function guardarFicha(){
+  var alumno=document.getElementById('ficha-alumno').value;
   if(!alumno){alert('Seleccioná un alumno');return;}
-  var chips=[];
-  document.querySelectorAll('.ficha-chip.activo').forEach(c=>chips.push(c.textContent.trim()));
-  var textos={};
-  document.querySelectorAll('.ficha-txt').forEach(t=>{ if(t.value.trim()) textos[t.id]=t.value.trim(); });
-  fichasGuardadas[alumno]={
-    alumno:alumno,
-    fecha:document.getElementById('ficha-fecha').value,
-    chips:chips,
-    textos:textos,
-    guardado:new Date().toLocaleDateString('es-AR')
-  };
-  localStorage.setItem('huellaed_fichas',JSON.stringify(fichasGuardadas));
-  document.getElementById('ficha-msg').textContent='✅ Ficha guardada — '+new Date().toLocaleDateString('es-AR');
-  if (window.__sb) {
-    (async function() {
-      var user = (await window.__sb.auth.getUser()).data.user;
-      if (!user) return;
-      await window.__sb.from('fichas').upsert({
-        user_id: user.id, alumno: alumno,
-        fecha: fichasGuardadas[alumno].fecha,
-        chips: chips, textos: textos,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id,alumno' });
-    })();
-  }
+  if(!window.__sb){document.getElementById('ficha-msg').textContent='❌ Sin conexión';return;}
+  var s=(window.__students||[]).find(function(x){return x.full_name===alumno;});
+  if(!s){document.getElementById('ficha-msg').textContent='❌ Alumno no encontrado';return;}
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var get=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
+  document.getElementById('ficha-msg').textContent='💾 Guardando…';
+  var {error}=await window.__sb.from('differential_profiles').upsert({
+    student_id:s.id,
+    teacher_id:user.id,
+    primera_impresion:get('f1-nota1'),
+    como_aprende:get('f2-trabajo'),
+    matematica:get('f3-bien')+'|||'+get('f3-traba')+'|||'+get('f3-funciona'),
+    lectura_escritura:get('f4-lengua'),
+    funciona_no:get('f5-funciona')+'|||'+get('f5-evitar')+'|||'+get('f5-apoyo'),
+    algo_mas:get('f6-libre'),
+    updated_at:new Date().toISOString()
+  },{onConflict:'student_id'});
+  if(error){document.getElementById('ficha-msg').textContent='❌ Error: '+error.message;}
+  else{document.getElementById('ficha-msg').textContent='✅ Ficha guardada — '+new Date().toLocaleDateString('es-AR');}
 }
 
 function generarPromptFicha(){
-  var alumno = document.getElementById('ficha-alumno').value;
+  var alumno=document.getElementById('ficha-alumno').value;
   if(!alumno){alert('Seleccioná un alumno');return;}
   guardarFicha();
-  var f = fichasGuardadas[alumno];
-  var p = 'Incorporá esta Ficha de Conocimiento al perfil académico de '+alumno+' en HuellaED.\n\n';
-  p += 'ALUMNO: '+alumno+'\n';
-  p += 'FECHA: '+f.fecha+'\n\n';
-  if(f.chips && f.chips.length>0) p += 'OBSERVACIONES MARCADAS:\n'+f.chips.join(' · ')+'\n\n';
-  var campos = {
+  var get=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
+  var chips=[];
+  document.querySelectorAll('.ficha-chip.activo').forEach(function(c){chips.push(c.textContent.trim());});
+  var fecha=document.getElementById('ficha-fecha').value;
+  var p='Incorporá esta Ficha de Conocimiento al perfil académico de '+alumno+' en HuellaED.\n\n';
+  p+='ALUMNO: '+alumno+'\n';
+  p+='FECHA: '+fecha+'\n\n';
+  if(chips.length>0)p+='OBSERVACIONES MARCADAS:\n'+chips.join(' · ')+'\n\n';
+  var campos={
     'f1-nota1':'Primera impresión',
     'f2-trabajo':'Cómo trabaja',
     'f3-bien':'Matemática — fortalezas',
@@ -1833,10 +1833,10 @@ function generarPromptFicha(){
     'f5-apoyo':'Apoyos necesarios',
     'f6-libre':'Observación libre'
   };
-  if(f.textos) Object.keys(campos).forEach(function(id){
-    if(f.textos[id]) p+=campos[id].toUpperCase()+':\n'+f.textos[id]+'\n\n';
+  Object.keys(campos).forEach(function(id){
+    var v=get(id);if(v)p+=campos[id].toUpperCase()+':\n'+v+'\n\n';
   });
-  p += 'Actualizá el Perfil Académico del alumno en el Drive con esta información.';
+  p+='Actualizá el Perfil Académico del alumno en el Drive con esta información.';
   document.getElementById('ficha-prompt-text').textContent=p;
   document.getElementById('ficha-prompt-container').style.display='block';
 }
