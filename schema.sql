@@ -151,3 +151,17 @@ create table agenda (
 alter table agenda enable row level security;
 create policy "Docentes gestionan su agenda" on agenda for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Informes de boletín por alumno y trimestre
+create table informes_boletin (
+  id uuid default gen_random_uuid() primary key,
+  student_id uuid references students(id) not null,
+  teacher_id uuid references auth.users not null,
+  trimestre text not null,
+  content text default '',
+  updated_at timestamptz default now(),
+  unique (student_id, trimestre)
+);
+alter table informes_boletin enable row level security;
+create policy "Docentes gestionan sus informes de boletin" on informes_boletin for all
+  using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);

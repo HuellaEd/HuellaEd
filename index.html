@@ -1552,6 +1552,18 @@ async function abrirPerfilAcademico(studentId){
   html+='</div>';
   html+='</div>';
 
+  // ── Informes de boletín ──
+  html+='<div style="margin-bottom:16px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Informes de Boletín</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">';
+  ['1','2','3'].forEach(function(t){
+    var label=t==='1'?'1er Trim.':t==='2'?'2do Trim.':'3er Trim.';
+    html+='<button id="btn-boletin-'+t+'" onclick="toggleBoletinPanel(\''+t+'\',\''+studentId+'\')" class="sec-btn">'+label+'</button>';
+  });
+  html+='</div>';
+  html+='<div id="boletin-panel" style="display:none;background:var(--crema);border-radius:12px;padding:14px;"></div>';
+  html+='</div>';
+
   // ── Archivos y evidencias ──
   html+='<div style="margin-top:0;">';
   html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Archivos y evidencias</div>';
@@ -1576,6 +1588,7 @@ async function abrirPerfilAcademico(studentId){
 
   cargarObservacionesAlumno();
   cargarArchivosAlumno();
+  cargarInformesBoletin(studentId);
 }
 
 async function guardarPerfilDif(studentId){
@@ -1597,6 +1610,191 @@ async function guardarPerfilDif(studentId){
   msg.style.display='block';
   if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
   else{msg.style.color='var(--terracota)';msg.textContent='✅ Perfil guardado';setTimeout(function(){msg.style.display='none';},3000);}
+}
+
+// ── INFORMES DE BOLETÍN ──
+var _boletinData={};
+var _boletinTrimActivo=null;
+
+async function cargarInformesBoletin(studentId){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {data}=await window.__sb.from('informes_boletin')
+    .select('trimestre,content')
+    .eq('student_id',studentId)
+    .eq('teacher_id',user.id);
+  _boletinData={};
+  (data||[]).forEach(function(r){_boletinData[r.trimestre]=r.content;});
+  // Actualizar badges en los botones
+  ['1','2','3'].forEach(function(t){
+    var btn=document.getElementById('btn-boletin-'+t);
+    if(!btn)return;
+    var label=t==='1'?'1er Trim.':t==='2'?'2do Trim.':'3er Trim.';
+    btn.textContent=(_boletinData[t]?'✅ ':'')+(label);
+  });
+}
+
+function toggleBoletinPanel(trimestre,studentId){
+  var panel=document.getElementById('boletin-panel');
+  if(!panel)return;
+  if(_boletinTrimActivo===trimestre&&panel.style.display!=='none'){
+    panel.style.display='none';
+    _boletinTrimActivo=null;
+    ['1','2','3'].forEach(function(t){var b=document.getElementById('btn-boletin-'+t);if(b)b.className='sec-btn';});
+    return;
+  }
+  _boletinTrimActivo=trimestre;
+  ['1','2','3'].forEach(function(t){
+    var b=document.getElementById('btn-boletin-'+t);
+    if(b)b.className=t===trimestre?'save-btn':'sec-btn';
+  });
+  panel.style.display='block';
+  renderBoletinPanel(trimestre,studentId);
+}
+
+function renderBoletinPanel(trimestre,studentId){
+  var panel=document.getElementById('boletin-panel');
+  if(!panel)return;
+  var trName=trimestre==='1'?'1er':trimestre==='2'?'2do':'3er';
+  var content=_boletinData[trimestre]||'';
+  var html='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">'+trName+' Trimestre</div>';
+  if(content){
+    html+='<div id="boletin-texto-'+trimestre+'" style="font-size:13px;color:var(--negro);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;">'+escHtml(content)+'</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">';
+    html+='<button onclick="copiarBoletin(\''+trimestre+'\')" class="sec-btn">📋 Copiar</button>';
+    html+='<button onclick="editarBoletin(\''+trimestre+'\',\''+studentId+'\')" class="sec-btn">✏️ Editar</button>';
+    html+='<button onclick="regenerarBoletin(\''+trimestre+'\',\''+studentId+'\')" class="sec-btn">🔄 Regenerar</button>';
+    html+='</div>';
+  }else{
+    html+='<div style="font-size:12px;color:var(--gris);margin-bottom:12px;">No hay informe para este trimestre.</div>';
+    html+='<button onclick="generarInformeBoletin(\''+trimestre+'\',\''+studentId+'\')" id="boletin-gen-btn-'+trimestre+'" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;">🤖 Generar con IA</button>';
+  }
+  html+='<div id="boletin-msg-'+trimestre+'" style="font-size:11px;text-align:center;display:none;border-radius:8px;padding:5px;"></div>';
+  panel.innerHTML=html;
+}
+
+function copiarBoletin(trimestre){
+  var txt=_boletinData[trimestre]||'';
+  navigator.clipboard.writeText(txt).then(function(){
+    var msg=document.getElementById('boletin-msg-'+trimestre);
+    if(msg){msg.textContent='✅ Copiado';msg.style.display='block';msg.style.color='var(--verde)';msg.style.background='#e6f4ea';setTimeout(function(){msg.style.display='none';},2500);}
+  });
+}
+
+function editarBoletin(trimestre,studentId){
+  var panel=document.getElementById('boletin-panel');
+  if(!panel)return;
+  var trName=trimestre==='1'?'1er':trimestre==='2'?'2do':'3er';
+  var content=_boletinData[trimestre]||'';
+  var html='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">'+trName+' Trimestre — Editar</div>';
+  html+='<textarea id="boletin-edit-ta" rows="4" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid var(--gris-claro);font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;line-height:1.6;"></textarea>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">';
+  html+='<button onclick="toggleBoletinPanel(\''+trimestre+'\',\''+studentId+'\')" class="sec-btn">Cancelar</button>';
+  html+='<button onclick="guardarBoletinEditado(\''+trimestre+'\',\''+studentId+'\')" class="save-btn">💾 Guardar</button>';
+  html+='</div>';
+  html+='<div id="boletin-msg-'+trimestre+'" style="font-size:11px;text-align:center;display:none;border-radius:8px;padding:5px;margin-top:6px;"></div>';
+  panel.innerHTML=html;
+  document.getElementById('boletin-edit-ta').value=content;
+}
+
+async function guardarBoletinEditado(trimestre,studentId){
+  var ta=document.getElementById('boletin-edit-ta');
+  var msg=document.getElementById('boletin-msg-'+trimestre);
+  var txt=(ta&&ta.value||'').trim();
+  if(!txt){if(msg){msg.textContent='Escribí el informe primero.';msg.style.display='block';msg.style.color='#C0392B';}return;}
+  await _guardarBoletin(studentId,trimestre,txt,msg);
+}
+
+function regenerarBoletin(trimestre,studentId){
+  delete _boletinData[trimestre];
+  renderBoletinPanel(trimestre,studentId);
+}
+
+async function generarInformeBoletin(trimestre,studentId){
+  var btn=document.getElementById('boletin-gen-btn-'+trimestre);
+  var msg=document.getElementById('boletin-msg-'+trimestre);
+  if(btn){btn.disabled=true;btn.textContent='Generando…';}
+  if(msg){msg.style.display='none';}
+  if(!window.__sb)return;
+  var session=(await window.__sb.auth.getSession()).data.session;
+  if(!session){if(btn){btn.disabled=false;btn.textContent='🤖 Generar con IA';}return;}
+  var user=session.user;
+  var s=(window.__students||[]).find(function(x){return x.id===studentId;});
+  var nombre=s?s.full_name:'Alumno';
+  var trName=trimestre==='1'?'1er':trimestre==='2'?'2do':'3er';
+
+  var [gradesRes,obsRes,diffRes]=await Promise.all([
+    window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',trimestre),
+    window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
+    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+  ]);
+
+  var notasLineas=[];
+  if(gradesRes.data&&gradesRes.data.length){
+    gradesRes.data.forEach(function(g){var code=SUBJECT_CODES[g.subject_id];if(code)notasLineas.push((AREA_NAMES[code]||code)+': '+(g.score!=null?g.score:'sin nota'));});
+  }
+  var notasBloque=notasLineas.length?'Calificaciones del '+trName+' trimestre:\n'+notasLineas.join('\n'):'Sin calificaciones cargadas.';
+
+  var obsBloque='';
+  if(obsRes.data&&obsRes.data.length){
+    obsBloque='Observaciones del docente:\n'+obsRes.data.slice(0,8).map(function(o){return o.content;}).join('\n');
+  }
+
+  var fichaBloque='';
+  var fd=diffRes.data;
+  if(fd){
+    var partes=[];
+    if(fd.primera_impresion&&fd.primera_impresion.trim())partes.push('Primera impresión: '+fd.primera_impresion.trim());
+    if(fd.como_aprende&&fd.como_aprende.trim())partes.push('Cómo aprende: '+fd.como_aprende.trim());
+    if(fd.lectura_escritura&&fd.lectura_escritura.trim())partes.push('Lectura y escritura: '+fd.lectura_escritura.trim());
+    if(partes.length)fichaBloque='Perfil pedagógico:\n'+partes.join('\n');
+  }
+
+  var prompt='Generá el informe de boletín escolar del '+trName+' trimestre para '+nombre+', alumno/a de 6to grado de la Escuela La Concepción (Buenos Aires).\n\n'
+    +'El informe debe:\n'
+    +'- Tener entre 2 y 3 oraciones cortas, pensado para caber en un recuadro de 11.5cm × 2.5cm\n'
+    +'- Estar escrito en tercera persona con lenguaje formal propio de los boletines de educación primaria argentina\n'
+    +'- Reflejar el desempeño global del trimestre de forma integrada, no listar materia por materia\n'
+    +'- Mencionar logros y, si corresponde, aspectos en los que se está trabajando\n'
+    +'- No usar listas, viñetas ni títulos. Solo texto corrido.\n\n'
+    +notasBloque+'\n\n'
+    +(obsBloque?obsBloque+'\n\n':'')
+    +(fichaBloque?fichaBloque+'\n\n':'')
+    +'Escribí directamente el texto del informe, sin aclaraciones ni encabezados.';
+
+  try{
+    var res=await fetch('https://wrrertkbvyjffezkosuc.supabase.co/functions/v1/generar-perfil',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':'sb_publishable_5-iJgzv8wim_t7Kdc_1Avg_tP1OwH7s'},
+      body:JSON.stringify({prompt:prompt})
+    });
+    var data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Error '+res.status);
+    var texto=data.text.trim();
+    await _guardarBoletin(studentId,trimestre,texto,msg);
+  }catch(e){
+    if(msg){msg.textContent='Error: '+e.message;msg.style.display='block';msg.style.color='#C0392B';msg.style.background='#FDE8E8';}
+    if(btn){btn.disabled=false;btn.textContent='🤖 Generar con IA';}
+  }
+}
+
+async function _guardarBoletin(studentId,trimestre,texto,msg){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  if(msg){msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';msg.style.background='transparent';}
+  var {error}=await window.__sb.from('informes_boletin').upsert({
+    student_id:studentId,teacher_id:user.id,trimestre:trimestre,
+    content:texto,updated_at:new Date().toISOString()
+  },{onConflict:'student_id,trimestre'});
+  if(error){
+    if(msg){msg.style.color='#C0392B';msg.style.background='#FDE8E8';msg.textContent='Error: '+error.message;}
+  }else{
+    _boletinData[trimestre]=texto;
+    renderBoletinPanel(trimestre,studentId);
+    cargarInformesBoletin(studentId);
+  }
 }
 
 // ── PERFIL ACADÉMICO IA ──
