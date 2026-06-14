@@ -583,7 +583,10 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div id="reg-preview" style="display:none;text-align:center;margin-bottom:10px;">
       <img id="reg-preview-img" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--gris-claro);object-fit:contain;">
     </div>
-    <button id="reg-btn-procesar" onclick="procesarRegistroConIA()" class="save-btn" style="width:100%;margin-bottom:8px;display:none;">🤖 Reconocer con IA</button>
+    <div id="reg-btns-procesar" style="display:none;grid-template-columns:1fr auto;gap:7px;margin-bottom:8px;">
+      <button id="reg-btn-procesar" onclick="procesarRegistroConIA()" class="save-btn">🤖 Reconocer con IA</button>
+      <button onclick="copiarPromptRegistro()" class="sec-btn" style="white-space:nowrap;">📋 Copiar prompt</button>
+    </div>
     <div id="reg-msg" style="font-size:12px;text-align:center;padding:6px;display:none;border-radius:8px;margin-bottom:8px;"></div>
     <div id="reg-tabla-container" style="display:none;">
       <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Revisá los datos reconocidos</div>
@@ -2665,7 +2668,7 @@ function abrirCargaRegistro(){
   document.getElementById('reg-mes').value=String(now.getMonth()+1).padStart(2,'0');
   document.getElementById('reg-anio').value=now.getFullYear();
   document.getElementById('reg-preview').style.display='none';
-  document.getElementById('reg-btn-procesar').style.display='none';
+  document.getElementById('reg-btns-procesar').style.display='none';
   document.getElementById('reg-tabla-container').style.display='none';
   document.getElementById('reg-msg').style.display='none';
   _regFotoBase64=null;_regFotoType=null;_regItems=[];
@@ -2690,7 +2693,7 @@ function cargarFotoRegistroMensual(input){
     _regFotoBase64=e.target.result.split(',')[1];
     document.getElementById('reg-preview-img').src=e.target.result;
     document.getElementById('reg-preview').style.display='block';
-    document.getElementById('reg-btn-procesar').style.display='block';
+    document.getElementById('reg-btns-procesar').style.display='grid';
   };
   reader.readAsDataURL(file);
 }
@@ -2710,6 +2713,19 @@ function _matchEstudiante(nombre){
   })||null;
 }
 
+function copiarPromptRegistro(){
+  var txt='Analizá esta imagen de un registro de asistencia escolar argentino. Los alumnos están en filas y los días en columnas. El símbolo 1 significa Presente (P) y el símbolo 3 significa Ausente (A). Extraé todos los datos y devolvé ÚNICAMENTE un JSON válido, sin texto adicional, con este formato exacto: [{"alumno":"APELLIDO NOMBRE","dia":1,"estado":"P"}]. Incluí solo las celdas que tienen datos.';
+  navigator.clipboard.writeText(txt).then(function(){
+    var msg=document.getElementById('reg-msg');
+    msg.textContent='✅ Prompt copiado. Pegalo en claude.ai junto con la foto.';
+    msg.style.display='block';
+    msg.style.background='#e6f4ea';
+    msg.style.color='#2D5F4F';
+    setTimeout(function(){msg.style.display='none';},4000);
+  }).catch(function(){
+    prompt('Copiá este texto manualmente:',txt);
+  });
+}
 async function procesarRegistroConIA(){
   if(!_regFotoBase64){alert('Adjuntá una foto primero');return;}
   var apiKey=localStorage.getItem('huellaed_anthropic_key');
