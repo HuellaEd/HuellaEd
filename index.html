@@ -214,7 +214,8 @@
     <div class="subcard" onclick="abrirGrabador()"><span class="subcard-icon">🎙️</span><span class="subcard-label">Grabar lectura</span><span class="subcard-sub">Audio + nombre</span></div>
     <div class="subcard" onclick="abrirNota()"><span class="subcard-icon">🗒️</span><span class="subcard-label">Nota rápida</span><span class="subcard-sub">Sin abrir Drive</span></div>
     <div class="subcard" onclick="abrirReunion()"><span class="subcard-icon">👨‍👩‍👧</span><span class="subcard-label">Reunión familiar</span><span class="subcard-sub">Registro + acta</span></div>
-    <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
+    <div class="subcard" onclick="abrirCargaRegistro()"><span class="subcard-icon">📋</span><span class="subcard-label">Cargar registro</span><span class="subcard-sub">Foto del registro mensual</span></div>
+    <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📑</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
   </div>
 
   <!-- GENERAR -->
@@ -545,6 +546,62 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div style="margin-top:14px;border-top:1px solid var(--gris-claro);padding-top:12px;">
       <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Historial reciente</div>
       <div id="reunion-historial"><div style="font-size:12px;color:var(--gris);text-align:center;padding:10px 0;">Cargando…</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CARGA REGISTRO MENSUAL -->
+<div id="modal-carga-registro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:600px;margin:16px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">📷 Cargar registro mensual</strong>
+      <button onclick="cerrarCargaRegistro()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Mes</div>
+        <select id="reg-mes" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
+          <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+          <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+          <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Año</div>
+        <input type="number" id="reg-anio" value="2026" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;box-sizing:border-box;">
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:12px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:14px;cursor:pointer;margin-bottom:10px;">
+      <span style="font-size:26px;">📷</span>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--negro);">Sacar o adjuntar foto</div>
+        <div id="reg-foto-nombre" style="font-size:11px;color:var(--gris);margin-top:2px;">Registro de asistencia mensual</div>
+      </div>
+      <input type="file" id="reg-foto-input" accept="image/*" capture="environment" style="display:none;" onchange="cargarFotoRegistroMensual(this)">
+    </label>
+    <div id="reg-preview" style="display:none;text-align:center;margin-bottom:10px;">
+      <img id="reg-preview-img" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--gris-claro);object-fit:contain;">
+    </div>
+    <button id="reg-btn-procesar" onclick="procesarRegistroConIA()" class="save-btn" style="width:100%;margin-bottom:8px;display:none;">🤖 Reconocer con IA</button>
+    <div id="reg-msg" style="font-size:12px;text-align:center;padding:6px;display:none;border-radius:8px;margin-bottom:8px;"></div>
+    <div id="reg-tabla-container" style="display:none;">
+      <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Revisá los datos reconocidos</div>
+      <div style="overflow-x:auto;border:1.5px solid var(--gris-claro);border-radius:10px;margin-bottom:10px;">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead>
+            <tr style="background:var(--crema);">
+              <th style="padding:8px 10px;text-align:left;border-bottom:1.5px solid var(--gris-claro);">Alumno (foto)</th>
+              <th style="padding:8px 8px;text-align:center;border-bottom:1.5px solid var(--gris-claro);">Día</th>
+              <th style="padding:8px 8px;text-align:center;border-bottom:1.5px solid var(--gris-claro);">Estado</th>
+              <th style="padding:8px 10px;text-align:left;border-bottom:1.5px solid var(--gris-claro);">Alumno en sistema</th>
+            </tr>
+          </thead>
+          <tbody id="reg-tabla-body"></tbody>
+        </table>
+      </div>
+      <button id="reg-guardar-btn" onclick="guardarRegistroMensual()" class="save-btn" style="width:100%;">💾 Confirmar y guardar en Supabase</button>
+      <div id="reg-save-msg" style="font-size:11px;text-align:center;margin-top:6px;display:none;"></div>
     </div>
   </div>
 </div>
@@ -2598,6 +2655,157 @@ async function cargarHistorialReuniones(){
 function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Grado · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Grado 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
+
+// ── CARGA REGISTRO MENSUAL ──
+var _regFotoBase64=null,_regFotoType=null,_regItems=[];
+
+function abrirCargaRegistro(){
+  document.getElementById('modal-carga-registro').style.display='block';
+  var now=new Date();
+  document.getElementById('reg-mes').value=String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('reg-anio').value=now.getFullYear();
+  document.getElementById('reg-preview').style.display='none';
+  document.getElementById('reg-btn-procesar').style.display='none';
+  document.getElementById('reg-tabla-container').style.display='none';
+  document.getElementById('reg-msg').style.display='none';
+  _regFotoBase64=null;_regFotoType=null;_regItems=[];
+}
+
+function cerrarCargaRegistro(){
+  document.getElementById('modal-carga-registro').style.display='none';
+  _regFotoBase64=null;_regFotoType=null;_regItems=[];
+  var inp=document.getElementById('reg-foto-input');if(inp)inp.value='';
+  document.getElementById('reg-foto-nombre').textContent='Registro de asistencia mensual';
+}
+
+function cargarFotoRegistroMensual(input){
+  if(!input.files||!input.files[0])return;
+  var file=input.files[0];
+  _regFotoType=file.type||'image/jpeg';
+  document.getElementById('reg-foto-nombre').textContent='📎 '+file.name;
+  document.getElementById('reg-tabla-container').style.display='none';
+  document.getElementById('reg-msg').style.display='none';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    _regFotoBase64=e.target.result.split(',')[1];
+    document.getElementById('reg-preview-img').src=e.target.result;
+    document.getElementById('reg-preview').style.display='block';
+    document.getElementById('reg-btn-procesar').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function _normNombre(s){
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z\s]/g,'').trim();
+}
+function _matchEstudiante(nombre){
+  if(!window.__students||!nombre)return null;
+  var n=_normNombre(nombre);
+  var m=window.__students.find(function(s){return _normNombre(s.full_name)===n;});
+  if(m)return m;
+  var words=n.split(/\s+/).filter(function(w){return w.length>2;});
+  return window.__students.find(function(s){
+    var sn=_normNombre(s.full_name);
+    return words.some(function(w){return sn.includes(w);});
+  })||null;
+}
+
+async function procesarRegistroConIA(){
+  if(!_regFotoBase64){alert('Adjuntá una foto primero');return;}
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){
+    apiKey=prompt('Ingresá tu API Key de Anthropic:');
+    if(!apiKey)return;
+    localStorage.setItem('huellaed_anthropic_key',apiKey.trim());
+    apiKey=apiKey.trim();
+  }
+  var btn=document.getElementById('reg-btn-procesar');
+  var msg=document.getElementById('reg-msg');
+  btn.disabled=true;btn.textContent='⏳ Procesando…';
+  msg.style.display='block';msg.style.background='#F5F5F0';msg.style.color='var(--gris)';msg.textContent='Analizando la foto con IA…';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:4096,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:_regFotoType,data:_regFotoBase64}},
+          {type:'text',text:'Este es un registro de asistencia escolar argentino. Por cada alumno y cada día identificá: 1=Presente (P), 3=Ausente (A). Devolvé solo un JSON con estructura: [{alumno, dia, estado}]'}
+        ]}]
+      })
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var raw=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var jsonMatch=raw.match(/\[[\s\S]*\]/);
+    if(!jsonMatch)throw new Error('No se encontró JSON en la respuesta');
+    var items=JSON.parse(jsonMatch[0]);
+    if(!Array.isArray(items)||!items.length)throw new Error('JSON vacío');
+    _regItems=items.map(function(it){
+      var est=String(it.estado||'').trim();
+      var status=(est==='1'||/^p/i.test(est))?'presente':'ausente';
+      var matched=_matchEstudiante(String(it.alumno||''));
+      return {alumno:String(it.alumno||''),dia:parseInt(it.dia)||0,estado:status,studentId:matched?matched.id:null,studentName:matched?matched.full_name:null};
+    });
+    _renderTablaRegistro();
+    document.getElementById('reg-tabla-container').style.display='block';
+    document.getElementById('reg-tabla-container').scrollIntoView({behavior:'smooth'});
+    msg.style.background='var(--verde-bg)';msg.style.color='var(--verde)';msg.textContent='✅ '+_regItems.length+' registros reconocidos — revisá y confirmá';
+  }catch(e){
+    msg.style.background='#FDE8E8';msg.style.color='#C0392B';msg.textContent='❌ '+e.message;
+  }finally{
+    btn.disabled=false;btn.textContent='🤖 Reconocer con IA';
+  }
+}
+
+function _renderTablaRegistro(){
+  var tbody=document.getElementById('reg-tabla-body');
+  var opts='<option value="">— Sin coincidencia —</option>'+(window.__students||[]).map(function(s){
+    return '<option value="'+s.id+'">'+s.full_name+'</option>';
+  }).join('');
+  tbody.innerHTML=_regItems.map(function(it,i){
+    var sinMatch=!it.studentId;
+    var estadoBadge=it.estado==='presente'
+      ?'<span style="background:var(--verde-bg);color:var(--verde);border-radius:5px;padding:2px 8px;font-weight:700;font-size:10px;">P</span>'
+      :'<span style="background:#FDE8E8;color:#C0392B;border-radius:5px;padding:2px 8px;font-weight:700;font-size:10px;">A</span>';
+    return '<tr style="border-bottom:1px solid var(--gris-claro);'+(sinMatch?'background:#FFFBF0;':'')+'"><td style="padding:6px 10px;color:var(--gris);white-space:nowrap;">'+it.alumno+'</td><td style="padding:6px 8px;text-align:center;font-weight:700;">'+it.dia+'</td><td style="padding:6px 8px;text-align:center;">'+estadoBadge+'</td><td style="padding:5px 8px;"><select data-idx="'+i+'" onchange="_actualizarMatchReg(this)" style="width:100%;font-size:11px;padding:4px 6px;border:1.5px solid '+(sinMatch?'#E8A020':'var(--gris-claro)')+';border-radius:6px;background:#fff;">'+opts+'</select></td></tr>';
+  }).join('');
+  tbody.querySelectorAll('select').forEach(function(sel){
+    var idx=parseInt(sel.getAttribute('data-idx'));
+    if(_regItems[idx]&&_regItems[idx].studentId)sel.value=_regItems[idx].studentId;
+  });
+}
+
+function _actualizarMatchReg(sel){
+  var idx=parseInt(sel.getAttribute('data-idx'));
+  if(idx<0||idx>=_regItems.length)return;
+  _regItems[idx].studentId=sel.value||null;
+  var s=sel.value?(window.__students||[]).find(function(x){return x.id===sel.value;}):null;
+  _regItems[idx].studentName=s?s.full_name:null;
+  sel.style.borderColor=sel.value?'var(--gris-claro)':'#E8A020';
+}
+
+async function guardarRegistroMensual(){
+  var mes=document.getElementById('reg-mes').value;
+  var anio=document.getElementById('reg-anio').value;
+  if(!mes||!anio){alert('Seleccioná mes y año');return;}
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var records=_regItems.filter(function(it){return it.studentId&&it.dia>0;}).map(function(it){
+    return {student_id:it.studentId,teacher_id:user.id,date:anio+'-'+mes+'-'+String(it.dia).padStart(2,'0'),status:it.estado};
+  });
+  if(!records.length){alert('No hay registros con alumno asignado');return;}
+  var msg=document.getElementById('reg-save-msg');
+  var btn=document.getElementById('reg-guardar-btn');
+  btn.disabled=true;btn.textContent='Guardando…';
+  msg.style.display='block';msg.style.color='var(--gris)';msg.textContent='Guardando '+records.length+' registros…';
+  var {error}=await window.__sb.from('attendance').upsert(records,{onConflict:'student_id,date'});
+  btn.disabled=false;btn.textContent='💾 Confirmar y guardar en Supabase';
+  if(error){msg.style.color='#C0392B';msg.textContent='❌ '+error.message;}
+  else{msg.style.color='var(--verde)';msg.textContent='✅ '+records.length+' registros guardados correctamente';}
+}
 
 // ── ASISTENCIA ──
 var asistenciaHoy = {};
