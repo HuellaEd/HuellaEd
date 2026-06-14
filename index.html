@@ -1270,6 +1270,7 @@ async function abrirAula(){
 }
 
 async function abrirPerfilAcademico(studentId){
+  _perfilStudentId=studentId;
   var s=(window.__students||[]).find(function(st){return st.id===studentId;});
   if(!s)return;
   document.getElementById('modal-perfil-academico').style.display='block';
@@ -1281,6 +1282,7 @@ async function abrirPerfilAcademico(studentId){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
+  _perfilUserId=user.id;
 
   var results=await Promise.all([
     window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
@@ -1365,6 +1367,20 @@ async function abrirPerfilAcademico(studentId){
     html+='</div>';
   }
 
+  // ── Archivos y evidencias ──
+  html+='<div style="margin-top:0;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Archivos y evidencias</div>';
+  html+='<label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:12px;cursor:pointer;margin-bottom:10px;">'
+    +'<span style="font-size:22px;">📎</span>'
+    +'<span style="font-size:12px;color:var(--gris);">Subir foto, PDF o documento</span>'
+    +'<input type="file" id="archivo-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="display:none;" onchange="subirArchivoAlumno()">'
+    +'</label>';
+  html+='<div id="archivo-msg" style="font-size:11px;text-align:center;margin-bottom:6px;display:none;"></div>';
+  html+='<div id="archivo-progress" style="height:4px;background:var(--gris-claro);border-radius:2px;margin-bottom:10px;display:none;">'
+    +'<div id="archivo-progress-bar" style="height:100%;background:var(--verde);border-radius:2px;width:0%;transition:width 0.4s;"></div></div>';
+  html+='<div id="archivos-lista"><div style="text-align:center;font-size:12px;color:var(--gris);padding:8px;">Cargando archivos…</div></div>';
+  html+='</div>';
+
   body.innerHTML=html;
 
   if(s.has_differential&&diffRes.data){
@@ -1372,6 +1388,8 @@ async function abrirPerfilAcademico(studentId){
     document.getElementById('dif-necesidades').value=diffRes.data.necesidades||'';
     document.getElementById('dif-adaptaciones').value=diffRes.data.adaptaciones||'';
   }
+
+  cargarArchivosAlumno();
 }
 
 async function guardarPerfilDif(studentId){
@@ -1393,6 +1411,72 @@ async function guardarPerfilDif(studentId){
   msg.style.display='block';
   if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
   else{msg.style.color='var(--terracota)';msg.textContent='✅ Perfil guardado';setTimeout(function(){msg.style.display='none';},3000);}
+}
+
+// ── ARCHIVOS Y EVIDENCIAS ──
+async function cargarArchivosAlumno(){
+  var lista=document.getElementById('archivos-lista');
+  if(!lista||!window.__sb||!_perfilStudentId||!_perfilUserId)return;
+  var path=_perfilUserId+'/'+_perfilStudentId;
+  var {data,error}=await window.__sb.storage.from('evidencias').list(path,{sortBy:{column:'created_at',order:'desc'}});
+  if(error||!data||!data.length){
+    lista.innerHTML='<div style="text-align:center;font-size:12px;color:var(--gris);padding:8px;">Sin archivos subidos</div>';
+    return;
+  }
+  lista.innerHTML=data.map(function(f){
+    var ext=f.name.split('.').pop().toLowerCase();
+    var icon=/^(jpg|jpeg|png|gif|webp)$/.test(ext)?'🖼️':ext==='pdf'?'📄':/^(doc|docx)$/.test(ext)?'📝':'📎';
+    var fecha=f.created_at?new Date(f.created_at).toLocaleDateString('es-AR'):'';
+    var fullPath=path+'/'+f.name;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--gris-claro);">'
+      +'<span style="font-size:20px;flex-shrink:0;">'+icon+'</span>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+f.name+'</div>'
+      +'<div style="font-size:10px;color:var(--gris);">'+fecha+'</div>'
+      +'</div>'
+      +'<button onclick="verArchivoAlumno(\''+encodeURIComponent(fullPath)+'\')" style="background:var(--verde);color:#fff;border:none;border-radius:7px;padding:5px 9px;font-size:11px;cursor:pointer;white-space:nowrap;">Ver</button>'
+      +'<button onclick="borrarArchivoAlumno(\''+encodeURIComponent(fullPath)+'\')" style="background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:7px;padding:5px 8px;font-size:11px;cursor:pointer;flex-shrink:0;">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+async function subirArchivoAlumno(){
+  var input=document.getElementById('archivo-input');
+  if(!input||!input.files||!input.files[0])return;
+  var file=input.files[0];
+  var msg=document.getElementById('archivo-msg');
+  var prog=document.getElementById('archivo-progress');
+  var bar=document.getElementById('archivo-progress-bar');
+  msg.style.display='block';msg.style.color='var(--verde)';msg.textContent='Subiendo…';
+  prog.style.display='block';bar.style.width='30%';
+  var cleanName=file.name.replace(/[^a-zA-Z0-9._\-]/g,'_');
+  var filePath=_perfilUserId+'/'+_perfilStudentId+'/'+Date.now()+'-'+cleanName;
+  var {error}=await window.__sb.storage.from('evidencias').upload(filePath,file);
+  bar.style.width='100%';
+  if(error){
+    msg.style.color='#C0392B';msg.textContent='Error: '+error.message;
+    setTimeout(function(){prog.style.display='none';bar.style.width='0%';},2000);
+  }else{
+    msg.style.color='var(--verde)';msg.textContent='✅ Subido correctamente';
+    input.value='';
+    setTimeout(function(){prog.style.display='none';bar.style.width='0%';msg.style.display='none';},2000);
+    cargarArchivosAlumno();
+  }
+}
+
+async function verArchivoAlumno(encodedPath){
+  if(!window.__sb)return;
+  var path=decodeURIComponent(encodedPath);
+  var {data,error}=await window.__sb.storage.from('evidencias').createSignedUrl(path,3600);
+  if(!error&&data)window.open(data.signedUrl,'_blank');
+}
+
+async function borrarArchivoAlumno(encodedPath){
+  if(!window.__sb)return;
+  if(!confirm('¿Borrar este archivo?'))return;
+  var path=decodeURIComponent(encodedPath);
+  var {error}=await window.__sb.storage.from('evidencias').remove([path]);
+  if(!error)cargarArchivosAlumno();
 }
 
 
@@ -1533,6 +1617,7 @@ const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",
 const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
 const APROBADO=7,DIAS=55;
 var AREAS=['L','M','CS','CN','I','EA','EF'];
+var _perfilStudentId=null,_perfilUserId=null;
 var SUBJECT_IDS={L:'10000000-0000-0000-0000-000000000001',M:'10000000-0000-0000-0000-000000000002',CS:'10000000-0000-0000-0000-000000000003',CN:'10000000-0000-0000-0000-000000000004',I:'10000000-0000-0000-0000-000000000005',EA:'10000000-0000-0000-0000-000000000006',EF:'10000000-0000-0000-0000-000000000007'};
 var SUBJECT_CODES={};Object.keys(SUBJECT_IDS).forEach(function(c){SUBJECT_CODES[SUBJECT_IDS[c]]=c;});
 var gradesData={};
