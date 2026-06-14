@@ -1433,9 +1433,7 @@ async function abrirPerfilAcademico(studentId){
   var results=await Promise.all([
     window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
     window.__sb.from('attendance').select('status').eq('student_id',studentId).eq('teacher_id',user.id),
-    s.has_differential
-      ?window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
-      :Promise.resolve({data:null})
+    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
   ]);
   var gradesRes=results[0],attendRes=results[1],diffRes=results[2];
 
@@ -1521,6 +1519,46 @@ async function abrirPerfilAcademico(studentId){
   html+='<div id="obs-msg" style="font-size:11px;text-align:center;display:none;margin:5px 0;"></div>';
   html+='<button onclick="guardarObservacionAlumno()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;">Guardar observación</button>';
   html+='</div>';
+
+  // ── Ficha de conocimiento ──
+  var fd=diffRes&&diffRes.data;
+  if(fd){
+    var fichaItems=[
+      {label:'Primera impresión',val:fd.primera_impresion||''},
+      {label:'¿Cómo aprende?',val:fd.como_aprende||''},
+      {label:'Matemática',val:fd.matematica||'',parts:['Qué sale bien','Dónde se traba','Qué funciona']},
+      {label:'Lectura y escritura',val:fd.lectura_escritura||''},
+      {label:'Qué funciona / no funciona',val:fd.funciona_no||'',parts:['Lo que funciona','Lo que hay que evitar','Tipo de apoyo']},
+      {label:'Algo más',val:fd.algo_mas||''}
+    ];
+    var hasFicha=fichaItems.some(function(it){return it.val.replace(/\|/g,'').trim();});
+    if(hasFicha){
+      html+='<div style="margin-bottom:16px;">';
+      html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Ficha de conocimiento</div>';
+      fichaItems.forEach(function(it){
+        if(it.parts){
+          var subs=it.val.split('|||');
+          if(!subs.some(function(s){return s.trim();}))return;
+          html+='<div style="margin-bottom:10px;">';
+          html+='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+escHtml(it.label)+'</div>';
+          subs.forEach(function(s,i){
+            if(!s.trim())return;
+            html+='<div style="background:var(--crema);border-radius:8px;padding:8px 10px;margin-bottom:4px;">'
+              +'<div style="font-size:9px;font-weight:700;color:var(--gris);text-transform:uppercase;margin-bottom:2px;">'+escHtml(it.parts[i]||'')+'</div>'
+              +'<div style="font-size:12px;color:var(--negro);white-space:pre-wrap;">'+escHtml(s.trim())+'</div></div>';
+          });
+          html+='</div>';
+        }else{
+          if(!it.val.trim())return;
+          html+='<div style="margin-bottom:10px;">';
+          html+='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+escHtml(it.label)+'</div>';
+          html+='<div style="background:var(--crema);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--negro);white-space:pre-wrap;">'+escHtml(it.val.trim())+'</div>';
+          html+='</div>';
+        }
+      });
+      html+='</div>';
+    }
+  }
 
   // ── Archivos y evidencias ──
   html+='<div style="margin-top:0;">';
