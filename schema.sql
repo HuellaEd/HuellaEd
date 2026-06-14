@@ -55,6 +55,23 @@ alter table grades enable row level security;
 create policy "Docentes gestionan sus calificaciones" on grades for all
   using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
 
+-- Planificaciones semanales por materia
+create table planifications (
+  id uuid default gen_random_uuid() primary key,
+  teacher_id uuid references auth.users not null,
+  subject_id uuid references subjects(id) not null,
+  title text not null,
+  content text default '',
+  week_number integer,
+  date_from date,
+  date_to date,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table planifications enable row level security;
+create policy "Docentes gestionan sus planificaciones" on planifications for all
+  using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
+
 -- Perfil diferencial por alumno
 create table differential_profiles (
   id uuid default gen_random_uuid() primary key,

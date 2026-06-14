@@ -256,6 +256,14 @@
     <div class="prompt-card" id="p4"><div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-tog" id="tog-p4">+</div></div><div class="prompt-body" id="body-p4" style="display:none;"><p class="prompt-txt" id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div></div>
   </div>
 
+  <!-- PLANIFICACIONES -->
+  <div class="section-label">Planificaciones</div>
+  <div class="card" onclick="abrirPlanificaciones()" style="cursor:pointer;">
+    <div class="card-icon" style="background:#EBF5FB;font-size:22px;">📋</div>
+    <div class="card-body"><strong>Planificaciones semanales</strong><span>Por materia · crear y editar</span></div>
+    <div class="card-arr">›</div>
+  </div>
+
   <!-- NOTAS E INASISTENCIAS -->
   <div class="section-label">Notas e Inasistencias</div>
   <div class="grid grid-2">
@@ -544,6 +552,20 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <button onclick="cerrarPerfilAcademico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
     </div>
     <div id="perf-body" style="padding:18px;max-height:72vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- PLANIFICACIONES -->
+<div id="modal-planificaciones" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <strong style="font-size:15px;color:#fff;">📋 Planificaciones</strong>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="planif-btn-nueva" onclick="abrirEditorPlanif(null)" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Nueva</button>
+        <button onclick="cerrarPlanificaciones()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+    </div>
+    <div id="planif-body" style="padding:18px;max-height:76vh;overflow-y:auto;"></div>
   </div>
 </div>
 
@@ -1479,6 +1501,165 @@ async function borrarArchivoAlumno(encodedPath){
   if(!error)cargarArchivosAlumno();
 }
 
+// ── PLANIFICACIONES ──
+function cerrarPlanificaciones(){ document.getElementById('modal-planificaciones').style.display='none'; }
+
+async function abrirPlanificaciones(){
+  _planifFiltroArea='';
+  document.getElementById('modal-planificaciones').style.display='block';
+  document.getElementById('planif-btn-nueva').style.display='inline-block';
+  cargarListaPlanif();
+}
+
+async function cargarListaPlanif(){
+  var body=document.getElementById('planif-body');
+  body.innerHTML='<div style="text-align:center;padding:24px;color:var(--gris);">Cargando…</div>';
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var query=window.__sb.from('planifications').select('*').eq('teacher_id',user.id).order('week_number',{ascending:true});
+  if(_planifFiltroArea)query=query.eq('subject_id',SUBJECT_IDS[_planifFiltroArea]);
+  var {data}=await query;
+  _planifData=data||[];
+
+  var html='';
+  // Filtro materia
+  html+='<div style="margin-bottom:12px;">';
+  html+='<select onchange="_planifFiltroArea=this.value;cargarListaPlanif()" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">';
+  html+='<option value="">Todas las materias</option>';
+  AREAS.forEach(function(a){html+='<option value="'+a+'"'+(a===_planifFiltroArea?' selected':'')+'>'+AREA_ICONS[a]+' '+AREA_NAMES[a]+'</option>';});
+  html+='</select></div>';
+
+  if(!_planifData.length){
+    html+='<div style="text-align:center;padding:32px;color:var(--gris);font-size:13px;">'
+      +'<div style="font-size:36px;margin-bottom:10px;">📋</div>'
+      +'<div style="font-weight:600;">Sin planificaciones todavía</div>'
+      +'<div style="font-size:12px;margin-top:4px;">Usá <strong>+ Nueva</strong> para crear la primera.</div>'
+      +'</div>';
+  }else{
+    html+='<div style="display:flex;flex-direction:column;gap:8px;">';
+    _planifData.forEach(function(p){
+      var ac=SUBJECT_CODES[p.subject_id]||'';
+      var an=AREA_NAMES[ac]||ac;
+      var ai=AREA_ICONS[ac]||'📋';
+      var fechas='';
+      if(p.date_from||p.date_to){
+        var fmt=function(d){return d?new Date(d+'T12:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}):''};
+        fechas=fmt(p.date_from)+(p.date_to?' al '+fmt(p.date_to):'');
+      }
+      html+='<div style="background:var(--crema);border-radius:12px;padding:14px;border:1.5px solid var(--gris-claro);">';
+      html+='<div style="display:flex;align-items:flex-start;gap:10px;">';
+      html+='<div style="background:var(--verde-bg);border-radius:9px;padding:7px;font-size:20px;flex-shrink:0;">'+ai+'</div>';
+      html+='<div style="flex:1;min-width:0;">';
+      html+='<div style="font-size:13px;font-weight:700;color:var(--negro);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.title+'</div>';
+      html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;">';
+      html+='<span style="font-size:10px;background:var(--verde);color:#fff;border-radius:5px;padding:2px 7px;">'+an+'</span>';
+      if(p.week_number)html+='<span style="font-size:10px;color:var(--gris);">Sem. '+p.week_number+'</span>';
+      if(fechas)html+='<span style="font-size:10px;color:var(--gris);">'+fechas+'</span>';
+      html+='</div>';
+      if(p.content)html+='<div style="font-size:11px;color:var(--gris);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.content.substring(0,90)+(p.content.length>90?'…':'')+'</div>';
+      html+='</div></div>';
+      html+='<div style="display:flex;gap:6px;margin-top:10px;">';
+      html+='<button onclick="abrirEditorPlanif(\''+p.id+'\')" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Ver / Editar</button>';
+      html+='<button onclick="borrarPlanif(\''+p.id+'\')" style="background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit;">Borrar</button>';
+      html+='</div></div>';
+    });
+    html+='</div>';
+  }
+  body.innerHTML=html;
+}
+
+async function abrirEditorPlanif(planifId){
+  document.getElementById('planif-btn-nueva').style.display='none';
+  var planif=planifId?(_planifData.find(function(p){return p.id===planifId;})||null):null;
+  _planifEditing=planif;
+  var ac=planif?SUBJECT_CODES[planif.subject_id]||AREAS[0]:_planifFiltroArea||AREAS[0];
+  var body=document.getElementById('planif-body');
+  var html='';
+  html+='<button onclick="volverListaPlanif()" style="background:none;border:none;color:var(--verde);font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:14px;display:flex;align-items:center;gap:4px;">← Volver</button>';
+  html+='<div style="font-size:15px;font-weight:700;color:var(--negro);margin-bottom:16px;">'+(planif?'Editar planificación':'Nueva planificación')+'</div>';
+  html+='<div style="display:flex;flex-direction:column;gap:12px;">';
+  // Título
+  html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Título</label>'
+    +'<input type="text" id="planif-title" placeholder="Ej: Lectura comprensiva – semana 12" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>';
+  // Materia + Semana
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Materia</label>'
+    +'<select id="planif-area" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;background:#FAFAF8;font-family:inherit;">';
+  AREAS.forEach(function(a){html+='<option value="'+a+'"'+(a===ac?' selected':'')+'>'+AREA_ICONS[a]+' '+AREA_NAMES[a]+'</option>';});
+  html+='</select></div>';
+  html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Semana #</label>'
+    +'<input type="number" id="planif-week" min="1" max="52" placeholder="Nro." style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>'
+    +'</div>';
+  // Fechas
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Desde</label>'
+    +'<input type="date" id="planif-from" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>';
+  html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Hasta</label>'
+    +'<input type="date" id="planif-to" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>'
+    +'</div>';
+  // Contenido
+  html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Contenido</label>'
+    +'<textarea id="planif-content" rows="10" placeholder="Objetivos, actividades, recursos y evaluación para esta semana…" style="width:100%;padding:11px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#FAFAF8;line-height:1.6;"></textarea></div>';
+  html+='</div>';
+  html+='<div id="planif-save-msg" style="font-size:11px;text-align:center;margin:10px 0;display:none;"></div>';
+  html+='<button id="planif-save-btn" onclick="guardarPlanif()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:11px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit;">Guardar planificación</button>';
+  body.innerHTML=html;
+  // Asignar valores tras innerHTML
+  if(planif){
+    document.getElementById('planif-title').value=planif.title||'';
+    document.getElementById('planif-week').value=planif.week_number||'';
+    document.getElementById('planif-from').value=planif.date_from||'';
+    document.getElementById('planif-to').value=planif.date_to||'';
+    document.getElementById('planif-content').value=planif.content||'';
+  }
+}
+
+function volverListaPlanif(){
+  _planifEditing=null;
+  document.getElementById('planif-btn-nueva').style.display='inline-block';
+  cargarListaPlanif();
+}
+
+async function guardarPlanif(){
+  var title=(document.getElementById('planif-title').value||'').trim();
+  if(!title){alert('El título es obligatorio.');return;}
+  var areaCode=document.getElementById('planif-area').value;
+  var weekVal=document.getElementById('planif-week').value;
+  var dateFrom=document.getElementById('planif-from').value;
+  var dateTo=document.getElementById('planif-to').value;
+  var content=document.getElementById('planif-content').value;
+  var btn=document.getElementById('planif-save-btn');
+  var msg=document.getElementById('planif-save-msg');
+  btn.disabled=true;btn.textContent='Guardando…';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user){btn.disabled=false;btn.textContent='Guardar planificación';return;}
+  var record={
+    teacher_id:user.id,
+    subject_id:SUBJECT_IDS[areaCode],
+    title:title,
+    content:content,
+    week_number:weekVal?parseInt(weekVal):null,
+    date_from:dateFrom||null,
+    date_to:dateTo||null,
+    updated_at:new Date().toISOString()
+  };
+  var res=_planifEditing
+    ?await window.__sb.from('planifications').update(record).eq('id',_planifEditing.id)
+    :await window.__sb.from('planifications').insert(record);
+  btn.disabled=false;btn.textContent='Guardar planificación';
+  msg.style.display='block';
+  if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
+  else{msg.style.color='var(--verde)';msg.textContent='✅ Guardado';setTimeout(volverListaPlanif,1200);}
+}
+
+async function borrarPlanif(id){
+  if(!confirm('¿Borrar esta planificación? No se puede deshacer.'))return;
+  if(!window.__sb)return;
+  var {error}=await window.__sb.from('planifications').delete().eq('id',id);
+  if(!error)cargarListaPlanif();
+}
+
 
 var fichasGuardadas = JSON.parse(localStorage.getItem('huellaed_fichas') || '{}');
 
@@ -1617,7 +1798,10 @@ const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",
 const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
 const APROBADO=7,DIAS=55;
 var AREAS=['L','M','CS','CN','I','EA','EF'];
+var AREA_NAMES={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
+var AREA_ICONS={L:'📖',M:'🔢',CS:'🌍',CN:'🔬',I:'🇬🇧',EA:'🎨',EF:'⚽'};
 var _perfilStudentId=null,_perfilUserId=null;
+var _planifEditing=null,_planifFiltroArea='',_planifData=[];
 var SUBJECT_IDS={L:'10000000-0000-0000-0000-000000000001',M:'10000000-0000-0000-0000-000000000002',CS:'10000000-0000-0000-0000-000000000003',CN:'10000000-0000-0000-0000-000000000004',I:'10000000-0000-0000-0000-000000000005',EA:'10000000-0000-0000-0000-000000000006',EF:'10000000-0000-0000-0000-000000000007'};
 var SUBJECT_CODES={};Object.keys(SUBJECT_IDS).forEach(function(c){SUBJECT_CODES[SUBJECT_IDS[c]]=c;});
 var gradesData={};
