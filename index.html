@@ -1802,32 +1802,28 @@ var _perfilIaRawText='';
 var AREA_NAMES={L:'Prácticas del Lenguaje',M:'Matemática',CS:'Cs. Sociales',CN:'Cs. Naturales',I:'Inglés',EA:'Ed. Artística',EF:'Ed. Física'};
 
 async function generarPerfilAcademico(studentId){
-  console.log('[HuellaED] generarPerfilAcademico iniciada, studentId:', studentId);
   var btn=document.getElementById('perf-ia-btn');
   var resultado=document.getElementById('perf-ia-resultado');
   var textDiv=document.getElementById('perf-ia-text');
   var msg=document.getElementById('perf-ia-msg');
-  if(!window.__sb){console.warn('[HuellaED] window.__sb no disponible');return;}
+  if(!window.__sb)return;
 
   btn.disabled=true;btn.textContent='Generando…';
   resultado.style.display='none';
   msg.style.display='none';
 
   var session=(await window.__sb.auth.getSession()).data.session;
-  console.log('[HuellaED] sesión:', session?'activa':'ninguna');
   if(!session){btn.disabled=false;btn.textContent='🤖 Generar perfil académico';return;}
   var user=session.user;
 
   var s=(window.__students||[]).find(function(x){return x.id===studentId;});
   var nombre=s?s.full_name:'Alumno';
-  console.log('[HuellaED] alumno:', nombre, '| período:', gradesPeriodo);
 
   var [gradesRes,obsRes,diffRes]=await Promise.all([
     window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
     window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
     window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
   ]);
-  console.log('[HuellaED] datos obtenidos — notas:', gradesRes.data?.length??0, '| obs:', obsRes.data?.length??0, '| perfil diferencial:', diffRes.data?'sí':'no');
 
   // Notas
   var notasLineas=[];
@@ -1887,7 +1883,6 @@ async function generarPerfilAcademico(studentId){
     +'Usá lenguaje formal pero accesible, apropiado para un informe pedagógico de nivel primario. '
     +'Sé concreto y basate únicamente en los datos provistos.';
 
-  console.log('[HuellaED] enviando prompt a Edge Function (%d chars)', prompt.length);
   try{
     var res=await fetch('https://wrrertkbvyjffezkosuc.supabase.co/functions/v1/generar-perfil',{
       method:'POST',
@@ -1898,10 +1893,8 @@ async function generarPerfilAcademico(studentId){
       },
       body:JSON.stringify({prompt:prompt})
     });
-    console.log('[HuellaED] respuesta Edge Function:', res.status, res.ok?'OK':'ERROR');
     var data=await res.json();
     if(!res.ok)throw new Error(data.error||'Error '+res.status);
-    console.log('[HuellaED] texto recibido (%d chars)', (data.text||'').length);
     _perfilIaRawText=data.text;
     textDiv.innerHTML=markdownToHtml(_perfilIaRawText);
     resultado.style.display='block';
