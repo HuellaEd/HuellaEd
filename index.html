@@ -189,16 +189,12 @@
     <div class="card" onclick="abrirAgenda()">
       <div class="card-icon ic-y">📋</div><div class="card-body"><strong>Agenda</strong><span id="agenda-sub">Tareas y recordatorios</span></div><div class="card-arr" id="agenda-badge"></div>
     </div>
-    <div class="card" onclick="toggleForm()">
-      <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Formulario diario</span></div><div class="card-arr" id="form-arrow">›</div>
+    <div class="card" onclick="abrirObservacionModal()">
+      <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Observación del día</span></div><div class="card-arr">›</div>
     </div>
     <div class="card" onclick="abrirClaude()">
       <div class="card-icon" style="background:#FEF3E2;">🤖</div><div class="card-body"><strong>Consultar a Claude</strong><span>Asistente HuellaED</span></div><div class="card-arr">›</div>
     </div>
-  </div>
-
-  <div id="form-container" style="display:none;margin-top:8px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);">
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf4HnxU6mMczZXaQNw5Z8KAUfRSEJVcDTNZhxIRIglsWWpG7g/viewform?embedded=true" width="100%" height="600" frameborder="0">Cargando...</iframe>
   </div>
 
   <!-- REGISTRAR -->
@@ -606,6 +602,33 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <button id="reg-guardar-btn" onclick="guardarRegistroMensual()" class="save-btn" style="width:100%;">💾 Confirmar y guardar en Supabase</button>
       <div id="reg-save-msg" style="font-size:11px;text-align:center;margin-top:6px;display:none;"></div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL OBSERVACION -->
+<div id="modal-observacion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px 16px 0 0;padding:20px 16px 32px;max-width:480px;margin:60px auto 0;position:relative;">
+    <button onclick="document.getElementById('modal-observacion').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--gris);">✕</button>
+    <div style="font-weight:800;font-size:17px;color:var(--verde);margin-bottom:16px;">📝 Cargar Observación</div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Destino</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      <button id="obs-btn-alumno" onclick="obsSetDestino('alumno')" class="save-btn">👤 Por alumno</button>
+      <button id="obs-btn-general" onclick="obsSetDestino('general')" class="sec-btn">🏫 General áulica</button>
+    </div>
+
+    <div id="obs-selector-alumno" style="margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Alumno</div>
+      <select id="obs-alumno-select" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--gris-claro);font-size:14px;background:#fff;">
+        <option value="">— Seleccioná un alumno —</option>
+      </select>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Observación</div>
+    <textarea id="obs-content" rows="5" placeholder="Escribí la observación…" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--gris-claro);font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+
+    <button onclick="guardarObservacionModal()" class="save-btn" style="width:100%;margin-top:12px;">💾 Guardar</button>
+    <div id="obs-modal-msg" style="font-size:12px;text-align:center;padding:6px;display:none;border-radius:8px;margin-top:8px;"></div>
   </div>
 </div>
 
@@ -1976,8 +1999,50 @@ function toggleGrupo(id){
   if(!abierto){panel.classList.add('visible');btn.classList.add('abierto');}
 }
 
-// ── FORM TOGGLE ──
-function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
+// ── OBSERVACION MODAL ──
+var _obsDestino='alumno';
+function abrirObservacionModal(){
+  document.getElementById('modal-observacion').style.display='block';
+  document.getElementById('obs-content').value='';
+  document.getElementById('obs-modal-msg').style.display='none';
+  var sel=document.getElementById('obs-alumno-select');
+  sel.innerHTML='<option value="">— Seleccioná un alumno —</option>';
+  (window.__students||[]).forEach(function(s){
+    var o=document.createElement('option');o.value=s.id;o.textContent=s.full_name;sel.appendChild(o);
+  });
+  obsSetDestino('alumno');
+}
+function obsSetDestino(d){
+  _obsDestino=d;
+  document.getElementById('obs-btn-alumno').className=d==='alumno'?'save-btn':'sec-btn';
+  document.getElementById('obs-btn-general').className=d==='general'?'save-btn':'sec-btn';
+  document.getElementById('obs-selector-alumno').style.display=d==='alumno'?'block':'none';
+}
+async function guardarObservacionModal(){
+  var content=document.getElementById('obs-content').value.trim();
+  var msg=document.getElementById('obs-modal-msg');
+  if(!content){msg.textContent='Escribí una observación primero.';msg.style.display='block';msg.style.color='#C0392B';return;}
+  var studentId=null;
+  if(_obsDestino==='alumno'){
+    studentId=document.getElementById('obs-alumno-select').value||null;
+    if(!studentId){msg.textContent='Seleccioná un alumno.';msg.style.display='block';msg.style.color='#C0392B';return;}
+  }
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';
+  var {error}=await window.__sb.from('notas_rapidas').insert({
+    student_id:studentId,
+    teacher_id:user.id,
+    content:content
+  });
+  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
+  else{
+    msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada';
+    document.getElementById('obs-content').value='';
+    setTimeout(function(){document.getElementById('modal-observacion').style.display='none';},1500);
+  }
+}
 
 // ── PANELS ──
 function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')initGrades();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1'){if(Object.keys(gradesData).length===0)initGrades().then(renderBoletin1);else renderBoletin1();}}}
