@@ -86,6 +86,24 @@ alter table differential_profiles enable row level security;
 create policy "Docentes gestionan perfiles diferenciales" on differential_profiles for all
   using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
 
+-- Reuniones familiares
+create table family_meetings (
+  id uuid default gen_random_uuid() primary key,
+  teacher_id uuid references auth.users not null,
+  student_id uuid references students(id),
+  tipo text not null default 'individual',
+  fecha date,
+  motivo text default '',
+  asistentes text default '',
+  resumen text default '',
+  compromisos text default '',
+  seguimiento text default '',
+  created_at timestamptz default now()
+);
+alter table family_meetings enable row level security;
+create policy "Docentes gestionan sus reuniones" on family_meetings for all
+  using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
+
 -- Notas rápidas del docente
 create table notas_rapidas (
   id bigint primary key,
