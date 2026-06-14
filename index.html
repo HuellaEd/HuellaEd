@@ -361,11 +361,25 @@ App: https://huellaed.github.io/HuellaEd/</div>
       </div>
     </div>
     <div class="form-row"><label>Detalles (opcional)</label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, adjunto PDF del libro..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:65px;resize:none;box-sizing:border-box;"></textarea></div>
-    <button onclick="generarPrompt()" class="save-btn" style="margin-bottom:10px;">✨ Armar prompt</button>
+    <div class="form-row">
+      <label>Archivo adjunto <span style="font-size:10px;color:var(--gris);font-weight:400;">(opcional — PDF o imagen)</span></label>
+      <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:11px;cursor:pointer;">
+        <span style="font-size:20px;">📎</span>
+        <span id="gen-adjunto-label" style="font-size:12px;color:var(--gris);">Adjuntar PDF o imagen</span>
+        <input type="file" id="gen-adjunto" accept=".pdf,image/*" style="display:none;" onchange="seleccionarAdjuntoGen()">
+      </label>
+    </div>
+    <button id="gen-btn" onclick="generarPrompt()" class="save-btn" style="margin-bottom:10px;">✨ Armar prompt</button>
     <div id="gen-resultado" style="display:none;">
       <div id="gen-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);"></div>
       <div style="display:flex;gap:7px;"><button onclick="copiarPromptGen()" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:10px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a></div>
       <div id="gen-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:5px;"></div>
+    </div>
+    <div id="gen-ai-resultado" style="display:none;margin-top:10px;">
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Respuesta de Claude</div>
+      <div id="gen-ai-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:12px;color:var(--negro);line-height:1.7;margin-bottom:8px;border:1px solid var(--gris-claro);white-space:pre-wrap;max-height:420px;overflow-y:auto;"></div>
+      <button onclick="copiarRespuestaGen()" class="save-btn">📋 Copiar respuesta</button>
+      <div id="gen-ai-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:5px;"></div>
     </div>
   </div>
 </div>
@@ -2095,13 +2109,123 @@ function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementB
 
 // ── GENERADOR ──
 var tipoSel='',alumnosEsp=[],soloDif=false;
+var _genAdjuntoBase64=null,_genAdjuntoType=null,_genAdjuntoIsPDF=false;
 function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
-function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';}
+function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';document.getElementById('gen-ai-resultado').style.display='none';quitarAdjuntoGen();}
 function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;var esP=t==='proyecto';document.getElementById('gen-area-row').style.display=esP?'none':'block';document.getElementById('gen-areas-multi-row').style.display=esP?'block':'none';if(t==='problemas')document.getElementById('gen-area').value='Matemática';}
 function toggleSoloDif(){soloDif=document.getElementById('solo-diferenciadas').checked;document.getElementById('gen-nota-general').style.display=soloDif?'none':'block';}
 function toggleAlumnoEsp(el,n,t,p){var idx=alumnosEsp.findIndex(a=>a.nombre===n);if(idx>=0){alumnosEsp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check-icon').textContent='☐';}else{alumnosEsp.push({nombre:n,tipo:t,perfil:p});el.classList.add('selected');el.querySelector('.check-icon').textContent='☑';}}
-function generarPrompt(){var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;if(!tipoSel){alert('Seleccioná el tipo');return;}if(!tema){alert('Escribí el tema');return;}var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;var p='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];if(tipoSel==='proyecto')p+=' que integre: '+areaT;else p+=' para '+areaT;p+=', sobre: '+tema+'.\n\n';if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';if(tipoSel==='repaso')p+='\nConsolidar contenido ya trabajado, dificultad progresiva.';if(tipoSel==='problemas')p+='\nEntre 4 y 6 problemas articulados, contextos cotidianos.';if(tipoSel==='proyecto')p+='\n2-3 semanas, producto final, momentos grupales e individuales.';if(alumnosEsp.length>0){p+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(a=>{var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos — NEE con diagnóstico)':'ADECUACIÓN (mantiene objetivos, cambia forma/apoyo)';p+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p+='\nCada versión con nota pedagógica breve.';}if(det)p+='\n\nDetalles: '+det;document.getElementById('gen-prompt-text').textContent=p;document.getElementById('gen-resultado').style.display='block';document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});}
-function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(()=>{document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('gen-copy-msg').textContent='';},3000);});}
+async function generarPrompt(){
+  var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
+  if(!tipoSel){alert('Seleccioná el tipo');return;}
+  if(!tema){alert('Escribí el tema');return;}
+  var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
+  var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
+  var p='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
+  if(tipoSel==='proyecto')p+=' que integre: '+areaT;else p+=' para '+areaT;
+  p+=', sobre: '+tema+'.\n\n';
+  if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
+  if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';
+  if(tipoSel==='repaso')p+='\nConsolidar contenido ya trabajado, dificultad progresiva.';
+  if(tipoSel==='problemas')p+='\nEntre 4 y 6 problemas articulados, contextos cotidianos.';
+  if(tipoSel==='proyecto')p+='\n2-3 semanas, producto final, momentos grupales e individuales.';
+  if(alumnosEsp.length>0){
+    p+='\n\nVERSIONES DIFERENCIADAS:\n';
+    alumnosEsp.forEach(function(a){
+      var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos — NEE con diagnóstico)':'ADECUACIÓN (mantiene objetivos, cambia forma/apoyo)';
+      p+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';
+    });
+    p+='\nCada versión con nota pedagógica breve.';
+  }
+  if(det)p+='\n\nDetalles: '+det;
+  document.getElementById('gen-ai-resultado').style.display='none';
+  if(_genAdjuntoBase64){
+    await enviarAClaudeConArchivo(p);
+  } else {
+    document.getElementById('gen-prompt-text').textContent=p;
+    document.getElementById('gen-resultado').style.display='block';
+    document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
+  }
+}
+function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
+
+function seleccionarAdjuntoGen(){
+  var input=document.getElementById('gen-adjunto');
+  if(!input.files||!input.files[0]){_genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;return;}
+  var file=input.files[0];
+  _genAdjuntoIsPDF=file.type==='application/pdf';
+  _genAdjuntoType=file.type||'image/jpeg';
+  document.getElementById('gen-adjunto-label').textContent='📎 '+file.name;
+  var reader=new FileReader();
+  reader.onload=function(e){_genAdjuntoBase64=e.target.result.split(',')[1];};
+  reader.readAsDataURL(file);
+}
+
+function quitarAdjuntoGen(){
+  _genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;
+  var input=document.getElementById('gen-adjunto');
+  if(input)input.value='';
+  var lbl=document.getElementById('gen-adjunto-label');
+  if(lbl)lbl.textContent='Adjuntar PDF o imagen';
+}
+
+async function enviarAClaudeConArchivo(promptText){
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){
+    apiKey=prompt('Ingresá tu API Key de Anthropic (se guarda solo en este dispositivo):');
+    if(!apiKey)return;
+    localStorage.setItem('huellaed_anthropic_key',apiKey.trim());
+    apiKey=apiKey.trim();
+  }
+  var btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.textContent='⏳ Consultando a Claude…';
+  var contentParts=[];
+  if(_genAdjuntoIsPDF){
+    contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});
+  } else {
+    contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});
+  }
+  contentParts.push({type:'text',text:promptText});
+  var headers={
+    'x-api-key':apiKey,
+    'anthropic-version':'2023-06-01',
+    'content-type':'application/json',
+    'anthropic-dangerous-direct-browser-access':'true'
+  };
+  if(_genAdjuntoIsPDF)headers['anthropic-beta']='pdfs-2024-09-25';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:headers,
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:4096,
+        messages:[{role:'user',content:contentParts}]
+      })
+    });
+    if(!res.ok){
+      var errData=await res.json();
+      throw new Error((errData.error&&errData.error.message)||'Error '+res.status);
+    }
+    var data=await res.json();
+    var text=(data.content&&data.content[0]&&data.content[0].text)||'';
+    document.getElementById('gen-ai-text').textContent=text;
+    document.getElementById('gen-ai-resultado').style.display='block';
+    document.getElementById('gen-resultado').style.display='none';
+    document.getElementById('gen-ai-resultado').scrollIntoView({behavior:'smooth'});
+  } catch(e){
+    alert('Error al llamar a Claude: '+e.message);
+  } finally {
+    btn.disabled=false;btn.textContent='✨ Armar prompt';
+  }
+}
+
+function copiarRespuestaGen(){
+  navigator.clipboard.writeText(document.getElementById('gen-ai-text').textContent).then(function(){
+    document.getElementById('gen-ai-copy-msg').textContent='✅ Copiado';
+    setTimeout(function(){document.getElementById('gen-ai-copy-msg').textContent='';},3000);
+  });
+}
 
 // ── GRABADOR ──
 
