@@ -2731,7 +2731,7 @@ async function procesarRegistroConIA(){
         model:'claude-sonnet-4-6',max_tokens:4096,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:_regFotoType,data:_regFotoBase64}},
-          {type:'text',text:'Este es un registro de asistencia escolar argentino. Por cada alumno y cada día identificá: 1=Presente (P), 3=Ausente (A). Devolvé solo un JSON con estructura: [{alumno, dia, estado}]'}
+          {type:'text',text:'Analizá esta imagen de un registro de asistencia escolar argentino. Los alumnos están en filas y los días en columnas. El símbolo 1 significa Presente (P) y el símbolo 3 significa Ausente (A). Extraé todos los datos y devolvé ÚNICAMENTE un JSON válido, sin texto adicional, con este formato exacto: [{"alumno":"APELLIDO NOMBRE","dia":1,"estado":"P"}]. Incluí solo las celdas que tienen datos.'}
         ]}]
       })
     });
