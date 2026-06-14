@@ -2625,10 +2625,9 @@ async function armarTextoPrompt(){
   if(tipoSel==='proyecto')p+=' que integre: '+areaT;else p+=' para '+areaT;
   p+=', sobre: '+tema+'.\n\n';
   if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
-  if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';
   if(tipoSel==='repaso')p+='\nConsolidar contenido ya trabajado, dificultad progresiva.';
-  if(tipoSel==='problemas')p+='\nEntre 4 y 6 problemas articulados, contextos cotidianos.';
   if(tipoSel==='proyecto')p+='\n2-3 semanas, producto final, momentos grupales e individuales.';
+  p+='\n\nGenerá el material en formato HTML limpio para imprimir. Cada problema debe tener: número + título + operación en negrita, enunciado corto, una pista en cursiva, y dos recuadros lado a lado: \'Estrategia y cálculo\' (grande, para que el alumno trabaje) y \'Respuesta\' (pequeño). Sin colores, sin emojis, sin decoración. Tipografía Georgia. Pie de página con Escuela La Concepción · 6to Grado · 2026. Una página por hoja, imprimible. Si hay versión diferenciada, agregarla en página separada con el nombre del alumno.';
   if(alumnosEsp.length>0){
     var studentIds=alumnosEsp.map(function(a){
       var s=(window.__students||[]).find(function(x){return x.full_name===a.nombre;});
