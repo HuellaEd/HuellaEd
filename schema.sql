@@ -86,6 +86,18 @@ alter table differential_profiles enable row level security;
 create policy "Docentes gestionan perfiles diferenciales" on differential_profiles for all
   using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
 
+-- Material generado con IA
+create table cuadernillos (
+  id uuid default gen_random_uuid() primary key,
+  teacher_id uuid references auth.users not null,
+  title text not null,
+  content text default '',
+  created_at timestamptz default now()
+);
+alter table cuadernillos enable row level security;
+create policy "Docentes gestionan sus cuadernillos" on cuadernillos for all
+  using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
+
 -- Reuniones familiares
 create table family_meetings (
   id uuid default gen_random_uuid() primary key,
