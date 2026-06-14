@@ -1472,8 +1472,8 @@ async function cargarObservacionesAlumno(){
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
   var {data}=await window.__sb.from('notas_rapidas')
-    .select('id,texto,fecha,created_at')
-    .eq('user_id',user.id)
+    .select('id,content,created_at')
+    .eq('teacher_id',user.id)
     .eq('student_id',_perfilStudentId)
     .order('created_at',{ascending:false})
     .limit(20);
@@ -1482,10 +1482,10 @@ async function cargarObservacionesAlumno(){
     return;
   }
   lista.innerHTML=data.map(function(n){
-    var fecha=n.fecha||new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
     return '<div style="background:var(--crema);border-radius:9px;padding:9px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">'
       +'<div style="font-size:10px;color:var(--gris);margin-bottom:3px;">'+fecha+'</div>'
-      +'<div style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.texto+'</div>'
+      +'<div style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.content+'</div>'
       +'</div>';
   }).join('');
 }
@@ -1499,16 +1499,10 @@ async function guardarObservacionAlumno(){
   msg.style.display='block';msg.style.color='var(--gris)';msg.textContent='Guardando…';
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var fecha=new Date().toLocaleDateString('es-AR');
   var {error}=await window.__sb.from('notas_rapidas').insert({
-    id:Date.now(),
-    user_id:user.id,
-    teacher_id:user.id,
     student_id:_perfilStudentId,
-    fecha:fecha,
-    destino:'alumno',
-    alumno:'',
-    texto:txt
+    teacher_id:user.id,
+    content:txt
   });
   if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
   else{
