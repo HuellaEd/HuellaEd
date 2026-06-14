@@ -55,6 +55,20 @@ alter table grades enable row level security;
 create policy "Docentes gestionan sus calificaciones" on grades for all
   using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
 
+-- Perfil diferencial por alumno
+create table differential_profiles (
+  id uuid default gen_random_uuid() primary key,
+  student_id uuid references students(id) unique not null,
+  teacher_id uuid references auth.users not null,
+  descripcion text default '',
+  necesidades text default '',
+  adaptaciones text default '',
+  updated_at timestamptz default now()
+);
+alter table differential_profiles enable row level security;
+create policy "Docentes gestionan perfiles diferenciales" on differential_profiles for all
+  using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
+
 -- Notas rápidas del docente
 create table notas_rapidas (
   id bigint primary key,

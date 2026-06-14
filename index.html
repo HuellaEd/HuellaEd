@@ -532,6 +532,21 @@ App: https://huellaed.github.io/HuellaEd/</div>
   </div>
 </div>
 
+<!-- PERFIL INDIVIDUAL -->
+<div id="modal-perfil-academico" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;align-items:center;gap:14px;">
+      <div id="perf-ini" class="alumno-ini" style="width:52px;height:52px;font-size:20px;background:rgba(255,255,255,0.18);color:#fff;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;"></div>
+      <div style="flex:1;min-width:0;">
+        <div id="perf-nombre" style="font-size:16px;font-weight:700;color:#fff;"></div>
+        <div id="perf-badge" style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;"></div>
+      </div>
+      <button onclick="cerrarPerfilAcademico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="perf-body" style="padding:18px;max-height:72vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <!-- ACTA -->
 <div id="modal-acta" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:620px;margin:16px auto;">
@@ -883,7 +898,7 @@ async function initStudents() {
       var badge = s.has_differential
         ? '<span class="subcard-sub" style="color:var(--terracota);font-weight:600;margin-top:2px;">⚡ Dif.</span>'
         : '';
-      return '<div class="subcard"><div class="alumno-ini" style="margin:0 auto 4px;">' + ini + '</div>'
+      return '<div class="subcard" onclick="abrirPerfilAcademico(\'' + s.id + '\')" style="cursor:pointer;"><div class="alumno-ini" style="margin:0 auto 4px;">' + ini + '</div>'
         + '<span class="subcard-label">' + s.full_name + '</span>' + badge + '</div>';
     }).join('');
   }
@@ -1089,9 +1104,133 @@ function generarPromptBoletin(){
 function copiarPromptBoletin(){ navigator.clipboard.writeText(document.getElementById('boletin-prompt-text').textContent).then(()=>{ document.getElementById('boletin-copy-msg').textContent='✅ Copiado'; setTimeout(()=>{ document.getElementById('boletin-copy-msg').textContent=''; },3000); }); }
 
 
-function abrirPerfilAcademico(key){ alert("Perfil academico: " + key); }
 function cerrarPerfilAcademico(){ document.getElementById('modal-perfil-academico').style.display='none'; }
-function imprimirPerfilAcademico(){ window.print(); }
+
+async function abrirPerfilAcademico(studentId){
+  var s=(window.__students||[]).find(function(st){return st.id===studentId;});
+  if(!s)return;
+  document.getElementById('modal-perfil-academico').style.display='block';
+  document.getElementById('perf-ini').textContent=nameToInitials(s.full_name);
+  document.getElementById('perf-nombre').textContent=s.full_name;
+  document.getElementById('perf-badge').textContent=s.has_differential?'⚡ Atención diferenciada':'6to grado';
+  var body=document.getElementById('perf-body');
+  body.innerHTML='<div style="text-align:center;padding:32px;color:var(--gris);font-size:13px;">Cargando…</div>';
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+
+  var results=await Promise.all([
+    window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
+    window.__sb.from('attendance').select('status').eq('student_id',studentId).eq('teacher_id',user.id),
+    s.has_differential
+      ?window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+      :Promise.resolve({data:null})
+  ]);
+  var gradesRes=results[0],attendRes=results[1],diffRes=results[2];
+
+  // Grades
+  var sg={};
+  if(gradesRes.data)gradesRes.data.forEach(function(g){var c=SUBJECT_CODES[g.subject_id];if(c)sg[c]=g.score;});
+
+  // Attendance
+  var att={presente:0,ausente:0,tardanza:0,justificado:0};
+  if(attendRes.data)attendRes.data.forEach(function(r){if(att[r.status]!==undefined)att[r.status]++;});
+
+  var html='';
+  var trName=gradesPeriodo==='1'?'1er':gradesPeriodo==='2'?'2do':'3er';
+
+  // ── Notas ──
+  var validVals=AREAS.map(function(a){return sg[a]!=null?parseFloat(sg[a]):null;}).filter(function(v){return v!==null;});
+  var prom=validVals.length?(validVals.reduce(function(a,b){return a+b;},0)/validVals.length).toFixed(1):'—';
+  var promCol=validVals.length&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
+  html+='<div style="margin-bottom:16px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Notas · '+trName+' Trimestre</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">';
+  AREAS.forEach(function(area){
+    var val=sg[area]!=null?parseFloat(sg[area]):null;
+    var low=val!==null&&val<APROBADO;
+    var bg=val===null?'var(--crema)':low?'#FDE8E8':'var(--verde-bg)';
+    var col=val===null?'var(--gris)':low?'#C0392B':'var(--verde)';
+    html+='<div style="background:'+bg+';border-radius:9px;padding:8px 4px;text-align:center;">'
+      +'<div style="font-size:9px;font-weight:700;color:var(--gris);margin-bottom:3px;">'+area+'</div>'
+      +'<div style="font-size:15px;font-weight:700;color:'+col+';">'+(val!==null?val:'—')+'</div></div>';
+  });
+  html+='<div style="background:'+promCol+';border-radius:9px;padding:8px 4px;text-align:center;">'
+    +'<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.75);margin-bottom:3px;">PROM</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#fff;">'+prom+'</div></div>';
+  html+='</div></div>';
+
+  // ── Asistencia ──
+  var total=att.presente+att.ausente+att.tardanza+att.justificado;
+  html+='<div style="margin-bottom:16px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Asistencia</div>';
+  if(!total){
+    html+='<div style="font-size:12px;color:var(--gris);padding:10px;text-align:center;">Sin registros de asistencia</div>';
+  }else{
+    var attItems=[
+      {l:'Presentes',k:'presente',col:'var(--verde)',bg:'var(--verde-bg)'},
+      {l:'Ausentes',k:'ausente',col:'#C0392B',bg:'#FDE8E8'},
+      {l:'Tardanzas',k:'tardanza',col:'var(--terracota)',bg:'#FDF0E8'},
+      {l:'Justif.',k:'justificado',col:'#2980B9',bg:'#EBF5FB'}
+    ];
+    html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">';
+    attItems.forEach(function(d){
+      html+='<div style="background:'+d.bg+';border-radius:9px;padding:8px 4px;text-align:center;">'
+        +'<div style="font-size:9px;font-weight:700;color:'+d.col+';margin-bottom:3px;">'+d.l.toUpperCase()+'</div>'
+        +'<div style="font-size:18px;font-weight:700;color:'+d.col+';">'+att[d.k]+'</div></div>';
+    });
+    html+='</div>';
+    var pctAtt=Math.round(att.presente/total*100);
+    html+='<div style="margin-top:8px;height:5px;background:var(--gris-claro);border-radius:3px;overflow:hidden;">'
+      +'<div style="width:'+pctAtt+'%;height:100%;background:var(--verde);border-radius:3px;"></div></div>'
+      +'<div style="font-size:10px;color:var(--gris);margin-top:4px;text-align:right;">'+pctAtt+'% de asistencia · '+total+' días registrados</div>';
+  }
+  html+='</div>';
+
+  // ── Perfil diferencial ──
+  if(s.has_differential){
+    html+='<div id="perf-dif-section" style="background:var(--crema);border-radius:12px;padding:14px;">';
+    html+='<div style="font-size:11px;font-weight:700;color:var(--terracota);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">⚡ Perfil diferencial</div>';
+    html+='<div style="font-size:11px;font-weight:600;color:var(--negro);margin-bottom:5px;">Descripción / Diagnóstico</div>';
+    html+='<textarea id="dif-descripcion" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;"></textarea>';
+    html+='<div style="font-size:11px;font-weight:600;color:var(--negro);margin:10px 0 5px;">Necesidades de aprendizaje</div>';
+    html+='<textarea id="dif-necesidades" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;"></textarea>';
+    html+='<div style="font-size:11px;font-weight:600;color:var(--negro);margin:10px 0 5px;">Adaptaciones pedagógicas</div>';
+    html+='<textarea id="dif-adaptaciones" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;"></textarea>';
+    html+='<div id="perf-dif-msg" style="font-size:11px;text-align:center;margin:8px 0;display:none;"></div>';
+    html+='<button onclick="guardarPerfilDif(\''+studentId+'\')" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit;">Guardar perfil diferencial</button>';
+    html+='</div>';
+  }
+
+  body.innerHTML=html;
+
+  if(s.has_differential&&diffRes.data){
+    document.getElementById('dif-descripcion').value=diffRes.data.descripcion||'';
+    document.getElementById('dif-necesidades').value=diffRes.data.necesidades||'';
+    document.getElementById('dif-adaptaciones').value=diffRes.data.adaptaciones||'';
+  }
+}
+
+async function guardarPerfilDif(studentId){
+  if(!window.__sb)return;
+  var btn=document.querySelector('#perf-dif-section button');
+  var msg=document.getElementById('perf-dif-msg');
+  btn.disabled=true;btn.textContent='Guardando…';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user){btn.disabled=false;btn.textContent='Guardar perfil diferencial';return;}
+  var res=await window.__sb.from('differential_profiles').upsert({
+    student_id:studentId,
+    teacher_id:user.id,
+    descripcion:document.getElementById('dif-descripcion').value,
+    necesidades:document.getElementById('dif-necesidades').value,
+    adaptaciones:document.getElementById('dif-adaptaciones').value,
+    updated_at:new Date().toISOString()
+  },{onConflict:'student_id'});
+  btn.disabled=false;btn.textContent='Guardar perfil diferencial';
+  msg.style.display='block';
+  if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
+  else{msg.style.color='var(--terracota)';msg.textContent='✅ Perfil guardado';setTimeout(function(){msg.style.display='none';},3000);}
+}
 
 
 var fichasGuardadas = JSON.parse(localStorage.getItem('huellaed_fichas') || '{}');
