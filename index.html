@@ -2830,34 +2830,41 @@ function descargarCuadernillo(){
   var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',planificacion:'Planificacion',evaluacion:'Evaluacion',repaso:'Repaso',problemas:'Problemas',proyecto:'Proyecto'};
   var tituloLabel=(tipos[tipoSel]||'Material')+(area?' · '+area:'')+(tema?' · '+tema:'');
   var nombreArchivo=(tipos[tipoSel]||'material').toLowerCase()+'-'+tema.slice(0,30).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'.html';
-  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title><style>'
-    +'*{box-sizing:border-box;}body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 28px;font-size:13px;line-height:1.85;color:#222;}'
-    +'h1{font-size:20px;color:#2D5F4F;border-bottom:2px solid #2D5F4F;padding-bottom:7px;margin:20px 0 10px;}'
-    +'h2{font-size:16px;color:#2D5F4F;margin:20px 0 8px;}'
-    +'h3{font-size:14px;font-weight:bold;margin:16px 0 6px;}'
-    +'p{margin:0 0 10px;}ul,ol{margin:5px 0 12px 22px;padding:0;}li{margin-bottom:4px;}'
-    +'hr{border:none;border-top:1px solid #ccc;margin:18px 0;}'
-    +'code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:11px;}'
-    +'.doc-header{text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:12px;margin-bottom:22px;}'
-    +'.doc-header .escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}'
-    +'.doc-header h1{border:none;margin:4px 0;font-size:19px;}'
-    +'.doc-header .meta{font-size:11px;color:#888;margin-top:4px;}'
-    +'@media print{body{margin:15mm 20mm;}}'
-    +'</style></head><body>'
-    +'<div class="doc-header">'
-    +'<div class="escuela">Escuela La Concepción · 6to Grado · 2026</div>'
-    +'<h1>'+escHtml(tituloLabel)+'</h1>'
-    +'<div class="meta">HuellaED · '+new Date().toLocaleDateString('es-AR')+'</div>'
-    +'</div>'
-    +markdownToHtml(_genAiRawText)
-      .replace(/var\(--verde\)/g,'#2D5F4F')
+  var raw=_genAiRawText.trim();
+  function fixCssVars(s){
+    return s.replace(/var\(--verde\)/g,'#2D5F4F')
       .replace(/var\(--crema\)/g,'#F5F2EE')
       .replace(/var\(--gris-claro\)/g,'#E8E4DF')
       .replace(/var\(--negro\)/g,'#2D3A35')
       .replace(/var\(--terracota\)/g,'#C8845A')
-      .replace(/var\(--gris\)/g,'#8A7E6A')
-      .replace(/`/g,'')
-    +'</body></html>';
+      .replace(/var\(--gris\)/g,'#8A7E6A');
+  }
+  var doc;
+  if(/^<!DOCTYPE html>/i.test(raw)||/^<html/i.test(raw)){
+    doc=fixCssVars(raw);
+  }else{
+    doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title><style>'
+      +'*{box-sizing:border-box;}body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 28px;font-size:13px;line-height:1.85;color:#222;}'
+      +'h1{font-size:20px;color:#2D5F4F;border-bottom:2px solid #2D5F4F;padding-bottom:7px;margin:20px 0 10px;}'
+      +'h2{font-size:16px;color:#2D5F4F;margin:20px 0 8px;}'
+      +'h3{font-size:14px;font-weight:bold;margin:16px 0 6px;}'
+      +'p{margin:0 0 10px;}ul,ol{margin:5px 0 12px 22px;padding:0;}li{margin-bottom:4px;}'
+      +'hr{border:none;border-top:1px solid #ccc;margin:18px 0;}'
+      +'code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:11px;}'
+      +'.doc-header{text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:12px;margin-bottom:22px;}'
+      +'.doc-header .escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}'
+      +'.doc-header h1{border:none;margin:4px 0;font-size:19px;}'
+      +'.doc-header .meta{font-size:11px;color:#888;margin-top:4px;}'
+      +'@media print{body{margin:15mm 20mm;}}'
+      +'</style></head><body>'
+      +'<div class="doc-header">'
+      +'<div class="escuela">Escuela La Concepción · 6to Grado · 2026</div>'
+      +'<h1>'+escHtml(tituloLabel)+'</h1>'
+      +'<div class="meta">HuellaED · '+new Date().toLocaleDateString('es-AR')+'</div>'
+      +'</div>'
+      +fixCssVars(markdownToHtml(raw).replace(/`/g,''))
+      +'</body></html>';
+  }
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
