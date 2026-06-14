@@ -1611,17 +1611,14 @@ async function generarPerfilAcademico(studentId){
   var msg=document.getElementById('perf-ia-msg');
   if(!window.__sb){console.warn('[HuellaED] window.__sb no disponible');return;}
 
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  console.log('[HuellaED] API key en localStorage:', apiKey?'presente ('+apiKey.slice(0,8)+'…)':'ausente');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
-
   btn.disabled=true;btn.textContent='Generando…';
   resultado.style.display='none';
   msg.style.display='none';
 
-  var user=(await window.__sb.auth.getUser()).data.user;
-  console.log('[HuellaED] usuario autenticado:', user?user.id:'ninguno');
-  if(!user){btn.disabled=false;btn.textContent='🤖 Generar perfil académico';return;}
+  var session=(await window.__sb.auth.getSession()).data.session;
+  console.log('[HuellaED] sesión:', session?'activa':'ninguna');
+  if(!session){btn.disabled=false;btn.textContent='🤖 Generar perfil académico';return;}
+  var user=session.user;
 
   var s=(window.__students||[]).find(function(x){return x.id===studentId;});
   var nombre=s?s.full_name:'Alumno';
@@ -1692,18 +1689,22 @@ async function generarPerfilAcademico(studentId){
     +'Usá lenguaje formal pero accesible, apropiado para un informe pedagógico de nivel primario. '
     +'Sé concreto y basate únicamente en los datos provistos.';
 
-  console.log('[HuellaED] enviando prompt a Claude (%d chars)', prompt.length);
+  console.log('[HuellaED] enviando prompt a Edge Function (%d chars)', prompt.length);
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
+    var res=await fetch('https://wrrertkbvyjffezkosuc.supabase.co/functions/v1/generar-perfil',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2048,messages:[{role:'user',content:prompt}]})
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+session.access_token,
+        'apikey':'sb_publishable_5-iJgzv8wim_t7Kdc_1Avg_tP1OwH7s'
+      },
+      body:JSON.stringify({prompt:prompt})
     });
-    console.log('[HuellaED] respuesta HTTP:', res.status, res.ok?'OK':'ERROR');
-    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    console.log('[HuellaED] respuesta Edge Function:', res.status, res.ok?'OK':'ERROR');
     var data=await res.json();
-    console.log('[HuellaED] respuesta de Claude recibida (%d chars)', data.content[0].text.length);
-    _perfilIaRawText=data.content[0].text;
+    if(!res.ok)throw new Error(data.error||'Error '+res.status);
+    console.log('[HuellaED] texto recibido (%d chars)', (data.text||'').length);
+    _perfilIaRawText=data.text;
     textDiv.innerHTML=markdownToHtml(_perfilIaRawText);
     resultado.style.display='block';
   }catch(e){
