@@ -2615,7 +2615,7 @@ function cerrarGenerador(){document.getElementById('modal-generador').style.disp
 function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;var esP=t==='proyecto';document.getElementById('gen-area-row').style.display=esP?'none':'block';document.getElementById('gen-areas-multi-row').style.display=esP?'block':'none';if(t==='problemas')document.getElementById('gen-area').value='Matemática';}
 function toggleSoloDif(){soloDif=document.getElementById('solo-diferenciadas').checked;document.getElementById('gen-nota-general').style.display=soloDif?'none':'block';}
 function toggleAlumnoEsp(el,n,t,p){var idx=alumnosEsp.findIndex(a=>a.nombre===n);if(idx>=0){alumnosEsp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check-icon').textContent='☐';}else{alumnosEsp.push({nombre:n,tipo:t,perfil:p});el.classList.add('selected');el.querySelector('.check-icon').textContent='☑';}}
-function armarTextoPrompt(){
+async function armarTextoPrompt(){
   var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
   if(!tipoSel){alert('Seleccioná el tipo');return null;}
   if(!tema){alert('Escribí el tema');return null;}
@@ -2630,18 +2630,47 @@ function armarTextoPrompt(){
   if(tipoSel==='problemas')p+='\nEntre 4 y 6 problemas articulados, contextos cotidianos.';
   if(tipoSel==='proyecto')p+='\n2-3 semanas, producto final, momentos grupales e individuales.';
   if(alumnosEsp.length>0){
+    var studentIds=alumnosEsp.map(function(a){
+      var s=(window.__students||[]).find(function(x){return x.full_name===a.nombre;});
+      return s?s.id:null;
+    }).filter(Boolean);
+    var diffMap={},boletinMap={};
+    if(studentIds.length&&window.__sb){
+      var sbUser=(await window.__sb.auth.getUser()).data.user;
+      if(sbUser){
+        var [diffRes,boletinRes]=await Promise.all([
+          window.__sb.from('differential_profiles').select('student_id,descripcion,necesidades,adaptaciones').in('student_id',studentIds),
+          window.__sb.from('informes_boletin').select('student_id,contenido').in('student_id',studentIds).eq('trimestre',1)
+        ]);
+        (diffRes.data||[]).forEach(function(r){diffMap[r.student_id]=r;});
+        (boletinRes.data||[]).forEach(function(r){boletinMap[r.student_id]=r.contenido;});
+      }
+    }
     p+='\n\nVERSIONES DIFERENCIADAS:\n';
     alumnosEsp.forEach(function(a){
+      var s=(window.__students||[]).find(function(x){return x.full_name===a.nombre;});
       var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos — NEE con diagnóstico)':'ADECUACIÓN (mantiene objetivos, cambia forma/apoyo)';
-      p+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';
+      p+='• '+a.nombre+' — '+tl+'\n';
+      var hasData=false;
+      if(s){
+        var diff=diffMap[s.id];
+        if(diff){
+          if(diff.descripcion&&diff.descripcion.trim()){p+='  Descripción: '+diff.descripcion.trim()+'\n';hasData=true;}
+          if(diff.necesidades&&diff.necesidades.trim()){p+='  Necesidades de aprendizaje: '+diff.necesidades.trim()+'\n';hasData=true;}
+          if(diff.adaptaciones&&diff.adaptaciones.trim()){p+='  Adaptaciones pedagógicas: '+diff.adaptaciones.trim()+'\n';hasData=true;}
+        }
+        var boletin=boletinMap[s.id];
+        if(boletin&&boletin.trim()){p+='  Informe 1er trimestre: '+boletin.trim()+'\n';hasData=true;}
+      }
+      if(!hasData)p+='  '+a.perfil+'\n';
     });
-    p+='\nCada versión con nota pedagógica breve.';
+    p+='\nCada versión diferenciada con nota pedagógica breve.';
   }
-  if(det)p+='\n\nDetalles: '+det;
+  if(det)p+='\n\nDetalles adicionales: '+det;
   return p;
 }
-function generarPrompt(){
-  var p=armarTextoPrompt();
+async function generarPrompt(){
+  var p=await armarTextoPrompt();
   if(!p)return;
   document.getElementById('gen-ai-resultado').style.display='none';
   document.getElementById('gen-prompt-text').textContent=p;
@@ -2649,7 +2678,7 @@ function generarPrompt(){
   document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
 }
 async function generarConIA(){
-  var p=armarTextoPrompt();
+  var p=await armarTextoPrompt();
   if(!p)return;
   document.getElementById('gen-resultado').style.display='none';
   await enviarAClaudeConArchivo(p);
