@@ -1604,13 +1604,15 @@ var _perfilIaRawText='';
 var AREA_NAMES={L:'Prácticas del Lenguaje',M:'Matemática',CS:'Cs. Sociales',CN:'Cs. Naturales',I:'Inglés',EA:'Ed. Artística',EF:'Ed. Física'};
 
 async function generarPerfilAcademico(studentId){
+  console.log('[HuellaED] generarPerfilAcademico iniciada, studentId:', studentId);
   var btn=document.getElementById('perf-ia-btn');
   var resultado=document.getElementById('perf-ia-resultado');
   var textDiv=document.getElementById('perf-ia-text');
   var msg=document.getElementById('perf-ia-msg');
-  if(!window.__sb)return;
+  if(!window.__sb){console.warn('[HuellaED] window.__sb no disponible');return;}
 
   var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  console.log('[HuellaED] API key en localStorage:', apiKey?'presente ('+apiKey.slice(0,8)+'…)':'ausente');
   if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
 
   btn.disabled=true;btn.textContent='Generando…';
@@ -1618,16 +1620,19 @@ async function generarPerfilAcademico(studentId){
   msg.style.display='none';
 
   var user=(await window.__sb.auth.getUser()).data.user;
+  console.log('[HuellaED] usuario autenticado:', user?user.id:'ninguno');
   if(!user){btn.disabled=false;btn.textContent='🤖 Generar perfil académico';return;}
 
   var s=(window.__students||[]).find(function(x){return x.id===studentId;});
   var nombre=s?s.full_name:'Alumno';
+  console.log('[HuellaED] alumno:', nombre, '| período:', gradesPeriodo);
 
   var [gradesRes,obsRes,diffRes]=await Promise.all([
     window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
     window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
     window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
   ]);
+  console.log('[HuellaED] datos obtenidos — notas:', gradesRes.data?.length??0, '| obs:', obsRes.data?.length??0, '| perfil diferencial:', diffRes.data?'sí':'no');
 
   // Notas
   var notasLineas=[];
@@ -1687,14 +1692,17 @@ async function generarPerfilAcademico(studentId){
     +'Usá lenguaje formal pero accesible, apropiado para un informe pedagógico de nivel primario. '
     +'Sé concreto y basate únicamente en los datos provistos.';
 
+  console.log('[HuellaED] enviando prompt a Claude (%d chars)', prompt.length);
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2048,messages:[{role:'user',content:prompt}]})
     });
+    console.log('[HuellaED] respuesta HTTP:', res.status, res.ok?'OK':'ERROR');
     if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
     var data=await res.json();
+    console.log('[HuellaED] respuesta de Claude recibida (%d chars)', data.content[0].text.length);
     _perfilIaRawText=data.content[0].text;
     textDiv.innerHTML=markdownToHtml(_perfilIaRawText);
     resultado.style.display='block';
