@@ -170,10 +170,10 @@
 
   <!-- EL GRUPO -->
   <div class="grid grid-2" style="margin-bottom:4px;">
-    <a class="card" href=?authuser=0"https://docs.google.com/document/d/1uIrhqdqK2eFwVX-EwJl14ovgNoKSOzQah6YP2mS58kg" target="_blank" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);">
+    <div class="card" onclick="abrirAula()" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);cursor:pointer;">
       <div class="card-icon ic-v" style="width:52px;height:52px;font-size:26px;">🏫</div>
       <div><strong style="font-size:13px;">Perfil Áulico</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;">El grupo completo</span></div>
-    </a>
+    </div>
     <div class="card" onclick="toggleGrupo('perfiles')" id="btn-perfiles" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);cursor:pointer;">
       <div class="card-icon ic-v" style="width:52px;height:52px;font-size:26px;">👤</div>
       <div><strong style="font-size:13px;">Perfiles individuales</strong><span style="display:block;font-size:11px;color:var(--gris);margin-top:2px;"><span id="students-count">—</span> alumnos</span></div>
@@ -544,6 +544,20 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <button onclick="cerrarPerfilAcademico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
     </div>
     <div id="perf-body" style="padding:18px;max-height:72vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- PERFIL ÁULICO -->
+<div id="modal-aula" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff;">🏫 Perfil Áulico</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">6° Año · Escuela La Concepción</div>
+      </div>
+      <button onclick="cerrarAula()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="aula-body" style="padding:18px;max-height:76vh;overflow-y:auto;"></div>
   </div>
 </div>
 
@@ -1105,6 +1119,155 @@ function copiarPromptBoletin(){ navigator.clipboard.writeText(document.getElemen
 
 
 function cerrarPerfilAcademico(){ document.getElementById('modal-perfil-academico').style.display='none'; }
+
+// ── PERFIL ÁULICO ──
+function cerrarAula(){ document.getElementById('modal-aula').style.display='none'; }
+
+function cambiarPeriodoAula(p){
+  gradesPeriodo=p;
+  ['1','2','3'].forEach(function(n){
+    var b=document.getElementById('notas-p'+n);if(b)b.className='tab-btn'+(n===p?' active':'');
+  });
+  abrirAula();
+}
+
+async function abrirAula(){
+  document.getElementById('modal-aula').style.display='block';
+  var body=document.getElementById('aula-body');
+  body.innerHTML='<div style="text-align:center;padding:32px;color:var(--gris);font-size:13px;">Cargando estadísticas…</div>';
+  if(!window.__sb||!window.__students){body.innerHTML='<div style="text-align:center;padding:16px;color:var(--gris);">Sin datos disponibles</div>';return;}
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var trName=gradesPeriodo==='1'?'1er':gradesPeriodo==='2'?'2do':'3er';
+
+  var results=await Promise.all([
+    window.__sb.from('grades').select('student_id,subject_id,score').eq('teacher_id',user.id).eq('period',gradesPeriodo),
+    window.__sb.from('attendance').select('student_id,status').eq('teacher_id',user.id)
+  ]);
+  var gradesRes=results[0],attendRes=results[1];
+
+  // ── Procesar notas ──
+  var bySubject={};AREAS.forEach(function(a){bySubject[a]=[];});
+  var byStudent={};
+  if(gradesRes.data){
+    gradesRes.data.forEach(function(g){
+      var code=SUBJECT_CODES[g.subject_id];if(!code||g.score==null)return;
+      bySubject[code].push(parseFloat(g.score));
+      if(!byStudent[g.student_id])byStudent[g.student_id]={};
+      byStudent[g.student_id][code]=parseFloat(g.score);
+    });
+  }
+  var allScores=[];AREAS.forEach(function(a){bySubject[a].forEach(function(v){allScores.push(v);});});
+  var promGeneral=allScores.length?(allScores.reduce(function(a,b){return a+b;},0)/allScores.length).toFixed(1):'—';
+  var enRiesgo=window.__students.filter(function(s){
+    if(!byStudent[s.id])return false;
+    return AREAS.filter(function(a){return byStudent[s.id][a]!=null&&byStudent[s.id][a]<APROBADO;}).length>=2;
+  }).length;
+  var todosAprob=window.__students.filter(function(s){
+    if(!byStudent[s.id])return false;
+    var sc=AREAS.map(function(a){return byStudent[s.id][a];}).filter(function(v){return v!=null;});
+    return sc.length===AREAS.length&&sc.every(function(v){return v>=APROBADO;});
+  }).length;
+
+  // ── Procesar asistencia ──
+  var attByStudent={};
+  if(attendRes.data){
+    attendRes.data.forEach(function(r){
+      if(!attByStudent[r.student_id])attByStudent[r.student_id]={presente:0,ausente:0,tardanza:0,justificado:0};
+      if(attByStudent[r.student_id][r.status]!==undefined)attByStudent[r.student_id][r.status]++;
+    });
+  }
+  var totalPres=0,totalDias=0,alertasAtt=0;
+  window.__students.forEach(function(s){
+    var a=attByStudent[s.id]||{presente:0,ausente:0,tardanza:0,justificado:0};
+    var tot=a.presente+a.ausente+a.tardanza+a.justificado;
+    totalDias+=tot;totalPres+=a.presente;
+    if((a.ausente+a.justificado)>=10)alertasAtt++;
+  });
+  var pctAtt=totalDias?Math.round(totalPres/totalDias*100):0;
+
+  var html='';
+
+  // Tabs de trimestre
+  html+='<div style="display:flex;gap:6px;margin-bottom:16px;">';
+  ['1','2','3'].forEach(function(p){
+    html+='<button onclick="cambiarPeriodoAula(\''+p+'\')" class="tab-btn'+(p===gradesPeriodo?' active':'')+'">'+
+      (p==='1'?'1er':p==='2'?'2do':'3er')+' Trim.</button>';
+  });
+  html+='</div>';
+
+  // Resumen general
+  var promCol=promGeneral!=='—'&&parseFloat(promGeneral)>=APROBADO?'var(--verde)':'#C0392B';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">';
+  html+='<div style="background:var(--verde-bg);border-radius:12px;padding:14px;text-align:center;">'
+    +'<div style="font-size:22px;font-weight:700;color:'+promCol+';">'+promGeneral+'</div>'
+    +'<div style="font-size:10px;color:var(--gris);margin-top:3px;">Prom. general</div></div>';
+  html+='<div style="background:'+(enRiesgo>0?'#FDE8E8':'var(--verde-bg)')+';border-radius:12px;padding:14px;text-align:center;">'
+    +'<div style="font-size:22px;font-weight:700;color:'+(enRiesgo>0?'#C0392B':'var(--verde)')+';">'+enRiesgo+'</div>'
+    +'<div style="font-size:10px;color:var(--gris);margin-top:3px;">En riesgo (2+)</div></div>';
+  html+='<div style="background:var(--verde-bg);border-radius:12px;padding:14px;text-align:center;">'
+    +'<div style="font-size:22px;font-weight:700;color:var(--verde);">'+todosAprob+'</div>'
+    +'<div style="font-size:10px;color:var(--gris);margin-top:3px;">Todo aprobado</div></div>';
+  html+='</div>';
+
+  // % aprobados por materia
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Aprobados por materia · '+trName+' Trim.</div>';
+  html+='<div style="margin-bottom:16px;">';
+  AREAS.forEach(function(area){
+    var vals=bySubject[area];
+    if(!vals.length){
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+        +'<div style="width:28px;font-size:10px;font-weight:700;">'+area+'</div>'
+        +'<div style="flex:1;height:8px;background:var(--gris-claro);border-radius:4px;"></div>'
+        +'<div style="font-size:10px;color:var(--gris);width:60px;">Sin datos</div></div>';
+      return;
+    }
+    var prom=(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1);
+    var aprobados=vals.filter(function(v){return v>=APROBADO;}).length;
+    var pct=Math.round(aprobados/vals.length*100);
+    var col=pct>=80?'var(--verde)':pct>=60?'var(--terracota)':'#C0392B';
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+      +'<div style="width:28px;font-size:10px;font-weight:700;">'+area+'</div>'
+      +'<div style="flex:1;height:8px;background:var(--gris-claro);border-radius:4px;overflow:hidden;">'
+      +'<div style="width:'+pct+'%;height:100%;background:'+col+';border-radius:4px;"></div></div>'
+      +'<div style="font-size:10px;font-weight:700;color:'+col+';width:60px;">'+pct+'% · '+prom+'</div></div>';
+  });
+  html+='</div>';
+
+  // Asistencia grupal
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Asistencia grupal</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
+  var attCol=pctAtt>=85?'var(--verde)':pctAtt>=70?'var(--terracota)':'#C0392B';
+  html+='<div style="background:var(--verde-bg);border-radius:12px;padding:14px;text-align:center;">'
+    +'<div style="font-size:22px;font-weight:700;color:'+attCol+';">'+pctAtt+'%</div>'
+    +'<div style="font-size:10px;color:var(--gris);margin-top:3px;">Asistencia global</div></div>';
+  html+='<div style="background:'+(alertasAtt>0?'#FDE8E8':'var(--verde-bg)')+';border-radius:12px;padding:14px;text-align:center;">'
+    +'<div style="font-size:22px;font-weight:700;color:'+(alertasAtt>0?'#C0392B':'var(--verde)')+';">'+alertasAtt+'</div>'
+    +'<div style="font-size:10px;color:var(--gris);margin-top:3px;">Alertas (+10 aus.)</div></div>';
+  html+='</div>';
+
+  // Peores 5 asistencias
+  if(totalDias>0){
+    var ranked=window.__students.map(function(s){
+      var a=attByStudent[s.id]||{presente:0,ausente:0,tardanza:0,justificado:0};
+      var tot=a.presente+a.ausente+a.tardanza+a.justificado;
+      return {name:s.full_name,pct:tot?Math.round(a.presente/tot*100):null,tot:tot};
+    }).filter(function(s){return s.tot>0;}).sort(function(a,b){return a.pct-b.pct;}).slice(0,5);
+    if(ranked.length){
+      html+='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Menor asistencia</div>';
+      ranked.forEach(function(s){
+        var col=s.pct>=85?'var(--verde)':s.pct>=70?'var(--terracota)':'#C0392B';
+        html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+          +'<div style="font-size:10px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.name+'</div>'
+          +'<div style="width:80px;height:5px;background:var(--gris-claro);border-radius:3px;overflow:hidden;">'
+          +'<div style="width:'+s.pct+'%;height:100%;background:'+col+';border-radius:3px;"></div></div>'
+          +'<div style="font-size:10px;font-weight:700;color:'+col+';width:32px;text-align:right;">'+s.pct+'%</div></div>';
+      });
+    }
+  }
+
+  body.innerHTML=html;
+}
 
 async function abrirPerfilAcademico(studentId){
   var s=(window.__students||[]).find(function(st){return st.id===studentId;});
