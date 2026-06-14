@@ -1621,11 +1621,11 @@ async function cargarInformesBoletin(studentId){
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
   var {data}=await window.__sb.from('informes_boletin')
-    .select('trimestre,content')
+    .select('trimestre,contenido')
     .eq('student_id',studentId)
     .eq('teacher_id',user.id);
   _boletinData={};
-  (data||[]).forEach(function(r){_boletinData[r.trimestre]=r.content;});
+  (data||[]).forEach(function(r){_boletinData[String(r.trimestre)]=r.contenido;});
   // Actualizar badges en los botones
   ['1','2','3'].forEach(function(t){
     var btn=document.getElementById('btn-boletin-'+t);
@@ -1785,8 +1785,8 @@ async function _guardarBoletin(studentId,trimestre,texto,msg){
   if(!user)return;
   if(msg){msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';msg.style.background='transparent';}
   var {error}=await window.__sb.from('informes_boletin').upsert({
-    student_id:studentId,teacher_id:user.id,trimestre:trimestre,
-    content:texto,updated_at:new Date().toISOString()
+    student_id:studentId,teacher_id:user.id,trimestre:parseInt(trimestre,10),
+    contenido:texto,updated_at:new Date().toISOString()
   },{onConflict:'student_id,trimestre'});
   if(error){
     if(msg){msg.style.color='#C0392B';msg.style.background='#FDE8E8';msg.textContent='Error: '+error.message;}
