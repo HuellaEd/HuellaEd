@@ -1409,6 +1409,15 @@ async function abrirPerfilAcademico(studentId){
     html+='</div>';
   }
 
+  // ── Observaciones ──
+  html+='<div style="margin-bottom:16px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Observaciones</div>';
+  html+='<div id="obs-lista"><div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Cargando…</div></div>';
+  html+='<textarea id="obs-nueva" rows="2" placeholder="Escribí una observación…" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:#fff;margin-top:10px;"></textarea>';
+  html+='<div id="obs-msg" style="font-size:11px;text-align:center;display:none;margin:5px 0;"></div>';
+  html+='<button onclick="guardarObservacionAlumno()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;">Guardar observación</button>';
+  html+='</div>';
+
   // ── Archivos y evidencias ──
   html+='<div style="margin-top:0;">';
   html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Archivos y evidencias</div>';
@@ -1431,6 +1440,7 @@ async function abrirPerfilAcademico(studentId){
     document.getElementById('dif-adaptaciones').value=diffRes.data.adaptaciones||'';
   }
 
+  cargarObservacionesAlumno();
   cargarArchivosAlumno();
 }
 
@@ -1456,6 +1466,59 @@ async function guardarPerfilDif(studentId){
 }
 
 // ── ARCHIVOS Y EVIDENCIAS ──
+async function cargarObservacionesAlumno(){
+  var lista=document.getElementById('obs-lista');
+  if(!lista||!window.__sb||!_perfilStudentId)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {data}=await window.__sb.from('notas_rapidas')
+    .select('id,texto,fecha,created_at')
+    .eq('user_id',user.id)
+    .eq('student_id',_perfilStudentId)
+    .order('created_at',{ascending:false})
+    .limit(20);
+  if(!data||!data.length){
+    lista.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin observaciones registradas</div>';
+    return;
+  }
+  lista.innerHTML=data.map(function(n){
+    var fecha=n.fecha||new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    return '<div style="background:var(--crema);border-radius:9px;padding:9px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">'
+      +'<div style="font-size:10px;color:var(--gris);margin-bottom:3px;">'+fecha+'</div>'
+      +'<div style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.texto+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+async function guardarObservacionAlumno(){
+  if(!window.__sb||!_perfilStudentId)return;
+  var ta=document.getElementById('obs-nueva');
+  var txt=ta?ta.value.trim():'';
+  if(!txt){alert('Escribí una observación');return;}
+  var msg=document.getElementById('obs-msg');
+  msg.style.display='block';msg.style.color='var(--gris)';msg.textContent='Guardando…';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var fecha=new Date().toLocaleDateString('es-AR');
+  var {error}=await window.__sb.from('notas_rapidas').insert({
+    id:Date.now(),
+    user_id:user.id,
+    teacher_id:user.id,
+    student_id:_perfilStudentId,
+    fecha:fecha,
+    destino:'alumno',
+    alumno:'',
+    texto:txt
+  });
+  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
+  else{
+    msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada';
+    ta.value='';
+    setTimeout(function(){msg.style.display='none';},3000);
+    cargarObservacionesAlumno();
+  }
+}
+
 async function cargarArchivosAlumno(){
   var lista=document.getElementById('archivos-lista');
   if(!lista||!window.__sb||!_perfilStudentId||!_perfilUserId)return;
