@@ -1538,6 +1538,20 @@ async function abrirPerfilAcademico(studentId){
     }
   }
 
+  // ── Perfil académico IA ──
+  html+='<div style="margin-bottom:16px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Perfil académico</div>';
+  html+='<button id="perf-ia-btn" onclick="generarPerfilAcademico(\''+studentId+'\')" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;">🤖 Generar perfil académico</button>';
+  html+='<div id="perf-ia-resultado" style="display:none;">';
+  html+='<div id="perf-ia-text" style="background:var(--crema);border-radius:10px;padding:12px;font-size:12px;color:var(--negro);line-height:1.6;max-height:420px;overflow-y:auto;margin-bottom:8px;"></div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;">';
+  html+='<button onclick="copiarPerfilIa()" class="sec-btn">📋 Copiar</button>';
+  html+='<button onclick="guardarPerfilIa(\''+studentId+'\')" class="save-btn">💾 Guardar</button>';
+  html+='</div>';
+  html+='<div id="perf-ia-msg" style="font-size:11px;text-align:center;display:none;border-radius:8px;padding:5px;"></div>';
+  html+='</div>';
+  html+='</div>';
+
   // ── Archivos y evidencias ──
   html+='<div style="margin-top:0;">';
   html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Archivos y evidencias</div>';
@@ -1583,6 +1597,136 @@ async function guardarPerfilDif(studentId){
   msg.style.display='block';
   if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
   else{msg.style.color='var(--terracota)';msg.textContent='✅ Perfil guardado';setTimeout(function(){msg.style.display='none';},3000);}
+}
+
+// ── PERFIL ACADÉMICO IA ──
+var _perfilIaRawText='';
+var AREA_NAMES={L:'Prácticas del Lenguaje',M:'Matemática',CS:'Cs. Sociales',CN:'Cs. Naturales',I:'Inglés',EA:'Ed. Artística',EF:'Ed. Física'};
+
+async function generarPerfilAcademico(studentId){
+  var btn=document.getElementById('perf-ia-btn');
+  var resultado=document.getElementById('perf-ia-resultado');
+  var textDiv=document.getElementById('perf-ia-text');
+  var msg=document.getElementById('perf-ia-msg');
+  if(!window.__sb)return;
+
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+
+  btn.disabled=true;btn.textContent='Generando…';
+  resultado.style.display='none';
+  msg.style.display='none';
+
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user){btn.disabled=false;btn.textContent='🤖 Generar perfil académico';return;}
+
+  var s=(window.__students||[]).find(function(x){return x.id===studentId;});
+  var nombre=s?s.full_name:'Alumno';
+
+  var [gradesRes,obsRes,diffRes]=await Promise.all([
+    window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
+    window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
+    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+  ]);
+
+  // Notas
+  var notasLineas=[];
+  if(gradesRes.data&&gradesRes.data.length){
+    gradesRes.data.forEach(function(g){
+      var code=SUBJECT_CODES[g.subject_id];
+      if(code)notasLineas.push((AREA_NAMES[code]||code)+': '+(g.score!=null?g.score:'sin nota'));
+    });
+  }
+  var trName=gradesPeriodo==='1'?'1er':gradesPeriodo==='2'?'2do':'3er';
+  var notasBloque=notasLineas.length
+    ?'NOTAS ('+trName+' trimestre):\n'+notasLineas.join('\n')
+    :'Sin notas cargadas aún.';
+
+  // Observaciones
+  var obsBloque='Sin observaciones registradas.';
+  if(obsRes.data&&obsRes.data.length){
+    obsBloque='OBSERVACIONES DEL DOCENTE:\n'+obsRes.data.map(function(o){
+      var fecha=o.created_at?new Date(o.created_at).toLocaleDateString('es-AR'):'';
+      return (fecha?'['+fecha+'] ':'')+o.content;
+    }).join('\n');
+  }
+
+  // Ficha diferencial
+  var fichaBloque='';
+  var fd=diffRes.data;
+  if(fd){
+    var partes=[];
+    if(fd.primera_impresion&&fd.primera_impresion.trim())partes.push('Primera impresión: '+fd.primera_impresion.trim());
+    if(fd.como_aprende&&fd.como_aprende.trim())partes.push('Cómo aprende: '+fd.como_aprende.trim());
+    if(fd.matematica&&fd.matematica.replace(/\|/g,'').trim()){
+      var subs=fd.matematica.split('|||');
+      var subLabels=['Qué sale bien en matemática','Dónde se traba','Qué funciona'];
+      subs.forEach(function(s,i){if(s.trim())partes.push(subLabels[i]+': '+s.trim());});
+    }
+    if(fd.lectura_escritura&&fd.lectura_escritura.trim())partes.push('Lectura y escritura: '+fd.lectura_escritura.trim());
+    if(fd.funciona_no&&fd.funciona_no.replace(/\|/g,'').trim()){
+      var subs2=fd.funciona_no.split('|||');
+      var subLabels2=['Lo que funciona','Lo que hay que evitar','Tipo de apoyo'];
+      subs2.forEach(function(s,i){if(s.trim())partes.push(subLabels2[i]+': '+s.trim());});
+    }
+    if(fd.algo_mas&&fd.algo_mas.trim())partes.push('Algo más: '+fd.algo_mas.trim());
+    if(partes.length)fichaBloque='FICHA DE CONOCIMIENTO DEL ALUMNO:\n'+partes.join('\n');
+  }
+
+  var prompt='Sos un asistente pedagógico especializado en educación primaria argentina.\n'
+    +'Generá un perfil académico formal del siguiente alumno de 6to grado para una docente.\n\n'
+    +'ALUMNO: '+nombre+'\n\n'
+    +notasBloque+'\n\n'
+    +obsBloque+'\n\n'
+    +(fichaBloque?fichaBloque+'\n\n':'')
+    +'Redactá el perfil con las siguientes secciones claramente diferenciadas:\n'
+    +'1. FORTALEZAS\n'
+    +'2. DIFICULTADES POR ÁREA\n'
+    +'3. ESTRATEGIAS RECOMENDADAS\n'
+    +'4. OBSERVACIONES GENERALES\n\n'
+    +'Usá lenguaje formal pero accesible, apropiado para un informe pedagógico de nivel primario. '
+    +'Sé concreto y basate únicamente en los datos provistos.';
+
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2048,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    _perfilIaRawText=data.content[0].text;
+    textDiv.innerHTML=markdownToHtml(_perfilIaRawText);
+    resultado.style.display='block';
+  }catch(e){
+    msg.textContent='Error: '+e.message;msg.style.display='block';msg.style.color='#C0392B';
+    msg.style.background='#FDE8E8';
+  }
+  btn.disabled=false;btn.textContent='🤖 Generar perfil académico';
+}
+
+function copiarPerfilIa(){
+  navigator.clipboard.writeText(_perfilIaRawText).then(function(){
+    var msg=document.getElementById('perf-ia-msg');
+    msg.textContent='✅ Copiado al portapapeles';msg.style.display='block';
+    msg.style.color='var(--verde)';msg.style.background='#e6f4ea';
+    setTimeout(function(){msg.style.display='none';},3000);
+  });
+}
+
+async function guardarPerfilIa(studentId){
+  if(!_perfilIaRawText||!window.__sb)return;
+  var msg=document.getElementById('perf-ia-msg');
+  msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';msg.style.background='transparent';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('differential_profiles').upsert({
+    student_id:studentId,teacher_id:user.id,
+    descripcion:_perfilIaRawText,
+    updated_at:new Date().toISOString()
+  },{onConflict:'student_id'});
+  if(error){msg.style.color='#C0392B';msg.style.background='#FDE8E8';msg.textContent='Error: '+error.message;}
+  else{msg.style.color='var(--verde)';msg.style.background='#e6f4ea';msg.textContent='✅ Perfil guardado en Supabase';setTimeout(function(){msg.style.display='none';},3000);}
 }
 
 // ── ARCHIVOS Y EVIDENCIAS ──
