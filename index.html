@@ -371,7 +371,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr auto;gap:7px;margin-bottom:10px;">
       <button onclick="generarPrompt()" class="save-btn">✨ Armar prompt</button>
-      <button id="gen-btn-ia" onclick="generarConIA()" class="save-btn" style="display:none;background:var(--terracota);white-space:nowrap;">🤖 Generar con IA</button>
+      <button id="gen-btn-ia" onclick="generarConIA()" class="save-btn" style="background:var(--terracota);white-space:nowrap;">🤖 Generar con IA</button>
     </div>
     <div id="gen-resultado" style="display:none;">
       <div id="gen-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);"></div>
@@ -2166,12 +2166,11 @@ function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById
 
 function seleccionarAdjuntoGen(){
   var input=document.getElementById('gen-adjunto');
-  if(!input.files||!input.files[0]){_genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;document.getElementById('gen-btn-ia').style.display='none';return;}
+  if(!input.files||!input.files[0]){_genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;return;}
   var file=input.files[0];
   _genAdjuntoIsPDF=file.type==='application/pdf';
   _genAdjuntoType=file.type||'image/jpeg';
   document.getElementById('gen-adjunto-label').textContent='📎 '+file.name;
-  document.getElementById('gen-btn-ia').style.display='block';
   var reader=new FileReader();
   reader.onload=function(e){_genAdjuntoBase64=e.target.result.split(',')[1];};
   reader.readAsDataURL(file);
@@ -2183,8 +2182,6 @@ function quitarAdjuntoGen(){
   if(input)input.value='';
   var lbl=document.getElementById('gen-adjunto-label');
   if(lbl)lbl.textContent='Adjuntar PDF o imagen';
-  var btn=document.getElementById('gen-btn-ia');
-  if(btn)btn.style.display='none';
 }
 
 async function enviarAClaudeConArchivo(promptText){
