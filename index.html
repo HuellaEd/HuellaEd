@@ -192,9 +192,6 @@
     <div class="card" onclick="abrirObservacionModal()">
       <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Observación del día</span></div><div class="card-arr">›</div>
     </div>
-    <div class="card" onclick="abrirClaude()">
-      <div class="card-icon" style="background:#FEF3E2;">🤖</div><div class="card-body"><strong>Consultar a Claude</strong><span>Asistente HuellaED</span></div><div class="card-arr">›</div>
-    </div>
   </div>
 
   <!-- REGISTRAR -->
@@ -306,25 +303,6 @@
 </main>
 
 <!-- ═══════════ MODALES ═══════════ -->
-
-<!-- CLAUDE -->
-<div id="modal-claude" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🤖 Consultar a Claude</strong><button onclick="cerrarClaude()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <p style="font-size:12px;color:var(--gris);margin-bottom:10px;">Copiá este prompt y pegalo al inicio de una nueva conversación:</p>
-    <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);">Soy docente de 6to grado de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
-
-19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
-
-Atención diferenciada: Gamon Ciro (TDL + IDN 74 Bajo), Nievas Nicolás (lectoescritura y estimación), Godoy Katia (lectoescritura y matemática), Cuello Thomas (concentración).
-
-DC PBA. Áreas: Matemática, Prácticas del Lenguaje, Cs. Naturales, Cs. Sociales, Inglés, Ed. Física, Ed. Artística. Aprobado con 7.
-
-App: https://huellaed.github.io/HuellaEd/</div>
-    <div style="display:flex;gap:8px;"><button onclick="copiarPromptClaude()" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:11px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude.ai →</a></div>
-    <div id="claude-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
-  </div>
-</div>
 
 <!-- GENERADOR -->
 <div id="modal-generador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
@@ -2271,11 +2249,6 @@ function renderInasistencias(){var tb=document.getElementById('inasist-tbody');i
 function togglePrompts(){var s=document.getElementById('prompts-sec');s.style.display=s.style.display==='none'?'block':'none';}
 function togglePrompt(id){var b=document.getElementById('body-'+id),t=document.getElementById('tog-'+id);b.style.display=b.style.display==='none'?'block':'none';t.textContent=b.style.display==='none'?'+':'−';}
 function copyText(id){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert('Copiado'));}
-
-// ── CLAUDE ──
-function abrirClaude(){document.getElementById('modal-claude').style.display='block';}
-function cerrarClaude(){document.getElementById('modal-claude').style.display='none';}
-function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementById('prompt-claude-text').innerText).then(()=>{document.getElementById('claude-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('claude-copy-msg').textContent='';},3000);});}
 
 // ── GENERADOR ──
 var tipoSel='',alumnosEsp=[],soloDif=false;
