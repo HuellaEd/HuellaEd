@@ -1819,10 +1819,11 @@ async function generarPerfilAcademico(studentId){
   var s=(window.__students||[]).find(function(x){return x.id===studentId;});
   var nombre=s?s.full_name:'Alumno';
 
-  var [gradesRes,obsRes,diffRes]=await Promise.all([
+  var [gradesRes,obsRes,diffRes,boletinRes]=await Promise.all([
     window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
     window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
-    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle(),
+    window.__sb.from('informes_boletin').select('trimestre,contenido').eq('student_id',studentId).eq('teacher_id',user.id).order('trimestre')
   ]);
 
   // Notas
@@ -1869,12 +1870,23 @@ async function generarPerfilAcademico(studentId){
     if(partes.length)fichaBloque='FICHA DE CONOCIMIENTO DEL ALUMNO:\n'+partes.join('\n');
   }
 
+  // Informes de boletín previos
+  var boletinBloque='';
+  if(boletinRes.data&&boletinRes.data.length){
+    var trNames={'1':'1er','2':'2do','3':'3er'};
+    var lineas=boletinRes.data
+      .filter(function(r){return r.contenido&&r.contenido.trim();})
+      .map(function(r){return 'Informe de boletín '+(trNames[String(r.trimestre)]||String(r.trimestre))+' trimestre:\n'+r.contenido.trim();});
+    if(lineas.length)boletinBloque='INFORMES DE BOLETÍN PREVIOS:\n'+lineas.join('\n\n');
+  }
+
   var prompt='Sos un asistente pedagógico especializado en educación primaria argentina.\n'
     +'Generá un perfil académico formal del siguiente alumno de 6to grado para una docente.\n\n'
     +'ALUMNO: '+nombre+'\n\n'
     +notasBloque+'\n\n'
     +obsBloque+'\n\n'
     +(fichaBloque?fichaBloque+'\n\n':'')
+    +(boletinBloque?boletinBloque+'\n\n':'')
     +'Redactá el perfil con las siguientes secciones claramente diferenciadas:\n'
     +'1. FORTALEZAS\n'
     +'2. DIFICULTADES POR ÁREA\n'
