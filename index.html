@@ -247,7 +247,7 @@
     <div class="subcard" onclick="abrirAsistencia()"><span class="subcard-icon">📅</span><span class="subcard-label">Tomar asistencia</span><span class="subcard-sub">Registro diario</span></div>
     <div class="subcard" onclick="abrirEvidencia()"><span class="subcard-icon">📷</span><span class="subcard-label">Evidencia</span><span class="subcard-sub">Foto + registro</span></div>
     <div class="subcard" onclick="abrirGrabador()"><span class="subcard-icon">🎙️</span><span class="subcard-label">Grabar lectura</span><span class="subcard-sub">Audio + nombre</span></div>
-    <div class="subcard" onclick="abrirNota()"><span class="subcard-icon">🗒️</span><span class="subcard-label">Nota rápida</span><span class="subcard-sub">Sin abrir Drive</span></div>
+    <div class="subcard" onclick="abrirObservacion()"><span class="subcard-icon">📝</span><span class="subcard-label">Observación</span><span class="subcard-sub">Alumno, grupo o agenda</span></div>
     <div class="subcard" onclick="abrirReunion()"><span class="subcard-icon">👨‍👩‍👧</span><span class="subcard-label">Reunión familiar</span><span class="subcard-sub">Registro + acta</span></div>
     <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
   </div>
@@ -708,14 +708,22 @@ App: https://huellaed.github.io/HuellaEd/</div>
 </div>
 
 
-<!-- MODAL OBSERVACIÓN -->
+<!-- MODAL OBSERVACIÓN UNIFICADO -->
 <div id="modal-observacion" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <strong style="font-size:15px;color:var(--verde);">📝 Cargar Observación</strong>
+      <strong style="font-size:15px;color:var(--verde);">📝 Registrar Observación</strong>
       <button onclick="cerrarObservacion()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
     </div>
     <div class="form-row">
+      <label>Destino</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:5px;">
+        <div class="tipo-btn active" onclick="selDestinoObs(this,'alumno')" id="obs-dest-alumno">👤 Alumno</div>
+        <div class="tipo-btn" onclick="selDestinoObs(this,'grupo')" id="obs-dest-grupo">👥 Grupo</div>
+        <div class="tipo-btn" onclick="selDestinoObs(this,'agenda')" id="obs-dest-agenda">📋 Agenda</div>
+      </div>
+    </div>
+    <div class="form-row" id="obs-alumno-row">
       <label>Alumno</label>
       <select id="obs-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
         <option value="">— Seleccionar —</option>
@@ -723,9 +731,9 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
     <div class="form-row">
       <label>Observación</label>
-      <textarea id="obs-texto-modal" placeholder="Escribí o dictá la observación..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
+      <textarea id="obs-texto-modal" placeholder="Escribí o dictá..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
       <button id="obs-mic-btn" onclick="toggleDictadoObs()" style="width:100%;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:9px;font-size:13px;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
-        🎙️ <span id="obs-mic-label">Dictar observación</span>
+        🎙️ <span id="obs-mic-label">Dictar</span>
       </button>
       <div id="obs-dictado-status" style="font-size:11px;color:var(--verde);text-align:center;margin-top:4px;display:none;">🔴 Dictando... tocá de nuevo para detener</div>
     </div>
@@ -2920,14 +2928,24 @@ function renderAgenda(){var lista=document.getElementById('agenda-lista');var ca
 function imprimirPanel(id){var panel=document.getElementById(id);var c=panel.querySelector('.panel-body').innerHTML;var t=panel.querySelector('.panel-head strong').textContent;document.getElementById('print-container').innerHTML='<div style="font-family:Arial,sans-serif;padding:20px;"><div style="text-align:center;margin-bottom:14px;color:#2D5F4F;font-size:14px;font-weight:bold;">'+t+'</div>'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#2D5F4F;">Agenda — '+new Date().toLocaleDateString('es-AR')+'</h2>';['urgente','importante','proceso','idea'].forEach(cat=>{var g=tareas.filter(t=>t.cat===cat);if(!g.length)return;html+='<h3 style="margin-top:14px;">'+cat+'</h3>';g.forEach(t=>{html+='<div style="padding:3px 0;font-size:12px;">'+(t.hecha?'☑':'☐')+' '+t.texto+'</div>';});});html+='</div>';document.getElementById('print-container').innerHTML=html;window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 
-// ── OBSERVACIÓN RÁPIDA ──
-var obsRecorder=null,obsChunks=[],dictandoObs=false;
+// ── OBSERVACIÓN UNIFICADA ──
+var obsRecorder=null,obsChunks=[],dictandoObs=false,obsDestino='alumno';
+
+function selDestinoObs(el,dest){
+  ['obs-dest-alumno','obs-dest-grupo','obs-dest-agenda'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  el.classList.add('active');
+  obsDestino=dest;
+  document.getElementById('obs-alumno-row').style.display=dest==='alumno'?'block':'none';
+}
 
 function abrirObservacion(){
   document.getElementById('modal-observacion').style.display='block';
   document.getElementById('obs-texto-modal').value='';
   document.getElementById('obs-modal-msg').textContent='';
-  // Llenar select de alumnos
+  obsDestino='alumno';
+  ['obs-dest-alumno','obs-dest-grupo','obs-dest-agenda'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  document.getElementById('obs-dest-alumno').classList.add('active');
+  document.getElementById('obs-alumno-row').style.display='block';
   var sel=document.getElementById('obs-alumno-sel');
   if(window.__students&&sel.options.length<=1){
     sel.innerHTML='<option value="">— Seleccionar —</option>'+window.__students.map(function(s){return '<option value="'+s.id+'">'+s.full_name+'</option>';}).join('');
@@ -2988,21 +3006,36 @@ async function transcribirDictadoObs(){
 }
 
 async function guardarObservacionModal(){
-  var studentId=document.getElementById('obs-alumno-sel').value;
   var texto=document.getElementById('obs-texto-modal').value.trim();
   var msg=document.getElementById('obs-modal-msg');
-  if(!studentId){msg.style.color='#C0392B';msg.textContent='Seleccioná un alumno';return;}
   if(!texto){msg.style.color='#C0392B';msg.textContent='Escribí una observación';return;}
   msg.style.color='var(--gris)';msg.textContent='Guardando...';
+
+  if(obsDestino==='agenda'){
+    // Guardar en agenda
+    tareas.unshift({id:Date.now(),texto:texto,cat:'importante',hecha:false});
+    guardarTareas();
+    msg.style.color='var(--verde)';msg.textContent='✅ Agregado a la agenda';
+    document.getElementById('obs-texto-modal').value='';
+    setTimeout(function(){cerrarObservacion();},1500);
+    return;
+  }
+
   if(!window.__sb){msg.style.color='#C0392B';msg.textContent='Sin conexión';return;}
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {error}=await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:texto});
-  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
-  else{
-    msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada';
-    document.getElementById('obs-texto-modal').value='';
-    setTimeout(function(){cerrarObservacion();},1500);
+
+  if(obsDestino==='alumno'){
+    var studentId=document.getElementById('obs-alumno-sel').value;
+    if(!studentId){msg.style.color='#C0392B';msg.textContent='Seleccioná un alumno';return;}
+    var {error}=await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:texto});
+    if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
+    else{msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada en el perfil';document.getElementById('obs-texto-modal').value='';setTimeout(function(){cerrarObservacion();},1500);}
+  } else {
+    // Grupo — guardar sin student_id
+    var {error}=await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:'[GRUPO] '+texto});
+    if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
+    else{msg.style.color='var(--verde)';msg.textContent='✅ Observación grupal guardada';document.getElementById('obs-texto-modal').value='';setTimeout(function(){cerrarObservacion();},1500);}
   }
 }
 
