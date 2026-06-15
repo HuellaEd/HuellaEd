@@ -226,8 +226,8 @@
     <div class="card" onclick="abrirAgenda()">
       <div class="card-icon ic-y">📋</div><div class="card-body"><strong>Agenda</strong><span id="agenda-sub">Tareas y recordatorios</span></div><div class="card-arr" id="agenda-badge"></div>
     </div>
-    <div class="card" onclick="toggleForm()">
-      <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Formulario diario</span></div><div class="card-arr" id="form-arrow">›</div>
+    <div class="card" onclick="abrirObservacion()">
+      <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Escribir o dictar</span></div><div class="card-arr">›</div>
     </div>
     <div class="card" onclick="abrirClaude()">
       <div class="card-icon" style="background:#FEF3E2;">🤖</div><div class="card-body"><strong>Consultar a Claude</strong><span>Asistente HuellaED</span></div><div class="card-arr">›</div>
@@ -706,6 +706,33 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <button onclick="filtrarAgenda('hecha')" id="filtro-hecha" style="padding:4px 11px;border-radius:18px;border:1.5px solid var(--gris-claro);background:#fff;color:var(--gris);font-size:11px;cursor:pointer;">Hechas</button>
     </div>
     <div id="agenda-lista"></div>
+  </div>
+</div>
+
+
+<!-- MODAL OBSERVACIÓN -->
+<div id="modal-observacion" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">📝 Cargar Observación</strong>
+      <button onclick="cerrarObservacion()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="form-row">
+      <label>Alumno</label>
+      <select id="obs-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+        <option value="">— Seleccionar —</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Observación</label>
+      <textarea id="obs-texto-modal" placeholder="Escribí o dictá la observación..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
+      <button id="obs-mic-btn" onclick="toggleDictadoObs()" style="width:100%;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:9px;font-size:13px;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+        🎙️ <span id="obs-mic-label">Dictar observación</span>
+      </button>
+      <div id="obs-dictado-status" style="font-size:11px;color:var(--verde);text-align:center;margin-top:4px;display:none;">🔴 Dictando... tocá de nuevo para detener</div>
+    </div>
+    <button onclick="guardarObservacionModal()" class="save-btn">💾 Guardar</button>
+    <div id="obs-modal-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
   </div>
 </div>
 
@@ -2894,6 +2921,93 @@ function renderAgenda(){var lista=document.getElementById('agenda-lista');var ca
 // ── IMPRIMIR ──
 function imprimirPanel(id){var panel=document.getElementById(id);var c=panel.querySelector('.panel-body').innerHTML;var t=panel.querySelector('.panel-head strong').textContent;document.getElementById('print-container').innerHTML='<div style="font-family:Arial,sans-serif;padding:20px;"><div style="text-align:center;margin-bottom:14px;color:#2D5F4F;font-size:14px;font-weight:bold;">'+t+'</div>'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function imprimirAgenda(){var html='<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#2D5F4F;">Agenda — '+new Date().toLocaleDateString('es-AR')+'</h2>';['urgente','importante','proceso','idea'].forEach(cat=>{var g=tareas.filter(t=>t.cat===cat);if(!g.length)return;html+='<h3 style="margin-top:14px;">'+cat+'</h3>';g.forEach(t=>{html+='<div style="padding:3px 0;font-size:12px;">'+(t.hecha?'☑':'☐')+' '+t.texto+'</div>';});});html+='</div>';document.getElementById('print-container').innerHTML=html;window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
+
+// ── OBSERVACIÓN RÁPIDA ──
+var obsRecorder=null,obsChunks=[],dictandoObs=false;
+
+function abrirObservacion(){
+  document.getElementById('modal-observacion').style.display='block';
+  document.getElementById('obs-texto-modal').value='';
+  document.getElementById('obs-modal-msg').textContent='';
+  // Llenar select de alumnos
+  var sel=document.getElementById('obs-alumno-sel');
+  if(window.__students&&sel.options.length<=1){
+    sel.innerHTML='<option value="">— Seleccionar —</option>'+window.__students.map(function(s){return '<option value="'+s.id+'">'+s.full_name+'</option>';}).join('');
+  }
+}
+
+function cerrarObservacion(){
+  document.getElementById('modal-observacion').style.display='none';
+  if(dictandoObs)detenerDictadoObs();
+}
+
+function toggleDictadoObs(){
+  if(!dictandoObs)iniciarDictadoObs();else detenerDictadoObs();
+}
+
+function iniciarDictadoObs(){
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    obsChunks=[];
+    obsRecorder=new MediaRecorder(stream);
+    obsRecorder.ondataavailable=function(e){obsChunks.push(e.data);};
+    obsRecorder.onstop=function(){transcribirDictadoObs();};
+    obsRecorder.start();
+    dictandoObs=true;
+    document.getElementById('obs-mic-btn').style.background='#FDE8E8';
+    document.getElementById('obs-mic-btn').style.borderColor='#C0392B';
+    document.getElementById('obs-mic-label').textContent='Detener dictado';
+    document.getElementById('obs-dictado-status').style.display='block';
+  }).catch(function(){alert('No se pudo acceder al micrófono');});
+}
+
+function detenerDictadoObs(){
+  if(obsRecorder){obsRecorder.stop();obsRecorder.stream.getTracks().forEach(function(t){t.stop();});}
+  dictandoObs=false;
+  document.getElementById('obs-mic-btn').style.background='var(--crema)';
+  document.getElementById('obs-mic-btn').style.borderColor='var(--gris-claro)';
+  document.getElementById('obs-mic-label').textContent='Procesando...';
+  document.getElementById('obs-dictado-status').style.display='none';
+}
+
+async function transcribirDictadoObs(){
+  var apiKey=getApiKey();
+  if(!apiKey){document.getElementById('obs-mic-label').textContent='Dictar observación';document.getElementById('modal-gemini-config').style.display='block';return;}
+  try{
+    var blob=new Blob(obsChunks,{type:'audio/webm'});
+    var base64=await blobToBase64(blob);
+    var base64Data=base64.split(',')[1];
+    var response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+apiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'Transcribí exactamente lo que dice este audio. Es una observación pedagógica de un docente sobre un alumno. Solo el texto, sin comentarios.'},{inline_data:{mime_type:'audio/webm',data:base64Data}}]}]})});
+    var data=await response.json();
+    var texto=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text||'';
+    var actual=document.getElementById('obs-texto-modal').value;
+    document.getElementById('obs-texto-modal').value=actual+(actual?' ':'')+texto.trim();
+    document.getElementById('obs-mic-label').textContent='✅ Dictado agregado — Dictar más';
+    setTimeout(function(){document.getElementById('obs-mic-label').textContent='Dictar observación';},3000);
+  }catch(err){
+    document.getElementById('obs-mic-label').textContent='Error — intentar de nuevo';
+    setTimeout(function(){document.getElementById('obs-mic-label').textContent='Dictar observación';},3000);
+  }
+}
+
+async function guardarObservacionModal(){
+  var studentId=document.getElementById('obs-alumno-sel').value;
+  var texto=document.getElementById('obs-texto-modal').value.trim();
+  var msg=document.getElementById('obs-modal-msg');
+  if(!studentId){msg.style.color='#C0392B';msg.textContent='Seleccioná un alumno';return;}
+  if(!texto){msg.style.color='#C0392B';msg.textContent='Escribí una observación';return;}
+  msg.style.color='var(--gris)';msg.textContent='Guardando...';
+  if(!window.__sb){msg.style.color='#C0392B';msg.textContent='Sin conexión';return;}
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:texto});
+  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
+  else{
+    msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada';
+    document.getElementById('obs-texto-modal').value='';
+    setTimeout(function(){cerrarObservacion();},1500);
+  }
+}
+
 </script>
 
 
