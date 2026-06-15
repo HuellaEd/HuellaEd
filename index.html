@@ -2720,6 +2720,39 @@ async function generarConIA(){
   var p=await armarTextoPrompt();
   if(!p)return;
   document.getElementById('gen-resultado').style.display='none';
+  if(!document.getElementById('estilos-libro')){var s=document.createElement('style');s.id='estilos-libro';s.textContent='';document.head.appendChild(s);}
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var btn=document.getElementById('gen-btn-ia');
+  var contenedor=document.getElementById('gen-ai-resultado');
+  btn.disabled=true;btn.textContent='⏳ Generando…';
+  contenedor.style.display='block';
+  document.getElementById('gen-ai-text').innerHTML='<div style="text-align:center;padding:32px;color:#2D5F4F"><div style="font-size:32px;margin-bottom:10px">📖</div><div style="font-weight:700;font-size:14px">Generando material…</div></div>';
+  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Respondé ÚNICAMENTE con un JSON válido, sin texto antes ni después, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas de respuesta (items=array strings), tabla=tabla con columnas y filas, escritura=área en blanco (alto px), caja=recuadro reflexión. Máximo 2 páginas, 4-6 secciones por página. Lenguaje directo al alumno.';
+  var contentParts=[];
+  if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
+  contentParts.push({type:'text',text:p});
+  var headers={'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'};
+  if(_genAdjuntoIsPDF)headers['anthropic-beta']='pdfs-2024-09-25';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,system:SISTEMA,messages:[{role:'user',content:contentParts}]})});
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    _genAiRawText=texto;
+    renderLibro(texto,document.getElementById('gen-ai-text'));
+    contenedor.style.display='block';
+    contenedor.scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    document.getElementById('gen-ai-text').innerHTML='<div style="padding:16px;color:#C05A3A;font-size:13px;background:#F5E0D8;border-radius:10px">⚠️ Error: '+e.message+'</div>';
+    contenedor.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='🤖 Generar con IA';
+  }
+}
+  var p=await armarTextoPrompt();
+  if(!p)return;
+  document.getElementById('gen-resultado').style.display='none';
   await enviarAClaudeConArchivo(p);
 }
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
