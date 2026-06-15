@@ -3131,13 +3131,16 @@ function cerrarPlanifNuevo(){
 
 function renderPlanifNuevo(){
   var body=document.getElementById('planif-nuevo-body');
-  var areas=[{key:'PL',data:PLANIF_PL}];
-  // Selector de área
+  var areas=[
+    {key:'PL',data:PLANIF_PL},
+    {key:'MATE',data:PLANIF_MATE},
+    {key:'CS',data:PLANIF_CS},
+    {key:'CN',data:PLANIF_CN}
+  ];
   var html='<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">';
   areas.forEach(function(a){
-    html+='<button onclick="renderSecuencias(\''+a.key+'\',PLANIF_'+a.key+')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--verde);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">'+a.data.icon+' '+a.data.area+'</button>';
+    html+='<button onclick="renderSecuencias(\''+a.key+'\',PLANIF_'+a.key+')" style="padding:7px 12px;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">'+a.data.icon+' '+a.data.area+'</button>';
   });
-  html+='<button onclick="renderSecuencias(\'PL\',PLANIF_PL)" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--crema);color:var(--gris);border:1.5px dashed var(--gris-claro);border-radius:9px;font-size:12px;cursor:pointer;font-family:inherit;">+ Agregar área</button>';
   html+='</div>';
   html+='<div id="planif-secuencias-container">';
   html+=renderSecuenciasHTML(PLANIF_PL);
@@ -3219,6 +3222,90 @@ function generarMaterialDesdeSecuencia(num){
   },300);
 }
 
+
+var PLANIF_MATE = {
+  area: 'Matemática', icon: '🔢', color: '#3B6E9E', anio: 2026,
+  secuencias: [
+    {num:1,titulo:'Numeración y Operaciones I',autor:'Libro de Mate 5 · Santillana',periodo:'Marzo / Abril',genero:'Número y operaciones',
+     lectura:'Lectura, escritura y orden de números hasta 1.000.000. Valor posicional. Composiciones y descomposiciones.',
+     escritura:'Construcción y comparación de estrategias de cálculo mental. Argumentación de procedimientos.',
+     reflexion:'Relación entre multiplicación y división. Cálculo aproximado y estimación.',habitual:'Juego matemático semanal: series numéricas, adivinanzas, dictado de grandes números.'},
+    {num:2,titulo:'Figuras Geométricas I: Ángulos y Triángulos',autor:'Libro de Mate 5 · Cap. 4',periodo:'Mayo',genero:'Geometría y medida',
+     lectura:'Comparación y medición de ángulos. Construcción de triángulos según datos. Clasificación.',
+     escritura:'Uso de transportador y compás. Exploración con GeoGebra. Argumentación geométrica.',
+     reflexion:'Suma de ángulos interiores. Propiedad de la suma de lados.',habitual:'Exploración semanal con regla, compás y transportador.'},
+    {num:3,titulo:'Fracciones y Decimales I',autor:'Libro de Mate 5 · Cap. 6',periodo:'Junio / Julio',genero:'Número y operaciones',
+     lectura:'Fracciones en repartos y división. Fracciones para medir. Comparación y orden.',
+     escritura:'Uso de la recta numérica. Justificación de comparaciones. Búsqueda de equivalencias.',
+     reflexion:'Relaciones entre fracciones, fracciones decimales y expresiones decimales.',habitual:'Problemas semanales con fracciones y decimales en contextos cotidianos.'},
+    {num:4,titulo:'Múltiples y Divisores',autor:'Libro de Mate 5 · Cap. 7',periodo:'Agosto',genero:'Número y operaciones',
+     lectura:'Nociones de múltiplo y divisor. Criterios de divisibilidad. Mínimo común múltiplo y máximo común divisor.',
+     escritura:'Exploración de regularidades. Criba de Eratóstenes. Argumentación sobre divisibilidad.',
+     reflexion:'Uso de múltiplos y divisores para resolver cálculos y problemas.',habitual:'Bingo matemático, crucigramas numéricos con criterios de divisibilidad.'},
+    {num:5,titulo:'Figuras Geométricas II: Cuadriláteros',autor:'Libro de Mate 5 · Cap. 8',periodo:'Septiembre',genero:'Geometría y medida',
+     lectura:'Características de cuadrados, rectángulos, rombos y paralelogramos. Propiedades de lados y ángulos.',
+     escritura:'Construcción con instrumentos. Exploración con GeoGebra. Justificación de propiedades.',
+     reflexion:'Suma de ángulos interiores. Clasificación jerárquica de cuadriláteros.',habitual:'Clasificación, construcción y comparación de propiedades de cuadriláteros.'},
+    {num:6,titulo:'Fracciones y Decimales II + Proporcionalidad',autor:'Libro de Mate 5 · Caps. 9 y 10',periodo:'Octubre ⚠️ PEB',genero:'Número y operaciones',
+     lectura:'Cálculo mental con fracciones. Proporcionalidad directa. Constante de proporcionalidad.',
+     escritura:'Resolución de problemas contextualizados. Preparación para la Prueba Escolar.',
+     reflexion:'Multiplicación y división de decimales por potencias de 10. Alcances del modelo proporcional.',habitual:'Problemas de proporcionalidad y decimales en vida cotidiana. ⚠️ PEB última semana.'},
+    {num:7,titulo:'Medida',autor:'Libro de Mate 5 · Cap. 11',periodo:'Noviembre 1ª quincena',genero:'Geometría y medida',
+     lectura:'Equivalencias entre unidades de longitud, peso y capacidad. Elección de unidades adecuadas.',
+     escritura:'Resolución de problemas de medición con conversión de unidades. Estimación y verificación.',
+     reflexion:'Expresiones decimales y fracciones decimales para medidas.',habitual:'Estimación y medición en el entorno escolar.'},
+    {num:8,titulo:'Cuerpos Geométricos',autor:'Libro de Mate 5 · Cap. 12',periodo:'Noviembre 2ª quincena',genero:'Geometría y medida',
+     lectura:'Características según caras, aristas y vértices. Prismas y pirámides. Desarrollos planos.',
+     escritura:'Exploración de modelos concretos y virtuales. Construcción de desarrollos planos.',
+     reflexion:'Relación entre el cuerpo y sus desarrollos. Síntesis del año.',habitual:'Armado de desarrollos planos y exploración con material concreto.'}
+  ]
+};
+var PLANIF_CS = {
+  area: 'Ciencias Sociales', icon: '🌍', color: '#C05A3A', anio: 2026,
+  secuencias: [
+    {num:1,titulo:'La construcción histórica del territorio argentino',autor:'Propuesta 1 · DGCyE',periodo:'Marzo / Abril',genero:'Historia y geografía del territorio nacional',
+     lectura:'El territorio desde 1853 al presente. Patagonia y Chaco. Mar Argentino. Antártida. Malvinas.',
+     escritura:'Comparación de cartografías de diferentes épocas. Línea de tiempo territorial.',
+     reflexion:'Territorios nacionales y provincialización. Vías diplomáticas vs. resolución por la fuerza.',habitual:'Lectura semanal de mapas históricos. Registro de cambios territoriales.'},
+    {num:2,titulo:'Estado argentino, economía agroexportadora y Gran Inmigración',autor:'Propuesta 2 · DGCyE',periodo:'Mayo / Julio',genero:'Historia social, política y económica (fines XIX)',
+     lectura:'Simultaneidad del Estado nacional, modelo agroexportador y sociedad moderna. División internacional del trabajo.',
+     escritura:'Análisis de testimonios de inmigrantes. Visita virtual al Museo de la Inmigración.',
+     reflexion:'Actores sociales: gobernantes, trabajadores, inmigrantes. Perspectivas historiográficas.',habitual:'Lectura e intercambio sobre testimonios de inmigrantes. Análisis de fotografías de época.'},
+    {num:3,titulo:'Sociedades indígenas e hispano-criolla en la frontera sur',autor:'Propuesta 3 · DGCyE',periodo:'Agosto / Octubre ⚠️ PEB',genero:'Historia social e indígena siglo XIX',
+     lectura:'Expansión territorial criolla 1820-1880. Indígenas como sujetos históricos. Vida cotidiana fronteriza.',
+     escritura:'Comparación perspectivas: relato tradicional vs. perspectiva indígena. Argumentación con evidencias.',
+     reflexion:'Etnohistoria y antropología histórica. Revisión de miradas estereotipadas. ⚠️ PEB última semana.',habitual:'Lectura semanal: Relaciones en la frontera sur. Intercambio sobre perspectivas.'},
+    {num:4,titulo:'Síntesis y cierre del ciclo primario',autor:'Propuesta integradora · 2026',periodo:'Noviembre / Diciembre',genero:'Integración + Formación ciudadana',
+     lectura:'Articulación de los tres ejes. Relaciones entre territorio, Estado, economía y sociedades.',
+     escritura:'Producción integradora final. Exposición oral o escrita. Socialización.',
+     reflexion:'2026: 50 años del golpe de Estado. Derechos Humanos, Memoria, Verdad y Justicia.',habitual:'Socialización de producciones. Reflexión colectiva sobre el recorrido del año.'}
+  ]
+};
+var PLANIF_CN = {
+  area: 'Ciencias Naturales', icon: '🔬', color: '#2D5F4F', anio: 2026,
+  secuencias: [
+    {num:1,titulo:'Interacciones entre seres vivos',autor:'Propuesta 1 · DGCyE',periodo:'Marzo / Abril',genero:'Bloque: Seres Vivos',
+     lectura:'Relaciones intraespecíficas (competencia, cooperación, cortejo). Interespecíficas (mutualismo, parasitismo, depredación).',
+     escritura:'Sistematización en cuadros y redes conceptuales. Producción de textos explicativos.',
+     reflexion:'Cadenas y redes tróficas. Argumentación sobre la importancia de las interacciones.',habitual:'Lectura semanal del libro Interacciones entre seres vivos. Registro del entorno natural.'},
+    {num:2,titulo:'La luz y los materiales',autor:'Propuesta 2 · DGCyE',periodo:'Mayo / Junio',genero:'Bloque: El Mundo Físico',
+     lectura:'Propagación rectilínea de la luz. Formación de sombras. Reflexión en espejos. Refracción.',
+     escritura:'Diseño y realización de experiencias. Formulación de anticipaciones. Registro de observaciones.',
+     reflexion:'Funcionamiento de instrumentos ópticos sencillos (lupa, periscopio).',habitual:'Exploración semanal con espejos y fuentes de luz. Fenómenos ópticos cotidianos.'},
+    {num:3,titulo:'Los materiales y sus cambios',autor:'Propuesta 3 · DGCyE',periodo:'Julio / Agosto',genero:'Bloque: Materiales',
+     lectura:'Cambios físicos: mezclas y cambios de estado. Cambios químicos: formación de nuevos materiales.',
+     escritura:'Observación sistemática de experiencias. Tabla comparativa de cambios observados.',
+     reflexion:'Indicadores de cambio químico: color, gas, calor, precipitado.',habitual:'Observación y registro semanal de cambios en materiales del entorno escolar.'},
+    {num:4,titulo:'Mezclas y transformaciones químicas',autor:'Propuesta 4 · DGCyE',periodo:'Septiembre / Octubre ⚠️ PEB',genero:'Bloque: Materiales (profundización)',
+     lectura:'Mezclas homogéneas y heterogéneas. Métodos de separación. Transformaciones con relevancia cotidiana.',
+     escritura:'Diseño de experiencias. Argumentación con evidencias. Informe de experiencia.',
+     reflexion:'Relación entre estructura de materiales y propiedades. Preparación PEB. ⚠️ PEB última semana.',habitual:'Lectura de textos de divulgación sobre materiales y química cotidiana.'},
+    {num:5,titulo:'Síntesis y cierre anual',autor:'Propuesta integradora',periodo:'Noviembre / Diciembre',genero:'Integración de los cuatro bloques',
+     lectura:'Revisión y articulación de bloques: Seres Vivos, Mundo Físico, Materiales, La Tierra.',
+     escritura:'Producción de textos de divulgación o exposiciones. Socialización de producciones.',
+     reflexion:'La ciencia como práctica social, histórica y colectiva en revisión permanente.',habitual:'Socialización de producciones. Reflexión metacognitiva sobre los aprendizajes del año.'}
+  ]
+};
 </script>
 
 
