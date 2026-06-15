@@ -3169,7 +3169,7 @@ function renderSecuenciasHTML(data){
   data.secuencias.forEach(function(s,i){
     html+='<div style="border-radius:12px;border:1.5px solid var(--gris-claro);margin-bottom:8px;overflow:hidden;" id="sec-card-'+s.num+'">';
     html+='<div onclick="toggleSecuencia('+s.num+')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:'+colores[i%5]+';">';
-    html+='<div style="width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;color:#2a3830;flex-shrink:0;">'+s.num+'</div>';
+    html+='<div style="width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#2a3830;flex-shrink:0;">'+s.num+'</div>';
     html+='<div style="flex:1;min-width:0;">';
     html+='<div style="font-size:13px;font-weight:700;color:#2a3830;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.titulo+'</div>';
     html+='<div style="font-size:10px;color:#5a6a62;">'+s.autor+' · '+s.periodo+'</div>';
