@@ -2750,11 +2750,12 @@ async function generarConIA(){
     btn.disabled=false;btn.textContent='🤖 Generar con IA';
   }
 }
-  var p=await armarTextoPrompt();
-  if(!p)return;
-  document.getElementById('gen-resultado').style.display='none';
-  await enviarAClaudeConArchivo(p);
-}
+  function renderLibro(respuestaIA,contenedor){
+  var LB_COLORES=['lb-c0','lb-c1','lb-c2','lb-c3','lb-c4','lb-c5'];
+  var LB_NUMS=['lb-n0','lb-n1','lb-n2','lb-n3','lb-n4'];
+  var LB_ICONOS=['📚','✏️','🔢','💡','🌿','📊'];
+  var LB_BG=['#D4EAE4','#F7EDDB','#F5E0D8','#D6E5F3','#DDF0F7','#EAE7F5'];
+  function lbPie(n){return '<div
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
 function seleccionarAdjuntoGen(){
