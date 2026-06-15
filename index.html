@@ -2755,7 +2755,7 @@ async function generarConIA(){
   var LB_NUMS=['lb-n0','lb-n1','lb-n2','lb-n3','lb-n4'];
   var LB_ICONOS=['📚','✏️','🔢','💡','🌿','📊'];
   var LB_BG=['#D4EAE4','#F7EDDB','#F5E0D8','#D6E5F3','#DDF0F7','#EAE7F5'];
-  function lbPie(n){return '<div
+  function lbPie(n){return '<div class="lb-pie"><svg viewBox="0 0 750 42" preserveAspectRatio="none" style="width:100%;height:42px"><path d="M0 28 Q150 10 300 26 Q450 44 600 24 Q680 10 750 22 L750 42 L0 42Z" fill="#2D5F4F"/><path d="M0 34 Q200 18 400 32 Q580 48 750 30 L750 42 L0 42Z" fill="#C8973A" opacity=".6"/></svg><div class="lb-pie-num">'+n+'</div></div>';}
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
 function seleccionarAdjuntoGen(){
