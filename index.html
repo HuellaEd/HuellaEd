@@ -133,46 +133,6 @@
     @media(max-width:380px){.grid-2{grid-template-columns:1fr;}.alumnos-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}}
     @media print{body>*:not(#print-container){display:none!important;}#print-container{display:block!important;}}
     #print-container{display:none;}
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap');
-#libro-preview{font-family:'Nunito Sans',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}
-.lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.lb-logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;letter-spacing:-.4px;}
-.lb-logo span{color:#C8973A;}
-.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}
-.lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;cursor:pointer;}
-.lb-pagina{width:100%;background:#FAFCFB;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.11);position:relative;overflow:hidden;padding:26px 36px 0 42px;min-height:400px;margin-bottom:16px;}
-.lb-pagina::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(45,95,79,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(45,95,79,.09) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;}
-.lb-banda{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#2D5F4F 0%,#3D7A65 60%,#C8973A 100%);}
-.lb-seccion{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #D4EAE4;position:relative;z-index:1;}
-.lb-sec-icono{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.lb-sec-titulo{font-family:'Nunito',sans-serif;font-weight:900;font-size:17px;color:#2D5F4F;letter-spacing:-.3px;}
-.lb-sec-titulo em{font-style:normal;color:#C8973A;}
-.lb-bloque{margin-bottom:12px;position:relative;z-index:1;}
-.lb-consigna{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;}
-.lb-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:11px;color:white;flex-shrink:0;margin-top:1px;}
-.lb-n0{background:#2D5F4F}.lb-n1{background:#C8973A}.lb-n2{background:#3B6E9E}.lb-n3{background:#C05A3A}.lb-n4{background:#7B6FAF}
-.lb-texto{font-size:12.5px;font-weight:600;color:#2a3830;line-height:1.55;flex:1;}
-.lb-grilla{display:grid;gap:5px;margin-bottom:4px;}
-.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}
-.lb-celda{border-radius:7px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;display:flex;align-items:center;color:#3a4a42;}
-.lb-c0{background:#D4EAE4}.lb-c1{background:#F7EDDB}.lb-c2{background:#F5E0D8}.lb-c3{background:#D6E5F3}.lb-c4{background:#DDF0F7}.lb-c5{background:#EAE7F5}
-.lb-area{border-radius:7px;border:1.5px dashed rgba(45,95,79,.18);min-height:50px;background-image:repeating-linear-gradient(transparent,transparent 26px,rgba(45,95,79,.07) 26px,rgba(45,95,79,.07) 27px);background-position:0 27px;margin-bottom:5px;}
-.lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:7px;}
-.lb-tabla-wrap table{width:100%;border-collapse:collapse;}
-.lb-tabla-wrap th{background:#2D5F4F;color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}
-.lb-tabla-wrap td{border:1px solid rgba(45,95,79,.1);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;}
-.lb-tabla-wrap tr:nth-child(even) td{background:#EBF5F1;}
-.lb-caja{border-radius:8px;padding:11px 14px;border-left:4px solid;margin-bottom:7px;}
-.lb-caja-titulo{font-family:'Nunito',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;}
-.lb-caja-verde{background:#D4EAE4;border-color:#2D5F4F}.lb-caja-verde .lb-caja-titulo{color:#2D5F4F}
-.lb-caja-dorada{background:#F7EDDB;border-color:#C8973A}.lb-caja-dorada .lb-caja-titulo{color:#C8973A}
-.lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;}
-.lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:'Nunito',sans-serif;font-weight:800;font-size:8px;text-transform:uppercase;letter-spacing:.3px;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#3B6E9E;color:white;}
-.lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}
-.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}
-.lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:'Nunito',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}
-.lb-marca{position:absolute;bottom:48px;right:6px;font-family:'Nunito',sans-serif;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}
-@media print{#libro-preview{background:white;padding:0;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{box-shadow:none;page-break-after:always;}}
   </style>
 </head>
 <body>
@@ -229,9 +189,16 @@
     <div class="card" onclick="abrirAgenda()">
       <div class="card-icon ic-y">📋</div><div class="card-body"><strong>Agenda</strong><span id="agenda-sub">Tareas y recordatorios</span></div><div class="card-arr" id="agenda-badge"></div>
     </div>
-    <div class="card" onclick="abrirObservacionModal()">
-      <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Observación del día</span></div><div class="card-arr">›</div>
+    <div class="card" onclick="toggleForm()">
+      <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Formulario diario</span></div><div class="card-arr" id="form-arrow">›</div>
     </div>
+    <div class="card" onclick="abrirClaude()">
+      <div class="card-icon" style="background:#FEF3E2;">🤖</div><div class="card-body"><strong>Consultar a Claude</strong><span>Asistente HuellaED</span></div><div class="card-arr">›</div>
+    </div>
+  </div>
+
+  <div id="form-container" style="display:none;margin-top:8px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);">
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf4HnxU6mMczZXaQNw5Z8KAUfRSEJVcDTNZhxIRIglsWWpG7g/viewform?embedded=true" width="100%" height="600" frameborder="0">Cargando...</iframe>
   </div>
 
   <!-- REGISTRAR -->
@@ -247,8 +214,7 @@
     <div class="subcard" onclick="abrirGrabador()"><span class="subcard-icon">🎙️</span><span class="subcard-label">Grabar lectura</span><span class="subcard-sub">Audio + nombre</span></div>
     <div class="subcard" onclick="abrirNota()"><span class="subcard-icon">🗒️</span><span class="subcard-label">Nota rápida</span><span class="subcard-sub">Sin abrir Drive</span></div>
     <div class="subcard" onclick="abrirReunion()"><span class="subcard-icon">👨‍👩‍👧</span><span class="subcard-label">Reunión familiar</span><span class="subcard-sub">Registro + acta</span></div>
-    <div class="subcard" onclick="abrirCargaRegistro()"><span class="subcard-icon">📋</span><span class="subcard-label">Cargar registro</span><span class="subcard-sub">Foto del registro mensual</span></div>
-    <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📑</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
+    <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
   </div>
 
   <!-- GENERAR -->
@@ -329,13 +295,13 @@
   <div style="margin-top:28px;padding-top:16px;border-top:1px solid var(--gris-claro);">
     <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Recursos y documentos</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;">
-      <a href="https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank" class="pie-link">📄 Cuadernillos</a>
-      <a href="https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank" class="pie-link">📋 Criterios asistencia</a>
-      <a href="https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank" class="pie-link">📚 Docs curriculares</a>
-      <a href="https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank" class="pie-link">✏️ Material docente</a>
-      <a href="https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" class="pie-link">📁 Carpeta 6to</a>
-      <a href="https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank" class="pie-link">📥 Material generado</a>
-      <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" class="pie-link">📥 Evidencias</a>
+      <a href=?authuser=0"https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank" class="pie-link">📄 Cuadernillos</a>
+      <a href=?authuser=0"https://docs.google.com/document/d/14qL_HzGWIi-J06PdWvGOqkl8NGGQd4Mf32itjE6B0KU" target="_blank" class="pie-link">📋 Criterios asistencia</a>
+      <a href=?authuser=0"https://drive.google.com/drive/folders/1JWAiUJeIQrXil8N4sIMcM5GceKONYfVM" target="_blank" class="pie-link">📚 Docs curriculares</a>
+      <a href=?authuser=0"https://drive.google.com/drive/folders/1FkLx01y9z0w1gzskGrqeQrQYBxoSh3pB" target="_blank" class="pie-link">✏️ Material docente</a>
+      <a href=?authuser=0"https://drive.google.com/drive/folders/10QiWLymwxP5aqsKxYow0Lp8pYoSi1AGr" target="_blank" class="pie-link">📁 Carpeta 6to</a>
+      <a href=?authuser=0"https://drive.google.com/drive/folders/16bDJ_edhv_NBxLfJfBSIvZEynU0bH7YO" target="_blank" class="pie-link">📥 Material generado</a>
+      <a href=?authuser=0"https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" class="pie-link">📥 Evidencias</a>
       <div id="btn-sync-analisis" onclick="abrirSyncAnalisis()" class="pie-link" style="cursor:pointer;display:none;">🤖 Análisis pendientes</div>
     </div>
   </div>
@@ -343,6 +309,25 @@
 </main>
 
 <!-- ═══════════ MODALES ═══════════ -->
+
+<!-- CLAUDE -->
+<div id="modal-claude" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🤖 Consultar a Claude</strong><button onclick="cerrarClaude()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
+    <p style="font-size:12px;color:var(--gris);margin-bottom:10px;">Copiá este prompt y pegalo al inicio de una nueva conversación:</p>
+    <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);">Soy docente de 6to grado de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
+
+19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
+
+Atención diferenciada: Gamon Ciro (TDL + IDN 74 Bajo), Nievas Nicolás (lectoescritura y estimación), Godoy Katia (lectoescritura y matemática), Cuello Thomas (concentración).
+
+DC PBA. Áreas: Matemática, Prácticas del Lenguaje, Cs. Naturales, Cs. Sociales, Inglés, Ed. Física, Ed. Artística. Aprobado con 7.
+
+App: https://huellaed.github.io/HuellaEd/</div>
+    <div style="display:flex;gap:8px;"><button onclick="copiarPromptClaude()" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:11px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude.ai →</a></div>
+    <div id="claude-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
+  </div>
+</div>
 
 <!-- GENERADOR -->
 <div id="modal-generador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
@@ -384,10 +369,7 @@
         <input type="file" id="gen-adjunto" accept=".pdf,image/*" style="display:none;" onchange="seleccionarAdjuntoGen()">
       </label>
     </div>
-    <div style="display:grid;grid-template-columns:1fr auto;gap:7px;margin-bottom:10px;">
-      <button onclick="generarPrompt()" class="save-btn">✨ Armar prompt</button>
-      <button id="gen-btn-ia" onclick="generarConIA()" class="save-btn" style="background:var(--terracota);white-space:nowrap;">🤖 Generar con IA</button>
-    </div>
+    <button id="gen-btn" onclick="generarPrompt()" class="save-btn" style="margin-bottom:10px;">✨ Armar prompt</button>
     <div id="gen-resultado" style="display:none;">
       <div id="gen-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);"></div>
       <div style="display:flex;gap:7px;"><button onclick="copiarPromptGen()" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:10px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a></div>
@@ -527,7 +509,7 @@
     </div>
     <div id="ev-preview-container" style="display:none;text-align:center;margin-bottom:10px;"><img id="ev-preview-img" style="max-width:100%;border-radius:9px;border:1px solid var(--gris-claro);max-height:180px;object-fit:contain;"></div>
     <button id="ev-descargar-btn" onclick="descargarEvidencia()" style="display:none;width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;">⬇️ Descargar foto</button>
-    <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);">📁 Abrir carpeta de evidencias en Drive</a>
+    <a href=?authuser=0"https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);">📁 Abrir carpeta de evidencias en Drive</a>
     <div id="ev-registros-container" style="margin-top:14px;display:none;">
       <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Registros</div>
       <div id="ev-registros-lista"></div>
@@ -561,92 +543,6 @@
       <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Historial reciente</div>
       <div id="reunion-historial"><div style="font-size:12px;color:var(--gris);text-align:center;padding:10px 0;">Cargando…</div></div>
     </div>
-  </div>
-</div>
-
-<!-- CARGA REGISTRO MENSUAL -->
-<div id="modal-carga-registro" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:600px;margin:16px auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <strong style="font-size:15px;color:var(--verde);">📷 Cargar registro mensual</strong>
-      <button onclick="cerrarCargaRegistro()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Mes</div>
-        <select id="reg-mes" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
-          <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
-          <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-          <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
-          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-        </select>
-      </div>
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Año</div>
-        <input type="number" id="reg-anio" value="2026" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;box-sizing:border-box;">
-      </div>
-    </div>
-    <label style="display:flex;align-items:center;gap:12px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:14px;cursor:pointer;margin-bottom:10px;">
-      <span style="font-size:26px;">📷</span>
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--negro);">Sacar o adjuntar foto</div>
-        <div id="reg-foto-nombre" style="font-size:11px;color:var(--gris);margin-top:2px;">Registro de asistencia mensual</div>
-      </div>
-      <input type="file" id="reg-foto-input" accept="image/*" capture="environment" style="display:none;" onchange="cargarFotoRegistroMensual(this)">
-    </label>
-    <div id="reg-preview" style="display:none;text-align:center;margin-bottom:10px;">
-      <img id="reg-preview-img" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--gris-claro);object-fit:contain;">
-    </div>
-    <div id="reg-btns-procesar" style="display:none;grid-template-columns:1fr auto;gap:7px;margin-bottom:8px;">
-      <button id="reg-btn-procesar" onclick="procesarRegistroConIA()" class="save-btn">🤖 Reconocer con IA</button>
-      <button onclick="copiarPromptRegistro()" class="sec-btn" style="white-space:nowrap;">📋 Copiar prompt</button>
-    </div>
-    <div id="reg-msg" style="font-size:12px;text-align:center;padding:6px;display:none;border-radius:8px;margin-bottom:8px;"></div>
-    <div id="reg-tabla-container" style="display:none;">
-      <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Revisá los datos reconocidos</div>
-      <div style="overflow-x:auto;border:1.5px solid var(--gris-claro);border-radius:10px;margin-bottom:10px;">
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead>
-            <tr style="background:var(--crema);">
-              <th style="padding:8px 10px;text-align:left;border-bottom:1.5px solid var(--gris-claro);">Alumno (foto)</th>
-              <th style="padding:8px 8px;text-align:center;border-bottom:1.5px solid var(--gris-claro);">Día</th>
-              <th style="padding:8px 8px;text-align:center;border-bottom:1.5px solid var(--gris-claro);">Estado</th>
-              <th style="padding:8px 10px;text-align:left;border-bottom:1.5px solid var(--gris-claro);">Alumno en sistema</th>
-            </tr>
-          </thead>
-          <tbody id="reg-tabla-body"></tbody>
-        </table>
-      </div>
-      <button id="reg-guardar-btn" onclick="guardarRegistroMensual()" class="save-btn" style="width:100%;">💾 Confirmar y guardar en Supabase</button>
-      <div id="reg-save-msg" style="font-size:11px;text-align:center;margin-top:6px;display:none;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL OBSERVACION -->
-<div id="modal-observacion" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px 16px 0 0;padding:20px 16px 32px;max-width:480px;margin:60px auto 0;position:relative;">
-    <button onclick="document.getElementById('modal-observacion').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--gris);">✕</button>
-    <div style="font-weight:800;font-size:17px;color:var(--verde);margin-bottom:16px;">📝 Cargar Observación</div>
-
-    <div style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Destino</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      <button id="obs-btn-alumno" onclick="obsSetDestino('alumno')" class="save-btn">👤 Por alumno</button>
-      <button id="obs-btn-general" onclick="obsSetDestino('general')" class="sec-btn">🏫 General áulica</button>
-    </div>
-
-    <div id="obs-selector-alumno" style="margin-bottom:14px;">
-      <div style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Alumno</div>
-      <select id="obs-alumno-select" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--gris-claro);font-size:14px;background:#fff;">
-        <option value="">— Seleccioná un alumno —</option>
-      </select>
-    </div>
-
-    <div style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Observación</div>
-    <textarea id="obs-content" rows="5" placeholder="Escribí la observación…" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--gris-claro);font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
-
-    <button onclick="guardarObservacionModal()" class="save-btn" style="width:100%;margin-top:12px;">💾 Guardar</button>
-    <div id="obs-modal-msg" style="font-size:12px;text-align:center;padding:6px;display:none;border-radius:8px;margin-top:8px;"></div>
   </div>
 </div>
 
@@ -1451,7 +1347,9 @@ async function abrirPerfilAcademico(studentId){
   var results=await Promise.all([
     window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
     window.__sb.from('attendance').select('status').eq('student_id',studentId).eq('teacher_id',user.id),
-    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+    s.has_differential
+      ?window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+      :Promise.resolve({data:null})
   ]);
   var gradesRes=results[0],attendRes=results[1],diffRes=results[2];
 
@@ -1538,72 +1436,6 @@ async function abrirPerfilAcademico(studentId){
   html+='<button onclick="guardarObservacionAlumno()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;">Guardar observación</button>';
   html+='</div>';
 
-  // ── Ficha de conocimiento ──
-  var fd=diffRes&&diffRes.data;
-  if(fd){
-    var fichaItems=[
-      {label:'Primera impresión',val:fd.primera_impresion||''},
-      {label:'¿Cómo aprende?',val:fd.como_aprende||''},
-      {label:'Matemática',val:fd.matematica||'',parts:['Qué sale bien','Dónde se traba','Qué funciona']},
-      {label:'Lectura y escritura',val:fd.lectura_escritura||''},
-      {label:'Qué funciona / no funciona',val:fd.funciona_no||'',parts:['Lo que funciona','Lo que hay que evitar','Tipo de apoyo']},
-      {label:'Algo más',val:fd.algo_mas||''}
-    ];
-    var hasFicha=fichaItems.some(function(it){return it.val.replace(/\|/g,'').trim();});
-    if(hasFicha){
-      html+='<div style="margin-bottom:16px;">';
-      html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Ficha de conocimiento</div>';
-      fichaItems.forEach(function(it){
-        if(it.parts){
-          var subs=it.val.split('|||');
-          if(!subs.some(function(s){return s.trim();}))return;
-          html+='<div style="margin-bottom:10px;">';
-          html+='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+escHtml(it.label)+'</div>';
-          subs.forEach(function(s,i){
-            if(!s.trim())return;
-            html+='<div style="background:var(--crema);border-radius:8px;padding:8px 10px;margin-bottom:4px;">'
-              +'<div style="font-size:9px;font-weight:700;color:var(--gris);text-transform:uppercase;margin-bottom:2px;">'+escHtml(it.parts[i]||'')+'</div>'
-              +'<div style="font-size:12px;color:var(--negro);white-space:pre-wrap;">'+escHtml(s.trim())+'</div></div>';
-          });
-          html+='</div>';
-        }else{
-          if(!it.val.trim())return;
-          html+='<div style="margin-bottom:10px;">';
-          html+='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+escHtml(it.label)+'</div>';
-          html+='<div style="background:var(--crema);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--negro);white-space:pre-wrap;">'+escHtml(it.val.trim())+'</div>';
-          html+='</div>';
-        }
-      });
-      html+='</div>';
-    }
-  }
-
-  // ── Perfil académico IA ──
-  html+='<div style="margin-bottom:16px;">';
-  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Perfil académico</div>';
-  html+='<button id="perf-ia-btn" onclick="generarPerfilAcademico(\''+studentId+'\')" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;">🤖 Generar perfil académico</button>';
-  html+='<div id="perf-ia-resultado" style="display:none;">';
-  html+='<div id="perf-ia-text" style="background:var(--crema);border-radius:10px;padding:12px;font-size:12px;color:var(--negro);line-height:1.6;max-height:420px;overflow-y:auto;margin-bottom:8px;"></div>';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;">';
-  html+='<button onclick="copiarPerfilIa()" class="sec-btn">📋 Copiar</button>';
-  html+='<button onclick="guardarPerfilIa(\''+studentId+'\')" class="save-btn">💾 Guardar</button>';
-  html+='</div>';
-  html+='<div id="perf-ia-msg" style="font-size:11px;text-align:center;display:none;border-radius:8px;padding:5px;"></div>';
-  html+='</div>';
-  html+='</div>';
-
-  // ── Informes de boletín ──
-  html+='<div style="margin-bottom:16px;">';
-  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Informes de Boletín</div>';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">';
-  ['1','2','3'].forEach(function(t){
-    var label=t==='1'?'1er Trim.':t==='2'?'2do Trim.':'3er Trim.';
-    html+='<button id="btn-boletin-'+t+'" onclick="toggleBoletinPanel(\''+t+'\',\''+studentId+'\')" class="sec-btn">'+label+'</button>';
-  });
-  html+='</div>';
-  html+='<div id="boletin-panel" style="display:none;background:var(--crema);border-radius:12px;padding:14px;"></div>';
-  html+='</div>';
-
   // ── Archivos y evidencias ──
   html+='<div style="margin-top:0;">';
   html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Archivos y evidencias</div>';
@@ -1628,7 +1460,6 @@ async function abrirPerfilAcademico(studentId){
 
   cargarObservacionesAlumno();
   cargarArchivosAlumno();
-  cargarInformesBoletin(studentId);
 }
 
 async function guardarPerfilDif(studentId){
@@ -1650,335 +1481,6 @@ async function guardarPerfilDif(studentId){
   msg.style.display='block';
   if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
   else{msg.style.color='var(--terracota)';msg.textContent='✅ Perfil guardado';setTimeout(function(){msg.style.display='none';},3000);}
-}
-
-// ── INFORMES DE BOLETÍN ──
-var _boletinData={};
-var _boletinTrimActivo=null;
-
-async function cargarInformesBoletin(studentId){
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  var {data}=await window.__sb.from('informes_boletin')
-    .select('trimestre,contenido')
-    .eq('student_id',studentId)
-    .eq('teacher_id',user.id);
-  _boletinData={};
-  (data||[]).forEach(function(r){_boletinData[String(r.trimestre)]=r.contenido;});
-  // Actualizar badges en los botones
-  ['1','2','3'].forEach(function(t){
-    var btn=document.getElementById('btn-boletin-'+t);
-    if(!btn)return;
-    var label=t==='1'?'1er Trim.':t==='2'?'2do Trim.':'3er Trim.';
-    btn.textContent=(_boletinData[t]?'✅ ':'')+(label);
-  });
-}
-
-function toggleBoletinPanel(trimestre,studentId){
-  var panel=document.getElementById('boletin-panel');
-  if(!panel)return;
-  if(_boletinTrimActivo===trimestre&&panel.style.display!=='none'){
-    panel.style.display='none';
-    _boletinTrimActivo=null;
-    ['1','2','3'].forEach(function(t){var b=document.getElementById('btn-boletin-'+t);if(b)b.className='sec-btn';});
-    return;
-  }
-  _boletinTrimActivo=trimestre;
-  ['1','2','3'].forEach(function(t){
-    var b=document.getElementById('btn-boletin-'+t);
-    if(b)b.className=t===trimestre?'save-btn':'sec-btn';
-  });
-  panel.style.display='block';
-  renderBoletinPanel(trimestre,studentId);
-}
-
-function renderBoletinPanel(trimestre,studentId){
-  var panel=document.getElementById('boletin-panel');
-  if(!panel)return;
-  var trName=trimestre==='1'?'1er':trimestre==='2'?'2do':'3er';
-  var content=_boletinData[trimestre]||'';
-  var html='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">'+trName+' Trimestre</div>';
-  if(content){
-    html+='<div id="boletin-texto-'+trimestre+'" style="font-size:13px;color:var(--negro);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;">'+escHtml(content)+'</div>';
-    html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">';
-    html+='<button onclick="copiarBoletin(\''+trimestre+'\')" class="sec-btn">📋 Copiar</button>';
-    html+='<button onclick="editarBoletin(\''+trimestre+'\',\''+studentId+'\')" class="sec-btn">✏️ Editar</button>';
-    html+='<button onclick="regenerarBoletin(\''+trimestre+'\',\''+studentId+'\')" class="sec-btn">🔄 Regenerar</button>';
-    html+='</div>';
-  }else{
-    html+='<div style="font-size:12px;color:var(--gris);margin-bottom:12px;">No hay informe para este trimestre.</div>';
-    html+='<button onclick="generarInformeBoletin(\''+trimestre+'\',\''+studentId+'\')" id="boletin-gen-btn-'+trimestre+'" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;">🤖 Generar con IA</button>';
-  }
-  html+='<div id="boletin-msg-'+trimestre+'" style="font-size:11px;text-align:center;display:none;border-radius:8px;padding:5px;"></div>';
-  panel.innerHTML=html;
-}
-
-function copiarBoletin(trimestre){
-  var txt=_boletinData[trimestre]||'';
-  navigator.clipboard.writeText(txt).then(function(){
-    var msg=document.getElementById('boletin-msg-'+trimestre);
-    if(msg){msg.textContent='✅ Copiado';msg.style.display='block';msg.style.color='var(--verde)';msg.style.background='#e6f4ea';setTimeout(function(){msg.style.display='none';},2500);}
-  });
-}
-
-function editarBoletin(trimestre,studentId){
-  var panel=document.getElementById('boletin-panel');
-  if(!panel)return;
-  var trName=trimestre==='1'?'1er':trimestre==='2'?'2do':'3er';
-  var content=_boletinData[trimestre]||'';
-  var html='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">'+trName+' Trimestre — Editar</div>';
-  html+='<textarea id="boletin-edit-ta" rows="4" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid var(--gris-claro);font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;line-height:1.6;"></textarea>';
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">';
-  html+='<button onclick="toggleBoletinPanel(\''+trimestre+'\',\''+studentId+'\')" class="sec-btn">Cancelar</button>';
-  html+='<button onclick="guardarBoletinEditado(\''+trimestre+'\',\''+studentId+'\')" class="save-btn">💾 Guardar</button>';
-  html+='</div>';
-  html+='<div id="boletin-msg-'+trimestre+'" style="font-size:11px;text-align:center;display:none;border-radius:8px;padding:5px;margin-top:6px;"></div>';
-  panel.innerHTML=html;
-  document.getElementById('boletin-edit-ta').value=content;
-}
-
-async function guardarBoletinEditado(trimestre,studentId){
-  var ta=document.getElementById('boletin-edit-ta');
-  var msg=document.getElementById('boletin-msg-'+trimestre);
-  var txt=(ta&&ta.value||'').trim();
-  if(!txt){if(msg){msg.textContent='Escribí el informe primero.';msg.style.display='block';msg.style.color='#C0392B';}return;}
-  await _guardarBoletin(studentId,trimestre,txt,msg);
-}
-
-function regenerarBoletin(trimestre,studentId){
-  delete _boletinData[trimestre];
-  renderBoletinPanel(trimestre,studentId);
-}
-
-async function generarInformeBoletin(trimestre,studentId){
-  var btn=document.getElementById('boletin-gen-btn-'+trimestre);
-  var msg=document.getElementById('boletin-msg-'+trimestre);
-  if(btn){btn.disabled=true;btn.textContent='Generando…';}
-  if(msg){msg.style.display='none';}
-  if(!window.__sb)return;
-  var session=(await window.__sb.auth.getSession()).data.session;
-  if(!session){if(btn){btn.disabled=false;btn.textContent='🤖 Generar con IA';}return;}
-  var user=session.user;
-  var s=(window.__students||[]).find(function(x){return x.id===studentId;});
-  var nombre=s?s.full_name:'Alumno';
-  var trName=trimestre==='1'?'1er':trimestre==='2'?'2do':'3er';
-
-  var [gradesRes,obsRes,diffRes]=await Promise.all([
-    window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',trimestre),
-    window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
-    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
-  ]);
-
-  var notasLineas=[];
-  if(gradesRes.data&&gradesRes.data.length){
-    gradesRes.data.forEach(function(g){var code=SUBJECT_CODES[g.subject_id];if(code)notasLineas.push((AREA_NAMES[code]||code)+': '+(g.score!=null?g.score:'sin nota'));});
-  }
-  var notasBloque=notasLineas.length?'Calificaciones del '+trName+' trimestre:\n'+notasLineas.join('\n'):'Sin calificaciones cargadas.';
-
-  var obsBloque='';
-  if(obsRes.data&&obsRes.data.length){
-    obsBloque='Observaciones del docente:\n'+obsRes.data.slice(0,8).map(function(o){return o.content;}).join('\n');
-  }
-
-  var fichaBloque='';
-  var fd=diffRes.data;
-  if(fd){
-    var partes=[];
-    if(fd.primera_impresion&&fd.primera_impresion.trim())partes.push('Primera impresión: '+fd.primera_impresion.trim());
-    if(fd.como_aprende&&fd.como_aprende.trim())partes.push('Cómo aprende: '+fd.como_aprende.trim());
-    if(fd.lectura_escritura&&fd.lectura_escritura.trim())partes.push('Lectura y escritura: '+fd.lectura_escritura.trim());
-    if(partes.length)fichaBloque='Perfil pedagógico:\n'+partes.join('\n');
-  }
-
-  var prompt='Generá el informe de boletín escolar del '+trName+' trimestre para '+nombre+', alumno/a de 6to grado de la Escuela La Concepción (Buenos Aires).\n\n'
-    +'El informe debe:\n'
-    +'- Tener entre 2 y 3 oraciones cortas, pensado para caber en un recuadro de 11.5cm × 2.5cm\n'
-    +'- Estar escrito en tercera persona con lenguaje formal propio de los boletines de educación primaria argentina\n'
-    +'- Reflejar el desempeño global del trimestre de forma integrada, no listar materia por materia\n'
-    +'- Mencionar logros y, si corresponde, aspectos en los que se está trabajando\n'
-    +'- No usar listas, viñetas ni títulos. Solo texto corrido.\n\n'
-    +notasBloque+'\n\n'
-    +(obsBloque?obsBloque+'\n\n':'')
-    +(fichaBloque?fichaBloque+'\n\n':'')
-    +'Escribí directamente el texto del informe, sin aclaraciones ni encabezados.';
-
-  try{
-    var res=await fetch('https://wrrertkbvyjffezkosuc.supabase.co/functions/v1/generar-perfil',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':'sb_publishable_5-iJgzv8wim_t7Kdc_1Avg_tP1OwH7s'},
-      body:JSON.stringify({prompt:prompt})
-    });
-    var data=await res.json();
-    if(!res.ok)throw new Error(data.error||'Error '+res.status);
-    var texto=data.text.trim();
-    await _guardarBoletin(studentId,trimestre,texto,msg);
-  }catch(e){
-    if(msg){msg.textContent='Error: '+e.message;msg.style.display='block';msg.style.color='#C0392B';msg.style.background='#FDE8E8';}
-    if(btn){btn.disabled=false;btn.textContent='🤖 Generar con IA';}
-  }
-}
-
-async function _guardarBoletin(studentId,trimestre,texto,msg){
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  if(msg){msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';msg.style.background='transparent';}
-  var {error}=await window.__sb.from('informes_boletin').upsert({
-    student_id:studentId,teacher_id:user.id,trimestre:parseInt(trimestre,10),
-    contenido:texto,updated_at:new Date().toISOString()
-  },{onConflict:'student_id,trimestre'});
-  if(error){
-    if(msg){msg.style.color='#C0392B';msg.style.background='#FDE8E8';msg.textContent='Error: '+error.message;}
-  }else{
-    _boletinData[trimestre]=texto;
-    renderBoletinPanel(trimestre,studentId);
-    cargarInformesBoletin(studentId);
-  }
-}
-
-// ── PERFIL ACADÉMICO IA ──
-var _perfilIaRawText='';
-var AREA_NAMES={L:'Prácticas del Lenguaje',M:'Matemática',CS:'Cs. Sociales',CN:'Cs. Naturales',I:'Inglés',EA:'Ed. Artística',EF:'Ed. Física'};
-
-async function generarPerfilAcademico(studentId){
-  var btn=document.getElementById('perf-ia-btn');
-  var resultado=document.getElementById('perf-ia-resultado');
-  var textDiv=document.getElementById('perf-ia-text');
-  var msg=document.getElementById('perf-ia-msg');
-  if(!window.__sb)return;
-
-  btn.disabled=true;btn.textContent='Generando…';
-  resultado.style.display='none';
-  msg.style.display='none';
-
-  var session=(await window.__sb.auth.getSession()).data.session;
-  if(!session){btn.disabled=false;btn.textContent='🤖 Generar perfil académico';return;}
-  var user=session.user;
-
-  var s=(window.__students||[]).find(function(x){return x.id===studentId;});
-  var nombre=s?s.full_name:'Alumno';
-
-  var [gradesRes,obsRes,diffRes,boletinRes]=await Promise.all([
-    window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
-    window.__sb.from('notas_rapidas').select('content,created_at').eq('student_id',studentId).eq('teacher_id',user.id).order('created_at',{ascending:false}),
-    window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle(),
-    window.__sb.from('informes_boletin').select('trimestre,contenido').eq('student_id',studentId).eq('teacher_id',user.id).order('trimestre')
-  ]);
-
-  // Notas
-  var notasLineas=[];
-  if(gradesRes.data&&gradesRes.data.length){
-    gradesRes.data.forEach(function(g){
-      var code=SUBJECT_CODES[g.subject_id];
-      if(code)notasLineas.push((AREA_NAMES[code]||code)+': '+(g.score!=null?g.score:'sin nota'));
-    });
-  }
-  var trName=gradesPeriodo==='1'?'1er':gradesPeriodo==='2'?'2do':'3er';
-  var notasBloque=notasLineas.length
-    ?'NOTAS ('+trName+' trimestre):\n'+notasLineas.join('\n')
-    :'Sin notas cargadas aún.';
-
-  // Observaciones
-  var obsBloque='Sin observaciones registradas.';
-  if(obsRes.data&&obsRes.data.length){
-    obsBloque='OBSERVACIONES DEL DOCENTE:\n'+obsRes.data.map(function(o){
-      var fecha=o.created_at?new Date(o.created_at).toLocaleDateString('es-AR'):'';
-      return (fecha?'['+fecha+'] ':'')+o.content;
-    }).join('\n');
-  }
-
-  // Ficha diferencial
-  var fichaBloque='';
-  var fd=diffRes.data;
-  if(fd){
-    var partes=[];
-    if(fd.primera_impresion&&fd.primera_impresion.trim())partes.push('Primera impresión: '+fd.primera_impresion.trim());
-    if(fd.como_aprende&&fd.como_aprende.trim())partes.push('Cómo aprende: '+fd.como_aprende.trim());
-    if(fd.matematica&&fd.matematica.replace(/\|/g,'').trim()){
-      var subs=fd.matematica.split('|||');
-      var subLabels=['Qué sale bien en matemática','Dónde se traba','Qué funciona'];
-      subs.forEach(function(s,i){if(s.trim())partes.push(subLabels[i]+': '+s.trim());});
-    }
-    if(fd.lectura_escritura&&fd.lectura_escritura.trim())partes.push('Lectura y escritura: '+fd.lectura_escritura.trim());
-    if(fd.funciona_no&&fd.funciona_no.replace(/\|/g,'').trim()){
-      var subs2=fd.funciona_no.split('|||');
-      var subLabels2=['Lo que funciona','Lo que hay que evitar','Tipo de apoyo'];
-      subs2.forEach(function(s,i){if(s.trim())partes.push(subLabels2[i]+': '+s.trim());});
-    }
-    if(fd.algo_mas&&fd.algo_mas.trim())partes.push('Algo más: '+fd.algo_mas.trim());
-    if(partes.length)fichaBloque='FICHA DE CONOCIMIENTO DEL ALUMNO:\n'+partes.join('\n');
-  }
-
-  // Informes de boletín previos
-  var boletinBloque='';
-  if(boletinRes.data&&boletinRes.data.length){
-    var trNames={'1':'1er','2':'2do','3':'3er'};
-    var lineas=boletinRes.data
-      .filter(function(r){return r.contenido&&r.contenido.trim();})
-      .map(function(r){return 'Informe de boletín '+(trNames[String(r.trimestre)]||String(r.trimestre))+' trimestre:\n'+r.contenido.trim();});
-    if(lineas.length)boletinBloque='INFORMES DE BOLETÍN PREVIOS:\n'+lineas.join('\n\n');
-  }
-
-  var prompt='Sos un asistente pedagógico especializado en educación primaria argentina.\n'
-    +'Generá un perfil académico formal del siguiente alumno de 6to grado para una docente.\n\n'
-    +'ALUMNO: '+nombre+'\n\n'
-    +notasBloque+'\n\n'
-    +obsBloque+'\n\n'
-    +(fichaBloque?fichaBloque+'\n\n':'')
-    +(boletinBloque?boletinBloque+'\n\n':'')
-    +'Redactá el perfil con las siguientes secciones claramente diferenciadas:\n'
-    +'1. FORTALEZAS\n'
-    +'2. DIFICULTADES POR ÁREA\n'
-    +'3. ESTRATEGIAS RECOMENDADAS\n'
-    +'4. OBSERVACIONES GENERALES\n\n'
-    +'Usá lenguaje formal pero accesible, apropiado para un informe pedagógico de nivel primario. '
-    +'Sé concreto y basate únicamente en los datos provistos.';
-
-  try{
-    var res=await fetch('https://wrrertkbvyjffezkosuc.supabase.co/functions/v1/generar-perfil',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer '+session.access_token,
-        'apikey':'sb_publishable_5-iJgzv8wim_t7Kdc_1Avg_tP1OwH7s'
-      },
-      body:JSON.stringify({prompt:prompt})
-    });
-    var data=await res.json();
-    if(!res.ok)throw new Error(data.error||'Error '+res.status);
-    _perfilIaRawText=data.text;
-    textDiv.innerHTML=markdownToHtml(_perfilIaRawText);
-    resultado.style.display='block';
-  }catch(e){
-    msg.textContent='Error: '+e.message;msg.style.display='block';msg.style.color='#C0392B';
-    msg.style.background='#FDE8E8';
-  }
-  btn.disabled=false;btn.textContent='🤖 Generar perfil académico';
-}
-
-function copiarPerfilIa(){
-  navigator.clipboard.writeText(_perfilIaRawText).then(function(){
-    var msg=document.getElementById('perf-ia-msg');
-    msg.textContent='✅ Copiado al portapapeles';msg.style.display='block';
-    msg.style.color='var(--verde)';msg.style.background='#e6f4ea';
-    setTimeout(function(){msg.style.display='none';},3000);
-  });
-}
-
-async function guardarPerfilIa(studentId){
-  if(!_perfilIaRawText||!window.__sb)return;
-  var msg=document.getElementById('perf-ia-msg');
-  msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';msg.style.background='transparent';
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  var {error}=await window.__sb.from('differential_profiles').upsert({
-    student_id:studentId,teacher_id:user.id,
-    descripcion:_perfilIaRawText,
-    updated_at:new Date().toISOString()
-  },{onConflict:'student_id'});
-  if(error){msg.style.color='#C0392B';msg.style.background='#FDE8E8';msg.textContent='Error: '+error.message;}
-  else{msg.style.color='var(--verde)';msg.style.background='#e6f4ea';msg.textContent='✅ Perfil guardado en Supabase';setTimeout(function(){msg.style.display='none';},3000);}
 }
 
 // ── ARCHIVOS Y EVIDENCIAS ──
@@ -2411,50 +1913,8 @@ function toggleGrupo(id){
   if(!abierto){panel.classList.add('visible');btn.classList.add('abierto');}
 }
 
-// ── OBSERVACION MODAL ──
-var _obsDestino='alumno';
-function abrirObservacionModal(){
-  document.getElementById('modal-observacion').style.display='block';
-  document.getElementById('obs-content').value='';
-  document.getElementById('obs-modal-msg').style.display='none';
-  var sel=document.getElementById('obs-alumno-select');
-  sel.innerHTML='<option value="">— Seleccioná un alumno —</option>';
-  (window.__students||[]).forEach(function(s){
-    var o=document.createElement('option');o.value=s.id;o.textContent=s.full_name;sel.appendChild(o);
-  });
-  obsSetDestino('alumno');
-}
-function obsSetDestino(d){
-  _obsDestino=d;
-  document.getElementById('obs-btn-alumno').className=d==='alumno'?'save-btn':'sec-btn';
-  document.getElementById('obs-btn-general').className=d==='general'?'save-btn':'sec-btn';
-  document.getElementById('obs-selector-alumno').style.display=d==='alumno'?'block':'none';
-}
-async function guardarObservacionModal(){
-  var content=document.getElementById('obs-content').value.trim();
-  var msg=document.getElementById('obs-modal-msg');
-  if(!content){msg.textContent='Escribí una observación primero.';msg.style.display='block';msg.style.color='#C0392B';return;}
-  var studentId=null;
-  if(_obsDestino==='alumno'){
-    studentId=document.getElementById('obs-alumno-select').value||null;
-    if(!studentId){msg.textContent='Seleccioná un alumno.';msg.style.display='block';msg.style.color='#C0392B';return;}
-  }
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  msg.textContent='Guardando…';msg.style.display='block';msg.style.color='var(--gris)';
-  var {error}=await window.__sb.from('notas_rapidas').insert({
-    student_id:studentId,
-    teacher_id:user.id,
-    content:content
-  });
-  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
-  else{
-    msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada';
-    document.getElementById('obs-content').value='';
-    setTimeout(function(){document.getElementById('modal-observacion').style.display='none';},1500);
-  }
-}
+// ── FORM TOGGLE ──
+function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
 
 // ── PANELS ──
 function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')initGrades();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1'){if(Object.keys(gradesData).length===0)initGrades().then(renderBoletin1);else renderBoletin1();}}}
@@ -2646,6 +2106,11 @@ function togglePrompts(){var s=document.getElementById('prompts-sec');s.style.di
 function togglePrompt(id){var b=document.getElementById('body-'+id),t=document.getElementById('tog-'+id);b.style.display=b.style.display==='none'?'block':'none';t.textContent=b.style.display==='none'?'+':'−';}
 function copyText(id){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert('Copiado'));}
 
+// ── CLAUDE ──
+function abrirClaude(){document.getElementById('modal-claude').style.display='block';}
+function cerrarClaude(){document.getElementById('modal-claude').style.display='none';}
+function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementById('prompt-claude-text').innerText).then(()=>{document.getElementById('claude-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('claude-copy-msg').textContent='';},3000);});}
+
 // ── GENERADOR ──
 var tipoSel='',alumnosEsp=[],soloDif=false;
 var _genAdjuntoBase64=null,_genAdjuntoType=null,_genAdjuntoIsPDF=false;
@@ -2655,107 +2120,38 @@ function cerrarGenerador(){document.getElementById('modal-generador').style.disp
 function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;var esP=t==='proyecto';document.getElementById('gen-area-row').style.display=esP?'none':'block';document.getElementById('gen-areas-multi-row').style.display=esP?'block':'none';if(t==='problemas')document.getElementById('gen-area').value='Matemática';}
 function toggleSoloDif(){soloDif=document.getElementById('solo-diferenciadas').checked;document.getElementById('gen-nota-general').style.display=soloDif?'none':'block';}
 function toggleAlumnoEsp(el,n,t,p){var idx=alumnosEsp.findIndex(a=>a.nombre===n);if(idx>=0){alumnosEsp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check-icon').textContent='☐';}else{alumnosEsp.push({nombre:n,tipo:t,perfil:p});el.classList.add('selected');el.querySelector('.check-icon').textContent='☑';}}
-async function armarTextoPrompt(){
+async function generarPrompt(){
   var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
-  if(!tipoSel){alert('Seleccioná el tipo');return null;}
-  if(!tema){alert('Escribí el tema');return null;}
+  if(!tipoSel){alert('Seleccioná el tipo');return;}
+  if(!tema){alert('Escribí el tema');return;}
   var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
   var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
   var p='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
   if(tipoSel==='proyecto')p+=' que integre: '+areaT;else p+=' para '+areaT;
   p+=', sobre: '+tema+'.\n\n';
   if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
+  if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';
   if(tipoSel==='repaso')p+='\nConsolidar contenido ya trabajado, dificultad progresiva.';
+  if(tipoSel==='problemas')p+='\nEntre 4 y 6 problemas articulados, contextos cotidianos.';
   if(tipoSel==='proyecto')p+='\n2-3 semanas, producto final, momentos grupales e individuales.';
-  p+='\n\nGenerá el material en formato HTML limpio para imprimir. Cada problema debe tener: número + título + operación en negrita, enunciado corto, una pista en cursiva, y dos recuadros lado a lado: \'Estrategia y cálculo\' (grande, para que el alumno trabaje) y \'Respuesta\' (pequeño). Sin colores, sin emojis, sin decoración. Tipografía Georgia. Pie de página con Escuela La Concepción · 6to Grado · 2026. Una página por hoja, imprimible. Si hay versión diferenciada, agregarla en página separada con el nombre del alumno.';
   if(alumnosEsp.length>0){
-    var studentIds=alumnosEsp.map(function(a){
-      var s=(window.__students||[]).find(function(x){return x.full_name===a.nombre;});
-      return s?s.id:null;
-    }).filter(Boolean);
-    var diffMap={},boletinMap={};
-    if(studentIds.length&&window.__sb){
-      var sbUser=(await window.__sb.auth.getUser()).data.user;
-      if(sbUser){
-        var [diffRes,boletinRes]=await Promise.all([
-          window.__sb.from('differential_profiles').select('student_id,descripcion,necesidades,adaptaciones').in('student_id',studentIds),
-          window.__sb.from('informes_boletin').select('student_id,contenido').in('student_id',studentIds).eq('trimestre',1)
-        ]);
-        (diffRes.data||[]).forEach(function(r){diffMap[r.student_id]=r;});
-        (boletinRes.data||[]).forEach(function(r){boletinMap[r.student_id]=r.contenido;});
-      }
-    }
     p+='\n\nVERSIONES DIFERENCIADAS:\n';
     alumnosEsp.forEach(function(a){
-      var s=(window.__students||[]).find(function(x){return x.full_name===a.nombre;});
       var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos — NEE con diagnóstico)':'ADECUACIÓN (mantiene objetivos, cambia forma/apoyo)';
-      p+='• '+a.nombre+' — '+tl+'\n';
-      var hasData=false;
-      if(s){
-        var diff=diffMap[s.id];
-        if(diff){
-          if(diff.descripcion&&diff.descripcion.trim()){p+='  Descripción: '+diff.descripcion.trim()+'\n';hasData=true;}
-          if(diff.necesidades&&diff.necesidades.trim()){p+='  Necesidades de aprendizaje: '+diff.necesidades.trim()+'\n';hasData=true;}
-          if(diff.adaptaciones&&diff.adaptaciones.trim()){p+='  Adaptaciones pedagógicas: '+diff.adaptaciones.trim()+'\n';hasData=true;}
-        }
-        var boletin=boletinMap[s.id];
-        if(boletin&&boletin.trim()){p+='  Informe 1er trimestre: '+boletin.trim()+'\n';hasData=true;}
-      }
-      if(!hasData)p+='  '+a.perfil+'\n';
+      p+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';
     });
-    p+='\nCada versión diferenciada con nota pedagógica breve.';
+    p+='\nCada versión con nota pedagógica breve.';
   }
-  if(det)p+='\n\nDetalles adicionales: '+det;
-  return p;
-}
-async function generarPrompt(){
-  var p=await armarTextoPrompt();
-  if(!p)return;
+  if(det)p+='\n\nDetalles: '+det;
   document.getElementById('gen-ai-resultado').style.display='none';
-  document.getElementById('gen-prompt-text').textContent=p;
-  document.getElementById('gen-resultado').style.display='block';
-  document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
-}
-async function generarConIA(){
-  var p=await armarTextoPrompt();
-  if(!p)return;
-  document.getElementById('gen-resultado').style.display='none';
-  if(!document.getElementById('estilos-libro')){var s=document.createElement('style');s.id='estilos-libro';s.textContent='';document.head.appendChild(s);}
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
-  var btn=document.getElementById('gen-btn-ia');
-  var contenedor=document.getElementById('gen-ai-resultado');
-  btn.disabled=true;btn.textContent='⏳ Generando…';
-  contenedor.style.display='block';
-  document.getElementById('gen-ai-text').innerHTML='<div style="text-align:center;padding:32px;color:#2D5F4F"><div style="font-size:32px;margin-bottom:10px">📖</div><div style="font-weight:700;font-size:14px">Generando material…</div></div>';
-  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Respondé ÚNICAMENTE con un JSON válido, sin texto antes ni después, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas de respuesta (items=array strings), tabla=tabla con columnas y filas, escritura=área en blanco (alto px), caja=recuadro reflexión. Máximo 2 páginas, 4-6 secciones por página. Lenguaje directo al alumno.';
-  var contentParts=[];
-  if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
-  contentParts.push({type:'text',text:p});
-  var headers={'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'};
-  if(_genAdjuntoIsPDF)headers['anthropic-beta']='pdfs-2024-09-25';
-  try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,system:SISTEMA,messages:[{role:'user',content:contentParts}]})});
-    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
-    var data=await res.json();
-    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
-    _genAiRawText=texto;
-    renderLibro(texto,document.getElementById('gen-ai-text'));
-    contenedor.style.display='block';
-    contenedor.scrollIntoView({behavior:'smooth'});
-  }catch(e){
-    document.getElementById('gen-ai-text').innerHTML='<div style="padding:16px;color:#C05A3A;font-size:13px;background:#F5E0D8;border-radius:10px">⚠️ Error: '+e.message+'</div>';
-    contenedor.style.display='block';
-  }finally{
-    btn.disabled=false;btn.textContent='🤖 Generar con IA';
+  if(_genAdjuntoBase64){
+    await enviarAClaudeConArchivo(p);
+  } else {
+    document.getElementById('gen-prompt-text').textContent=p;
+    document.getElementById('gen-resultado').style.display='block';
+    document.getElementById('gen-resultado').scrollIntoView({behavior:'smooth'});
   }
 }
-  function renderLibro(respuestaIA,contenedor){
-  var LB_COLORES=['lb-c0','lb-c1','lb-c2','lb-c3','lb-c4','lb-c5'];
-  var LB_NUMS=['lb-n0','lb-n1','lb-n2','lb-n3','lb-n4'];
-  var LB_ICONOS=['📚','✏️','🔢','💡','🌿','📊'];
-  var LB_BG=['#D4EAE4','#F7EDDB','#F5E0D8','#D6E5F3','#DDF0F7','#EAE7F5'];
-  function lbPie(n){return '<div class="lb-pie"><svg viewBox="0 0 750 42" preserveAspectRatio="none" style="width:100%;height:42px"><path d="M0 28 Q150 10 300 26 Q450 44 600 24 Q680 10 750 22 L750 42 L0 42Z" fill="#2D5F4F"/><path d="M0 34 Q200 18 400 32 Q580 48 750 30 L750 42 L0 42Z" fill="#C8973A" opacity=".6"/></svg><div class="lb-pie-num">'+n+'</div></div>';}
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
 function seleccionarAdjuntoGen(){
@@ -2786,8 +2182,8 @@ async function enviarAClaudeConArchivo(promptText){
     localStorage.setItem('huellaed_anthropic_key',apiKey.trim());
     apiKey=apiKey.trim();
   }
-  var btn=document.getElementById('gen-btn-ia');
-  btn.disabled=true;btn.textContent='⏳ Consultando…';
+  var btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.textContent='⏳ Consultando a Claude…';
   var contentParts=[];
   if(_genAdjuntoIsPDF){
     contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});
@@ -2826,7 +2222,7 @@ async function enviarAClaudeConArchivo(promptText){
   } catch(e){
     alert('Error al llamar a Claude: '+e.message);
   } finally {
-    btn.disabled=false;btn.textContent='🤖 Generar con IA';
+    btn.disabled=false;btn.textContent='✨ Armar prompt';
   }
 }
 
@@ -2839,28 +2235,21 @@ function inlineMd(s){
     .replace(/`(.+?)`/g,'<code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:11px;">$1</code>');
 }
 function markdownToHtml(md){
-  var lines=md.split('\n'),html='',inList=false,listType='',inCode=false;
+  var lines=md.split('\n'),html='',inList=false,listType='';
   lines.forEach(function(line){
-    if(/^```/.test(line.trim())){
-      if(inCode){html+='</code></pre>';inCode=false;}
-      else{if(inList){html+='</'+listType+'>';inList=false;listType='';}html+='<pre style="background:#f4f4f4;border-radius:6px;padding:10px 14px;overflow-x:auto;font-size:11px;margin:8px 0;"><code>';inCode=true;}
-      return;
-    }
-    if(inCode){html+=escHtml(line)+'\n';return;}
     var h1=/^# (.+)/.exec(line),h2=/^## (.+)/.exec(line),h3=/^### (.+)/.exec(line);
     var ul=/^[\*\-] (.+)/.exec(line),ol=/^\d+\. (.+)/.exec(line);
     var hr=/^-{3,}$/.test(line.trim());
     function closeList(){if(inList){html+='</'+listType+'>';inList=false;listType='';}}
-    if(h3){closeList();html+='<h3 style="font-size:13px;font-weight:700;margin:14px 0 5px;color:#2D3A35;">'+inlineMd(h3[1])+'</h3>';}
-    else if(h2){closeList();html+='<h2 style="font-size:15px;font-weight:700;margin:18px 0 7px;color:#2D5F4F;">'+inlineMd(h2[1])+'</h2>';}
-    else if(h1){closeList();html+='<h1 style="font-size:17px;font-weight:700;margin:20px 0 9px;color:#2D5F4F;border-bottom:1.5px solid #E8E4DF;padding-bottom:5px;">'+inlineMd(h1[1])+'</h1>';}
+    if(h3){closeList();html+='<h3 style="font-size:13px;font-weight:700;margin:14px 0 5px;color:var(--negro);">'+inlineMd(h3[1])+'</h3>';}
+    else if(h2){closeList();html+='<h2 style="font-size:15px;font-weight:700;margin:18px 0 7px;color:var(--verde);">'+inlineMd(h2[1])+'</h2>';}
+    else if(h1){closeList();html+='<h1 style="font-size:17px;font-weight:700;margin:20px 0 9px;color:var(--verde);border-bottom:1.5px solid var(--gris-claro);padding-bottom:5px;">'+inlineMd(h1[1])+'</h1>';}
     else if(ul){if(!inList||listType!=='ul'){closeList();html+='<ul style="margin:5px 0 10px 18px;padding:0;">';inList=true;listType='ul';}html+='<li style="margin-bottom:3px;">'+inlineMd(ul[1])+'</li>';}
     else if(ol){if(!inList||listType!=='ol'){closeList();html+='<ol style="margin:5px 0 10px 18px;padding:0;">';inList=true;listType='ol';}html+='<li style="margin-bottom:3px;">'+inlineMd(ol[1])+'</li>';}
-    else if(hr){closeList();html+='<hr style="border:none;border-top:1px solid #E8E4DF;margin:14px 0;">';}
+    else if(hr){closeList();html+='<hr style="border:none;border-top:1px solid var(--gris-claro);margin:14px 0;">';}
     else if(line.trim()===''){closeList();html+='<div style="height:6px;"></div>';}
     else{closeList();html+='<p style="margin:0 0 8px;">'+inlineMd(line)+'</p>';}
   });
-  if(inCode)html+='</code></pre>';
   if(inList)html+='</'+listType+'>';
   return html;
 }
@@ -2904,41 +2293,27 @@ function descargarCuadernillo(){
   var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',planificacion:'Planificacion',evaluacion:'Evaluacion',repaso:'Repaso',problemas:'Problemas',proyecto:'Proyecto'};
   var tituloLabel=(tipos[tipoSel]||'Material')+(area?' · '+area:'')+(tema?' · '+tema:'');
   var nombreArchivo=(tipos[tipoSel]||'material').toLowerCase()+'-'+tema.slice(0,30).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'.html';
-  var raw=_genAiRawText.trim();
-  function fixCssVars(s){
-    return s.replace(/var\(--verde\)/g,'#2D5F4F')
-      .replace(/var\(--crema\)/g,'#F5F2EE')
-      .replace(/var\(--gris-claro\)/g,'#E8E4DF')
-      .replace(/var\(--negro\)/g,'#2D3A35')
-      .replace(/var\(--terracota\)/g,'#C8845A')
-      .replace(/var\(--gris\)/g,'#8A7E6A');
-  }
-  var doc;
-  if(/^<!DOCTYPE html>/i.test(raw)||/^<html/i.test(raw)){
-    doc=fixCssVars(raw);
-  }else{
-    doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title><style>'
-      +'*{box-sizing:border-box;}body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 28px;font-size:13px;line-height:1.85;color:#222;}'
-      +'h1{font-size:20px;color:#2D5F4F;border-bottom:2px solid #2D5F4F;padding-bottom:7px;margin:20px 0 10px;}'
-      +'h2{font-size:16px;color:#2D5F4F;margin:20px 0 8px;}'
-      +'h3{font-size:14px;font-weight:bold;margin:16px 0 6px;}'
-      +'p{margin:0 0 10px;}ul,ol{margin:5px 0 12px 22px;padding:0;}li{margin-bottom:4px;}'
-      +'hr{border:none;border-top:1px solid #ccc;margin:18px 0;}'
-      +'code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:11px;}'
-      +'.doc-header{text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:12px;margin-bottom:22px;}'
-      +'.doc-header .escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}'
-      +'.doc-header h1{border:none;margin:4px 0;font-size:19px;}'
-      +'.doc-header .meta{font-size:11px;color:#888;margin-top:4px;}'
-      +'@media print{body{margin:15mm 20mm;}}'
-      +'</style></head><body>'
-      +'<div class="doc-header">'
-      +'<div class="escuela">Escuela La Concepción · 6to Grado · 2026</div>'
-      +'<h1>'+escHtml(tituloLabel)+'</h1>'
-      +'<div class="meta">HuellaED · '+new Date().toLocaleDateString('es-AR')+'</div>'
-      +'</div>'
-      +fixCssVars(markdownToHtml(raw).replace(/`/g,''))
-      +'</body></html>';
-  }
+  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title><style>'
+    +'*{box-sizing:border-box;}body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 28px;font-size:13px;line-height:1.85;color:#222;}'
+    +'h1{font-size:20px;color:#2D5F4F;border-bottom:2px solid #2D5F4F;padding-bottom:7px;margin:20px 0 10px;}'
+    +'h2{font-size:16px;color:#2D5F4F;margin:20px 0 8px;}'
+    +'h3{font-size:14px;font-weight:bold;margin:16px 0 6px;}'
+    +'p{margin:0 0 10px;}ul,ol{margin:5px 0 12px 22px;padding:0;}li{margin-bottom:4px;}'
+    +'hr{border:none;border-top:1px solid #ccc;margin:18px 0;}'
+    +'code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:11px;}'
+    +'.doc-header{text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:12px;margin-bottom:22px;}'
+    +'.doc-header .escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}'
+    +'.doc-header h1{border:none;margin:4px 0;font-size:19px;}'
+    +'.doc-header .meta{font-size:11px;color:#888;margin-top:4px;}'
+    +'@media print{body{margin:15mm 20mm;}}'
+    +'</style></head><body>'
+    +'<div class="doc-header">'
+    +'<div class="escuela">Escuela La Concepción · 6to Grado · 2026</div>'
+    +'<h1>'+escHtml(tituloLabel)+'</h1>'
+    +'<div class="meta">HuellaED · '+new Date().toLocaleDateString('es-AR')+'</div>'
+    +'</div>'
+    +markdownToHtml(_genAiRawText)
+    +'</body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
@@ -3213,170 +2588,6 @@ async function cargarHistorialReuniones(){
 function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Grado · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Grado 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
-
-// ── CARGA REGISTRO MENSUAL ──
-var _regFotoBase64=null,_regFotoType=null,_regItems=[];
-
-function abrirCargaRegistro(){
-  document.getElementById('modal-carga-registro').style.display='block';
-  var now=new Date();
-  document.getElementById('reg-mes').value=String(now.getMonth()+1).padStart(2,'0');
-  document.getElementById('reg-anio').value=now.getFullYear();
-  document.getElementById('reg-preview').style.display='none';
-  document.getElementById('reg-btns-procesar').style.display='none';
-  document.getElementById('reg-tabla-container').style.display='none';
-  document.getElementById('reg-msg').style.display='none';
-  _regFotoBase64=null;_regFotoType=null;_regItems=[];
-}
-
-function cerrarCargaRegistro(){
-  document.getElementById('modal-carga-registro').style.display='none';
-  _regFotoBase64=null;_regFotoType=null;_regItems=[];
-  var inp=document.getElementById('reg-foto-input');if(inp)inp.value='';
-  document.getElementById('reg-foto-nombre').textContent='Registro de asistencia mensual';
-}
-
-function cargarFotoRegistroMensual(input){
-  if(!input.files||!input.files[0])return;
-  var file=input.files[0];
-  _regFotoType=file.type||'image/jpeg';
-  document.getElementById('reg-foto-nombre').textContent='📎 '+file.name;
-  document.getElementById('reg-tabla-container').style.display='none';
-  document.getElementById('reg-msg').style.display='none';
-  var reader=new FileReader();
-  reader.onload=function(e){
-    _regFotoBase64=e.target.result.split(',')[1];
-    document.getElementById('reg-preview-img').src=e.target.result;
-    document.getElementById('reg-preview').style.display='block';
-    document.getElementById('reg-btns-procesar').style.display='grid';
-  };
-  reader.readAsDataURL(file);
-}
-
-function _normNombre(s){
-  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z\s]/g,'').trim();
-}
-function _matchEstudiante(nombre){
-  if(!window.__students||!nombre)return null;
-  var n=_normNombre(nombre);
-  var m=window.__students.find(function(s){return _normNombre(s.full_name)===n;});
-  if(m)return m;
-  var words=n.split(/\s+/).filter(function(w){return w.length>2;});
-  return window.__students.find(function(s){
-    var sn=_normNombre(s.full_name);
-    return words.some(function(w){return sn.includes(w);});
-  })||null;
-}
-
-function copiarPromptRegistro(){
-  var txt='Analizá esta imagen de un registro de asistencia escolar argentino. Los alumnos están en filas y los días en columnas. El símbolo 1 significa Presente (P) y el símbolo 3 significa Ausente (A). Extraé todos los datos y devolvé ÚNICAMENTE un JSON válido, sin texto adicional, con este formato exacto: [{"alumno":"APELLIDO NOMBRE","dia":1,"estado":"P"}]. Incluí solo las celdas que tienen datos.';
-  navigator.clipboard.writeText(txt).then(function(){
-    var msg=document.getElementById('reg-msg');
-    msg.textContent='✅ Prompt copiado. Pegalo en claude.ai junto con la foto.';
-    msg.style.display='block';
-    msg.style.background='#e6f4ea';
-    msg.style.color='#2D5F4F';
-    setTimeout(function(){msg.style.display='none';},4000);
-  }).catch(function(){
-    prompt('Copiá este texto manualmente:',txt);
-  });
-}
-async function procesarRegistroConIA(){
-  if(!_regFotoBase64){alert('Adjuntá una foto primero');return;}
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){
-    apiKey=prompt('Ingresá tu API Key de Anthropic:');
-    if(!apiKey)return;
-    localStorage.setItem('huellaed_anthropic_key',apiKey.trim());
-    apiKey=apiKey.trim();
-  }
-  var btn=document.getElementById('reg-btn-procesar');
-  var msg=document.getElementById('reg-msg');
-  btn.disabled=true;btn.textContent='⏳ Procesando…';
-  msg.style.display='block';msg.style.background='#F5F5F0';msg.style.color='var(--gris)';msg.textContent='Analizando la foto con IA…';
-  try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:4096,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:_regFotoType,data:_regFotoBase64}},
-          {type:'text',text:'Analizá esta imagen de un registro de asistencia escolar argentino. Los alumnos están en filas y los días en columnas. El símbolo 1 significa Presente (P) y el símbolo 3 significa Ausente (A). Extraé todos los datos y devolvé ÚNICAMENTE un JSON válido, sin texto adicional, con este formato exacto: [{"alumno":"APELLIDO NOMBRE","dia":1,"estado":"P"}]. Incluí solo las celdas que tienen datos.'}
-        ]}]
-      })
-    });
-    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
-    var data=await res.json();
-    var raw=(data.content&&data.content[0]&&data.content[0].text)||'';
-    var jsonMatch=raw.match(/\[[\s\S]*\]/);
-    if(!jsonMatch)throw new Error('No se encontró JSON en la respuesta');
-    var items=JSON.parse(jsonMatch[0]);
-    if(!Array.isArray(items)||!items.length)throw new Error('JSON vacío');
-    _regItems=items.map(function(it){
-      var est=String(it.estado||'').trim();
-      var status=(est==='1'||/^p/i.test(est))?'presente':'ausente';
-      var matched=_matchEstudiante(String(it.alumno||''));
-      return {alumno:String(it.alumno||''),dia:parseInt(it.dia)||0,estado:status,studentId:matched?matched.id:null,studentName:matched?matched.full_name:null};
-    });
-    _renderTablaRegistro();
-    document.getElementById('reg-tabla-container').style.display='block';
-    document.getElementById('reg-tabla-container').scrollIntoView({behavior:'smooth'});
-    msg.style.background='var(--verde-bg)';msg.style.color='var(--verde)';msg.textContent='✅ '+_regItems.length+' registros reconocidos — revisá y confirmá';
-  }catch(e){
-    msg.style.background='#FDE8E8';msg.style.color='#C0392B';msg.textContent='❌ '+e.message;
-  }finally{
-    btn.disabled=false;btn.textContent='🤖 Reconocer con IA';
-  }
-}
-
-function _renderTablaRegistro(){
-  var tbody=document.getElementById('reg-tabla-body');
-  var opts='<option value="">— Sin coincidencia —</option>'+(window.__students||[]).map(function(s){
-    return '<option value="'+s.id+'">'+s.full_name+'</option>';
-  }).join('');
-  tbody.innerHTML=_regItems.map(function(it,i){
-    var sinMatch=!it.studentId;
-    var estadoBadge=it.estado==='presente'
-      ?'<span style="background:var(--verde-bg);color:var(--verde);border-radius:5px;padding:2px 8px;font-weight:700;font-size:10px;">P</span>'
-      :'<span style="background:#FDE8E8;color:#C0392B;border-radius:5px;padding:2px 8px;font-weight:700;font-size:10px;">A</span>';
-    return '<tr style="border-bottom:1px solid var(--gris-claro);'+(sinMatch?'background:#FFFBF0;':'')+'"><td style="padding:6px 10px;color:var(--gris);white-space:nowrap;">'+it.alumno+'</td><td style="padding:6px 8px;text-align:center;font-weight:700;">'+it.dia+'</td><td style="padding:6px 8px;text-align:center;">'+estadoBadge+'</td><td style="padding:5px 8px;"><select data-idx="'+i+'" onchange="_actualizarMatchReg(this)" style="width:100%;font-size:11px;padding:4px 6px;border:1.5px solid '+(sinMatch?'#E8A020':'var(--gris-claro)')+';border-radius:6px;background:#fff;">'+opts+'</select></td></tr>';
-  }).join('');
-  tbody.querySelectorAll('select').forEach(function(sel){
-    var idx=parseInt(sel.getAttribute('data-idx'));
-    if(_regItems[idx]&&_regItems[idx].studentId)sel.value=_regItems[idx].studentId;
-  });
-}
-
-function _actualizarMatchReg(sel){
-  var idx=parseInt(sel.getAttribute('data-idx'));
-  if(idx<0||idx>=_regItems.length)return;
-  _regItems[idx].studentId=sel.value||null;
-  var s=sel.value?(window.__students||[]).find(function(x){return x.id===sel.value;}):null;
-  _regItems[idx].studentName=s?s.full_name:null;
-  sel.style.borderColor=sel.value?'var(--gris-claro)':'#E8A020';
-}
-
-async function guardarRegistroMensual(){
-  var mes=document.getElementById('reg-mes').value;
-  var anio=document.getElementById('reg-anio').value;
-  if(!mes||!anio){alert('Seleccioná mes y año');return;}
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  var records=_regItems.filter(function(it){return it.studentId&&it.dia>0;}).map(function(it){
-    return {student_id:it.studentId,teacher_id:user.id,date:anio+'-'+mes+'-'+String(it.dia).padStart(2,'0'),status:it.estado};
-  });
-  if(!records.length){alert('No hay registros con alumno asignado');return;}
-  var msg=document.getElementById('reg-save-msg');
-  var btn=document.getElementById('reg-guardar-btn');
-  btn.disabled=true;btn.textContent='Guardando…';
-  msg.style.display='block';msg.style.color='var(--gris)';msg.textContent='Guardando '+records.length+' registros…';
-  var {error}=await window.__sb.from('attendance').upsert(records,{onConflict:'student_id,date'});
-  btn.disabled=false;btn.textContent='💾 Confirmar y guardar en Supabase';
-  if(error){msg.style.color='#C0392B';msg.textContent='❌ '+error.message;}
-  else{msg.style.color='var(--verde)';msg.textContent='✅ '+records.length+' registros guardados correctamente';}
-}
 
 // ── ASISTENCIA ──
 var asistenciaHoy = {};
