@@ -1563,8 +1563,11 @@ async function abrirPerfilAcademico(studentId){
 
   // Botón generar perfil académico funcional
   html+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-claro);">';
-  html+='<button onclick="generarPerfilAcademico()" style="width:100%;background:linear-gradient(135deg,#2D5F4F,#3A7A65);color:#fff;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Generar perfil académico funcional</button>';
-  html+='<div style="font-size:10px;color:var(--gris);text-align:center;margin-top:5px;">Genera un prompt con toda la info del alumno para pasarlo a Claude</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;">';
+  html+='<button onclick="generarPerfilAcademico()" style="background:linear-gradient(135deg,#2D5F4F,#3A7A65);color:#fff;border:none;border-radius:11px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Perfil académico</button>';
+  html+='<button onclick="abrirModalInforme()" style="background:linear-gradient(135deg,#C8973A,#D4A84B);color:#fff;border:none;border-radius:11px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📄 Generar informe</button>';
+  html+='</div>';
+  html+='<div style="font-size:10px;color:var(--gris);text-align:center;">Solo con datos reales de Supabase — nunca inventa</div>';
   html+='</div>';
 
   body.innerHTML=html;
@@ -1586,44 +1589,66 @@ async function generarPerfilAcademico(){
   var apiKey=localStorage.getItem('huellaed_anthropic_key');
   if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var nombre=s.full_name;
+
+  // ── SOLO DATOS REALES DE SUPABASE ──
+  // Notas cargadas en la app
   var notas=gradesData[_perfilStudentId]||{};
   var areas=['L','M','CS','CN','I','EA','EF'];
   var areaNames={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
-  var notasTexto=areas.map(function(a){return areaNames[a]+': '+(notas[a]!=null?notas[a]:'sin nota');}).join('\n');
-  var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026. Docente: Nicolás Radaelli.\n\n';
-  prompt+='NOTAS 1er TRIMESTRE (aprobado: 7):\n'+notasTexto+'\n\n';
+  var notasReales=areas.filter(function(a){return notas[a]!=null;});
+  var notasTexto=notasReales.length>0
+    ?notasReales.map(function(a){return areaNames[a]+': '+notas[a];}).join('\n')
+    :'Sin notas cargadas en el sistema.';
+
+  // Perfil diferencial (solo si existe en pantalla)
+  var perfilDif='';
   if(s.has_differential){
     var desc=document.getElementById('dif-descripcion');
     var nec=document.getElementById('dif-necesidades');
     var ada=document.getElementById('dif-adaptaciones');
-    prompt+='PERFIL DIFERENCIAL:\n';
-    if(desc&&desc.value)prompt+='Descripción/Diagnóstico: '+desc.value+'\n';
-    if(nec&&nec.value)prompt+='Necesidades: '+nec.value+'\n';
-    if(ada&&ada.value)prompt+='Adaptaciones: '+ada.value+'\n';
-    prompt+='\n';
+    var tienePerfilDif=(desc&&desc.value.trim())||(nec&&nec.value.trim())||(ada&&ada.value.trim());
+    if(tienePerfilDif){
+      perfilDif='PERFIL DIFERENCIAL (cargado por el docente):\n';
+      if(desc&&desc.value.trim())perfilDif+='Descripción: '+desc.value.trim()+'\n';
+      if(nec&&nec.value.trim())perfilDif+='Necesidades: '+nec.value.trim()+'\n';
+      if(ada&&ada.value.trim())perfilDif+='Adaptaciones: '+ada.value.trim()+'\n';
+    }else{
+      perfilDif='Perfil diferencial: marcado como atención diferenciada pero sin datos cargados aún.\n';
+    }
   }
-  // Agregar observaciones
-  var obsItems=document.querySelectorAll('#obs-lista .obs-item-text');
-  if(obsItems.length>0){
-    prompt+='OBSERVACIONES REGISTRADAS:\n';
-    obsItems.forEach(function(o){prompt+='- '+o.textContent+'\n';});
-    prompt+='\n';
-  }
-  prompt+='Generá un PERFIL ACADÉMICO FUNCIONAL completo con estas secciones:\n';
-  prompt+='## 1. Perfil general del alumno\n';
-  prompt+='## 2. Desempeño académico por área\n';
-  prompt+='## 3. Fortalezas identificadas\n';
-  prompt+='## 4. Áreas de oportunidad y estrategias sugeridas\n';
-  if(s.has_differential)prompt+='## 5. Consideraciones para la atención diferenciada\n';
-  prompt+='## '+(s.has_differential?'6':'5')+'. Sugerencias para el trabajo con la familia\n';
-  prompt+='\nTono profesional y constructivo. Lenguaje de informe escolar argentino, tercera persona.';
 
-  // Mostrar loading en el perfil
+  // Observaciones visibles en pantalla (cargadas desde Supabase)
+  var obsTexto='';
+  var obsEls=document.querySelectorAll('#obs-lista > div');
+  if(obsEls.length>0&&obsEls[0].textContent.indexOf('Sin observaciones')===-1){
+    obsTexto='OBSERVACIONES REGISTRADAS POR EL DOCENTE:\n';
+    obsEls.forEach(function(el){
+      var fecha=el.querySelector('div:first-child');
+      var texto=el.querySelector('div:last-child');
+      if(fecha&&texto)obsTexto+='['+fecha.textContent.trim()+'] '+texto.textContent.trim()+'\n';
+    });
+  }else{
+    obsTexto='Observaciones: sin observaciones cargadas en el sistema aún.\n';
+  }
+
+  var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026. Docente: Nicolás Radaelli.\n\n';
+  prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, NO agregues datos que no estén aquí. Si hay campos vacíos o sin datos, indicalo explícitamente en el informe.\n\n';
+  prompt+='DATOS REALES DEL ALUMNO EN EL SISTEMA:\n\n';
+  prompt+='NOTAS 1er TRIMESTRE (aprobado: 7):\n'+notasTexto+'\n\n';
+  if(perfilDif)prompt+=perfilDif+'\n';
+  prompt+=obsTexto+'\n';
+  prompt+='SECCIONES DEL PERFIL:\n';
+  prompt+='1. Perfil académico basado en las notas registradas\n';
+  prompt+='2. Observaciones del docente (solo las registradas arriba)\n';
+  prompt+='3. Fortalezas identificadas (solo si hay datos que las sustenten)\n';
+  prompt+='4. Áreas a fortalecer (solo si hay datos que las sustenten)\n';
+  if(s.has_differential)prompt+='5. Consideraciones para la atención diferenciada (solo datos cargados)\n';
+  prompt+='\nSi alguna sección no tiene datos suficientes, escribí: "Sin datos registrados para esta sección." Tono profesional, tercera persona, lenguaje escolar argentino.';
+
   var body=document.getElementById('perf-body');
   var loadDiv=document.createElement('div');
-  loadDiv.id='perfil-loading';
   loadDiv.style.cssText='background:var(--verde-bg);border-radius:12px;padding:18px;margin-top:10px;text-align:center;';
-  loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:8px;">🤖</div><div style="font-size:13px;font-weight:600;color:var(--verde);">Generando perfil académico...</div>';
+  loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:8px;">🤖</div><div style="font-size:13px;font-weight:600;color:var(--verde);">Generando perfil con datos reales...</div>';
   body.appendChild(loadDiv);
 
   try{
@@ -1636,13 +1661,13 @@ async function generarPerfilAcademico(){
     var data=await res.json();
     var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
     loadDiv.remove();
-    // Mostrar resultado
+    var htmlTexto=markdownToHtml(texto);
     var resultDiv=document.createElement('div');
     resultDiv.style.cssText='margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-claro);';
     resultDiv.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Perfil Académico Funcional · '+nombre+'</div>'
-      +'<div id="perfil-texto-'+_perfilStudentId+'" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:400px;overflow-y:auto;">'+markdownToHtml(texto)+'</div>'
+      +'<div id="perfil-texto-'+_perfilStudentId+'" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:400px;overflow-y:auto;">'+htmlTexto+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
-      +'<button onclick="imprimirInforme(\''+nombre+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-texto-'+_perfilStudentId+'\').innerHTML)" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
+      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\'")+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-texto-'+_perfilStudentId+'\').innerHTML)" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
       +'<button onclick="abrirModalInforme()" class="sec-btn" style="font-size:12px;">📄 Generar informe</button>'
       +'</div>';
     body.appendChild(resultDiv);
@@ -1651,6 +1676,7 @@ async function generarPerfilAcademico(){
     loadDiv.innerHTML='<div style="color:#C0392B;font-size:12px;">Error: '+e.message+'</div>';
   }
 }
+
 
 function abrirModalInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
@@ -1685,29 +1711,51 @@ async function generarInforme(){
     'otro':'Informe Académico'
   };
   var tipoInforme=motivoLabels[motivo]||'Informe Académico';
-  var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: Nicolás Radaelli. Fecha: '+fecha+'.\n\n';
-  prompt+='NOTAS 1er TRIMESTRE (nota de aprobación: 7):\n'+notasTexto+'\n\n';
+  // ── SOLO DATOS REALES ──
+  var notas2=gradesData[_perfilStudentId]||{};
+  var areas2=['L','M','CS','CN','I','EA','EF'];
+  var areaNames2={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
+  var notasReales2=areas2.filter(function(a){return notas2[a]!=null;});
+  var notasTexto2=notasReales2.length>0
+    ?notasReales2.map(function(a){return areaNames2[a]+': '+notas2[a];}).join(', ')
+    :'Sin notas cargadas en el sistema.';
+
+  var perfilDif2='';
   if(s.has_differential){
-    var desc=document.getElementById('dif-descripcion');
-    var nec=document.getElementById('dif-necesidades');
-    var ada=document.getElementById('dif-adaptaciones');
-    prompt+='PERFIL DIFERENCIAL:\n';
-    if(desc&&desc.value)prompt+='Descripción/Diagnóstico: '+desc.value+'\n';
-    if(nec&&nec.value)prompt+='Necesidades de aprendizaje: '+nec.value+'\n';
-    if(ada&&ada.value)prompt+='Adaptaciones pedagógicas: '+ada.value+'\n';
-    prompt+='\n';
+    var desc2=document.getElementById('dif-descripcion');
+    var nec2=document.getElementById('dif-necesidades');
+    var ada2=document.getElementById('dif-adaptaciones');
+    var tiene=(desc2&&desc2.value.trim())||(nec2&&nec2.value.trim())||(ada2&&ada2.value.trim());
+    if(tiene){
+      perfilDif2='Perfil diferencial (datos del docente): ';
+      if(desc2&&desc2.value.trim())perfilDif2+=desc2.value.trim()+'. ';
+      if(nec2&&nec2.value.trim())perfilDif2+='Necesidades: '+nec2.value.trim()+'. ';
+      if(ada2&&ada2.value.trim())perfilDif2+='Adaptaciones: '+ada2.value.trim()+'.';
+    }else{
+      perfilDif2='Atención diferenciada indicada pero sin datos específicos cargados aún.';
+    }
   }
-  var instrucciones={
-    'fin_ano':'Generá un informe de fin de año para el legajo escolar con: síntesis del recorrido anual, logros académicos, aspectos a fortalecer, consideraciones para el nivel secundario. Formato: texto corrido, 250-350 palabras, tono formal.',
-    'psicopedagoga':'Generá un informe para psicopedagoga con: descripción del desempeño académico, estrategias observadas, dificultades detectadas, respuesta a las intervenciones pedagógicas, sugerencias para el trabajo interdisciplinario. Tono técnico-profesional, 300-400 palabras.',
-    'eoe':'Generá un informe para el EOE con: situación académica, aspectos socio-afectivos observados en el aula, respuesta a las adecuaciones, necesidades de intervención. Tono técnico-pedagógico, 250-350 palabras.',
-    'familia':'Generá un informe para reunión familiar con: síntesis del desempeño en lenguaje accesible para la familia, fortalezas del alumno, aspectos a trabajar en casa, sugerencias concretas para acompañar desde el hogar. Tono cálido y constructivo, 200-300 palabras.',
-    'trimestral':'Generá un informe trimestral con: desempeño por área, actitud frente al aprendizaje, logros del período, aspectos a fortalecer. Formato breve por área, tono profesional, 200-300 palabras.',
-    'otro':'Generá un informe académico completo con: perfil del alumno, desempeño por área, fortalezas, aspectos de mejora, recomendaciones. Tono formal, 250-350 palabras.'
-  };
+
+  var obsTexto2='Sin observaciones cargadas en el sistema.';
+  var obsEls2=document.querySelectorAll('#obs-lista > div');
+  if(obsEls2.length>0&&obsEls2[0].textContent.indexOf('Sin observaciones')===-1){
+    obsTexto2='';
+    obsEls2.forEach(function(el){
+      var fecha=el.querySelector('div:first-child');
+      var texto=el.querySelector('div:last-child');
+      if(fecha&&texto)obsTexto2+='['+fecha.textContent.trim()+'] '+texto.textContent.trim()+'. ';
+    });
+  }
+
+  var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: Nicolás Radaelli. Fecha: '+fecha+'.\n\n';
+  prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, actitudes ni situaciones que no estén registradas. Si hay campos sin datos, indicalo con "sin datos registrados". El informe debe ser honesto sobre la información disponible.\n\n';
+  prompt+='DATOS REALES EN EL SISTEMA:\n';
+  prompt+='- Notas 1er Trimestre: '+notasTexto2+'\n';
+  if(perfilDif2)prompt+='- '+perfilDif2+'\n';
+  prompt+='- Observaciones del docente: '+obsTexto2+'\n';
+  prompt+='- Destinatario: '+destinatario+'\n\n';
   prompt+=(instrucciones[motivo]||instrucciones['otro'])+'\n\n';
-  prompt+='Destinatario: '+destinatario+'\n';
-  prompt+='Incluí encabezado institucional y firma del docente al final.';
+  prompt+='Incluí encabezado institucional y firma del docente al final. Si alguna sección no tiene datos suficientes, escribí explícitamente "Sin datos registrados para esta sección."';
 
   cerrarModalInforme();
   var body=document.getElementById('perf-body');
