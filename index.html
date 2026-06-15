@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>HuellaED — 6to Grado</title>
+  <title>HuellaED — 6to Año</title>
   <meta name="theme-color" content="#2D5F4F">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -350,7 +350,7 @@
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🤖 Consultar a Claude</strong><button onclick="cerrarClaude()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <p style="font-size:12px;color:var(--gris);margin-bottom:10px;">Copiá este prompt y pegalo al inicio de una nueva conversación:</p>
-    <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);">Soy docente de 6to grado de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
+    <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);">Soy docente de 6to Año de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
 
 19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
 
@@ -1399,7 +1399,7 @@ async function abrirPerfilAcademico(studentId){
   document.getElementById('modal-perfil-academico').style.display='block';
   document.getElementById('perf-ini').textContent=nameToInitials(s.full_name);
   document.getElementById('perf-nombre').textContent=s.full_name;
-  document.getElementById('perf-badge').textContent=s.has_differential?'⚡ Atención diferenciada':(window.__teacherGrade||'6to grado');
+  document.getElementById('perf-badge').textContent=s.has_differential?'⚡ Atención diferenciada':(window.__teacherGrade||'6to Año');
   var body=document.getElementById('perf-body');
   body.innerHTML='<div style="text-align:center;padding:32px;color:var(--gris);font-size:13px;">Cargando…</div>';
   if(!window.__sb)return;
@@ -2189,7 +2189,7 @@ async function generarPrompt(){
   if(!tema){alert('Escribí el tema');return;}
   var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
   var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
-  var p='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
+  var p='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
   if(tipoSel==='proyecto')p+=' que integre: '+areaT;else p+=' para '+areaT;
   p+=', sobre: '+tema+'.\n\n';
   if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
@@ -2223,7 +2223,7 @@ async function generarConIA(){
     if(!tema){alert('Escribí el tema');resolve(null);return;}
     var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
     var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
-    var p2='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
+    var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
     if(tipoSel==='proyecto')p2+=' que integre: '+areaT;else p2+=' para '+areaT;
     p2+=', sobre: '+tema+'.\n\n';
     if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
@@ -2440,7 +2440,7 @@ function descargarCuadernillo(){
     +'@media print{body{margin:15mm 20mm;}}'
     +'</style></head><body>'
     +'<div class="doc-header">'
-    +'<div class="escuela">Escuela La Concepción · 6to Grado · 2026</div>'
+    +'<div class="escuela">Escuela La Concepción · 6to Año · 2026</div>'
     +'<h1>'+escHtml(tituloLabel)+'</h1>'
     +'<div class="meta">HuellaED · '+new Date().toLocaleDateString('es-AR')+'</div>'
     +'</div>'
@@ -2717,7 +2717,7 @@ async function cargarHistorialReuniones(){
       +'</div>';
   }).join('');
 }
-function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Grado · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Grado 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
+function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Año · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Año 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
 
