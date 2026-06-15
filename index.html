@@ -292,7 +292,7 @@
 
   <!-- PLANIFICACIONES -->
   <div class="section-label">Planificaciones</div>
-  <div class="card" onclick="abrirPlanificaciones()" style="cursor:pointer;">
+  <div class="card" onclick="abrirPlanifNuevo()" style="cursor:pointer;">
     <div class="card-icon" style="background:#EBF5FB;font-size:22px;">📋</div>
     <div class="card-body"><strong>Planificaciones semanales</strong><span>Por materia · crear y editar</span></div>
     <div class="card-arr">›</div>
@@ -741,6 +741,20 @@ App: https://huellaed.github.io/HuellaEd/</div>
   </div>
 </div>
 
+
+<!-- MODAL PLANIFICACIONES NUEVO -->
+<div id="modal-planif-nuevo" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:580px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff;">📚 Planificaciones 2026</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">6° Año · Escuela La Concepción</div>
+      </div>
+      <button onclick="cerrarPlanifNuevo()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="planif-nuevo-body" style="padding:18px;max-height:76vh;overflow-y:auto;"></div>
+  </div>
+</div>
 <div id="print-container"></div>
 <footer>HuellaED · cada alumno, su trayecto</footer>
 
@@ -3036,6 +3050,173 @@ async function guardarObservacionModal(){
     if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
     else{msg.style.color='var(--verde)';msg.textContent='✅ Observación grupal guardada';document.getElementById('obs-texto-modal').value='';setTimeout(function(){cerrarObservacion();},1500);}
   }
+}
+
+
+
+var PLANIF_PL = {
+  area: 'Prácticas del Lenguaje',
+  icon: '📖',
+  color: '#2D5F4F',
+  anio: 2026,
+  secuencias: [
+    {
+      num: 1,
+      titulo: 'El Pozo',
+      autor: 'J. S. Ronchetti',
+      periodo: 'Marzo / Abril',
+      genero: 'Cuento / Narración literaria',
+      lectura: 'Lectura en voz alta docente. Lectura individual/grupal. Intercambio entre lectores. Anticipaciones y confirmaciones.',
+      escritura: 'Escrituras de trabajo (descripción del protagonista, del espacio). Producción de un texto narrativo.',
+      reflexion: 'Verbos en pasado (pretérito perfecto simple e imperfecto). Conectores temporales.',
+      habitual: 'Lectura de cuentos breves de J. S. Ronchetti.'
+    },
+    {
+      num: 2,
+      titulo: 'El hilo se corta + Kwaheri',
+      autor: 'J. S. Ronchetti / A. Ferrari',
+      periodo: 'Mayo / Julio',
+      genero: 'Cuentos contemporáneos / Narrativa realista',
+      lectura: 'Lectura del docente y autónoma. Intercambio interpretativo. Comparación de personajes entre ambas obras.',
+      escritura: 'Renarración con cambio de narrador (punto de vista del Chueco). Cuadros comparativos, notas al margen.',
+      reflexion: 'Narrador y punto de vista. Uso de 1ª y 3ª persona. Tiempos verbales del relato.',
+      habitual: 'Lectura de Las orejas, de A. Ferrari.'
+    },
+    {
+      num: 3,
+      titulo: 'El narrador de historias / La ventana abierta',
+      autor: 'Saki',
+      periodo: 'Agosto',
+      genero: 'Cuento / Narrativa con humor e ironía',
+      lectura: 'Lectura del docente. Lectura autónoma. Trabajo con el humor y la ironía.',
+      escritura: 'Descripción de un personaje secundario. Producción de un final alternativo.',
+      reflexion: 'Adjetivación: valores del adjetivo. El parágrafo y el punto y aparte.',
+      habitual: 'Lectura e intercambio semanal sobre La ventana abierta, de Saki.'
+    },
+    {
+      num: 4,
+      titulo: 'El regreso de Odiseo',
+      autor: 'Mito griego',
+      periodo: 'Septiembre / Octubre',
+      genero: 'Mito griego / Narrativa de la Antigüedad',
+      lectura: 'Contextualización cultural. Lectura en voz alta docente. Lectura autónoma. Estrategias ante vocabulario desconocido.',
+      escritura: 'Renarración de una escena. Escritura de un episodio inspirado en el mito. Revisión orientada.',
+      reflexion: 'El mito: características del género. Vocabulario específico. Uso de la coma en enumeraciones.',
+      habitual: 'Lectura de otros episodios de la Odisea. ⚠️ PRUEBA ESCOLAR: última semana de octubre.'
+    },
+    {
+      num: 5,
+      titulo: 'Laberintos',
+      autor: 'Orientaciones DGCyE (en proceso)',
+      periodo: 'Noviembre / Diciembre',
+      genero: 'A confirmar',
+      lectura: 'Lectura autónoma y guiada. Retomar estrategias del año: anticipación, inferencia, relectura.',
+      escritura: 'Producción final del año (renarración / escritura creativa). Revisión en pares. Socialización.',
+      reflexion: 'Sistematización de contenidos del año. Signos de puntuación, cohesión textual y tiempos verbales.',
+      habitual: 'Socialización de producciones del año.'
+    }
+  ]
+};
+
+// ── PLANIFICACIONES NUEVO ──
+
+function abrirPlanifNuevo(){
+  document.getElementById('modal-planif-nuevo').style.display='block';
+  renderPlanifNuevo();
+}
+
+function cerrarPlanifNuevo(){
+  document.getElementById('modal-planif-nuevo').style.display='none';
+}
+
+function renderPlanifNuevo(){
+  var body=document.getElementById('planif-nuevo-body');
+  var areas=[{key:'PL',data:PLANIF_PL}];
+  // Selector de área
+  var html='<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">';
+  areas.forEach(function(a){
+    html+='<button onclick="renderSecuencias(\''+a.key+'\',PLANIF_'+a.key+')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--verde);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">'+a.data.icon+' '+a.data.area+'</button>';
+  });
+  html+='<button onclick="renderSecuencias(\'PL\',PLANIF_PL)" style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--crema);color:var(--gris);border:1.5px dashed var(--gris-claro);border-radius:9px;font-size:12px;cursor:pointer;font-family:inherit;">+ Agregar área</button>';
+  html+='</div>';
+  html+='<div id="planif-secuencias-container">';
+  html+=renderSecuenciasHTML(PLANIF_PL);
+  html+='</div>';
+  body.innerHTML=html;
+}
+
+function renderSecuencias(key,data){
+  document.getElementById('planif-secuencias-container').innerHTML=renderSecuenciasHTML(data);
+}
+
+function renderSecuenciasHTML(data){
+  var meses=['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var colores=['#D4EAE4','#F7EDDB','#F5E0D8','#D6E5F3','#EAE7F5'];
+  var html='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">'+data.icon+' '+data.area+' · '+data.anio+'</div>';
+  
+  // Timeline visual
+  html+='<div style="display:flex;gap:3px;margin-bottom:16px;border-radius:8px;overflow:hidden;">';
+  data.secuencias.forEach(function(s,i){
+    var w=s.num===2?'25%':s.num===4?'20%':'15%';
+    html+='<div onclick="toggleSecuencia('+s.num+')" style="flex:'+(s.num===2?'2.5':s.num===4?'2':'1')+';background:'+colores[i%5]+';padding:6px 4px;text-align:center;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">';
+    html+='<div style="font-size:10px;font-weight:700;color:#2a3830;">Sec.'+s.num+'</div>';
+    html+='<div style="font-size:9px;color:#5a6a62;">'+s.periodo.split(' / ')[0]+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Secuencias expandibles
+  data.secuencias.forEach(function(s,i){
+    html+='<div style="border-radius:12px;border:1.5px solid var(--gris-claro);margin-bottom:8px;overflow:hidden;" id="sec-card-'+s.num+'">';
+    html+='<div onclick="toggleSecuencia('+s.num+')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:'+colores[i%5]+';">';
+    html+='<div style="width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;color:#2a3830;flex-shrink:0;">'+s.num+'</div>';
+    html+='<div style="flex:1;min-width:0;">';
+    html+='<div style="font-size:13px;font-weight:700;color:#2a3830;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.titulo+'</div>';
+    html+='<div style="font-size:10px;color:#5a6a62;">'+s.autor+' · '+s.periodo+'</div>';
+    html+='</div>';
+    html+='<div id="sec-tog-'+s.num+'" style="color:#5a6a62;font-size:16px;">›</div>';
+    html+='</div>';
+    html+='<div id="sec-body-'+s.num+'" style="display:none;padding:14px;background:#fff;">';
+    html+='<div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Género</div>';
+    html+='<div style="font-size:12px;color:var(--negro);margin-bottom:10px;">'+s.genero+'</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr;gap:8px;">';
+    var bloques=[
+      {icon:'📖',label:'Lectura',val:s.lectura,bg:'#D4EAE4'},
+      {icon:'✏️',label:'Escritura',val:s.escritura,bg:'#F7EDDB'},
+      {icon:'🔍',label:'Reflexión sobre el lenguaje',val:s.reflexion,bg:'#D6E5F3'},
+      {icon:'📅',label:'Actividad habitual',val:s.habitual,bg:'#EAE7F5'}
+    ];
+    bloques.forEach(function(b){
+      html+='<div style="background:'+b.bg+';border-radius:9px;padding:10px 12px;">';
+      html+='<div style="font-size:10px;font-weight:700;color:#2a3830;margin-bottom:4px;">'+b.icon+' '+b.label+'</div>';
+      html+='<div style="font-size:11.5px;color:#3a4a42;line-height:1.55;">'+b.val+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+    html+='<button onclick="generarMaterialDesdeSecuencia('+s.num+')" style="width:100%;margin-top:10px;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✨ Generar material para esta secuencia</button>';
+    html+='</div></div>';
+  });
+  return html;
+}
+
+function toggleSecuencia(num){
+  var body=document.getElementById('sec-body-'+num);
+  var tog=document.getElementById('sec-tog-'+num);
+  var abierto=body.style.display!=='none';
+  body.style.display=abierto?'none':'block';
+  tog.textContent=abierto?'›':'⌄';
+}
+
+function generarMaterialDesdeSecuencia(num){
+  var sec=PLANIF_PL.secuencias.find(function(s){return s.num===num;});
+  if(!sec)return;
+  cerrarPlanifNuevo();
+  abrirGenerador();
+  setTimeout(function(){
+    document.getElementById('gen-tema').value=sec.titulo+' — '+sec.autor;
+    document.getElementById('gen-area').value='Prácticas del Lenguaje';
+    document.getElementById('gen-detalles').value='Período: '+sec.periodo+'. '+sec.escritura;
+  },300);
 }
 
 </script>
