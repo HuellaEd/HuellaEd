@@ -2191,7 +2191,21 @@ async function generarPrompt(){
 }
 
 async function generarConIA(){
-  var p=await armarTextoPrompt();if(!p)return;
+  var p=await new Promise(function(resolve){
+    var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
+    if(!tipoSel){alert('Seleccioná el tipo');resolve(null);return;}
+    if(!tema){alert('Escribí el tema');resolve(null);return;}
+    var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
+    var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
+    var p2='Soy docente de 6to grado de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
+    if(tipoSel==='proyecto')p2+=' que integre: '+areaT;else p2+=' para '+areaT;
+    p2+=', sobre: '+tema+'.\n\n';
+    if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
+    if(alumnosEsp.length>0){p2+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(function(a){var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos)':'ADECUACIÓN (mantiene objetivos)';p2+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p2+='\nCada versión con nota pedagógica breve.';}
+    if(det)p2+='\n\nDetalles: '+det;
+    resolve(p2);
+  });
+  if(!p)return;
   document.getElementById('gen-resultado').style.display='none';
   var apiKey=localStorage.getItem('huellaed_anthropic_key');
   if(!apiKey){apiKey=prompt('Ingresa tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
