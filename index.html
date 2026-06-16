@@ -887,6 +887,27 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div id="adj-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
   </div>
 </div>
+
+<!-- MODAL CONFIGURAR API KEY -->
+<div id="modal-apikey" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;">
+  <div style="background:#fff;border-radius:16px;padding:20px;max-width:480px;margin:60px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <strong id="apikey-titulo" style="font-size:15px;color:var(--verde);">🔑 Configurar API Key</strong>
+      <button onclick="cerrarConfigApiKey()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="apikey-instrucciones" style="background:var(--crema);border-radius:10px;padding:12px;font-size:12px;color:var(--negro);line-height:1.6;margin-bottom:14px;"></div>
+    <div class="form-row">
+      <label>Tu API Key</label>
+      <input type="password" id="apikey-input" placeholder="Pegá tu clave acá..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;box-sizing:border-box;font-family:monospace;">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+      <button onclick="guardarApiKeyConfig()" class="save-btn">💾 Guardar</button>
+      <button onclick="borrarApiKeyConfig()" style="background:#FDE8E8;color:#C0392B;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🗑️ Borrar clave</button>
+    </div>
+    <div id="apikey-msg" style="text-align:center;font-size:11px;margin-top:8px;"></div>
+    <a id="apikey-link" href="#" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);margin-top:10px;">→ Ir a obtener mi clave gratuita</a>
+  </div>
+</div>
 <div id="print-container"></div>
 <footer>HuellaED · cada alumno, su trayecto</footer>
 
@@ -4158,6 +4179,103 @@ async function subirDocumentoAlumno(){
   document.getElementById('adj-desc').value='';
   setTimeout(cerrarAdjuntarDocumento,1500);
 }
+
+
+// ── CONFIGURACIÓN API KEYS ──
+var _apikeyTipo='';
+
+function configurarApiKey(tipo){
+  _apikeyTipo=tipo;
+  var modal=document.getElementById('modal-apikey');
+  var titulo=document.getElementById('apikey-titulo');
+  var instrucciones=document.getElementById('apikey-instrucciones');
+  var link=document.getElementById('apikey-link');
+  var input=document.getElementById('apikey-input');
+  var msg=document.getElementById('apikey-msg');
+  msg.textContent='';
+
+  if(tipo==='anthropic'){
+    titulo.textContent='🤖 Claude — API Key de Anthropic';
+    instrucciones.innerHTML='<strong>Pasos para obtener tu clave gratuita:</strong><br>'
+      +'1. Entrá a <strong>console.anthropic.com</strong><br>'
+      +'2. Creá una cuenta con tu email<br>'
+      +'3. Menú → API Keys → Create Key<br>'
+      +'4. Copiá la clave y pegala acá<br><br>'
+      +'<strong>¿Necesitás crédito?</strong> Con $5 USD tenés para meses de uso. '
+      +'Billing → Add Credits en la misma consola.<br><br>'
+      +'⚠️ Tu clave es personal — no la compartás con nadie.';
+    link.href='https://console.anthropic.com';
+    link.textContent='→ Ir a console.anthropic.com';
+    var actual=localStorage.getItem('huellaed_anthropic_key');
+    input.value=actual?'••••••••••••'+actual.slice(-4):'';
+    input.placeholder='sk-ant-...';
+  } else {
+    titulo.textContent='✨ Gemini — API Key de Google';
+    instrucciones.innerHTML='<strong>Pasos para obtener tu clave (100% gratuita):</strong><br>'
+      +'1. Entrá a <strong>aistudio.google.com/app/apikey</strong><br>'
+      +'2. Iniciá sesión con tu cuenta de Google<br>'
+      +'3. Hacé clic en "Create API Key"<br>'
+      +'4. Copiá la clave y pegala acá<br><br>'
+      +'✅ Gemini es completamente gratuito para el uso docente.<br>'
+      +'Sirve para: dictado de voz y análisis de lectura.<br><br>'
+      +'⚠️ Tu clave es personal — no la compartás con nadie.';
+    link.href='https://aistudio.google.com/app/apikey';
+    link.textContent='→ Ir a aistudio.google.com/app/apikey';
+    var actual2=localStorage.getItem('huellaed_gemini_key');
+    input.value=actual2?'••••••••••••'+actual2.slice(-4):'';
+    input.placeholder='AIza...';
+  }
+
+  modal.style.display='block';
+  // Limpiar input si hay placeholder
+  input.addEventListener('focus',function(){
+    if(this.value.startsWith('••••'))this.value='';
+  },{once:true});
+}
+
+function cerrarConfigApiKey(){
+  document.getElementById('modal-apikey').style.display='none';
+}
+
+function guardarApiKeyConfig(){
+  var val=document.getElementById('apikey-input').value.trim();
+  var msg=document.getElementById('apikey-msg');
+  if(!val||val.startsWith('••••')){msg.style.color='#C0392B';msg.textContent='Pegá tu clave primero';return;}
+  if(_apikeyTipo==='anthropic'){
+    if(!val.startsWith('sk-ant-')&&!val.startsWith('sk-')){msg.style.color='#C0392B';msg.textContent='La clave de Anthropic empieza con sk-ant-';return;}
+    localStorage.setItem('huellaed_anthropic_key',val);
+  } else {
+    if(!val.startsWith('AIza')){msg.style.color='#C0392B';msg.textContent='La clave de Gemini empieza con AIza';return;}
+    localStorage.setItem('huellaed_gemini_key',val);
+  }
+  msg.style.color='var(--verde)';msg.textContent='✅ Clave guardada';
+  actualizarEstadoApiKeys();
+  setTimeout(cerrarConfigApiKey,1200);
+}
+
+function borrarApiKeyConfig(){
+  if(!confirm('¿Borrar tu clave? Vas a necesitar ingresarla de nuevo para usar IA.'))return;
+  if(_apikeyTipo==='anthropic'){localStorage.removeItem('huellaed_anthropic_key');}
+  else{localStorage.removeItem('huellaed_gemini_key');}
+  document.getElementById('apikey-input').value='';
+  document.getElementById('apikey-msg').style.color='var(--gris)';
+  document.getElementById('apikey-msg').textContent='Clave borrada';
+  actualizarEstadoApiKeys();
+}
+
+function actualizarEstadoApiKeys(){
+  var ant=localStorage.getItem('huellaed_anthropic_key');
+  var gem=localStorage.getItem('huellaed_gemini_key');
+  var elAnt=document.getElementById('estado-anthropic');
+  var elGem=document.getElementById('estado-gemini');
+  if(elAnt)elAnt.innerHTML=ant?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
+  if(elGem)elGem.innerHTML=gem?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
+}
+
+// Verificar al cargar
+document.addEventListener('DOMContentLoaded',function(){
+  actualizarEstadoApiKeys();
+});
 </script>
 
 
