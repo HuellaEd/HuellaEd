@@ -2917,27 +2917,86 @@ function actualizarNombreEv(){var al=document.getElementById('ev-alumno').value,
 function procesarFotoMultiple(input){
   if(!input.files||!input.files.length)return;
   if(input.files.length===1){procesarFoto(input);return;}
-  // Múltiples fotos
   var alumno=document.getElementById('ev-alumno').value;
   var area=document.getElementById('ev-area').value;
   var tema=document.getElementById('ev-tema').value;
   if(!alumno&&!evSesionActivo){alert('Seleccioná un alumno');return;}
   if(!area||!tema){alert('Completá área y tema');return;}
-  var fecha=new Date().toISOString().slice(0,10);
-  var alS=(alumno||evSesionAlumnoActual).replace(/[^a-zA-Z ]/g,'').replace(/ /g,'_');
+  // Mostrar preview de todas las fotos con botón guardar
+  var files=Array.from(input.files);
+  var alumnoNombre=alumno||evSesionAlumnoActual;
+  var container=document.getElementById('ev-multi-preview');
+  if(!container){
+    container=document.createElement('div');
+    container.id='ev-multi-preview';
+    container.style.cssText='margin-top:10px;';
+    document.getElementById('ev-descargar-btn').parentNode.insertBefore(container,document.getElementById('ev-descargar-btn'));
+  }
+  var fecha=new Date().toLocaleDateString('es-AR');
+  var fechaSlug=new Date().toISOString().slice(0,10);
+  var alS=alumnoNombre.replace(/[^a-zA-Z ]/g,'').replace(/ /g,'_');
+  var previews=files.map(function(file,i){
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;background:var(--crema);border-radius:9px;padding:8px 10px;">'
+      +'<img src="'+URL.createObjectURL(file)+'" style="width:48px;height:48px;object-fit:cover;border-radius:7px;flex-shrink:0;">'
+      +'<div style="flex:1;font-size:11px;color:var(--gris);">Foto '+(i+1)+' — '+file.name.substring(0,30)+'</div>'
+      +'</div>';
+  }).join('');
+  container.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);margin-bottom:8px;">'+files.length+' fotos seleccionadas — '+alumnoNombre+'</div>'
+    +previews
+    +'<button onclick="guardarFotosMultiples()" class="save-btn" style="margin-top:6px;">💾 Guardar '+files.length+' fotos como evidencia</button>'
+    +'<div id="ev-multi-msg" style="font-size:11px;text-align:center;margin-top:5px;"></div>';
+  container.style.display='block';
+  // Guardar referencia a los archivos
+  window._evMultiFiles=files;
+  window._evMultiAlumno=alumnoNombre;
+  window._evMultiArea=area;
+  window._evMultiTema=tema;
+  window._evMultiFecha=fecha;
+  window._evMultiFechaSlug=fechaSlug;
+  window._evMultiAlS=alS;
+}
+
+async function guardarFotosMultiples(){
+  var files=window._evMultiFiles;
+  if(!files||!files.length)return;
+  var btn=document.querySelector('#ev-multi-preview .save-btn');
+  var msg=document.getElementById('ev-multi-msg');
+  btn.disabled=true;btn.textContent='Guardando...';
   var count=0;
-  Array.from(input.files).forEach(function(file,i){
+  var errors=0;
+  // Subir cada foto a Supabase Storage
+  for(var i=0;i<files.length;i++){
+    var file=files[i];
     var ext=file.type.includes('png')?'.png':'.jpg';
-    var nombre='Evidencia_'+alS+'_'+area.replace(/ /g,'_')+'_'+tema.trim().replace(/ /g,'_').substring(0,20)+'_foto'+(i+1)+'_'+fecha;
-    var a=document.createElement('a');
-    a.href=URL.createObjectURL(file);
-    a.download=nombre+ext;
-    a.click();
-    count++;
-  });
-  evReg.unshift({id:Date.now(),alumno:alumno||evSesionAlumnoActual,area:area,tema:tema,obs:'',fecha:new Date().toLocaleDateString('es-AR'),archivo:count+' fotos'});
+    var nombre='Evidencia_'+window._evMultiAlS+'_'+window._evMultiArea.replace(/ /g,'_')+'_'+window._evMultiTema.trim().replace(/ /g,'_').substring(0,20)+'_foto'+(i+1)+'_'+window._evMultiFechaSlug+ext;
+    if(window.__sb){
+      try{
+        var user2=(await window.__sb.auth.getUser()).data.user;
+        var st=window.__students?window.__students.find(function(s){return s.full_name===window._evMultiAlumno;}):null;
+        if(user2&&st){
+          var path=user2.id+'/'+st.id+'/'+nombre;
+          var res=await window.__sb.storage.from('evidencias').upload(path,file);
+          if(!res.error)count++;else errors++;
+        }else{
+          var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=nombre;a.click();count++;
+        }
+      }catch(e2){
+        var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=nombre;a.click();count++;
+      }
+    }else{
+      var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=nombre;a.click();count++;
+    }
+  }
+  // Registrar en evReg
+  evReg.unshift({id:Date.now(),alumno:window._evMultiAlumno,area:window._evMultiArea,tema:window._evMultiTema,obs:'',fecha:window._evMultiFecha,archivo:count+' fotos guardadas'});
   renderEvidencias();
-  document.getElementById('ev-sesion-status')&&(document.getElementById('ev-sesion-status').textContent='✅ '+count+' fotos descargadas');
+  btn.disabled=false;
+  msg.style.color='var(--verde)';
+  msg.textContent='✅ '+count+' fotos guardadas'+(errors>0?' ('+errors+' errores)':'');
+  setTimeout(function(){
+    document.getElementById('ev-multi-preview').style.display='none';
+    window._evMultiFiles=null;
+  },2000);
 }
 
 function procesarFoto(input){
