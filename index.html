@@ -256,6 +256,7 @@
     <div class="subcard" onclick="showSection('tabla-notas')"><span class="subcard-icon">📊</span><span class="subcard-label">Notas</span><span class="subcard-sub">1er Trimestre</span></div>
     <div class="subcard" onclick="abrirReunion()"><span class="subcard-icon">👨‍👩‍👧</span><span class="subcard-label">Reunión familiar</span><span class="subcard-sub">Registro + acta</span></div>
     <div class="subcard" onclick="abrirFicha()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Ficha de conocimiento</span><span class="subcard-sub">Perfil inicial del alumno</span></div>
+    <div class="subcard" onclick="abrirAdjuntarDocumento()" style="grid-column:span 2;"><span class="subcard-icon">📂</span><span class="subcard-label">Adjuntar documento</span><span class="subcard-sub">Informes anteriores, diagnósticos</span></div>
   </div>
 
   <!-- GENERAR -->
@@ -843,6 +844,47 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📁 Alumnos inactivos (archivados)</div>
       <div id="gestion-lista-inactivos"></div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL ADJUNTAR DOCUMENTO -->
+<div id="modal-adjuntar-doc" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;padding:18px;max-width:560px;margin:30px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">📂 Adjuntar Documento</strong>
+      <button onclick="cerrarAdjuntarDocumento()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div class="form-row">
+      <label>Alumno</label>
+      <select id="adj-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+        <option value="">— Seleccionar —</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Tipo de documento</label>
+      <select id="adj-tipo" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+        <option value="informe">📄 Informe anterior</option>
+        <option value="diagnostico">🧠 Diagnóstico / evaluación psicopedagógica</option>
+        <option value="eoe">👥 Informe EOE</option>
+        <option value="medico">🏥 Informe médico</option>
+        <option value="acta">📋 Acta o resolución</option>
+        <option value="otro">📎 Otro documento</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Descripción breve</label>
+      <input type="text" id="adj-desc" placeholder="Ej: Informe psicopedagógico 2024" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+    </div>
+    <div class="form-row">
+      <label>Archivo <span style="font-size:10px;color:var(--gris);font-weight:400;">(PDF, imagen o Word)</span></label>
+      <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:12px;cursor:pointer;">
+        <span style="font-size:22px;">📎</span>
+        <span id="adj-archivo-label" style="font-size:12px;color:var(--gris);">Seleccionar archivo</span>
+        <input type="file" id="adj-archivo" accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="seleccionarArchivoAdj(this)">
+      </label>
+    </div>
+    <button onclick="subirDocumentoAlumno()" class="save-btn">💾 Guardar en perfil del alumno</button>
+    <div id="adj-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
   </div>
 </div>
 <div id="print-container"></div>
@@ -1516,7 +1558,63 @@ async function abrirAula(){
     }
   }
 
+  // Cargar observaciones grupales
+  html+='<div style="margin-top:16px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Observaciones grupales</div>';
+  html+='<div id="obs-grupales-lista"><div style="font-size:12px;color:var(--gris);text-align:center;">Cargando...</div></div>';
+  html+='<textarea id="obs-grupal-nueva" rows="2" placeholder="Agregar observación del grupo..." style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:#fff;margin-top:8px;"></textarea>';
+  html+='<button onclick="guardarObservacionGrupal()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;">Guardar observación grupal</button>';
+  html+='</div>';
+
   body.innerHTML=html;
+  // Cargar obs grupales
+  cargarObservacionesGrupales();
+}
+
+async function cargarObservacionesGrupales(){
+  var lista=document.getElementById('obs-grupales-lista');
+  if(!lista||!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {data}=await window.__sb.from('notas_rapidas')
+    .select('id,content,created_at')
+    .eq('teacher_id',user.id)
+    .is('student_id',null)
+    .order('created_at',{ascending:false})
+    .limit(20);
+  if(!data||!data.length){
+    lista.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin observaciones grupales</div>';
+    return;
+  }
+  lista.innerHTML=data.map(function(n){
+    var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    return '<div style="background:var(--crema);border-radius:9px;padding:8px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);display:flex;gap:8px;align-items:flex-start;">'
+      +'<div style="flex:1;">'
+      +'<div style="font-size:10px;color:var(--gris);margin-bottom:2px;">'+fecha+'</div>'
+      +'<div style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.content.replace('[GRUPO] ','')+'</div>'
+      +'</div>'
+      +'<button data-obsid="'+n.id+'" onclick="borrarObsGrupal(this,this.dataset.obsid)" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:14px;">x</button>'
+      +'</div>';
+  }).join('');
+}
+
+async function guardarObservacionGrupal(){
+  var ta=document.getElementById('obs-grupal-nueva');
+  var txt=ta?ta.value.trim():'';
+  if(!txt){alert('Escribí una observación');return;}
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:'[GRUPO] '+txt});
+  if(!error){ta.value='';cargarObservacionesGrupales();}
+}
+
+async function borrarObsGrupal(btn,id){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('teacher_id',user.id);
+  cargarObservacionesGrupales();
 }
 
 async function abrirPerfilAcademico(studentId){
@@ -1726,6 +1824,11 @@ async function generarPerfilAcademico(){
   prompt+='\nSi alguna sección no tiene datos suficientes, escribí: "Sin datos registrados para esta sección." Tono profesional, tercera persona, lenguaje escolar argentino.';
 
   var body=document.getElementById('perf-body');
+  if(!body){alert('Abrí el perfil del alumno primero');return;}
+  // Cargar notas si no están en memoria
+  if(!gradesData[_perfilStudentId]||Object.keys(gradesData[_perfilStudentId]).length===0){
+    await initGrades();
+  }
   var loadDiv=document.createElement('div');
   loadDiv.style.cssText='background:var(--verde-bg);border-radius:12px;padding:18px;margin-top:10px;text-align:center;';
   loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:8px;">🤖</div><div style="font-size:13px;font-weight:600;color:var(--verde);">Generando perfil con datos reales...</div>';
@@ -1839,6 +1942,11 @@ async function generarInforme(){
 
   cerrarModalInforme();
   var body=document.getElementById('perf-body');
+  if(!body){alert('Abrí el perfil del alumno primero');return;}
+  // Cargar notas si no están en memoria
+  if(!gradesData[_perfilStudentId]||Object.keys(gradesData[_perfilStudentId]).length===0){
+    await initGrades();
+  }
   var loadDiv=document.createElement('div');
   loadDiv.style.cssText='background:#F7EDDB;border-radius:12px;padding:18px;margin-top:10px;text-align:center;';
   loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:8px;">📄</div><div style="font-size:13px;font-weight:600;color:#C8973A;">Generando '+tipoInforme.toLowerCase()+'...</div>';
@@ -3986,6 +4094,57 @@ async function generarLegajoEgreso(studentId,nombre){
   }
 }
 
+
+
+// ── ADJUNTAR DOCUMENTOS ──
+function abrirAdjuntarDocumento(){
+  document.getElementById('modal-adjuntar-doc').style.display='block';
+  document.getElementById('adj-msg').textContent='';
+  document.getElementById('adj-desc').value='';
+  document.getElementById('adj-archivo-label').textContent='Seleccionar archivo';
+  window._adjFile=null;
+  var sel=document.getElementById('adj-alumno-sel');
+  if(sel&&sel.options.length<=1&&window.__students){
+    sel.innerHTML='<option value="">— Seleccionar —</option>'+window.__students.map(function(s){return '<option value="'+s.id+'">'+s.full_name+'</option>';}).join('');
+  }
+}
+
+function cerrarAdjuntarDocumento(){
+  document.getElementById('modal-adjuntar-doc').style.display='none';
+}
+
+function seleccionarArchivoAdj(input){
+  if(!input.files||!input.files[0])return;
+  window._adjFile=input.files[0];
+  document.getElementById('adj-archivo-label').textContent='📎 '+input.files[0].name.substring(0,35);
+}
+
+async function subirDocumentoAlumno(){
+  var studentId=document.getElementById('adj-alumno-sel').value;
+  var tipo=document.getElementById('adj-tipo').value;
+  var desc=document.getElementById('adj-desc').value.trim();
+  var msg=document.getElementById('adj-msg');
+  if(!studentId){msg.style.color='#C0392B';msg.textContent='Seleccioná un alumno';return;}
+  if(!window._adjFile){msg.style.color='#C0392B';msg.textContent='Seleccioná un archivo';return;}
+  if(!window.__sb){msg.style.color='#C0392B';msg.textContent='Sin conexión';return;}
+  msg.style.color='var(--gris)';msg.textContent='Subiendo...';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var ext=window._adjFile.name.split('.').pop();
+  var nombre=(desc||tipo).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').replace(/ /g,'_').substring(0,40)+'_'+new Date().toISOString().slice(0,10)+'.'+ext;
+  var path=user.id+'/'+studentId+'/docs/'+nombre;
+  var {error}=await window.__sb.storage.from('evidencias').upload(path,window._adjFile);
+  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;return;}
+  // Registrar como observación en el perfil
+  var textoObs='[Documento: '+tipo+(desc?' · '+desc:'')+' · '+new Date().toLocaleDateString('es-AR')+'] Archivado en el perfil del alumno.';
+  await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:textoObs});
+  msg.style.color='var(--verde)';msg.textContent='✅ Documento guardado en el perfil';
+  window._adjFile=null;
+  document.getElementById('adj-archivo').value='';
+  document.getElementById('adj-archivo-label').textContent='Seleccionar archivo';
+  document.getElementById('adj-desc').value='';
+  setTimeout(cerrarAdjuntarDocumento,1500);
+}
 </script>
 
 
