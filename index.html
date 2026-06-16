@@ -533,14 +533,16 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
 
     <!-- Campo alumno individual -->
-    <div id="ev-campo-alumno" class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv()"><option value="">— Seleccionar —</option></select></div>
+    <div id="ev-campo-alumno" class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv();if(evSesionActivo)renderSesionAlumnos();"><option value="">— Seleccionar —</option></select></div>
     <div id="ev-campo-obs" class="form-row"><label>Observación (opcional)</label><textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:55px;resize:none;box-sizing:border-box;"></textarea></div>
     <div id="ev-nombre-preview" style="background:var(--verde-bg);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);display:none;"><strong>Nombre:</strong> <span id="ev-nombre-txt"></span></div>
-    <input type="file" id="ev-camara" accept="image/*" capture="environment" style="display:none;" onchange="procesarFoto(this)">
+    <input type="file" id="ev-camara" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoMultiple(this)">
+    <input type="file" id="ev-camara-multi" accept="image/*" multiple style="display:none;" onchange="procesarFotoMultiple(this)">
     <input type="file" id="ev-galeria" accept="image/*" style="display:none;" onchange="procesarFoto(this)">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;">
-      <button onclick="document.getElementById('ev-camara').click()" class="save-btn">📷 Cámara</button>
-      <button onclick="document.getElementById('ev-galeria').click()" style="background:var(--verde-claro);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galería</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px;">
+      <button onclick="document.getElementById('ev-camara').click()" class="save-btn" style="font-size:12px;">📷 1 foto</button>
+      <button onclick="document.getElementById('ev-camara-multi').click()" style="background:#3B6E9E;color:#fff;border:none;border-radius:9px;padding:11px;font-size:12px;font-weight:600;cursor:pointer;">📷📷 Varias</button>
+      <button onclick="document.getElementById('ev-galeria').click()" style="background:var(--verde-claro);color:#fff;border:none;border-radius:9px;padding:11px;font-size:12px;font-weight:600;cursor:pointer;">🖼️ Galería</button>
     </div>
     <div id="ev-preview-container" style="display:none;text-align:center;margin-bottom:10px;"><img id="ev-preview-img" style="max-width:100%;border-radius:9px;border:1px solid var(--gris-claro);max-height:180px;object-fit:contain;"></div>
     <button id="ev-descargar-btn" onclick="descargarEvidencia()" style="display:none;width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;">⬇️ Descargar foto</button>
@@ -2871,6 +2873,32 @@ var evFile=null,evReg=[];
 function abrirEvidencia(){document.getElementById('modal-evidencia').style.display='block';document.getElementById('ev-preview-container').style.display='none';document.getElementById('ev-descargar-btn').style.display='none';document.getElementById('ev-nombre-preview').style.display='none';evFile=null;renderEvidencias();}
 function cerrarEvidencia(){document.getElementById('modal-evidencia').style.display='none';}
 function actualizarNombreEv(){var al=document.getElementById('ev-alumno').value,ar=document.getElementById('ev-area').value,tm=document.getElementById('ev-tema').value;if(!al&&!tm){document.getElementById('ev-nombre-preview').style.display='none';return;}var fecha=new Date().toISOString().slice(0,10);var alS=al.replace(/[^a-zA-Z ]/g,'').replace(/ /g,'_');var arS=ar?'_'+ar.replace(/ /g,'_'):'';var tmS=tm.trim().replace(/ /g,'_').substring(0,25);var nombre='Evidencia_'+alS+arS+(tmS?'_'+tmS:'')+'_'+fecha;document.getElementById('ev-nombre-txt').textContent=nombre+'.jpg';document.getElementById('ev-nombre-preview').style.display='block';return nombre;}
+function procesarFotoMultiple(input){
+  if(!input.files||!input.files.length)return;
+  if(input.files.length===1){procesarFoto(input);return;}
+  // Múltiples fotos
+  var alumno=document.getElementById('ev-alumno').value;
+  var area=document.getElementById('ev-area').value;
+  var tema=document.getElementById('ev-tema').value;
+  if(!alumno&&!evSesionActivo){alert('Seleccioná un alumno');return;}
+  if(!area||!tema){alert('Completá área y tema');return;}
+  var fecha=new Date().toISOString().slice(0,10);
+  var alS=(alumno||evSesionAlumnoActual).replace(/[^a-zA-Z ]/g,'').replace(/ /g,'_');
+  var count=0;
+  Array.from(input.files).forEach(function(file,i){
+    var ext=file.type.includes('png')?'.png':'.jpg';
+    var nombre='Evidencia_'+alS+'_'+area.replace(/ /g,'_')+'_'+tema.trim().replace(/ /g,'_').substring(0,20)+'_foto'+(i+1)+'_'+fecha;
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(file);
+    a.download=nombre+ext;
+    a.click();
+    count++;
+  });
+  evReg.unshift({id:Date.now(),alumno:alumno||evSesionAlumnoActual,area:area,tema:tema,obs:'',fecha:new Date().toLocaleDateString('es-AR'),archivo:count+' fotos'});
+  renderEvidencias();
+  document.getElementById('ev-sesion-status')&&(document.getElementById('ev-sesion-status').textContent='✅ '+count+' fotos descargadas');
+}
+
 function procesarFoto(input){
   if(!input.files||!input.files[0])return;
   evFile=input.files[0];
