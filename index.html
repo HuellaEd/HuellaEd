@@ -571,6 +571,17 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div class="form-row"><label>Resumen</label><textarea id="reunion-resumen" placeholder="¿Qué se trató?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:75px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row"><label>Compromisos</label><textarea id="reunion-compromisos" placeholder="¿Qué se comprometió cada parte?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:60px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row"><label>Seguimiento</label><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn" onclick="selSeguimiento(this,'pendiente')">⏳ Pendiente</div><div class="tipo-btn" onclick="selSeguimiento(this,'cumplido')">✅ Cumplido</div><div class="tipo-btn" onclick="selSeguimiento(this,'incumplido')">❌ No cumplido</div></div></div>
+    <div class="form-row">
+      <label>Foto del acta <span style="font-size:10px;color:var(--gris);font-weight:400;">(opcional — sacá foto al acta firmada)</span></label>
+      <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:11px;cursor:pointer;">
+        <span style="font-size:20px;">📄</span>
+        <span id="reunion-acta-label" style="font-size:12px;color:var(--gris);">Fotografiar acta firmada</span>
+        <input type="file" id="reunion-acta-foto" accept="image/*" capture="environment" style="display:none;" onchange="seleccionarFotoActa(this)">
+      </label>
+      <div id="reunion-acta-preview" style="display:none;margin-top:6px;text-align:center;">
+        <img id="reunion-acta-img" style="max-width:100%;max-height:120px;border-radius:9px;border:1px solid var(--gris-claro);object-fit:contain;">
+      </div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:8px 0;">
       <button onclick="guardarReunionSupabase()" class="save-btn">💾 Guardar</button>
       <button onclick="generarPromptReunion()" class="sec-btn">📋 Prompt</button>
@@ -3163,7 +3174,30 @@ async function guardarReunionSupabase(){
   if(tipoR==='individual'&&al&&window.__students){var s=window.__students.find(function(x){return x.full_name===al;});if(s)studentId=s.id;}
   var {error}=await window.__sb.from('family_meetings').insert({teacher_id:user.id,student_id:studentId,tipo:tipoR,fecha:fecha||null,motivo:motivoR,asistentes:asist,resumen:res,compromisos:comp,seguimiento:seguimR});
   if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
-  else{msg.style.color='var(--verde)';msg.textContent='✅ Reunión guardada';setTimeout(function(){msg.style.display='none';},3000);cargarHistorialReuniones();}
+  else{
+    msg.style.color='var(--verde)';msg.textContent='✅ Reunión guardada';
+    // Guardar como observación en el perfil del alumno
+    if(studentId){
+      var textoObs='[Reunión familiar · '+new Date(fecha+'T12:00').toLocaleDateString('es-AR')+']\n'
+        +'Motivo: '+motivoR+'\nAsistentes: '+(asist||'—')+'\nResumen: '+res
+        +(comp?'\nCompromisos: '+comp:'')+(seguimR?'\nSeguimiento: '+seguimR:'');
+      await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:textoObs});
+    }
+    // Subir foto del acta si existe
+    if(window._reunionActaFile&&studentId){
+      try{
+        var ext=window._reunionActaFile.type.includes('png')?'.png':'.jpg';
+        var path=user.id+'/'+studentId+'/Acta_Reunion_'+(fecha||new Date().toISOString().slice(0,10))+ext;
+        await window.__sb.storage.from('evidencias').upload(path,window._reunionActaFile);
+        window._reunionActaFile=null;
+        document.getElementById('reunion-acta-foto').value='';
+        document.getElementById('reunion-acta-preview').style.display='none';
+        document.getElementById('reunion-acta-label').textContent='Fotografiar acta firmada';
+      }catch(e2){console.error('Error subiendo acta:',e2);}
+    }
+    setTimeout(function(){msg.style.display='none';},3000);
+    cargarHistorialReuniones();
+  }
 }
 async function cargarHistorialReuniones(){
   var hist=document.getElementById('reunion-historial');
@@ -3192,6 +3226,18 @@ async function cargarHistorialReuniones(){
 function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Año · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Año 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
+
+function seleccionarFotoActa(input){
+  if(!input.files||!input.files[0])return;
+  window._reunionActaFile=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('reunion-acta-img').src=e.target.result;
+    document.getElementById('reunion-acta-preview').style.display='block';
+    document.getElementById('reunion-acta-label').textContent='📄 Acta fotografiada — '+input.files[0].name.substring(0,25);
+  };
+  reader.readAsDataURL(input.files[0]);
+}
 
 // ── ASISTENCIA ──
 var asistenciaHoy = {};
