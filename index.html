@@ -1618,16 +1618,50 @@ async function cargarObservacionesGrupales(){
   }
   lista.innerHTML=data.map(function(n){
     var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
-    return '<div style="background:var(--crema);border-radius:9px;padding:8px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);display:flex;gap:8px;align-items:flex-start;">'
-      +'<div style="flex:1;">'
-      +'<div style="font-size:10px;color:var(--gris);margin-bottom:2px;">'+fecha+'</div>'
-      +'<div style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.content.replace('[GRUPO] ','')+'</div>'
-      +'</div>'
-      +'<button data-obsid="'+n.id+'" onclick="borrarObsGrupal(this,this.dataset.obsid)" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:14px;">x</button>'
-      +'</div>';
+    var txt=n.content.replace('[GRUPO] ','');
+    var html='<div id="grp-card-'+n.id+'" style="background:var(--crema);border-radius:9px;padding:8px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">';
+    html+='<div style="display:flex;gap:8px;align-items:flex-start;">';
+    html+='<div style="flex:1;">';
+    html+='<div style="font-size:10px;color:var(--gris);margin-bottom:2px;">'+fecha+'</div>';
+    html+='<div id="grp-txt-'+n.id+'" style="font-size:12px;color:var(--negro);line-height:1.5;">'+txt+'</div>';
+    html+='<textarea id="grp-edit-'+n.id+'" style="display:none;width:100%;padding:7px;border:1.5px solid var(--verde-claro);border-radius:7px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;margin-top:4px;" rows="3">'+txt+'</textarea>';
+    html+='<div id="grp-edit-btns-'+n.id+'" style="display:none;gap:6px;margin-top:5px;">';
+    html+='<button data-gid="'+n.id+'" onclick="guardarEdicionGrupal(this.dataset.gid)" style="background:var(--verde);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">✅ Guardar</button> ';
+    html+='<button data-gid="'+n.id+'" onclick="cancelarEdicionGrupal(this.dataset.gid)" style="background:var(--crema);color:var(--gris);border:1.5px solid var(--gris-claro);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Cancelar</button>';
+    html+='</div>';
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">';
+    html+='<button data-gid="'+n.id+'" onclick="editarObsGrupal(this.dataset.gid)" style="background:none;border:none;color:#8A7E6A;cursor:pointer;font-size:14px;padding:0 2px;">✏️</button>';
+    html+='<button data-obsid="'+n.id+'" onclick="borrarObsGrupal(this,this.dataset.obsid)" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:14px;">✕</button>';
+    html+='</div>';
+    html+='</div></div>';
+    return html;
   }).join('');
 }
 
+function editarObsGrupal(id){
+  document.getElementById('grp-txt-'+id).style.display='none';
+  document.getElementById('grp-edit-'+id).style.display='block';
+  document.getElementById('grp-edit-btns-'+id).style.display='flex';
+}
+function cancelarEdicionGrupal(id){
+  document.getElementById('grp-txt-'+id).style.display='block';
+  document.getElementById('grp-edit-'+id).style.display='none';
+  document.getElementById('grp-edit-btns-'+id).style.display='none';
+}
+async function guardarEdicionGrupal(id){
+  var ta=document.getElementById('grp-edit-'+id);
+  var txt=ta?ta.value.trim():'';
+  if(!txt)return;
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('notas_rapidas').update({content:'[GRUPO] '+txt}).eq('id',id).eq('teacher_id',user.id);
+  if(!error){
+    document.getElementById('grp-txt-'+id).textContent=txt;
+    cancelarEdicionGrupal(id);
+  }
+}
 async function guardarObservacionGrupal(){
   var ta=document.getElementById('obs-grupal-nueva');
   var txt=ta?ta.value.trim():'';
@@ -2075,11 +2109,21 @@ async function cargarObservacionesAlumno(){
   }
   lista.innerHTML=data.map(function(n){
     var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
-    var html='<div style="background:var(--crema);border-radius:9px;padding:9px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">';
+    var html='<div id="obs-card-'+n.id+'" style="background:var(--crema);border-radius:9px;padding:9px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">';
     html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
-    html+='<div style="flex:1;"><div style="font-size:10px;color:var(--gris);margin-bottom:3px;">'+fecha+'</div>';
-    html+='<div class="obs-item-text" style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.content+'</div></div>';
-    html+='<button onclick="borrarObservacionAlumno(this.getAttribute(\"data-id\"))" data-id="'+n.id+'" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:16px;flex-shrink:0;padding:0 2px;">x</button>';
+    html+='<div style="flex:1;">';
+    html+='<div style="font-size:10px;color:var(--gris);margin-bottom:3px;">'+fecha+'</div>';
+    html+='<div id="obs-txt-'+n.id+'" class="obs-item-text" style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.content+'</div>';
+    html+='<textarea id="obs-edit-'+n.id+'" style="display:none;width:100%;padding:7px;border:1.5px solid var(--verde-claro);border-radius:7px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;margin-top:4px;" rows="3">'+n.content+'</textarea>';
+    html+='<div id="obs-edit-btns-'+n.id+'" style="display:none;gap:6px;margin-top:5px;">';
+    html+='<button data-oid="'+n.id+'" onclick="guardarEdicionObs(this.dataset.oid)" style="background:var(--verde);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">✅ Guardar</button> ';
+    html+='<button data-oid="'+n.id+'" onclick="cancelarEdicionObs(this.dataset.oid)" style="background:var(--crema);color:var(--gris);border:1.5px solid var(--gris-claro);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Cancelar</button>';
+    html+='</div>';
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">';
+    html+='<button data-oid="'+n.id+'" onclick="editarObsInd(this.dataset.oid)" style="background:none;border:none;color:#8A7E6A;cursor:pointer;font-size:14px;padding:0 2px;" title="Editar">✏️</button>';
+    html+='<button data-id="'+n.id+'" onclick="borrarObservacionAlumno(this.getAttribute(\"data-id\"))" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:14px;padding:0 2px;" title="Borrar">✕</button>';
+    html+='</div>';
     html+='</div></div>';
     return html;
   }).join('');
@@ -2093,6 +2137,32 @@ async function borrarObservacionAlumno(id){
   if(!user)return;
   var {error}=await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('teacher_id',user.id);
   if(!error)cargarObservacionesAlumno();
+}
+
+function editarObsInd(id){
+  document.getElementById('obs-txt-'+id).style.display='none';
+  document.getElementById('obs-edit-'+id).style.display='block';
+  document.getElementById('obs-edit-btns-'+id).style.display='flex';
+}
+
+function cancelarEdicionObs(id){
+  document.getElementById('obs-txt-'+id).style.display='block';
+  document.getElementById('obs-edit-'+id).style.display='none';
+  document.getElementById('obs-edit-btns-'+id).style.display='none';
+}
+
+async function guardarEdicionObs(id){
+  var ta=document.getElementById('obs-edit-'+id);
+  var txt=ta?ta.value.trim():'';
+  if(!txt)return;
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('notas_rapidas').update({content:txt}).eq('id',id).eq('teacher_id',user.id);
+  if(!error){
+    document.getElementById('obs-txt-'+id).textContent=txt;
+    cancelarEdicionObs(id);
+  }
 }
 
 async function guardarObservacionAlumno(){
