@@ -1279,7 +1279,7 @@ async function initTeacher(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('teachers').select('full_name,grade').eq('id',user.id).maybeSingle();
+  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key').eq('id',user.id).maybeSingle();
   if(!data)return;
   window.__teacherGrade=data.grade||'';
   window.__teacherName=data.full_name||'';
@@ -1287,6 +1287,10 @@ async function initTeacher(){
   if(hdr)hdr.textContent=(data.full_name||'')+(data.grade?' · '+data.grade:'');
   var banner=document.getElementById('banner-grado');
   if(banner&&data.grade)banner.textContent=data.grade;
+  // Cargar API keys desde Supabase (sobreescribe localStorage con la key del usuario)
+  if(data.anthropic_key){localStorage.setItem('huellaed_anthropic_key',data.anthropic_key);}
+  if(data.gemini_key){localStorage.setItem('huellaed_gemini_key',data.gemini_key);}
+  actualizarEstadoApiKeys();
 }
 
 document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); });
@@ -4237,26 +4241,51 @@ function cerrarConfigApiKey(){
   document.getElementById('modal-apikey').style.display='none';
 }
 
-function guardarApiKeyConfig(){
+async function guardarApiKeyConfig(){
   var val=document.getElementById('apikey-input').value.trim();
   var msg=document.getElementById('apikey-msg');
   if(!val||val.startsWith('••••')){msg.style.color='#C0392B';msg.textContent='Pegá tu clave primero';return;}
   if(_apikeyTipo==='anthropic'){
     if(!val.startsWith('sk-ant-')&&!val.startsWith('sk-')){msg.style.color='#C0392B';msg.textContent='La clave de Anthropic empieza con sk-ant-';return;}
-    localStorage.setItem('huellaed_anthropic_key',val);
   } else {
     if(!val.startsWith('AIza')){msg.style.color='#C0392B';msg.textContent='La clave de Gemini empieza con AIza';return;}
-    localStorage.setItem('huellaed_gemini_key',val);
   }
+  msg.style.color='var(--gris)';msg.textContent='Guardando...';
+  // Guardar en Supabase (por usuario) Y en localStorage (para acceso rápido)
+  if(window.__sb){
+    try{
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var update={};
+        if(_apikeyTipo==='anthropic') update.anthropic_key=val;
+        else update.gemini_key=val;
+        await window.__sb.from('teachers').update(update).eq('id',user.id);
+      }
+    }catch(e){console.error('Error guardando key en Supabase:',e);}
+  }
+  // También en localStorage como caché
+  if(_apikeyTipo==='anthropic') localStorage.setItem('huellaed_anthropic_key',val);
+  else localStorage.setItem('huellaed_gemini_key',val);
   msg.style.color='var(--verde)';msg.textContent='✅ Clave guardada';
   actualizarEstadoApiKeys();
   setTimeout(cerrarConfigApiKey,1200);
 }
 
-function borrarApiKeyConfig(){
+async function borrarApiKeyConfig(){
   if(!confirm('¿Borrar tu clave? Vas a necesitar ingresarla de nuevo para usar IA.'))return;
-  if(_apikeyTipo==='anthropic'){localStorage.removeItem('huellaed_anthropic_key');}
-  else{localStorage.removeItem('huellaed_gemini_key');}
+  if(window.__sb){
+    try{
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var update={};
+        if(_apikeyTipo==='anthropic') update.anthropic_key=null;
+        else update.gemini_key=null;
+        await window.__sb.from('teachers').update(update).eq('id',user.id);
+      }
+    }catch(e){console.error('Error borrando key:',e);}
+  }
+  if(_apikeyTipo==='anthropic') localStorage.removeItem('huellaed_anthropic_key');
+  else localStorage.removeItem('huellaed_gemini_key');
   document.getElementById('apikey-input').value='';
   document.getElementById('apikey-msg').style.color='var(--gris)';
   document.getElementById('apikey-msg').textContent='Clave borrada';
