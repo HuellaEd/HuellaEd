@@ -908,6 +908,163 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <a id="apikey-link" href="#" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);margin-top:10px;">→ Ir a obtener mi clave gratuita</a>
   </div>
 </div>
+
+<!-- MODAL ASISTENTE DEI -->
+<div id="modal-dei" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#C05A3A,#D4724A);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff;">📋 Asistente DEI</div>
+        <div id="dei-alumno-label" style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;"></div>
+      </div>
+      <button onclick="cerrarDEI()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Pasos -->
+    <div style="display:flex;border-bottom:1px solid #eee;">
+      <div id="dei-tab-1" onclick="deiTab(1)" style="flex:1;padding:10px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border-bottom:3px solid #C05A3A;color:#C05A3A;">1. Perfil</div>
+      <div id="dei-tab-2" onclick="deiTab(2)" style="flex:1;padding:10px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;color:#8A7E6A;">2. Áreas</div>
+      <div id="dei-tab-3" onclick="deiTab(3)" style="flex:1;padding:10px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;color:#8A7E6A;">3. Apoyos</div>
+      <div id="dei-tab-4" onclick="deiTab(4)" style="flex:1;padding:10px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;color:#8A7E6A;">4. Generar</div>
+    </div>
+
+    <div style="padding:18px;max-height:65vh;overflow-y:auto;">
+
+      <!-- PASO 1: Perfil general -->
+      <div id="dei-step-1">
+        <div style="font-size:11px;font-weight:700;color:#C05A3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Perfil pedagógico funcional</div>
+        <div class="form-row">
+          <label>DNI del alumno</label>
+          <input type="text" id="dei-dni" placeholder="Ej: 55.024.273" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <div class="form-row">
+          <label>Fecha de nacimiento</label>
+          <input type="text" id="dei-fnac" placeholder="Ej: 1/8/2015" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <div class="form-row">
+          <label>Domicilio</label>
+          <input type="text" id="dei-domicilio" placeholder="Ej: Barrio Almirante Brown, Tigre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <div class="form-row">
+          <label>Fecha de inicio DEI</label>
+          <input type="text" id="dei-inicio" placeholder="Ej: Marzo 2025" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+        </div>
+        <div class="form-row">
+          <label>Descripción del perfil pedagógico funcional</label>
+          <textarea id="dei-perfil" rows="5" placeholder="Describí el perfil actual del alumno: cómo llega al aula, qué puede hacer, qué no puede, cómo aprende..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Estilo de aprendizaje</label>
+          <textarea id="dei-estilo" rows="3" placeholder="Cómo aprende mejor este alumno..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Habilidades adaptativas</label>
+          <textarea id="dei-adaptativas" rows="3" placeholder="Autonomía, organización, vínculos sociales..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Facilitadores</label>
+          <textarea id="dei-facilitadores" rows="3" placeholder="Qué favorece su aprendizaje y participación..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Barreras para el aprendizaje</label>
+          <textarea id="dei-barreras" rows="3" placeholder="Qué obstaculiza su aprendizaje y participación..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <button onclick="deiTab(2)" class="save-btn" style="background:#C05A3A;">Siguiente → Áreas</button>
+      </div>
+
+      <!-- PASO 2: Por área -->
+      <div id="dei-step-2" style="display:none;">
+        <div style="font-size:11px;font-weight:700;color:#C05A3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Propuesta por área</div>
+        
+        <div style="background:#FDF0EC;border-radius:10px;padding:12px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:#C05A3A;margin-bottom:8px;">🔢 Matemática</div>
+          <div class="form-row" style="margin-bottom:6px;">
+            <label>Perfil funcional en Matemática</label>
+            <textarea id="dei-mat-perfil" rows="3" placeholder="Qué puede hacer, qué no puede, dificultades específicas..." style="width:100%;padding:8px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;"></textarea>
+          </div>
+          <div class="form-row" style="margin-bottom:0;">
+            <label>Propuesta didáctica y adecuaciones</label>
+            <textarea id="dei-mat-prop" rows="3" placeholder="Qué vas a trabajar, cómo, con qué apoyos..." style="width:100%;padding:8px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;"></textarea>
+          </div>
+        </div>
+
+        <div style="background:#EEF5F0;border-radius:10px;padding:12px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">📖 Prácticas del Lenguaje</div>
+          <div class="form-row" style="margin-bottom:6px;">
+            <label>Perfil funcional en Lengua</label>
+            <textarea id="dei-len-perfil" rows="3" placeholder="Lectura, escritura, comprensión..." style="width:100%;padding:8px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;"></textarea>
+          </div>
+          <div class="form-row" style="margin-bottom:0;">
+            <label>Propuesta didáctica y adecuaciones</label>
+            <textarea id="dei-len-prop" rows="3" placeholder="Qué vas a trabajar, cómo, con qué apoyos..." style="width:100%;padding:8px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;"></textarea>
+          </div>
+        </div>
+
+        <div style="background:#EEF2F8;border-radius:10px;padding:12px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:#3B6E9E;margin-bottom:8px;">🌍 Ciencias Sociales y Naturales</div>
+          <div class="form-row" style="margin-bottom:6px;">
+            <label>Perfil funcional</label>
+            <textarea id="dei-cs-perfil" rows="2" placeholder="Cómo participa, qué puede hacer..." style="width:100%;padding:8px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;"></textarea>
+          </div>
+          <div class="form-row" style="margin-bottom:0;">
+            <label>Propuesta didáctica</label>
+            <textarea id="dei-cs-prop" rows="2" placeholder="Adecuaciones, apoyos, estrategias..." style="width:100%;padding:8px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;"></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="deiTab(1)" style="flex:1;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;">← Volver</button>
+          <button onclick="deiTab(3)" class="save-btn" style="flex:2;background:#C05A3A;">Siguiente → Apoyos</button>
+        </div>
+      </div>
+
+      <!-- PASO 3: Apoyos -->
+      <div id="dei-step-3" style="display:none;">
+        <div style="font-size:11px;font-weight:700;color:#C05A3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Apoyos e intervenciones</div>
+        <div class="form-row">
+          <label>Frecuencia y tipo de apoyo docente</label>
+          <textarea id="dei-apoyo-doc" rows="3" placeholder="Atención directa, monitoreo, frecuencia..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Intervención del EOE</label>
+          <textarea id="dei-eoe" rows="2" placeholder="Frecuencia, tipo de intervención, material adaptado..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Intervención externa (psicopedagoga, fono, etc.)</label>
+          <textarea id="dei-externa" rows="2" placeholder="Si no tiene, indicarlo y explicar por qué..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Trabajo interdisciplinario</label>
+          <textarea id="dei-interdisciplinario" rows="2" placeholder="Articulación con otros profesionales o equipos..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Participación familiar</label>
+          <textarea id="dei-familia" rows="3" placeholder="Cómo participa la familia, reuniones, compromisos, limitaciones..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="deiTab(2)" style="flex:1;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;">← Volver</button>
+          <button onclick="deiTab(4)" class="save-btn" style="flex:2;background:#C05A3A;">Siguiente → Generar</button>
+        </div>
+      </div>
+
+      <!-- PASO 4: Generar -->
+      <div id="dei-step-4" style="display:none;">
+        <div style="font-size:11px;font-weight:700;color:#C05A3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Generar DEI</div>
+        <div style="background:#FDF0EC;border-radius:12px;padding:14px;margin-bottom:14px;font-size:12px;color:#C05A3A;line-height:1.6;">
+          <strong>¿Qué va a generar Claude?</strong><br>
+          Un DEI completo en el formato oficial de la provincia de Buenos Aires, usando toda la información que cargaste más los datos del perfil del alumno (notas, observaciones, asistencia) que ya están en Supabase.
+        </div>
+        <div class="form-row">
+          <label>¿Algo más que quieras agregar? (opcional)</label>
+          <textarea id="dei-extra" rows="3" placeholder="Contexto adicional, situación familiar especial, historia del alumno..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <button onclick="generarDEI()" style="width:100%;background:linear-gradient(135deg,#C05A3A,#D4724A);color:#fff;border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Generar DEI completo</button>
+        <div id="dei-msg" style="text-align:center;font-size:11px;margin-top:8px;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
 <div id="print-container"></div>
 <footer>HuellaED · cada alumno, su trayecto</footer>
 
@@ -1809,6 +1966,9 @@ async function abrirPerfilAcademico(studentId){
   html+='<button onclick="generarPerfilAcademico()" style="background:linear-gradient(135deg,#2D5F4F,#3A7A65);color:#fff;border:none;border-radius:11px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Perfil académico</button>';
   html+='<button onclick="abrirModalInforme()" style="background:linear-gradient(135deg,#C8973A,#D4A84B);color:#fff;border:none;border-radius:11px;padding:12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📄 Generar informe</button>';
   html+='</div>';
+  if(s.has_differential){
+    html+='<button onclick="abrirAsistenteDEI()" style="width:100%;background:linear-gradient(135deg,#C05A3A,#D4724A);color:#fff;border:none;border-radius:11px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:6px;">📋 Generar DEI</button>';
+  }
   html+='<div style="font-size:10px;color:var(--gris);text-align:center;">Solo con datos reales de Supabase — nunca inventa</div>';
   html+='</div>';
 
@@ -4379,6 +4539,147 @@ function actualizarEstadoApiKeys(){
 document.addEventListener('DOMContentLoaded',function(){
   actualizarEstadoApiKeys();
 });
+
+
+// ── ASISTENTE DEI ──
+function abrirAsistenteDEI(){
+  var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
+  if(!s)return;
+  document.getElementById('dei-alumno-label').textContent=s.full_name+' · DEI 2026';
+  document.getElementById('modal-dei').style.display='block';
+  document.getElementById('dei-msg').textContent='';
+  deiTab(1);
+  // Pre-cargar datos del perfil diferencial si existen
+  var desc=document.getElementById('dif-descripcion');
+  var nec=document.getElementById('dif-necesidades');
+  var ada=document.getElementById('dif-adaptaciones');
+  if(desc&&desc.value&&!document.getElementById('dei-perfil').value){
+    document.getElementById('dei-perfil').value=desc.value;
+  }
+  if(ada&&ada.value&&!document.getElementById('dei-apoyo-doc').value){
+    document.getElementById('dei-apoyo-doc').value=ada.value;
+  }
+}
+
+function cerrarDEI(){
+  document.getElementById('modal-dei').style.display='none';
+}
+
+function deiTab(n){
+  for(var i=1;i<=4;i++){
+    document.getElementById('dei-step-'+i).style.display=i===n?'block':'none';
+    var tab=document.getElementById('dei-tab-'+i);
+    tab.style.borderBottomColor=i===n?'#C05A3A':'transparent';
+    tab.style.color=i===n?'#C05A3A':'#8A7E6A';
+  }
+}
+
+async function generarDEI(){
+  var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
+  if(!s)return;
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  
+  var msg=document.getElementById('dei-msg');
+  msg.style.color='var(--gris)';msg.textContent='Generando DEI... puede tardar unos segundos.';
+
+  // Recopilar datos del formulario
+  var g=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
+  
+  // Datos del alumno de Supabase
+  var notas=gradesData[_perfilStudentId]||{};
+  var areaNames={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
+  var notasTexto=Object.keys(notas).filter(function(a){return notas[a]!=null;}).map(function(a){return areaNames[a]+': '+notas[a];}).join(', ')||'Sin notas cargadas';
+
+  var prompt='Generá un DEI (Documento de Evaluación Individual / Trayectorias Educativas y Propuesta Pedagógica para la Inclusión) completo para la Provincia de Buenos Aires, en el formato oficial.\n\n';
+  prompt+='INSTRUCCIÓN: Usá EXACTAMENTE los datos proporcionados. No inventés información. Respetá el formato oficial del DEI de PBA.\n\n';
+  prompt+='DATOS DEL ESTUDIANTE:\n';
+  prompt+='Nombre: '+s.full_name+'\n';
+  prompt+='DNI: '+(g('dei-dni')||'No informado')+'\n';
+  prompt+='Fecha de nacimiento: '+(g('dei-fnac')||'No informada')+'\n';
+  prompt+='Domicilio: '+(g('dei-domicilio')||'No informado')+'\n';
+  prompt+='Escuela: Escuela La Concepción, Tigre\n';
+  prompt+='Año que cursa: 6to Año\n';
+  prompt+='Docente de referencia 2026: Nicolás Radaelli\n';
+  prompt+='Fecha de inicio DEI: '+(g('dei-inicio')||'No informada')+'\n\n';
+  
+  prompt+='NOTAS REGISTRADAS EN EL SISTEMA: '+notasTexto+'\n\n';
+  
+  prompt+='PERFIL PEDAGÓGICO FUNCIONAL:\n'+(g('dei-perfil')||'No completado')+'\n\n';
+  prompt+='ESTILO DE APRENDIZAJE:\n'+(g('dei-estilo')||'No completado')+'\n\n';
+  prompt+='HABILIDADES ADAPTATIVAS:\n'+(g('dei-adaptativas')||'No completado')+'\n\n';
+  prompt+='FACILITADORES:\n'+(g('dei-facilitadores')||'No completado')+'\n\n';
+  prompt+='BARRERAS PARA EL APRENDIZAJE:\n'+(g('dei-barreras')||'No completado')+'\n\n';
+  
+  prompt+='MATEMÁTICA - PERFIL FUNCIONAL:\n'+(g('dei-mat-perfil')||'No completado')+'\n';
+  prompt+='MATEMÁTICA - PROPUESTA DIDÁCTICA:\n'+(g('dei-mat-prop')||'No completado')+'\n\n';
+  prompt+='PRÁCTICAS DEL LENGUAJE - PERFIL FUNCIONAL:\n'+(g('dei-len-perfil')||'No completado')+'\n';
+  prompt+='PRÁCTICAS DEL LENGUAJE - PROPUESTA DIDÁCTICA:\n'+(g('dei-len-prop')||'No completado')+'\n\n';
+  prompt+='CIENCIAS - PERFIL FUNCIONAL:\n'+(g('dei-cs-perfil')||'No completado')+'\n';
+  prompt+='CIENCIAS - PROPUESTA DIDÁCTICA:\n'+(g('dei-cs-prop')||'No completado')+'\n\n';
+  
+  prompt+='FRECUENCIA Y TIPO DE APOYO DOCENTE:\n'+(g('dei-apoyo-doc')||'No completado')+'\n\n';
+  prompt+='INTERVENCIÓN EOE:\n'+(g('dei-eoe')||'No completado')+'\n\n';
+  prompt+='INTERVENCIÓN EXTERNA:\n'+(g('dei-externa')||'No completado')+'\n\n';
+  prompt+='TRABAJO INTERDISCIPLINARIO:\n'+(g('dei-interdisciplinario')||'No completado')+'\n\n';
+  prompt+='PARTICIPACIÓN FAMILIAR:\n'+(g('dei-familia')||'No completado')+'\n\n';
+  if(g('dei-extra'))prompt+='INFORMACIÓN ADICIONAL:\n'+g('dei-extra')+'\n\n';
+  
+  prompt+='Generá el DEI completo con todas sus secciones en el formato oficial de PBA. Incluí encabezado institucional. Dejá espacios para las firmas al final (Docente de referencia, EOE, Dirección, Familia). Tono profesional y pedagógico. Usar terminología de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.';
+
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    
+    // Descargar como HTML
+    var fecha=new Date().toLocaleDateString('es-AR');
+    var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>DEI — '+s.full_name+'</title>'
+      +'<style>body{font-family:Arial,sans-serif;max-width:800px;margin:30px auto;padding:0 30px;font-size:12px;line-height:1.7;color:#222;}'
+      +'h1{font-size:16px;text-align:center;color:#C05A3A;border-bottom:2px solid #C05A3A;padding-bottom:8px;margin-bottom:16px;}'
+      +'h2{font-size:14px;color:#C05A3A;margin-top:20px;border-left:4px solid #C05A3A;padding-left:8px;}'
+      +'h3{font-size:13px;color:#2D5F4F;margin-top:14px;}'
+      +'p{margin:0 0 8px;}table{width:100%;border-collapse:collapse;}td,th{border:1px solid #ccc;padding:6px 8px;font-size:11px;}'
+      +'th{background:#C05A3A;color:white;}'
+      +'.firma{margin-top:50px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}'
+      +'.firma-item{text-align:center;border-top:1px solid #333;padding-top:8px;font-size:10px;color:#555;}'
+      +'@media print{body{margin:15mm 20mm;}}</style></head><body>'
+      +'<div style="text-align:center;margin-bottom:20px;">'
+      +'<div style="font-size:10px;color:#C05A3A;letter-spacing:2px;text-transform:uppercase;">Escuela La Concepción · Tigre · Provincia de Buenos Aires</div>'
+      +'<h1>TRAYECTORIAS EDUCATIVAS Y PROPUESTA PEDAGÓGICA PARA LA INCLUSIÓN</h1>'
+      +'<div style="font-size:11px;color:#888;">'+s.full_name+' · 6to Año · 2026 · '+fecha+'</div>'
+      +'</div>'
+      +markdownToHtml(texto)
+      +'</body></html>';
+    
+    var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='DEI_'+s.full_name.replace(/[^a-zA-Z]/g,'_')+'_2026.html';
+    a.click();
+    
+    msg.style.color='var(--verde)';msg.textContent='✅ DEI generado y descargado';
+    
+    // Guardar en Supabase como observación
+    if(window.__sb){
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        await window.__sb.from('notas_rapidas').insert({
+          student_id:_perfilStudentId,
+          teacher_id:user.id,
+          content:'[DEI generado '+fecha+'] Documento DEI completo generado y descargado.'
+        });
+      }
+    }
+  }catch(e){
+    msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
+  }
+}
 </script>
 
 
