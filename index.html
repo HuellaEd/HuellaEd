@@ -2109,24 +2109,25 @@ async function cargarObservacionesAlumno(){
   }
   lista.innerHTML=data.map(function(n){
     var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
-    var html='<div id="obs-card-'+n.id+'" style="background:var(--crema);border-radius:9px;padding:9px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">';
+    var txt=n.content;
+    var eid=String(n.id).replace(/-/g,'');
+    var html='<div id="obc'+eid+'" style="background:var(--crema);border-radius:9px;padding:9px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">';
     html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
     html+='<div style="flex:1;">';
     html+='<div style="font-size:10px;color:var(--gris);margin-bottom:3px;">'+fecha+'</div>';
-    html+='<div id="obs-txt-'+n.id+'" class="obs-item-text" style="font-size:12px;color:var(--negro);line-height:1.5;">'+n.content+'</div>';
-    html+='<textarea id="obs-edit-'+n.id+'" style="display:none;width:100%;padding:7px;border:1.5px solid var(--verde-claro);border-radius:7px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;margin-top:4px;" rows="3">'+n.content+'</textarea>';
-    html+='<div id="obs-edit-btns-'+n.id+'" style="display:none;gap:6px;margin-top:5px;">';
-    html+='<button data-oid="'+n.id+'" onclick="guardarEdicionObs(this.dataset.oid)" style="background:var(--verde);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">✅ Guardar</button> ';
-    html+='<button data-oid="'+n.id+'" onclick="cancelarEdicionObs(this.dataset.oid)" style="background:var(--crema);color:var(--gris);border:1.5px solid var(--gris-claro);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Cancelar</button>';
+    html+='<div id="obt'+eid+'" class="obs-item-text" style="font-size:12px;color:var(--negro);line-height:1.5;">'+txt+'</div>';
+    html+='<div id="obe'+eid+'" style="display:none;margin-top:6px;">';
+    html+='<textarea id="obta'+eid+'" rows="3" style="width:100%;padding:7px;border:1.5px solid var(--verde-claro);border-radius:7px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;">'+txt+'</textarea>';
+    html+='<div style="display:flex;gap:6px;margin-top:5px;">';
+    html+='<button data-rid="'+n.id+'" data-eid="'+eid+'" onclick="obsGuardar(this.dataset.rid,this.dataset.eid)" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:7px;padding:6px;font-size:12px;font-weight:600;cursor:pointer;">✅ Guardar</button>';
+    html+='<button data-rid="'+n.id+'" data-eid="'+eid+'" onclick="obsBorrar(this.dataset.rid,this.dataset.eid)" style="flex:1;background:#FDE8E8;color:#C0392B;border:none;border-radius:7px;padding:6px;font-size:12px;font-weight:600;cursor:pointer;">🗑️ Borrar</button>';
+    html+='<button data-eid="'+eid+'" onclick="obsCancelar(this.dataset.eid)" style="background:var(--crema);color:var(--gris);border:1.5px solid var(--gris-claro);border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer;">✕</button>';
+    html+='</div></div>';
     html+='</div>';
-    html+='</div>';
-    html+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">';
-    html+='<button data-oid="'+n.id+'" onclick="editarObsInd(this.dataset.oid)" style="background:none;border:none;color:#8A7E6A;cursor:pointer;font-size:14px;padding:0 2px;" title="Editar">✏️</button>';
-    html+='<button data-id="'+n.id+'" onclick="borrarObservacionAlumno(this.getAttribute(\"data-id\"))" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:14px;padding:0 2px;" title="Borrar">✕</button>';
-    html+='</div>';
+    html+='<button data-eid="'+eid+'" onclick="obsEditar(this.dataset.eid)" style="background:none;border:none;color:#8A7E6A;cursor:pointer;font-size:16px;flex-shrink:0;padding:2px;">✏️</button>';
     html+='</div></div>';
     return html;
-  }).join('');
+  }).join('');;
 }
 
 async function borrarObservacionAlumno(id){
@@ -2139,29 +2140,32 @@ async function borrarObservacionAlumno(id){
   if(!error)cargarObservacionesAlumno();
 }
 
-function editarObsInd(id){
-  document.getElementById('obs-txt-'+id).style.display='none';
-  document.getElementById('obs-edit-'+id).style.display='block';
-  document.getElementById('obs-edit-btns-'+id).style.display='flex';
+function obsEditar(eid){
+  document.getElementById('obe'+eid).style.display='block';
+  document.getElementById('obt'+eid).style.display='none';
 }
-
-function cancelarEdicionObs(id){
-  document.getElementById('obs-txt-'+id).style.display='block';
-  document.getElementById('obs-edit-'+id).style.display='none';
-  document.getElementById('obs-edit-btns-'+id).style.display='none';
+function obsCancelar(eid){
+  document.getElementById('obe'+eid).style.display='none';
+  document.getElementById('obt'+eid).style.display='block';
 }
-
-async function guardarEdicionObs(id){
-  var ta=document.getElementById('obs-edit-'+id);
-  var txt=ta?ta.value.trim():'';
+async function obsGuardar(id,eid){
+  var txt=document.getElementById('obta'+eid).value.trim();
   if(!txt)return;
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
   var {error}=await window.__sb.from('notas_rapidas').update({content:txt}).eq('id',id).eq('teacher_id',user.id);
+  if(!error){document.getElementById('obt'+eid).textContent=txt;obsCancelar(eid);}
+}
+async function obsBorrar(id,eid){
+  if(!confirm('Borrar esta observación?'))return;
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('teacher_id',user.id);
   if(!error){
-    document.getElementById('obs-txt-'+id).textContent=txt;
-    cancelarEdicionObs(id);
+    var el=document.getElementById('obc'+eid);
+    if(el)el.remove();
   }
 }
 
