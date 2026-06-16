@@ -904,9 +904,25 @@ Si el audio es muy corto o hay ruido ambiental, indicalo brevemente.`;
       analisis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
     document.getElementById('gemini-resultado').style.display = 'block';
 
-    // Guardar automáticamente en Drive del alumno
+    // Guardar en Supabase directo al perfil del alumno
     document.getElementById('gemini-loading').style.display = 'block';
     document.getElementById('gemini-loading').textContent = '💾 Guardando en el perfil del alumno...';
+    if (window.__sb) {
+      try {
+        const user = (await window.__sb.auth.getUser()).data.user;
+        if (user && window.__students) {
+          const st = window.__students.find(function(s) {
+            var key = s.full_name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/,\s*/g,'_').replace(/\s+/g,'_').replace(/[^a-zA-Z_]/g,'');
+            return key === alumno;
+          });
+          if (st) {
+            var textoObs = '[📖 Lectura' + (tituloTexto ? ': ' + tituloTexto : '') + ' · ' + fecha + ']\n' + analisis;
+            await window.__sb.from('notas_rapidas').insert({student_id: st.id, teacher_id: user.id, content: textoObs});
+            document.getElementById('gemini-loading').textContent = '✅ Análisis guardado en el perfil de ' + alumnoNombre;
+          }
+        }
+      } catch(e) { console.error('Error guardando en Supabase:', e); }
+    }
     await guardarAnalisisEnDrive(alumno, alumnoNombre, fecha, tituloTexto, analisis);
     document.getElementById('gemini-loading').style.display = 'none';
     if (resultado && resultado.ok) {
@@ -2870,7 +2886,19 @@ function descargarAudio(){
 
 // ── EVIDENCIA ──
 var evFile=null,evReg=[];
-function abrirEvidencia(){document.getElementById('modal-evidencia').style.display='block';document.getElementById('ev-preview-container').style.display='none';document.getElementById('ev-descargar-btn').style.display='none';document.getElementById('ev-nombre-preview').style.display='none';evFile=null;renderEvidencias();}
+function abrirEvidencia(){
+  document.getElementById('modal-evidencia').style.display='block';
+  document.getElementById('ev-preview-container').style.display='none';
+  document.getElementById('ev-descargar-btn').style.display='none';
+  document.getElementById('ev-nombre-preview').style.display='none';
+  evFile=null;
+  renderEvidencias();
+  // Llenar alumnos si no están cargados
+  var sel=document.getElementById('ev-alumno');
+  if(sel&&sel.options.length<=1&&window.__students){
+    sel.innerHTML='<option value="">— Seleccionar —</option>'+window.__students.map(function(s){return '<option>'+s.full_name+'</option>';}).join('');
+  }
+}
 function cerrarEvidencia(){document.getElementById('modal-evidencia').style.display='none';}
 function actualizarNombreEv(){var al=document.getElementById('ev-alumno').value,ar=document.getElementById('ev-area').value,tm=document.getElementById('ev-tema').value;if(!al&&!tm){document.getElementById('ev-nombre-preview').style.display='none';return;}var fecha=new Date().toISOString().slice(0,10);var alS=al.replace(/[^a-zA-Z ]/g,'').replace(/ /g,'_');var arS=ar?'_'+ar.replace(/ /g,'_'):'';var tmS=tm.trim().replace(/ /g,'_').substring(0,25);var nombre='Evidencia_'+alS+arS+(tmS?'_'+tmS:'')+'_'+fecha;document.getElementById('ev-nombre-txt').textContent=nombre+'.jpg';document.getElementById('ev-nombre-preview').style.display='block';return nombre;}
 function procesarFotoMultiple(input){
