@@ -733,8 +733,8 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div class="form-row">
       <label>Observación</label>
       <textarea id="obs-texto-modal" placeholder="Escribí o dictá..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
-      <button id="obs-mic-btn" onclick="toggleDictadoObs()" style="width:100%;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:9px;font-size:13px;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
-        🎙️ <span id="obs-mic-label">Dictar</span>
+      <button id="obs-mic-btn" onclick="toggleDictadoObs()" style="width:100%;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:9px;font-size:13px;cursor:pointer;margin-top:6px;font-family:inherit;text-align:center;">
+        🎙️ <span id="obs-mic-label">Dictar observación</span>
       </button>
       <div id="obs-dictado-status" style="font-size:11px;color:var(--verde);text-align:center;margin-top:4px;display:none;">🔴 Dictando... tocá de nuevo para detener</div>
     </div>
@@ -2865,7 +2865,7 @@ function siguienteAlumnoLectura(){
 var mr=null,ac=[],grab=false,ti=null,seg=0,ab=null;
 function abrirGrabador(){document.getElementById('modal-grabador').style.display='block';document.getElementById('grab-resultado').style.display='none';document.getElementById('grab-timer').style.display='none';document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-status').textContent='Seleccioná el alumno y tocá Grabar';seg=0;}
 function cerrarGrabador(){if(grab)toggleGrabacion();document.getElementById('modal-grabador').style.display='none';}
-function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];mr=new MediaRecorder(st);mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
+function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];var mimeTypeG=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';mr=new MediaRecorder(st,mimeTypeG?{mimeType:mimeTypeG}:{});mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
 function descargarAudio(){
   var al=document.getElementById('grab-alumno').value;
   var titulo=document.getElementById('grab-titulo-texto').value;
@@ -3305,8 +3305,10 @@ function toggleDictadoObs(){
 function iniciarDictadoObs(){
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
     obsChunks=[];
-    obsRecorder=new MediaRecorder(stream);
-    obsRecorder.ondataavailable=function(e){obsChunks.push(e.data);};
+    var mimeType=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';
+    obsRecorder=new MediaRecorder(stream,mimeType?{mimeType:mimeType}:{});
+    obsChunks=[];
+    obsRecorder.ondataavailable=function(e){if(e.data.size>0)obsChunks.push(e.data);};
     obsRecorder.onstop=function(){transcribirDictadoObs();};
     obsRecorder.start();
     dictandoObs=true;
