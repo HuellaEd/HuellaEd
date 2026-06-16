@@ -1243,10 +1243,15 @@ async function initAgenda() {
   if (!window.__sb) return;
   var user = (await window.__sb.auth.getUser()).data.user;
   if (!user) return;
+  // Limpiar localStorage para que no se mezclen datos entre usuarios
+  localStorage.removeItem('huellaed_agenda');
   var { data } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
-  if (!data || !data.length) return;
+  if (!data || !data.length) {
+    // Primera vez: cargar tareas iniciales para este usuario
+    tareas = TAREAS_INICIALES.map(function(t){return {id:t.id,texto:t.texto,cat:t.cat,hecha:t.hecha};});
+    return;
+  }
   tareas = data.map(function(t) { return { id: t.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; });
-  localStorage.setItem('huellaed_agenda', JSON.stringify(tareas));
 }
 
 async function initTeacher(){
@@ -3521,7 +3526,7 @@ const TAREAS_INICIALES=[{id:1,texto:"Hablar con familia de Barrera Joaquín por 
 var tareas=JSON.parse(localStorage.getItem('huellaed_agenda')||'null')||TAREAS_INICIALES;
 var filtroActual='todas';
 function guardarTareas(){
-  try{ localStorage.setItem('huellaed_agenda',JSON.stringify(tareas)); }catch(e){}
+  // NO guardar en localStorage (compartido entre usuarios)
   if (!window.__sb) return;
   (async function() {
     var user = (await window.__sb.auth.getUser()).data.user;
@@ -4009,13 +4014,21 @@ async function darAltaAlumno(){
 }
 
 async function darBajaAlumno(id,nombre){
-  if(!confirm('¿Dar de baja a '+nombre+'? Su perfil e historial quedan guardados.'))return;
+  if(!confirm('¿Dar de baja a '+nombre+'? Su perfil e historial quedan guardados y puede reactivarse.'))return;
   if(!window.__sb)return;
-  // Intentar con campo active
-  var {error}=await window.__sb.from('students').update({active:false,updated_at:new Date().toISOString()}).eq('id',id);
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  // Intentar actualizar con campo active
+  var {error}=await window.__sb.from('students').update({active:false,updated_at:new Date().toISOString()}).eq('id',id).eq('teacher_id',user.id);
   if(error){
-    // Si no existe active, solo removemos de la vista local
-    alert('Para dar de baja se necesita el campo "active" en la tabla students de Supabase. Consultá con el administrador.');
+    // Si no existe la columna active, mostrar instrucciones
+    var msg='Para habilitar bajas necesitás agregar la columna "active" en Supabase:\n\n'
+      +'1. Abrí supabase.com/dashboard\n'
+      +'2. SQL Editor\n'
+      +'3. Pegá y ejecutá:\n\n'
+      +'ALTER TABLE students ADD COLUMN IF NOT EXISTS active boolean DEFAULT true;\n\n'
+      +'Después volvé a intentar.';
+    alert(msg);
     return;
   }
   await initStudents();
