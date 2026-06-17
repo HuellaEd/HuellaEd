@@ -169,7 +169,79 @@
     .lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}
     .lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:'Nunito',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}
     .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}
-    @media print{#libro-preview{background:white;padding:0;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{box-shadow:none;page-break-after:always;}}
+
+    /* ══ PALETAS POR ÁREA ══ */
+    .lb-area-M .lb-sec-titulo,.lb-area-M .lb-caja-titulo{color:#3B6E9E;}
+    .lb-area-M .lb-banda{background:linear-gradient(180deg,#3B6E9E,#4A8AC0,#C8973A);}
+    .lb-area-M .lb-pagina::before{background-image:linear-gradient(rgba(59,110,158,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,110,158,.09) 1px,transparent 1px);}
+    .lb-area-M .lb-num{background:#3B6E9E!important;}
+    .lb-area-M .lb-tabla-wrap{border-color:#3B6E9E;}.lb-area-M .lb-tabla-wrap th{background:#3B6E9E;}
+
+    .lb-area-L .lb-sec-titulo,.lb-area-L .lb-caja-titulo{color:#C8845A;}
+    .lb-area-L .lb-banda{background:linear-gradient(180deg,#C8845A,#D4A06E,#8a5a3a);}
+    .lb-area-L .lb-pagina::before{display:none;background-image:repeating-linear-gradient(transparent,transparent 22px,rgba(200,132,90,.12) 22px,rgba(200,132,90,.12) 23px);}
+    .lb-area-L .lb-num{background:#C8845A!important;}
+    .lb-area-L .lb-texto{font-family:'Nunito Sans',sans-serif;}
+    .lb-area-L .lb-tabla-wrap{border-color:#C8845A;}.lb-area-L .lb-tabla-wrap th{background:#C8845A;}
+    .lb-area-L .lb-celda{font-family:Georgia,serif;}
+
+    .lb-area-CS .lb-sec-titulo,.lb-area-CS .lb-caja-titulo{color:#5B7FA6;}
+    .lb-area-CS .lb-banda{background:linear-gradient(180deg,#5B7FA6,#7BA0C4,#3B6E9E);}
+    .lb-area-CS .lb-pagina::before{background-image:none;}
+    .lb-area-CS .lb-num{background:#5B7FA6!important;}
+    .lb-area-CS .lb-tabla-wrap{border-color:#5B7FA6;}.lb-area-CS .lb-tabla-wrap th{background:#5B7FA6;}
+
+    .lb-area-CN .lb-sec-titulo,.lb-area-CN .lb-caja-titulo{color:#5A9B6F;}
+    .lb-area-CN .lb-banda{background:linear-gradient(180deg,#5A9B6F,#7BC090,#2D5F4F);}
+    .lb-area-CN .lb-pagina::before{background-image:none;}
+    .lb-area-CN .lb-num{background:#5A9B6F!important;border-radius:50%!important;}
+    .lb-area-CN .lb-sec-icono{border-radius:50%!important;}
+    .lb-area-CN .lb-tabla-wrap{border-color:#5A9B6F;}.lb-area-CN .lb-tabla-wrap th{background:#5A9B6F;}
+
+    /* ══ TONOS ══ */
+    .lb-tono-ludico .lb-pagina{background:linear-gradient(135deg,#FFF9F0,#FFF4E8);}
+    .lb-tono-ludico .lb-texto{font-size:13.5px!important;}
+    .lb-tono-ludico .lb-celda{border-radius:14px!important;}
+    .lb-tono-ludico .lb-sec-icono{border-radius:50%!important;}
+
+    .lb-tono-evaluacion .lb-pagina{background:white!important;}
+    .lb-tono-evaluacion .lb-pagina::before{display:none!important;}
+    .lb-tono-evaluacion .lb-celda{background:white!important;border:1px solid #ccc!important;}
+    .lb-tono-evaluacion .lb-tabla-wrap th{background:#444!important;}
+    .lb-tono-evaluacion .lb-num{background:#444!important;}
+    .lb-tono-evaluacion .lb-banda{background:#444!important;}
+    .lb-tono-evaluacion .lb-marca{display:none;}
+
+    @page{size:A4;margin:0;}
+@media print{
+  html,body{width:210mm;height:auto;margin:0;padding:0;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body *{visibility:hidden;}
+  #libro-preview,#libro-preview *{visibility:visible;}
+  #libro-preview{position:absolute;left:0;top:0;width:210mm;background:white;padding:0;margin:0;font-size:2.85mm;}
+  .lb-topbar,.lb-btn-print{display:none!important;}
+  .lb-pagina{
+    width:210mm;min-height:297mm;height:297mm;
+    box-shadow:none;border-radius:0;margin:0;
+    padding:16mm 14mm 10mm 18mm;
+    box-sizing:border-box;
+    page-break-after:always;
+    overflow:visible;
+    font-size:1em;
+  }
+  .lb-pagina:last-child{page-break-after:auto;}
+  .lb-sec-titulo{font-size:4.8mm!important;}
+  .lb-texto{font-size:3.5mm!important;line-height:1.5!important;}
+  .lb-num{font-size:3mm!important;width:6mm!important;height:6mm!important;}
+  .lb-celda{font-size:3.4mm!important;padding:2.2mm 3mm!important;min-height:9mm!important;}
+  .lb-tabla-wrap th{font-size:3mm!important;padding:2mm!important;}
+  .lb-tabla-wrap td{font-size:3.2mm!important;padding:2mm!important;}
+  .lb-caja-titulo{font-size:2.9mm!important;}
+  .lb-caja li{font-size:3.2mm!important;}
+  .lb-badge{font-size:2.3mm!important;}
+  .lb-sec-icono{width:9mm!important;height:9mm!important;font-size:4.5mm!important;}
+  .lb-marca{font-size:1.8mm!important;}
+  .lb-pie-num{font-size:3.3mm!important;width:7mm!important;height:7mm!important;}
+}
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
@@ -384,6 +456,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <div class="tipo-btn" onclick="selTipo(this,'proyecto')" style="grid-column:span 2;">🌐 Proyecto integrador</div>
     </div></div>
     <div class="form-row" id="gen-area-row"><label>Área</label><select id="gen-area"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
+    <div class="form-row"><label>Tono visual</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"><div class="tono-btn active" onclick="selTono(this,'normal')" data-tono="normal" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">📋 Estándar</div><div class="tono-btn" onclick="selTono(this,'ludico')" data-tono="ludico" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">🎈 Lúdico</div><div class="tono-btn" onclick="selTono(this,'evaluacion')" data-tono="evaluacion" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">📝 Evaluación</div></div></div>
     <div class="form-row" id="gen-areas-multi-row" style="display:none;"><label>Áreas que integra</label><input type="text" id="gen-areas-multi" placeholder="Ej: Matemática y Ciencias Naturales"></div>
     <div class="form-row"><label>Tema</label><input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo..."></div>
     <div class="form-row">
@@ -2126,14 +2199,29 @@ async function generarPerfilAcademico(){
     var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
     loadDiv.remove();
     var htmlTexto=markdownToHtml(texto);
+    var iniciales=nombre.split(',').map(function(p){return p.trim().charAt(0);}).join('').toUpperCase().substring(0,2);
+    var promReal=notasReales.length>0?(notasReales.reduce(function(a,k){return a+notas[k];},0)/notasReales.length).toFixed(1):'—';
+    var pctAsistReal='—';
+    var alertasReal=s.has_differential?'DEI':'0';
     var resultDiv=document.createElement('div');
-    resultDiv.style.cssText='margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-claro);';
-    resultDiv.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Perfil Académico Funcional · '+nombre+'</div>'
-      +'<div id="perfil-texto-'+_perfilStudentId+'" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:400px;overflow-y:auto;">'+htmlTexto+'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
-      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\'")+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-texto-'+_perfilStudentId+'\').innerHTML)" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
+    resultDiv.id='perfil-academico-doc';
+    resultDiv.style.cssText='margin-top:16px;border-radius:14px;overflow:hidden;border:1px solid var(--gris-claro);';
+    resultDiv.innerHTML=''
+      +'<div style="background:linear-gradient(135deg,#2D5F4F,#3A7A65);padding:18px 20px;display:flex;align-items:center;gap:14px;">'
+      +'<div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:900;flex-shrink:0;">'+iniciales+'</div>'
+      +'<div><div style="font-family:inherit;font-weight:800;font-size:15px;color:#fff;">'+nombre+'</div><div style="font-size:10.5px;color:rgba(255,255,255,.8);margin-top:2px;">6to Año · Escuela La Concepción · 2026</div></div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px;background:#fff;">'
+      +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+promReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Promedio</div></div>'
+      +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+pctAsistReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Asistencia</div></div>'
+      +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+alertasReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Atención</div></div>'
+      +'</div>'
+      +'<div style="padding:4px 16px 16px;background:#fff;">'
+      +'<div id="perfil-texto-'+_perfilStudentId+'" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:380px;overflow-y:auto;">'+htmlTexto+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;">'
+      +'<button onclick="imprimirPerfilAcademicoDoc(\''+nombre.replace(/'/g,"\'")+'\',\''+iniciales+'\',\''+promReal+'\',\''+pctAsistReal+'\',\''+alertasReal+'\')" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
       +'<button onclick="abrirModalInforme()" class="sec-btn" style="font-size:12px;">📄 Generar informe</button>'
-      +'</div>';
+      +'</div></div>';
     body.appendChild(resultDiv);
     resultDiv.scrollIntoView({behavior:'smooth'});
     // Guardar en Supabase para que no se pierda al cerrar el perfil
@@ -2274,6 +2362,42 @@ async function generarInforme(){
   }catch(e){
     loadDiv.innerHTML='<div style="color:#C0392B;font-size:12px;">Error: '+e.message+'</div>';
   }
+}
+
+
+function imprimirPerfilAcademicoDoc(nombre,iniciales,promedio,asistencia,atencion){
+  var fecha=new Date().toLocaleDateString('es-AR');
+  var contenidoTexto=document.getElementById('perfil-texto-'+_perfilStudentId).innerHTML;
+  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Académico — '+nombre+'</title>'
+    +'<style>@import url(\'https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap\');'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:#fff;color:#222;}'
+    +'.doc-wrap{max-width:680px;margin:0 auto;}'
+    +'.hero{background:linear-gradient(135deg,#2D5F4F,#3A7A65);padding:28px 30px;display:flex;align-items:center;gap:16px;}'
+    +'.avatar{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:900;flex-shrink:0;}'
+    +'.hero-nombre{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:19px;color:#fff;}'
+    +'.hero-meta{font-size:11.5px;color:rgba(255,255,255,.82);margin-top:3px;}'
+    +'.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 30px;}'
+    +'.stat{background:#EEF5F1;border-radius:11px;padding:12px;text-align:center;}'
+    +'.stat-num{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:20px;color:#2D5F4F;}'
+    +'.stat-label{font-size:9px;color:#6a8a78;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}'
+    +'.cuerpo{padding:6px 30px 30px;font-size:13px;line-height:1.75;}'
+    +'.cuerpo p{margin-bottom:10px;}'
+    +'.firma{margin-top:36px;text-align:right;font-size:11px;color:#666;border-top:1px solid #ddd;padding-top:12px;}'
+    +'@media print{@page{size:A4;margin:18mm 16mm;}}</style></head><body>'
+    +'<div class="doc-wrap">'
+    +'<div class="hero"><div class="avatar">'+iniciales+'</div><div><div class="hero-nombre">'+nombre+'</div><div class="hero-meta">6to Año · Escuela La Concepción · Tigre · '+fecha+'</div></div></div>'
+    +'<div class="stats">'
+    +'<div class="stat"><div class="stat-num">'+promedio+'</div><div class="stat-label">Promedio</div></div>'
+    +'<div class="stat"><div class="stat-num">'+asistencia+'</div><div class="stat-label">Asistencia</div></div>'
+    +'<div class="stat"><div class="stat-num">'+atencion+'</div><div class="stat-label">Atención</div></div>'
+    +'</div>'
+    +'<div class="cuerpo">'+contenidoTexto+'</div>'
+    +'<div class="firma" style="margin:0 30px 30px;"><strong>Nicolás Radaelli</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
+    +'</div></body></html>';
+  var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var w=window.open(url,'_blank');
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
 }
 
 function imprimirInforme(nombre,tipo,htmlContent){
@@ -3102,9 +3226,12 @@ function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementB
 var tipoSel='',alumnosEsp=[],soloDif=false;
 var _genAdjuntoBase64=null,_genAdjuntoType=null,_genAdjuntoIsPDF=false;
 var _genAiRawText='';
+var _genHtmlRenderizado='';
 function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
 function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';document.getElementById('gen-ai-resultado').style.display='none';quitarAdjuntoGen();}
-function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;var esP=t==='proyecto';document.getElementById('gen-area-row').style.display=esP?'none':'block';document.getElementById('gen-areas-multi-row').style.display=esP?'block':'none';if(t==='problemas')document.getElementById('gen-area').value='Matemática';}
+function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;var esP=t==='proyecto';document.getElementById('gen-area-row').style.display=esP?'none':'block';document.getElementById('gen-areas-multi-row').style.display=esP?'block':'none';if(t==='problemas')document.getElementById('gen-area').value='Matemática';if(t==='evaluacion'){var evBtn=document.querySelector('.tono-btn[data-tono="evaluacion"]');if(evBtn)selTono(evBtn,'evaluacion');}}
+var tonoSel='normal';
+function selTono(el,t){document.querySelectorAll('.tono-btn').forEach(function(b){b.classList.remove('active');b.style.background='var(--crema)';b.style.borderColor='var(--gris-claro)';b.style.color='var(--negro)';});el.classList.add('active');el.style.background='var(--verde)';el.style.borderColor='var(--verde)';el.style.color='#fff';tonoSel=t;}
 function toggleSoloDif(){soloDif=document.getElementById('solo-diferenciadas').checked;document.getElementById('gen-nota-general').style.display=soloDif?'none':'block';}
 function toggleAlumnoEsp(el,n,t,p){var idx=alumnosEsp.findIndex(a=>a.nombre===n);if(idx>=0){alumnosEsp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check-icon').textContent='☐';}else{alumnosEsp.push({nombre:n,tipo:t,perfil:p});el.classList.add('selected');el.querySelector('.check-icon').textContent='☑';}}
 async function generarPrompt(){
@@ -3206,7 +3333,12 @@ function renderLibro(respuestaIA,contenedor){
   catch(e){contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">PDF</button></div><div class="lb-pagina"><div class="lb-banda"></div><div style="position:relative;z-index:1;font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div>'+pie(1)+'</div></div>';return;}
   var pags=data.paginas||[{titulo:data.titulo,secciones:data.secciones||[]}];
   var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+LB[pi2%6]+'">'+LI[pi2%6]+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina"><div class="lb-banda"></div><div class="lb-marca">HuellaED</div>'+cp+pie(pi2+1)+'</div>';}).join('');
-  contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">Exportar PDF</button></div>'+ph+'</div>';
+  var MAP_AREA_GENERADOR={'Matemática':'M','Prácticas del Lenguaje':'L','Ciencias Sociales':'CS','Ciencias Naturales':'CN'};
+  var areaClaseLB=MAP_AREA_GENERADOR[area]||'';
+  var tonoClaseLB=tonoSel!=='normal'?('lb-tono-'+tonoSel):'';
+  var clasesExtra=(areaClaseLB?' lb-area-'+areaClaseLB:'')+(tonoClaseLB?' '+tonoClaseLB:'');
+  _genHtmlRenderizado='<div id="libro-preview" class="'+clasesExtra.trim()+'"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">Exportar PDF</button></div>'+ph+'</div>';
+  contenedor.innerHTML=_genHtmlRenderizado;
 }
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
@@ -3341,7 +3473,7 @@ async function guardarCuadernilloSupabase(){
 }
 
 function descargarCuadernillo(){
-  if(!_genAiRawText)return;
+  if(!_genHtmlRenderizado){alert('Generá el material primero');return;}
   var area=tipoSel==='proyecto'
     ?document.getElementById('gen-areas-multi').value||'múltiples áreas'
     :document.getElementById('gen-area').value;
@@ -3349,26 +3481,12 @@ function descargarCuadernillo(){
   var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',planificacion:'Planificacion',evaluacion:'Evaluacion',repaso:'Repaso',problemas:'Problemas',proyecto:'Proyecto'};
   var tituloLabel=(tipos[tipoSel]||'Material')+(area?' · '+area:'')+(tema?' · '+tema:'');
   var nombreArchivo=(tipos[tipoSel]||'material').toLowerCase()+'-'+tema.slice(0,30).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'.html';
-  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title><style>'
-    +'*{box-sizing:border-box;}body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 28px;font-size:13px;line-height:1.85;color:#222;}'
-    +'h1{font-size:20px;color:#2D5F4F;border-bottom:2px solid #2D5F4F;padding-bottom:7px;margin:20px 0 10px;}'
-    +'h2{font-size:16px;color:#2D5F4F;margin:20px 0 8px;}'
-    +'h3{font-size:14px;font-weight:bold;margin:16px 0 6px;}'
-    +'p{margin:0 0 10px;}ul,ol{margin:5px 0 12px 22px;padding:0;}li{margin-bottom:4px;}'
-    +'hr{border:none;border-top:1px solid #ccc;margin:18px 0;}'
-    +'code{background:#f4f4f4;padding:1px 5px;border-radius:3px;font-size:11px;}'
-    +'.doc-header{text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:12px;margin-bottom:22px;}'
-    +'.doc-header .escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}'
-    +'.doc-header h1{border:none;margin:4px 0;font-size:19px;}'
-    +'.doc-header .meta{font-size:11px;color:#888;margin-top:4px;}'
-    +'@media print{body{margin:15mm 20mm;}}'
-    +'</style></head><body>'
-    +'<div class="doc-header">'
-    +'<div class="escuela">Escuela La Concepción · 6to Año · 2026</div>'
-    +'<h1>'+escHtml(tituloLabel)+'</h1>'
-    +'<div class="meta">HuellaED · '+new Date().toLocaleDateString('es-AR')+'</div>'
-    +'</div>'
-    +markdownToHtml(_genAiRawText)
+  var cssLibro='#libro-preview{font-family:\'Nunito Sans\',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}     .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}     .lb-logo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}     .lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:11px;cursor:pointer;}     .lb-pagina{width:100%;background:#FAFCFB;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.11);position:relative;overflow:hidden;padding:26px 36px 0 42px;min-height:400px;margin-bottom:16px;}     .lb-pagina::before{content:\'\';position:absolute;inset:0;background-image:linear-gradient(rgba(45,95,79,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(45,95,79,.09) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;}     .lb-banda{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#2D5F4F 0%,#3D7A65 60%,#C8973A 100%);}     .lb-seccion{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #D4EAE4;position:relative;z-index:1;}     .lb-sec-icono{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}     .lb-sec-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:17px;color:#2D5F4F;}.lb-sec-titulo em{font-style:normal;color:#C8973A;}     .lb-bloque{margin-bottom:12px;position:relative;z-index:1;}     .lb-consigna{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;}     .lb-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:11px;color:white;flex-shrink:0;margin-top:1px;}     .lb-n0{background:#2D5F4F}.lb-n1{background:#C8973A}.lb-n2{background:#3B6E9E}.lb-n3{background:#C05A3A}.lb-n4{background:#7B6FAF}     .lb-texto{font-size:12.5px;font-weight:600;color:#2a3830;line-height:1.55;flex:1;}     .lb-grilla{display:grid;gap:5px;margin-bottom:4px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}     .lb-celda{border-radius:7px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;display:flex;align-items:center;color:#3a4a42;}     .lb-c0{background:#D4EAE4}.lb-c1{background:#F7EDDB}.lb-c2{background:#F5E0D8}.lb-c3{background:#D6E5F3}.lb-c4{background:#DDF0F7}.lb-c5{background:#EAE7F5}     .lb-area{border-radius:7px;border:1.5px dashed rgba(45,95,79,.18);min-height:50px;background-image:repeating-linear-gradient(transparent,transparent 26px,rgba(45,95,79,.07) 26px,rgba(45,95,79,.07) 27px);background-position:0 27px;margin-bottom:5px;}     .lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:7px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;}     .lb-tabla-wrap th{background:#2D5F4F;color:white;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}     .lb-tabla-wrap td{border:1px solid rgba(45,95,79,.1);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;}     .lb-tabla-wrap tr:nth-child(even) td{background:#EBF5F1;}     .lb-caja{border-radius:8px;padding:11px 14px;border-left:4px solid;margin-bottom:7px;}     .lb-caja-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;}     .lb-caja-verde{background:#D4EAE4;border-color:#2D5F4F}.lb-caja-verde .lb-caja-titulo{color:#2D5F4F}     .lb-caja-dorada{background:#F7EDDB;border-color:#C8973A}.lb-caja-dorada .lb-caja-titulo{color:#C8973A}     .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;}     .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#3B6E9E;color:white;}     .lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}     .lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}     .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}      /* ══ PALETAS POR ÁREA ══ */     .lb-area-M .lb-sec-titulo,.lb-area-M .lb-caja-titulo{color:#3B6E9E;}     .lb-area-M .lb-banda{background:linear-gradient(180deg,#3B6E9E,#4A8AC0,#C8973A);}     .lb-area-M .lb-pagina::before{background-image:linear-gradient(rgba(59,110,158,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,110,158,.09) 1px,transparent 1px);}     .lb-area-M .lb-num{background:#3B6E9E!important;}     .lb-area-M .lb-tabla-wrap{border-color:#3B6E9E;}.lb-area-M .lb-tabla-wrap th{background:#3B6E9E;}      .lb-area-L .lb-sec-titulo,.lb-area-L .lb-caja-titulo{color:#C8845A;}     .lb-area-L .lb-banda{background:linear-gradient(180deg,#C8845A,#D4A06E,#8a5a3a);}     .lb-area-L .lb-pagina::before{display:none;background-image:repeating-linear-gradient(transparent,transparent 22px,rgba(200,132,90,.12) 22px,rgba(200,132,90,.12) 23px);}     .lb-area-L .lb-num{background:#C8845A!important;}     .lb-area-L .lb-texto{font-family:\'Nunito Sans\',sans-serif;}     .lb-area-L .lb-tabla-wrap{border-color:#C8845A;}.lb-area-L .lb-tabla-wrap th{background:#C8845A;}     .lb-area-L .lb-celda{font-family:Georgia,serif;}      .lb-area-CS .lb-sec-titulo,.lb-area-CS .lb-caja-titulo{color:#5B7FA6;}     .lb-area-CS .lb-banda{background:linear-gradient(180deg,#5B7FA6,#7BA0C4,#3B6E9E);}     .lb-area-CS .lb-pagina::before{background-image:none;}     .lb-area-CS .lb-num{background:#5B7FA6!important;}     .lb-area-CS .lb-tabla-wrap{border-color:#5B7FA6;}.lb-area-CS .lb-tabla-wrap th{background:#5B7FA6;}      .lb-area-CN .lb-sec-titulo,.lb-area-CN .lb-caja-titulo{color:#5A9B6F;}     .lb-area-CN .lb-banda{background:linear-gradient(180deg,#5A9B6F,#7BC090,#2D5F4F);}     .lb-area-CN .lb-pagina::before{background-image:none;}     .lb-area-CN .lb-num{background:#5A9B6F!important;border-radius:50%!important;}     .lb-area-CN .lb-sec-icono{border-radius:50%!important;}     .lb-area-CN .lb-tabla-wrap{border-color:#5A9B6F;}.lb-area-CN .lb-tabla-wrap th{background:#5A9B6F;}      /* ══ TONOS ══ */     .lb-tono-ludico .lb-pagina{background:linear-gradient(135deg,#FFF9F0,#FFF4E8);}     .lb-tono-ludico .lb-texto{font-size:13.5px!important;}     .lb-tono-ludico .lb-celda{border-radius:14px!important;}     .lb-tono-ludico .lb-sec-icono{border-radius:50%!important;}      .lb-tono-evaluacion .lb-pagina{background:white!important;}     .lb-tono-evaluacion .lb-pagina::before{display:none!important;}     .lb-tono-evaluacion .lb-celda{background:white!important;border:1px solid #ccc!important;}     .lb-tono-evaluacion .lb-tabla-wrap th{background:#444!important;}     .lb-tono-evaluacion .lb-num{background:#444!important;}     .lb-tono-evaluacion .lb-banda{background:#444!important;}     .lb-tono-evaluacion .lb-marca{display:none;}      ';
+  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title>'
+    +'<style>'+cssLibro+'</style>'
+    +'<style>@page{size:A4;margin:0;}@media print{html,body{width:210mm;margin:0;padding:0;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{width:210mm;min-height:297mm;height:297mm;box-shadow:none;border-radius:0;margin:0;padding:16mm 14mm 10mm 18mm;box-sizing:border-box;page-break-after:always;overflow:visible;}.lb-pagina:last-child{page-break-after:auto;}}</style>'
+    +'</head><body>'
+    +_genHtmlRenderizado
     +'</body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
@@ -3376,15 +3494,6 @@ function descargarCuadernillo(){
   a.href=url;a.download=nombreArchivo;a.click();
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
-
-// ── GRABADOR ──
-
-var grabSesionActivo=false;
-var grabSesionAlumnoActual='';
-var GRAB_ALUMNOS=[];
-var grabAlumnosCompletados=[];
-
-var grabFotoTextoURL = null;
 
 function cargarFotoTexto(input){
   if(!input.files||!input.files[0])return;
@@ -4725,6 +4834,51 @@ async function caGenerarPerfil(){
 
 var _perfilAulicoActual='';
 
+var DIM_ICONOS={ritmo:'⚡',canal:'👁️',dinamica:'👥',autonomia:'🎯',clima:'😄'};
+var DIM_LABELS={ritmo:'Ritmo',canal:'Canal',dinamica:'Dinámica',autonomia:'Autonomía',clima:'Clima'};
+var DIM_VALOR_CORTO={
+  ritmo:{rapido:'Rápido',sostenido:'Sostenido',lento:'Lento'},
+  canal:{visual:'Visual',practico:'Práctico',lectoescritor:'Lecto-escr.'},
+  dinamica:{cooperativo:'Cooperativo',individual:'Individual',plenaria:'Plenaria'},
+  autonomia:{alto:'Alta',medio:'Media',bajo:'Baja'},
+  clima:{colaborativo:'Activo',pasivo:'Pasivo',disruptivo:'Disruptivo'}
+};
+
+
+function imprimirPerfilAulicoDoc(){
+  var fecha=new Date().toLocaleDateString('es-AR');
+  var contenidoTexto=document.getElementById('perfil-aulico-texto').innerHTML;
+  var dimsHtml=Object.keys(DIM_ICONOS).map(function(d){
+    var val=_ca[d]?(DIM_VALOR_CORTO[d][_ca[d]]||'—'):'—';
+    return '<div class="dim"><div class="dim-icon">'+DIM_ICONOS[d]+'</div><div class="dim-label">'+DIM_LABELS[d]+'</div><div class="dim-valor">'+val+'</div></div>';
+  }).join('');
+  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Áulico Grupal — 6to Año</title>'
+    +'<style>@import url(\'https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap\');'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:#fff;color:#222;}'
+    +'.doc-wrap{max-width:700px;margin:0 auto;}'
+    +'.hero{background:#EAF2F8;border-bottom:2px solid #3B6E9E;padding:26px 30px;}'
+    +'.hero-tit{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:18px;color:#3B6E9E;}'
+    +'.hero-sub{font-size:11.5px;color:#5b7fa6;margin-top:3px;}'
+    +'.dims{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:18px 30px;}'
+    +'.dim{text-align:center;}.dim-icon{font-size:20px;margin-bottom:4px;}'
+    +'.dim-label{font-size:9px;color:#5b7fa6;font-weight:700;text-transform:uppercase;}'
+    +'.dim-valor{font-size:10px;color:#3B6E9E;margin-top:2px;}'
+    +'.cuerpo{padding:6px 30px 30px;font-size:13px;line-height:1.75;}'
+    +'.cuerpo p{margin-bottom:10px;}'
+    +'.firma{margin:0 30px 30px;text-align:right;font-size:11px;color:#666;border-top:1px solid #ddd;padding-top:12px;}'
+    +'@media print{@page{size:A4;margin:18mm 16mm;}}</style></head><body>'
+    +'<div class="doc-wrap">'
+    +'<div class="hero"><div class="hero-tit">6to Año · Perfil del grupo</div><div class="hero-sub">19 alumnos · Escuela La Concepción · Tigre · '+fecha+'</div></div>'
+    +'<div class="dims">'+dimsHtml+'</div>'
+    +'<div class="cuerpo">'+contenidoTexto+'</div>'
+    +'<div class="firma"><strong>Nicolás Radaelli</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
+    +'</div></body></html>';
+  var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var w=window.open(url,'_blank');
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+}
+
 function mostrarPerfilAulicoEnPantalla(htmlTexto){
   _perfilAulicoActual=htmlTexto;
   var body=document.getElementById('aula-body');
@@ -4733,11 +4887,21 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
   if(prev) prev.remove();
   var div=document.createElement('div');
   div.id='perfil-aulico-ia';
-  div.style.cssText='margin-top:16px;padding-top:16px;border-top:2px solid var(--verde-claro);';
-  div.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🤖 Perfil Áulico Grupal</div>'
-    +'<div id="perfil-aulico-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);max-height:320px;overflow-y:auto;">'+htmlTexto+'</div>'
+  div.style.cssText='margin-top:16px;border-radius:14px;overflow:hidden;border:1px solid var(--gris-claro);';
+  var dimsHtml=Object.keys(DIM_ICONOS).map(function(d){
+    var val=_ca[d]?(DIM_VALOR_CORTO[d][_ca[d]]||'—'):'—';
+    return '<div style="text-align:center;"><div style="font-size:17px;margin-bottom:2px;">'+DIM_ICONOS[d]+'</div><div style="font-size:7.5px;color:#5b7fa6;font-weight:700;text-transform:uppercase;">'+DIM_LABELS[d]+'</div><div style="font-size:8.5px;color:#3B6E9E;margin-top:1px;">'+val+'</div></div>';
+  }).join('');
+  div.innerHTML=''
+    +'<div style="background:#EAF2F8;border-bottom:2px solid #3B6E9E;padding:16px 18px;">'
+    +'<div style="font-family:inherit;font-weight:800;font-size:14px;color:#3B6E9E;">6to Año · Perfil del grupo</div>'
+    +'<div style="font-size:10px;color:#5b7fa6;margin-top:2px;">19 alumnos · Escuela La Concepción · '+new Date().toLocaleDateString('es-AR')+'</div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px 14px;background:#fff;">'+dimsHtml+'</div>'
+    +'<div style="padding:4px 16px 16px;background:#fff;">'
+    +'<div id="perfil-aulico-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);max-height:300px;overflow-y:auto;">'+htmlTexto+'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
-    +'<button onclick="imprimirInforme(\'6to Año\',\'Perfil Áulico Grupal\',document.getElementById(\'perfil-aulico-texto\').innerHTML)" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
+    +'<button onclick="imprimirPerfilAulicoDoc()" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
     +'<button onclick="abrirAjustePerfilAulico()" style="background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Ajustar</button>'
     +'</div>'
     +'<div id="ajuste-aulico-box" style="display:none;margin-top:10px;background:#FDF0EC;border-radius:10px;padding:12px;border:1.5px solid var(--terracota);">'
@@ -4745,7 +4909,7 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
     +'<textarea id="ajuste-aulico-texto" rows="3" placeholder="Ej: el grupo mejoró mucho la autonomía esta semana, o agregar que ahora trabajan mejor en parejas..." style="width:100%;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;background:#fff;"></textarea>'
     +'<button onclick="ajustarPerfilAulico()" class="save-btn" style="margin-top:8px;width:100%;font-size:12px;">🤖 Regenerar con este cambio</button>'
     +'<div id="ajuste-aulico-msg" style="text-align:center;font-size:11px;margin-top:6px;"></div>'
-    +'</div>';
+    +'</div></div>';
   body.appendChild(div);
   div.scrollIntoView({behavior:'smooth'});
 }
