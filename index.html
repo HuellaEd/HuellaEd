@@ -4573,13 +4573,15 @@ function cerrarConfigApiKey(){
 }
 
 async function guardarApiKeyConfig(){
-  var val=document.getElementById('apikey-input').value.trim();
+  var val=document.getElementById('apikey-input').value;
+  // Limpiar: sacar espacios, saltos de línea, y cualquier puntito residual del placeholder
+  val=val.replace(/[\s\u2022•]/g,'').trim();
   var msg=document.getElementById('apikey-msg');
-  if(!val||val.startsWith('••••')){msg.style.color='#C0392B';msg.textContent='Pegá tu clave primero';return;}
+  if(!val){msg.style.color='#C0392B';msg.textContent='Pegá tu clave primero';return;}
   if(_apikeyTipo==='anthropic'){
-    if(!val.startsWith('sk-ant-')&&!val.startsWith('sk-')){msg.style.color='#C0392B';msg.textContent='La clave de Anthropic empieza con sk-ant-';return;}
+    if(!val.startsWith('sk-ant-')&&!val.startsWith('sk-')){msg.style.color='#C0392B';msg.textContent='La clave de Anthropic empieza con sk-ant- (clave detectada: '+val.substring(0,8)+'...)';return;}
   } else {
-    if(!val.startsWith('AIza')){msg.style.color='#C0392B';msg.textContent='La clave de Gemini empieza con AIza';return;}
+    if(!val.toUpperCase().startsWith('AIZA')){msg.style.color='#C0392B';msg.textContent='La clave de Gemini empieza con AIza (clave detectada: '+val.substring(0,8)+'...)';return;}
   }
   msg.style.color='var(--gris)';msg.textContent='Guardando...';
   // Guardar en Supabase (por usuario) Y en localStorage (para acceso rápido)
