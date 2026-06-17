@@ -619,7 +619,11 @@ App: https://huellaed.github.io/HuellaEd/</div>
   <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📅 Asistencia</strong>
-      <button onclick="cerrarAsistencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="document.getElementById('asist-foto-input').click()" style="background:var(--verde-bg);color:var(--verde);border:1.5px solid var(--verde-claro);border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">📷 Cargar foto</button>
+        <input type="file" id="asist-foto-input" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoAsistencia(this)">
+        <button onclick="cerrarAsistencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+      </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <label style="font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;">Fecha</label>
@@ -4946,6 +4950,117 @@ async function toggleDiferenciado(){
   // Reabrir el perfil para reflejar el cambio
   abrirPerfilAcademico(_perfilStudentId);
 }
+
+
+// ── CARGA DE ASISTENCIA POR FOTO ──
+var _fotoAsistDatos=null;
+
+async function procesarFotoAsistencia(input){
+  var file=input.files[0];
+  if(!file)return;
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+
+  document.getElementById('modal-confirmar-foto').style.display='block';
+  document.getElementById('confirmar-foto-msg').textContent='Leyendo la foto con IA...';
+  document.getElementById('confirmar-foto-tabla').innerHTML='';
+  document.getElementById('confirmar-foto-resultado').textContent='';
+
+  try{
+    var base64=await blobToBase64(file);
+    var mediaType=file.type||'image/jpeg';
+    var base64Data=base64.split(',')[1];
+
+    var nombresAlumnos=(window.__students||[]).map(function(s){return s.full_name;});
+    var fecha=document.getElementById('asist-fecha')?document.getElementById('asist-fecha').value:new Date().toISOString().slice(0,10);
+
+    var promptTexto='Esta imagen es una planilla o registro de asistencia escolar manuscrito o impreso. Tu tarea es leer quién está presente, ausente, tardanza o justificado para la fecha que se vea en la planilla.\n\n';
+    promptTexto+='LISTA DE ALUMNOS REALES DEL CURSO (usá estos nombres exactos, no inventes otros):\n'+nombresAlumnos.join('\n')+'\n\n';
+    promptTexto+='Respondé SOLO con un JSON válido, sin texto antes ni después, con este formato exacto:\n';
+    promptTexto+='{"fecha_detectada":"YYYY-MM-DD o null si no se ve","registros":[{"nombre":"nombre exacto de la lista","status":"presente|ausente|tardanza|justificado"}]}\n\n';
+    promptTexto+='Si no podés identificar el estado de algún alumno con certeza, no lo incluyas en la lista (mejor omitir que inventar). Si un nombre de la foto no coincide exactamente con la lista, usá el más parecido de la lista proporcionada.';
+
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:2000,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mediaType,data:base64Data}},
+          {type:'text',text:promptTexto}
+        ]}]
+      })
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var m=texto.match(/```json([\s\S]*?)```/)||texto.match(/(\{[\s\S]*\})/);
+    var parsed=JSON.parse(m?m[1]:texto);
+
+    _fotoAsistDatos={fecha:parsed.fecha_detectada||fecha,registros:parsed.registros||[]};
+
+    if(!_fotoAsistDatos.registros.length){
+      document.getElementById('confirmar-foto-msg').innerHTML='<span style="color:#C0392B;">No se pudo leer ningún alumno con certeza. Probá con una foto más clara o con mejor luz.</span>';
+      input.value='';
+      return;
+    }
+
+    var nombreToId={};
+    (window.__students||[]).forEach(function(s){nombreToId[s.full_name]=s.id;});
+
+    document.getElementById('confirmar-foto-msg').innerHTML='Fecha detectada: <strong>'+_fotoAsistDatos.fecha+'</strong>. Se leyeron '+_fotoAsistDatos.registros.length+' de '+nombresAlumnos.length+' alumnos. Revisá y corregí si hace falta:';
+
+    var statusOpts={presente:'✅ Presente',ausente:'❌ Ausente',tardanza:'⏰ Tardanza',justificado:'📋 Justificado'};
+    var html='<div style="display:flex;flex-direction:column;gap:6px;">';
+    _fotoAsistDatos.registros.forEach(function(r,i){
+      html+='<div style="display:flex;align-items:center;gap:8px;background:var(--crema);border-radius:8px;padding:7px 10px;">';
+      html+='<div style="flex:1;font-size:12px;font-weight:600;">'+r.nombre+'</div>';
+      html+='<select onchange="_fotoAsistDatos.registros['+i+'].status=this.value" style="font-size:11px;padding:5px 7px;border-radius:6px;border:1.5px solid var(--gris-claro);font-family:inherit;">';
+      Object.keys(statusOpts).forEach(function(k){
+        html+='<option value="'+k+'"'+(r.status===k?' selected':'')+'>'+statusOpts[k]+'</option>';
+      });
+      html+='</select></div>';
+    });
+    html+='</div>';
+    document.getElementById('confirmar-foto-tabla').innerHTML=html;
+    input.value='';
+  }catch(e){
+    document.getElementById('confirmar-foto-msg').innerHTML='<span style="color:#C0392B;">Error al leer la foto: '+e.message+'</span>';
+    input.value='';
+  }
+}
+
+async function guardarDesdeFoto(){
+  if(!_fotoAsistDatos||!_fotoAsistDatos.registros.length)return;
+  if(!window.__sb){alert('Sin conexión a la base');return;}
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var nombreToId={};
+  (window.__students||[]).forEach(function(s){nombreToId[s.full_name]=s.id;});
+
+  var msgEl=document.getElementById('confirmar-foto-resultado');
+  msgEl.style.color='var(--gris)';msgEl.textContent='Guardando...';
+
+  var filas=_fotoAsistDatos.registros.map(function(r){
+    var sid=nombreToId[r.nombre];
+    if(!sid)return null;
+    return {teacher_id:user.id,student_id:sid,date:_fotoAsistDatos.fecha,status:r.status,notes:''};
+  }).filter(Boolean);
+
+  if(!filas.length){msgEl.style.color='#C0392B';msgEl.textContent='No se pudo asociar ningún registro a un alumno real';return;}
+
+  var {error}=await window.__sb.from('attendance').upsert(filas,{onConflict:'student_id,date'});
+  if(error){
+    msgEl.style.color='#C0392B';msgEl.textContent='Error al guardar: '+error.message;
+    return;
+  }
+  msgEl.style.color='var(--verde)';msgEl.textContent='✅ Asistencia guardada para '+filas.length+' alumnos';
+  setTimeout(function(){
+    document.getElementById('modal-confirmar-foto').style.display='none';
+    var fechaInput=document.getElementById('asist-fecha');
+    if(fechaInput){fechaInput.value=_fotoAsistDatos.fecha;cargarAsistenciaFecha();}
+  },1200);
+}
 </script>
 
 
@@ -5201,6 +5316,26 @@ async function toggleDiferenciado(){
       </div>
 
     </div><!-- fin ficha-contenido -->
+  </div>
+</div>
+
+
+<!-- MODAL CONFIRMAR LECTURA DE FOTO (asistencia) -->
+<div id="modal-confirmar-foto" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:3500;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;">📷 Revisá lo que leyó la IA</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">Corregí cualquier error antes de guardar</div>
+      </div>
+      <button onclick="document.getElementById('modal-confirmar-foto').style.display='none'" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:16px 18px;max-height:70vh;overflow-y:auto;">
+      <div id="confirmar-foto-msg" style="font-size:12px;color:var(--gris);margin-bottom:10px;"></div>
+      <div id="confirmar-foto-tabla"></div>
+      <button onclick="guardarDesdeFoto()" class="save-btn" style="margin-top:14px;width:100%;">💾 Guardar todo</button>
+      <div id="confirmar-foto-resultado" style="text-align:center;font-size:11px;margin-top:8px;"></div>
+    </div>
   </div>
 </div>
 
