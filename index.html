@@ -310,8 +310,8 @@
     <div class="card" onclick="showSection('panel-boletin-1')">
       <div class="card-icon ic-t">1️⃣</div><div class="card-body"><strong>1er Trimestre</strong><span>Notas e inasistencias</span></div><div class="card-arr">›</div>
     </div>
-    <div class="card" style="opacity:0.5;">
-      <div class="card-icon ic-t">2️⃣</div><div class="card-body"><strong style="color:var(--gris);">2do Trimestre</strong><span>Próximamente</span></div>
+    <div class="card" onclick="showSection('panel-boletin-2')">
+      <div class="card-icon ic-t">2️⃣</div><div class="card-body"><strong>2do Trimestre</strong><span>En curso · datos parciales</span></div><div class="card-arr">›</div>
     </div>
     <div class="card" style="opacity:0.5;">
       <div class="card-icon ic-t">3️⃣</div><div class="card-body"><strong style="color:var(--gris);">3er Trimestre</strong><span>Próximamente</span></div>
@@ -323,8 +323,8 @@
     <div class="panel-body" style="overflow-x:auto;"><div id="boletin-1-contenido"></div></div>
   </div>
   <div id="panel-boletin-2" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-head"><strong>2do Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
-    <div class="panel-body"><div class="resumen">📅 Aún no ha concluido.</div></div>
+    <div class="panel-head"><strong>2do Trimestre · En curso</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('panel-boletin-2')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
+    <div class="panel-body" style="overflow-x:auto;"><div id="boletin-2-contenido"></div></div>
   </div>
   <div id="panel-boletin-3" class="panel" style="display:none;margin-top:10px;">
     <div class="panel-head"><strong>3er Trimestre</strong><button class="close-btn" onclick="showSection(null)">✕</button></div>
@@ -2835,7 +2835,7 @@ function toggleGrupo(id){
 function toggleForm(){var c=document.getElementById('form-container'),a=document.getElementById('form-arrow');c.style.display=c.style.display==='none'?'block':'none';a.textContent=c.style.display==='none'?'›':'⌄';}
 
 // ── PANELS ──
-function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')initGrades();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1'){if(Object.keys(gradesData).length===0)initGrades().then(renderBoletin1);else renderBoletin1();}}}
+function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')initGrades();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1'){if(Object.keys(gradesData).length===0)initGrades().then(renderBoletin1);else renderBoletin1();}if(id==='panel-boletin-2')renderBoletin2();}}
 
 // ── NOTAS ──
 function renderBoletin1(){
@@ -2909,6 +2909,97 @@ function renderBoletin1(){
   html+='</tbody></table>';
   
   document.getElementById('boletin-1-contenido').innerHTML=html;
+}
+
+
+async function renderBoletin2(){
+  var cont=document.getElementById('boletin-2-contenido');
+  if(!cont)return;
+  cont.innerHTML='<div style="text-align:center;color:var(--gris);font-size:12px;padding:14px;">Cargando datos parciales...</div>';
+  var areas=AREAS;
+
+  // Cargar notas del período 2 (probablemente vacías por ahora)
+  var notasP2={};
+  if(window.__sb&&window.__students){
+    try{
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var res=await window.__sb.from('grades').select('student_id,subject_id,score').eq('teacher_id',user.id).eq('period','2');
+        if(res.data){
+          res.data.forEach(function(g){
+            if(!notasP2[g.student_id])notasP2[g.student_id]={};
+            var code=SUBJECT_CODES[g.subject_id];
+            if(code)notasP2[g.student_id][code]=g.score;
+          });
+        }
+      }
+    }catch(e){}
+  }
+
+  // Cargar asistencia real del 2do trimestre (1 jun en adelante, hasta hoy)
+  var asistenciaP2={};
+  var hoy=new Date();
+  var inicioT2='2026-06-01';
+  var finRango=hoy.toISOString().slice(0,10);
+  if(window.__sb&&window.__students){
+    try{
+      var user2=(await window.__sb.auth.getUser()).data.user;
+      if(user2){
+        var resA=await window.__sb.from('attendance').select('student_id,status,date').eq('teacher_id',user2.id).gte('date',inicioT2).lte('date',finRango);
+        if(resA.data){
+          resA.data.forEach(function(r){
+            if(!asistenciaP2[r.student_id])asistenciaP2[r.student_id]={presente:0,ausente:0,tardanza:0,justificado:0};
+            if(asistenciaP2[r.student_id][r.status]!=null)asistenciaP2[r.student_id][r.status]++;
+          });
+        }
+      }
+    }catch(e){}
+  }
+
+  var rowList=(window.__students||[]).map(function(s){
+    return {
+      id:s.id,a:s.full_name,
+      n:areas.map(function(area){return notasP2[s.id]&&notasP2[s.id][area]!=null?parseFloat(notasP2[s.id][area]):null;})
+    };
+  });
+
+  var html='<div style="font-size:11px;color:var(--gris);margin-bottom:10px;background:var(--verde-bg);border-radius:8px;padding:8px 11px;">📊 Datos parciales del trimestre en curso (desde el 1° de junio hasta hoy). Las notas se completan a medida que las cargás.</div>';
+  html+='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;">';
+  html+='<thead><tr style="background:var(--verde);color:#fff;">';
+  html+='<th style="padding:7px 5px;text-align:left;">Alumno</th>';
+  areas.forEach(function(a){html+='<th style="padding:7px 3px;text-align:center;">'+a+'</th>';});
+  html+='<th style="padding:7px 3px;text-align:center;">Prom</th>';
+  html+='<th style="padding:7px 3px;text-align:center;">Faltas</th>';
+  html+='<th style="padding:7px 3px;text-align:center;">% Asist.</th>';
+  html+='</tr></thead><tbody>';
+
+  rowList.forEach(function(r,i){
+    var validScores=r.n.filter(function(v){return v!=null;});
+    var prom=validScores.length?(validScores.reduce(function(a,b){return a+b;},0)/validScores.length).toFixed(1):'—';
+    var bg=i%2===0?'#fff':'#F5F2EE';
+    var asist=asistenciaP2[r.id]||{presente:0,ausente:0,tardanza:0,justificado:0};
+    var totalDias=asist.presente+asist.ausente+asist.tardanza+asist.justificado;
+    var totalF=asist.ausente+asist.justificado;
+    var pctAsist=totalDias?Math.round(asist.presente/totalDias*100):null;
+
+    var cells=r.n.map(function(n){
+      return n!=null?'<td style="padding:5px 3px;text-align:center;color:'+(n>=APROBADO?'var(--negro)':'#C0392B')+';font-weight:'+(n<APROBADO?'bold':'normal')+';">'+n+'</td>'
+        :'<td style="padding:5px 3px;text-align:center;color:var(--gris);">—</td>';
+    }).join('');
+
+    var pc=prom!=='—'&&parseFloat(prom)>=APROBADO?'var(--verde)':(prom==='—'?'var(--gris)':'#C0392B');
+
+    html+='<tr style="background:'+bg+';">';
+    html+='<td style="padding:5px;font-weight:600;">'+r.a+'</td>';
+    html+=cells;
+    html+='<td style="padding:5px 3px;text-align:center;font-weight:bold;color:'+pc+';">'+prom+'</td>';
+    html+='<td style="padding:5px 3px;text-align:center;">'+(totalDias?totalF:'—')+'</td>';
+    html+='<td style="padding:5px 3px;text-align:center;">'+(pctAsist!=null?pctAsist+'%':'—')+'</td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+
+  cont.innerHTML=html;
 }
 
 function renderNotas(){
