@@ -171,6 +171,7 @@
     .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}
     @media print{#libro-preview{background:white;padding:0;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{box-shadow:none;page-break-after:always;}}
   </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -644,6 +645,8 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <strong style="font-size:15px;color:#fff;">📋 Planificaciones</strong>
       <div style="display:flex;gap:8px;align-items:center;">
         <button id="planif-btn-nueva" onclick="abrirEditorPlanif(null)" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">+ Nueva</button>
+        <button id="planif-btn-subir" onclick="document.getElementById('planif-archivo-input').click()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📎 Subir archivo</button>
+        <input type="file" id="planif-archivo-input" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*" style="display:none;" onchange="procesarArchivoPlanif(this)">
         <button onclick="cerrarPlanificaciones()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
       </div>
     </div>
@@ -2559,8 +2562,9 @@ async function cargarListaPlanif(){
       if(p.content)html+='<div style="font-size:11px;color:var(--gris);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.content.substring(0,90)+(p.content.length>90?'…':'')+'</div>';
       html+='</div></div>';
       html+='<div style="display:flex;gap:6px;margin-top:10px;">';
-      html+='<button onclick="abrirEditorPlanif(\''+p.id+'\')" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Ver / Editar</button>';
-      html+='<button onclick="borrarPlanif(\''+p.id+'\')" style="background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit;">Borrar</button>';
+      html+='<button onclick="abrirEditorPlanif(\''+p.id+'\')" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Editar</button>';
+      html+='<button onclick="generarMaterialDesdePlanif(\''+p.id+'\')" style="flex:1;background:linear-gradient(135deg,#C8973A,#D4A84B);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Generar material</button>';
+      html+='<button onclick="borrarPlanif(\''+p.id+'\')" style="background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;font-family:inherit;">🗑️</button>';
       html+='</div></div>';
     });
     html+='</div>';
@@ -5188,6 +5192,155 @@ async function guardarPerfilDocente(){
   msg.style.color='var(--verde)';msg.textContent='✅ Guardado';
 }
 
+
+
+// ── SUBIR PLANIFICACIÓN DESDE ARCHIVO ──
+var _planifArchivoDatos=null;
+
+async function procesarArchivoPlanif(input){
+  var file=input.files[0];
+  if(!file)return;
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+
+  document.getElementById('modal-confirmar-planif').style.display='block';
+  document.getElementById('confirmar-planif-msg').textContent='Leyendo el archivo...';
+  document.getElementById('confirmar-planif-lista').innerHTML='';
+  document.getElementById('confirmar-planif-resultado').textContent='';
+
+  try{
+    var ext=file.name.split('.').pop().toLowerCase();
+    var contenidoMensaje=[];
+    var promptBase='Esta es una planificación didáctica docente. Organizala en SECUENCIAS DIDÁCTICAS numeradas. Para cada secuencia identificá: título, área/materia (Lengua, Matemática, Ciencias Sociales, Ciencias Naturales, Inglés, Ed. Artística o Ed. Física — elegí la que corresponda), un resumen del contenido en 2-4 líneas, y si se detecta, semana o período de fechas.\n\n';
+    promptBase+='Respondé SOLO con un JSON válido, sin texto antes ni después, con este formato exacto:\n';
+    promptBase+='{"secuencias":[{"titulo":"...","area":"L|M|CS|CN|I|EA|EF","resumen":"...","semana":numero_o_null,"fecha_desde":"YYYY-MM-DD_o_null","fecha_hasta":"YYYY-MM-DD_o_null"}]}\n\n';
+    promptBase+='Si el documento tiene una sola planificación sin subdivisiones claras, generá una sola secuencia con todo el contenido resumido. No inventes información que no esté en el documento.';
+
+    if(ext==='pdf'){
+      var base64=await blobToBase64(file);
+      var base64Data=base64.split(',')[1];
+      contenidoMensaje=[
+        {type:'document',source:{type:'base64',media_type:'application/pdf',data:base64Data}},
+        {type:'text',text:promptBase}
+      ];
+    } else if(ext==='doc'||ext==='docx'){
+      var arrayBuffer=await file.arrayBuffer();
+      var result=await mammoth.extractRawText({arrayBuffer:arrayBuffer});
+      var textoDoc=result.value||'';
+      if(!textoDoc.trim())throw new Error('No se pudo extraer texto del Word. Probá guardándolo como PDF.');
+      contenidoMensaje=[{type:'text',text:promptBase+'\n\nCONTENIDO DEL DOCUMENTO:\n'+textoDoc}];
+    } else if(ext==='xls'||ext==='xlsx'){
+      throw new Error('Por ahora los archivos Excel no se pueden leer automáticamente. Guardalo como PDF o copiá el contenido en una planificación manual con "+ Nueva".');
+    } else {
+      // Imagen
+      var base64Img=await blobToBase64(file);
+      var mediaType=file.type||'image/jpeg';
+      var base64DataImg=base64Img.split(',')[1];
+      contenidoMensaje=[
+        {type:'image',source:{type:'base64',media_type:mediaType,data:base64DataImg}},
+        {type:'text',text:promptBase}
+      ];
+    }
+
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:contenidoMensaje}]})
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var m=texto.match(/```json([\s\S]*?)```/)||texto.match(/(\{[\s\S]*\})/);
+    var parsed=JSON.parse(m?m[1]:texto);
+
+    if(!parsed.secuencias||!parsed.secuencias.length){
+      document.getElementById('confirmar-planif-msg').innerHTML='<span style="color:#C0392B;">No se pudo organizar el contenido en secuencias. Probá con un archivo más claro.</span>';
+      input.value='';
+      return;
+    }
+
+    _planifArchivoDatos=parsed.secuencias;
+    document.getElementById('confirmar-planif-msg').innerHTML='Se detectaron <strong>'+parsed.secuencias.length+' secuencia(s)</strong>. Revisá el área y el título de cada una antes de guardar:';
+
+    var html='<div style="display:flex;flex-direction:column;gap:10px;">';
+    parsed.secuencias.forEach(function(s,i){
+      html+='<div style="background:var(--crema);border-radius:10px;padding:11px;border:1.5px solid var(--gris-claro);">';
+      html+='<input type="text" value="'+(s.titulo||'').replace(/"/g,'&quot;')+'" oninput="_planifArchivoDatos['+i+'].titulo=this.value" style="width:100%;padding:7px 9px;border:1.5px solid var(--gris-claro);border-radius:7px;font-size:12px;font-weight:600;font-family:inherit;margin-bottom:6px;box-sizing:border-box;">';
+      html+='<select onchange="_planifArchivoDatos['+i+'].area=this.value" style="font-size:11px;padding:5px 7px;border-radius:6px;border:1.5px solid var(--gris-claro);font-family:inherit;margin-bottom:6px;">';
+      AREAS.forEach(function(a){html+='<option value="'+a+'"'+(s.area===a?' selected':'')+'>'+(AREA_NAMES[a]||a)+'</option>';});
+      html+='</select>';
+      html+='<div style="font-size:11px;color:var(--gris);line-height:1.5;">'+(s.resumen||'')+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+    document.getElementById('confirmar-planif-lista').innerHTML=html;
+    input.value='';
+  }catch(e){
+    document.getElementById('confirmar-planif-msg').innerHTML='<span style="color:#C0392B;">'+e.message+'</span>';
+    input.value='';
+  }
+}
+
+async function guardarPlanifDesdeArchivo(){
+  if(!_planifArchivoDatos||!_planifArchivoDatos.length)return;
+  if(!window.__sb){alert('Sin conexión a la base');return;}
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+
+  var msgEl=document.getElementById('confirmar-planif-resultado');
+  msgEl.style.color='var(--gris)';msgEl.textContent='Guardando...';
+
+  var registros=_planifArchivoDatos.map(function(s){
+    return {
+      teacher_id:user.id,
+      subject_id:SUBJECT_IDS[s.area]||SUBJECT_IDS[AREAS[0]],
+      title:s.titulo||'Sin título',
+      content:s.resumen||'',
+      week_number:s.semana||null,
+      date_from:s.fecha_desde||null,
+      date_to:s.fecha_hasta||null,
+      updated_at:new Date().toISOString()
+    };
+  });
+
+  var {error}=await window.__sb.from('planifications').insert(registros);
+  if(error){
+    msgEl.style.color='#C0392B';msgEl.textContent='Error al guardar: '+error.message;
+    return;
+  }
+  msgEl.style.color='var(--verde)';msgEl.textContent='✅ Se guardaron '+registros.length+' secuencia(s)';
+  setTimeout(function(){
+    document.getElementById('modal-confirmar-planif').style.display='none';
+    cargarListaPlanif();
+  },1200);
+}
+
+
+
+// ── GENERAR MATERIAL DESDE PLANIFICACIÓN ──
+var MAP_AREA_GENERADOR={L:'Prácticas del Lenguaje',M:'Matemática',CS:'Ciencias Sociales',CN:'Ciencias Naturales',I:'Inglés',EA:'Ed. Artística',EF:'Ed. Física'};
+
+function generarMaterialDesdePlanif(planifId){
+  var p=_planifData.find(function(x){return x.id===planifId;});
+  if(!p)return;
+  var ac=SUBJECT_CODES[p.subject_id]||AREAS[0];
+  var anSelect=MAP_AREA_GENERADOR[ac]||'';
+  cerrarPlanificaciones();
+  abrirGenerador();
+  // Seleccionar tipo "ficha" por defecto
+  var fichaBtn=document.querySelector('.tipo-btn[onclick*="ficha"]');
+  if(fichaBtn)selTipo(fichaBtn,'ficha');
+  // Completar área y tema con los datos de la planificación
+  setTimeout(function(){
+    var areaInput=document.getElementById('gen-area');
+    var temaInput=document.getElementById('gen-tema');
+    var detallesInput=document.getElementById('gen-detalles');
+    if(areaInput)areaInput.value=anSelect;
+    if(temaInput)temaInput.value=p.title||'';
+    if(detallesInput&&p.content)detallesInput.value=p.content;
+  },50);
+}
+
 </script>
 
 
@@ -5505,6 +5658,25 @@ async function guardarPerfilDocente(){
 
       <button onclick="document.getElementById('btn-logout').click()" style="width:100%;background:#FDE8E8;color:#C0392B;border:1.5px solid #F5C6C6;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🚪 Cerrar sesión</button>
 
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR PLANIFICACIONES DESDE ARCHIVO -->
+<div id="modal-confirmar-planif" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:3600;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;">📎 Revisá tu planificación</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">La IA la organizó en secuencias — corregí lo necesario</div>
+      </div>
+      <button onclick="document.getElementById('modal-confirmar-planif').style.display='none'" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:16px 18px;max-height:72vh;overflow-y:auto;">
+      <div id="confirmar-planif-msg" style="font-size:12px;color:var(--gris);margin-bottom:10px;"></div>
+      <div id="confirmar-planif-lista"></div>
+      <button onclick="guardarPlanifDesdeArchivo()" class="save-btn" style="margin-top:14px;width:100%;">💾 Guardar todas las secuencias</button>
+      <div id="confirmar-planif-resultado" style="text-align:center;font-size:11px;margin-top:8px;"></div>
     </div>
   </div>
 </div>
