@@ -655,7 +655,11 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div style="font-size:16px;font-weight:700;color:#fff;">🏫 Perfil Áulico</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">6° Año · Escuela La Concepción</div>
       </div>
-      <button onclick="cerrarAula()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button onclick="abrirCuestionarioAulico()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📝 Cuestionario</button>
+        <button onclick="abrirGenerarPerfilGrupal()" style="background:rgba(200,151,58,0.3);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Perfil grupal</button>
+        <button onclick="cerrarAula()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
+      </div>
     </div>
     <div id="aula-body" style="padding:18px;max-height:76vh;overflow-y:auto;"></div>
   </div>
@@ -1061,6 +1065,428 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <button onclick="generarDEI()" style="width:100%;background:linear-gradient(135deg,#C05A3A,#D4724A);color:#fff;border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Generar DEI completo</button>
         <div id="dei-msg" style="text-align:center;font-size:11px;margin-top:8px;"></div>
       </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CUESTIONARIO ÁULICO -->
+<div id="modal-cuestionario-aulico" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff;">📝 Perfil del Grupo</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Cuestionario de caracterización áulica</div>
+      </div>
+      <button onclick="cerrarCuestionarioAulico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="padding:18px;max-height:72vh;overflow-y:auto;">
+
+      <!-- 1. Ritmo de trabajo -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:10px;">⏱️ 1. Ritmo de trabajo general del grupo</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="ritmo" value="rapido" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Rápido</strong> — Resuelven pronto y demandan actividades de extensión.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="ritmo" value="sostenido" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Sostenido / Adecuado</strong> — Trabajan a un ritmo parejo que permite cumplir los tiempos planificados.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="radio" name="ritmo" value="lento" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Lento / Heterogéneo</strong> — Requieren mucho andamiaje y los tiempos se extienden notablemente.</span>
+        </label>
+      </div>
+
+      <!-- 2. Canal de aprendizaje -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:10px;">📡 2. Canal de aprendizaje predominante</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="checkbox" name="canal" value="visual" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Visual / Audiovisual</strong> — Responden mejor a videos, imágenes, esquemas y soportes gráficos.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="checkbox" name="canal" value="practico" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Práctico / Vivencial</strong> — Necesitan el cuerpo, el juego, material concreto o debate oral.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="checkbox" name="canal" value="lecto" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Lecto-escritor</strong> — Se manejan con fluidez mediante textos tradicionales y consignas escritas.</span>
+        </label>
+      </div>
+
+      <!-- 3. Dinámica de trabajo -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:10px;">👥 3. Dinámica de trabajo que mejor funciona</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="checkbox" name="dinamica" value="cooperativo" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Trabajo en parejas o grupos pequeños</strong> — Cooperativo y enriquecedor.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="checkbox" name="dinamica" value="individual" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Trabajo individual con autonomía</strong> — Producen mejor solos.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="checkbox" name="dinamica" value="guiado" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Estructura guiada por el docente</strong> — Necesitan plenaria y conducción constante.</span>
+        </label>
+      </div>
+
+      <!-- 4. Autonomía -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:10px;">🎯 4. Nivel de autonomía frente a las consignas</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="autonomia" value="alta" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Alta</strong> — Comprenden e inician la tarea solos tras una breve explicación.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="autonomia" value="media" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Media</strong> — Requieren que se reformulen o ejemplifiquen las consignas antes de arrancar.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="radio" name="autonomia" value="baja" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Baja</strong> — Necesitan supervisión constante paso a paso para no dispersarse.</span>
+        </label>
+      </div>
+
+      <!-- 5. Clima áulico -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:10px;">🌡️ 5. Clima áulico y convivencia</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="clima" value="colaborativo" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Colaborativo y dinámico</strong> — Se ayudan entre sí, hay que regular el volumen pero el vínculo es bueno.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="clima" value="pasivo" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Pasivo / Silencioso</strong> — Falta participación espontánea, cuesta arrancar debates.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="radio" name="clima" value="disruptivo" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Disruptivo frecuente</strong> — Conflictos recurrentes o dispersión que cortan el ritmo de la clase.</span>
+        </label>
+      </div>
+
+      <!-- 6. Vínculo con el conocimiento -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:10px;">🔍 6. Vínculo con el conocimiento</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="vinculo" value="curioso" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Curioso y activo</strong> — Preguntan, investigan, proponen ideas y van más allá de la consigna.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer;">
+          <input type="radio" name="vinculo" value="instrumental" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Instrumental</strong> — Trabajan lo que se pide, ni más ni menos. Orientados a terminar la tarea.</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="radio" name="vinculo" value="resistente" style="margin-top:3px;accent-color:var(--verde);">
+          <span style="font-size:12px;"><strong>Resistente / Apático</strong> — Cuesta motivarlos, hay poca conexión con los contenidos escolares.</span>
+        </label>
+      </div>
+
+      <!-- 7. Observación libre -->
+      <div style="background:var(--crema);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:800;color:var(--verde);margin-bottom:8px;">✏️ 7. Observación libre del docente</div>
+        <textarea id="cuest-obs-libre" rows="4" placeholder="Lo que no entra en ninguna casilla pero es fundamental para entender al grupo..." style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:#fff;"></textarea>
+      </div>
+
+      <button onclick="guardarCuestionarioAulico()" class="save-btn">💾 Guardar perfil del grupo</button>
+      <div id="cuest-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORMULARIO PERFIL ÁULICO -->
+<div id="modal-perfil-aulico-form" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#2D5F4F,#3A7A65);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff;">🏫 Formulario de Perfil Áulico</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Respondé para generar el perfil del grupo</div>
+      </div>
+      <button onclick="cerrarFormPerfilAulico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:18px;max-height:75vh;overflow-y:auto;">
+
+      <!-- 1. Ritmo -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">⏱️ 1. Ritmo de trabajo general</div>
+        <div id="pa-ritmo" style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-ritmo',this)">
+            <span style="font-size:18px;">🚀</span><div><strong>Rápido</strong><div style="font-size:11px;color:var(--gris);">Resuelven pronto y demandan actividades de extensión</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-ritmo',this)">
+            <span style="font-size:18px;">🎯</span><div><strong>Sostenido / Adecuado</strong><div style="font-size:11px;color:var(--gris);">Trabajan a un ritmo parejo que permite cumplir los tiempos planificados</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-ritmo',this)">
+            <span style="font-size:18px;">🐢</span><div><strong>Lento / Heterogéneo</strong><div style="font-size:11px;color:var(--gris);">Requieren mucho andamiaje y los tiempos se extienden notablemente</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 2. Canal -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">🧠 2. Canal de aprendizaje predominante</div>
+        <div id="pa-canal" style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-canal',this)">
+            <span style="font-size:18px;">🎥</span><div><strong>Visual / Audiovisual</strong><div style="font-size:11px;color:var(--gris);">Responden mejor a videos, imágenes, esquemas y soportes gráficos</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-canal',this)">
+            <span style="font-size:18px;">🤸</span><div><strong>Práctico / Vivencial</strong><div style="font-size:11px;color:var(--gris);">Necesitan el cuerpo, el juego, material concreto o el debate oral</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-canal',this)">
+            <span style="font-size:18px;">📚</span><div><strong>Lecto-escritor</strong><div style="font-size:11px;color:var(--gris);">Se manejan con fluidez mediante textos y consignas escritas</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. Dinámica -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">👥 3. Dinámica de trabajo que mejor funciona</div>
+        <div id="pa-dinamica" style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-dinamica',this)">
+            <span style="font-size:18px;">🤝</span><div><strong>Trabajo cooperativo</strong><div style="font-size:11px;color:var(--gris);">Parejas o grupos pequeños con roles definidos</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-dinamica',this)">
+            <span style="font-size:18px;">🧑‍💻</span><div><strong>Trabajo individual con autonomía</strong><div style="font-size:11px;color:var(--gris);">Cada uno avanza a su ritmo con mínima intervención</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-dinamica',this)">
+            <span style="font-size:18px;">🎓</span><div><strong>Estructura guiada (plenaria)</strong><div style="font-size:11px;color:var(--gris);">El docente conduce todo el proceso paso a paso</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 4. Autonomía -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">🎯 4. Nivel de autonomía frente a las consignas</div>
+        <div id="pa-autonomia" style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-autonomia',this)">
+            <span style="font-size:18px;">💪</span><div><strong>Alta</strong><div style="font-size:11px;color:var(--gris);">Comprenden e inician la tarea solos tras una breve explicación</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-autonomia',this)">
+            <span style="font-size:18px;">🤔</span><div><strong>Media</strong><div style="font-size:11px;color:var(--gris);">Requieren reformulación o ejemplo antes de arrancar</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-autonomia',this)">
+            <span style="font-size:18px;">🆘</span><div><strong>Baja</strong><div style="font-size:11px;color:var(--gris);">Necesitan supervisión constante para no dispersarse</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 5. Clima -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">🌡️ 5. Clima áulico y convivencia</div>
+        <div id="pa-clima" style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-clima',this)">
+            <span style="font-size:18px;">💬</span><div><strong>Colaborativo y charlatán</strong><div style="font-size:11px;color:var(--gris);">Se ayudan entre sí, pero hay que regular el volumen de voz</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-clima',this)">
+            <span style="font-size:18px;">😶</span><div><strong>Pasivo / Silencioso</strong><div style="font-size:11px;color:var(--gris);">Falta participación espontánea, cuesta arrancar los debates</div></div>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:13px;background:#FAFAF8;" onclick="selPA('pa-clima',this)">
+            <span style="font-size:18px;">🌪️</span><div><strong>Disruptivo frecuente</strong><div style="font-size:11px;color:var(--gris);">Conflictos recurrentes o dispersión que cortan el ritmo</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 6. Fortalezas del grupo -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">⭐ 6. Fortalezas del grupo</div>
+        <div id="pa-fortalezas" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f1">☐</span> Creatividad
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f2">☐</span> Solidaridad
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f3">☐</span> Compromiso con la tarea
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f4">☐</span> Buen vínculo con el docente
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f5">☐</span> Participación oral activa
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f6">☐</span> Interés por aprender
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f7">☐</span> Humor y alegría grupal
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span id="pa-f8">☐</span> Respeto entre pares
+          </label>
+        </div>
+      </div>
+
+      <!-- 7. Desafíos -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">⚠️ 7. Principales desafíos del grupo</div>
+        <div id="pa-desafios" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Dispersión / falta de atención
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Conflictos entre pares
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Dificultad con la escritura
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Comprensión lectora baja
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Inasistencias frecuentes
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Falta de materiales
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Grupo muy heterogéneo
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;font-size:12px;background:#FAFAF8;" onclick="togglePA(this)">
+            <span>☐</span> Desmotivación general
+          </label>
+        </div>
+      </div>
+
+      <!-- 8. Observación libre -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:#2D5F4F;margin-bottom:8px;">📝 8. Observación libre del docente</div>
+        <textarea id="pa-obs-libre" rows="4" placeholder="Algo que no entra en ninguna casilla. Lo que vos ves de este grupo que define cómo planificar para ellos..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+
+      <button onclick="generarPerfilAulicoIA()" style="width:100%;background:linear-gradient(135deg,#2D5F4F,#3A7A65);color:#fff;border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">🤖 Generar Perfil Áulico con IA</button>
+      <div id="pa-form-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CUESTIONARIO ÁULICO -->
+<div id="modal-cuestionario-aulico" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:580px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff;">📝 Perfil del Grupo</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Cuestionario áulico · 6° Año 2026</div>
+      </div>
+      <button onclick="cerrarCuestionarioAulico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:18px;max-height:78vh;overflow-y:auto;">
+
+      <!-- 1. Ritmo -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">1 · Ritmo de trabajo general</div>
+        <div id="ca-ritmo" style="display:flex;flex-direction:column;gap:7px;">
+          <label onclick="selCA('ca-ritmo',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-ritmo" value="rapido" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">⚡ Rápido</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Resuelven pronto y demandan actividades de extensión.</div></div>
+          </label>
+          <label onclick="selCA('ca-ritmo',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-ritmo" value="sostenido" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">✅ Sostenido / Adecuado</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Trabajan a un ritmo parejo que permite cumplir los tiempos planificados.</div></div>
+          </label>
+          <label onclick="selCA('ca-ritmo',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-ritmo" value="lento" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">🐢 Lento / Heterogéneo</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Requieren mucho andamiaje y los tiempos se extienden notablemente.</div></div>
+          </label>
+        </div>
+        <textarea id="ca-ritmo-nota" placeholder="Observación libre (opcional)..." style="width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;height:48px;background:#FAFAF8;"></textarea>
+      </div>
+
+      <!-- 2. Canal -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">2 · Canal de aprendizaje predominante</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <label onclick="selCA('ca-canal',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-canal" value="visual" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">👁️ Visual / Audiovisual</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Responden mejor a videos, imágenes, esquemas y soportes gráficos.</div></div>
+          </label>
+          <label onclick="selCA('ca-canal',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-canal" value="practico" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">🤝 Práctico / Vivencial</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Necesitan el cuerpo, el juego, el material concreto o el debate oral.</div></div>
+          </label>
+          <label onclick="selCA('ca-canal',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-canal" value="lectoescritor" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">📖 Lecto-escritor</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Se manejan con fluidez mediante textos tradicionales y consignas escritas.</div></div>
+          </label>
+        </div>
+        <textarea id="ca-canal-nota" placeholder="Observación libre (opcional)..." style="width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;height:48px;background:#FAFAF8;"></textarea>
+      </div>
+
+      <!-- 3. Dinámica -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">3 · Dinámica de trabajo que mejor funciona</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <label onclick="selCA('ca-dinamica',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-dinamica" value="cooperativo" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">👥 Cooperativo</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Trabajo en parejas o grupos pequeños con roles definidos.</div></div>
+          </label>
+          <label onclick="selCA('ca-dinamica',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-dinamica" value="individual" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">👤 Individual autónomo</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Trabajo individual con autonomía y silencio productivo.</div></div>
+          </label>
+          <label onclick="selCA('ca-dinamica',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-dinamica" value="plenaria" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">🎓 Plenaria guiada</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Estructura guiada por el docente en su totalidad.</div></div>
+          </label>
+        </div>
+        <textarea id="ca-dinamica-nota" placeholder="Observación libre (opcional)..." style="width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;height:48px;background:#FAFAF8;"></textarea>
+      </div>
+
+      <!-- 4. Autonomía -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">4 · Nivel de autonomía frente a las consignas</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <label onclick="selCA('ca-autonomia',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-autonomia" value="alto" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">🟢 Alto</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Comprenden e inician la tarea solos tras una breve explicación general.</div></div>
+          </label>
+          <label onclick="selCA('ca-autonomia',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-autonomia" value="medio" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">🟡 Medio</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Requieren que se reformulen o ejemplifiquen las consignas antes de arrancar.</div></div>
+          </label>
+          <label onclick="selCA('ca-autonomia',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-autonomia" value="bajo" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">🔴 Bajo</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Necesitan supervisión constante paso a paso para no dispersarse.</div></div>
+          </label>
+        </div>
+        <textarea id="ca-autonomia-nota" placeholder="Observación libre (opcional)..." style="width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;height:48px;background:#FAFAF8;"></textarea>
+      </div>
+
+      <!-- 5. Clima -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">5 · Clima áulico y convivencia</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <label onclick="selCA('ca-clima',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-clima" value="colaborativo" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">😄 Colaborativo y activo</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Se ayudan entre sí, hay buena energía pero hay que regular el volumen.</div></div>
+          </label>
+          <label onclick="selCA('ca-clima',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-clima" value="pasivo" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">😶 Pasivo / Silencioso</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Falta participación espontánea, cuesta arrancar los debates.</div></div>
+          </label>
+          <label onclick="selCA('ca-clima',this)" style="display:flex;align-items:flex-start;gap:10px;background:#F5F2EE;border-radius:10px;padding:11px 13px;cursor:pointer;border:1.5px solid transparent;">
+            <input type="radio" name="ca-clima" value="disruptivo" style="margin-top:2px;accent-color:var(--verde);flex-shrink:0;">
+            <div><div style="font-size:13px;font-weight:600;">⚠️ Disruptivo frecuente</div><div style="font-size:11px;color:var(--gris);margin-top:2px;">Conflictos recurrentes o dispersión que cortan el ritmo de la clase.</div></div>
+          </label>
+        </div>
+        <textarea id="ca-clima-nota" placeholder="Observación libre (opcional)..." style="width:100%;margin-top:7px;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;height:48px;background:#FAFAF8;"></textarea>
+      </div>
+
+      <!-- 6. Observación libre -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">6 · Observación general del grupo</div>
+        <textarea id="ca-obs-general" placeholder="Escribí libremente lo más importante que caracteriza a este grupo en este momento del año..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;font-family:inherit;resize:none;box-sizing:border-box;height:80px;background:#FAFAF8;"></textarea>
+      </div>
+
+      <!-- Botones -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="guardarCuestionarioAulico()" class="save-btn">💾 Guardar perfil</button>
+        <button onclick="generarPerfilAulicoIA()" style="background:linear-gradient(135deg,#2D5F4F,#3A7A65);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Generar perfil con IA</button>
+      </div>
+      <div id="ca-msg" style="text-align:center;font-size:11px;margin-top:8px;"></div>
 
     </div>
   </div>
@@ -4676,6 +5102,469 @@ async function generarDEI(){
         });
       }
     }
+  }catch(e){
+    msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
+  }
+}
+
+
+// ── CUESTIONARIO ÁULICO ──
+function abrirCuestionarioAulico(){
+  document.getElementById('modal-cuestionario-aulico').style.display='block';
+  document.getElementById('cuest-msg').textContent='';
+  // Cargar respuestas guardadas
+  var saved=JSON.parse(localStorage.getItem('huellaed_cuest_aulico')||'{}');
+  if(saved.ritmo) document.querySelector('input[name="ritmo"][value="'+saved.ritmo+'"]').checked=true;
+  if(saved.autonomia) document.querySelector('input[name="autonomia"][value="'+saved.autonomia+'"]').checked=true;
+  if(saved.clima) document.querySelector('input[name="clima"][value="'+saved.clima+'"]').checked=true;
+  if(saved.vinculo) document.querySelector('input[name="vinculo"][value="'+saved.vinculo+'"]').checked=true;
+  if(saved.canal) saved.canal.forEach(function(v){var el=document.querySelector('input[name="canal"][value="'+v+'"]');if(el)el.checked=true;});
+  if(saved.dinamica) saved.dinamica.forEach(function(v){var el=document.querySelector('input[name="dinamica"][value="'+v+'"]');if(el)el.checked=true;});
+  if(saved.obs_libre) document.getElementById('cuest-obs-libre').value=saved.obs_libre;
+}
+
+function cerrarCuestionarioAulico(){
+  document.getElementById('modal-cuestionario-aulico').style.display='none';
+}
+
+async function guardarCuestionarioAulico(){
+  var getRadio=function(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';};
+  var getChecks=function(name){return Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(el){return el.value;});};
+  var data={
+    ritmo:getRadio('ritmo'),
+    canal:getChecks('canal'),
+    dinamica:getChecks('dinamica'),
+    autonomia:getRadio('autonomia'),
+    clima:getRadio('clima'),
+    vinculo:getRadio('vinculo'),
+    obs_libre:document.getElementById('cuest-obs-libre').value.trim(),
+    fecha:new Date().toLocaleDateString('es-AR')
+  };
+  // Guardar en localStorage
+  localStorage.setItem('huellaed_cuest_aulico',JSON.stringify(data));
+  // Guardar como observación grupal en Supabase
+  if(window.__sb){
+    try{
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var ritmoLabels={rapido:'Rápido',sostenido:'Sostenido/Adecuado',lento:'Lento/Heterogéneo'};
+        var autonomiaLabels={alta:'Alta',media:'Media',baja:'Baja'};
+        var climaLabels={colaborativo:'Colaborativo y dinámico',pasivo:'Pasivo/Silencioso',disruptivo:'Disruptivo frecuente'};
+        var vinculoLabels={curioso:'Curioso y activo',instrumental:'Instrumental',resistente:'Resistente/Apático'};
+        var canalLabels={visual:'Visual/Audiovisual',practico:'Práctico/Vivencial',lecto:'Lecto-escritor'};
+        var dinamicaLabels={cooperativo:'Grupos pequeños',individual:'Individual autónomo',guiado:'Guiado por docente'};
+        var resumen='[PERFIL ÁULICO · '+data.fecha+']\n'
+          +'Ritmo: '+(ritmoLabels[data.ritmo]||'—')+'\n'
+          +'Canal: '+(data.canal.map(function(v){return canalLabels[v];}).join(', ')||'—')+'\n'
+          +'Dinámica: '+(data.dinamica.map(function(v){return dinamicaLabels[v];}).join(', ')||'—')+'\n'
+          +'Autonomía: '+(autonomiaLabels[data.autonomia]||'—')+'\n'
+          +'Clima: '+(climaLabels[data.clima]||'—')+'\n'
+          +'Vínculo con el conocimiento: '+(vinculoLabels[data.vinculo]||'—')
+          +(data.obs_libre?'\nObservación docente: '+data.obs_libre:'');
+        await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});
+      }
+    }catch(e){console.error(e);}
+  }
+  var msg=document.getElementById('cuest-msg');
+  msg.style.color='var(--verde)';msg.textContent='✅ Perfil del grupo guardado';
+  setTimeout(function(){
+    cerrarCuestionarioAulico();
+    // Mostrar implicancias para la planificación
+    mostrarImplicancias();
+  },1000);
+}
+
+function mostrarImplicancias(){
+  var saved=JSON.parse(localStorage.getItem('huellaed_cuest_aulico')||'{}');
+  if(!saved.ritmo)return;
+  var body=document.getElementById('aula-body');
+  if(!body)return;
+  var ritmoLabels={rapido:'⚡ Rápido',sostenido:'✅ Sostenido',lento:'🐢 Lento/Heterogéneo'};
+  var autonomiaLabels={alta:'🟢 Alta',media:'🟡 Media',baja:'🔴 Baja'};
+  var climaLabels={colaborativo:'😊 Colaborativo',pasivo:'😶 Pasivo',disruptivo:'⚠️ Disruptivo'};
+  var vinculoLabels={curioso:'🔍 Curioso',instrumental:'📋 Instrumental',resistente:'😐 Resistente'};
+
+  var implicancias=[];
+  if(saved.ritmo==='lento') implicancias.push('📌 Planificá <strong>actividades tapón</strong> para los que terminan antes y más tiempo de andamiaje para el resto.');
+  if(saved.ritmo==='rapido') implicancias.push('📌 Prepará <strong>actividades de extensión y desafíos extra</strong> para sostener el ritmo.');
+  if(saved.canal&&saved.canal.includes('visual')) implicancias.push('📌 Incorporá <strong>videos, esquemas y soportes visuales</strong> — los textos puros no los enganchan.');
+  if(saved.canal&&saved.canal.includes('practico')) implicancias.push('📌 Priorizá <strong>actividades con material concreto, debate oral y juego</strong>.');
+  if(saved.autonomia==='baja') implicancias.push('📌 Las propuestas de trabajo libre van a fallar. Necesitás <strong>roles asignados y estructura muy clara</strong>.');
+  if(saved.clima==='disruptivo') implicancias.push('📌 Planificá <strong>agrupamientos estratégicos</strong> y dinámicas cortas con cambios frecuentes.');
+  if(saved.clima==='pasivo') implicancias.push('📌 Incluí <strong>disparadores motivadores</strong> al inicio de cada clase para arrancar el debate.');
+  if(saved.vinculo==='resistente') implicancias.push('📌 Buscá <strong>anclajes con la realidad cotidiana</strong> del grupo para conectar con los contenidos.');
+
+  if(implicancias.length===0)return;
+
+  var div=document.createElement('div');
+  div.style.cssText='margin-top:16px;background:#F7EDDB;border-radius:12px;padding:14px;border-left:4px solid #C8973A;';
+  div.innerHTML='<div style="font-size:11px;font-weight:700;color:#C8973A;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">💡 Implicancias para tu planificación</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px;">'
+    +'<div style="background:white;border-radius:8px;padding:8px;text-align:center;font-size:11px;"><div style="font-weight:700;color:var(--gris);margin-bottom:2px;">Ritmo</div>'+( ritmoLabels[saved.ritmo]||'—')+'</div>'
+    +'<div style="background:white;border-radius:8px;padding:8px;text-align:center;font-size:11px;"><div style="font-weight:700;color:var(--gris);margin-bottom:2px;">Autonomía</div>'+(autonomiaLabels[saved.autonomia]||'—')+'</div>'
+    +'<div style="background:white;border-radius:8px;padding:8px;text-align:center;font-size:11px;"><div style="font-weight:700;color:var(--gris);margin-bottom:2px;">Clima</div>'+(climaLabels[saved.clima]||'—')+'</div>'
+    +'<div style="background:white;border-radius:8px;padding:8px;text-align:center;font-size:11px;"><div style="font-weight:700;color:var(--gris);margin-bottom:2px;">Vínculo</div>'+(vinculoLabels[saved.vinculo]||'—')+'</div>'
+    +'</div>'
+    +implicancias.map(function(i){return '<div style="font-size:12px;line-height:1.6;margin-bottom:6px;">'+i+'</div>';}).join('')
+    +'<button onclick="abrirCuestionarioAulico()" style="width:100%;margin-top:8px;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Modificar cuestionario</button>';
+  body.appendChild(div);
+  div.scrollIntoView({behavior:'smooth'});
+}
+
+async function abrirGenerarPerfilGrupal(){
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var saved=JSON.parse(localStorage.getItem('huellaed_cuest_aulico')||'{}');
+  var body=document.getElementById('aula-body');
+  if(!body)return;
+  var loadDiv=document.createElement('div');
+  loadDiv.style.cssText='background:var(--verde-bg);border-radius:12px;padding:20px;margin-top:14px;text-align:center;';
+  loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:8px;">🤖</div><div style="font-size:13px;font-weight:600;color:var(--verde);">Generando perfil académico grupal...</div>';
+  body.appendChild(loadDiv);
+  // Obtener observaciones grupales de Supabase
+  var obsTexto='Sin observaciones grupales registradas.';
+  if(window.__sb){
+    try{
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var {data:obsData}=await window.__sb.from('notas_rapidas').select('content,created_at').eq('teacher_id',user.id).is('student_id',null).order('created_at',{ascending:false}).limit(10);
+        if(obsData&&obsData.length) obsTexto=obsData.map(function(n){return '- '+n.content.replace('[GRUPO] ','').substring(0,150);}).join('\n');
+      }
+    }catch(e){}
+  }
+  var ritmoLabels={rapido:'Rápido (demandan extensión)',sostenido:'Sostenido y adecuado',lento:'Lento y heterogéneo (requieren mucho andamiaje)'};
+  var autonomiaLabels={alta:'Alta autonomía',media:'Autonomía media',baja:'Baja autonomía (necesitan supervisión constante)'};
+  var climaLabels={colaborativo:'Colaborativo y dinámico',pasivo:'Pasivo y silencioso',disruptivo:'Disruptivo frecuente'};
+  var canalLabels={visual:'Visual/Audiovisual',practico:'Práctico/Vivencial',lecto:'Lecto-escritor'};
+  var dinamicaLabels={cooperativo:'Grupos pequeños cooperativos',individual:'Individual autónomo',guiado:'Guiado por docente (plenaria)'};
+  var vinculoLabels={curioso:'Curioso y activo',instrumental:'Instrumental',resistente:'Resistente/Apático'};
+  var prompt='Generá un PERFIL ACADÉMICO GRUPAL profesional para el docente de 6to Año de la Escuela La Concepción, Tigre, 2026.\n\n';
+  prompt+='INSTRUCCIÓN: Usá SOLO los datos reales que aparecen abajo. Tono pedagógico profesional. Primaria PBA.\n\n';
+  prompt+='DATOS DEL GRUPO (19 alumnos):\n';
+  if(saved.ritmo) prompt+='Ritmo de trabajo: '+(ritmoLabels[saved.ritmo]||saved.ritmo)+'\n';
+  if(saved.canal&&saved.canal.length) prompt+='Canal de aprendizaje predominante: '+saved.canal.map(function(v){return canalLabels[v]||v;}).join(' + ')+'\n';
+  if(saved.dinamica&&saved.dinamica.length) prompt+='Dinámica que mejor funciona: '+saved.dinamica.map(function(v){return dinamicaLabels[v]||v;}).join(' + ')+'\n';
+  if(saved.autonomia) prompt+='Nivel de autonomía: '+(autonomiaLabels[saved.autonomia]||saved.autonomia)+'\n';
+  if(saved.clima) prompt+='Clima áulico: '+(climaLabels[saved.clima]||saved.clima)+'\n';
+  if(saved.vinculo) prompt+='Vínculo con el conocimiento: '+(vinculoLabels[saved.vinculo]||saved.vinculo)+'\n';
+  if(saved.obs_libre) prompt+='Observación docente: '+saved.obs_libre+'\n';
+  prompt+='\nOBSERVACIONES GRUPALES REGISTRADAS:\n'+obsTexto+'\n\n';
+  prompt+='Generá el perfil con estas secciones:\n1. Caracterización general del grupo\n2. Fortalezas colectivas\n3. Áreas de oportunidad y desafíos\n4. Recomendaciones para la planificación didáctica\n5. Sugerencias para la gestión del aula\n\nExtensión: 300-400 palabras. Lenguaje docente argentino, concreto y útil.';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    loadDiv.remove();
+    var resultDiv=document.createElement('div');
+    resultDiv.style.cssText='margin-top:14px;';
+    resultDiv.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🤖 Perfil Académico Grupal · 6to Año · 2026</div>'
+      +'<div style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:400px;overflow-y:auto;">'+markdownToHtml(texto)+'</div>'
+      +'<button onclick="imprimirInforme(\'6to Año\',\'Perfil Académico Grupal\',this.previousElementSibling.innerHTML)" class="save-btn" style="margin-top:8px;font-size:12px;">⬇️ Descargar PDF</button>';
+    body.appendChild(resultDiv);
+    resultDiv.scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    loadDiv.innerHTML='<div style="color:#C0392B;font-size:12px;">Error: '+e.message+'</div>';
+  }
+}
+
+
+// ── FORMULARIO PERFIL ÁULICO ──
+function abrirFormPerfilAulico(){
+  document.getElementById('modal-perfil-aulico-form').style.display='block';
+  document.getElementById('pa-form-msg').textContent='';
+}
+function cerrarFormPerfilAulico(){
+  document.getElementById('modal-perfil-aulico-form').style.display='none';
+}
+
+function selPA(grupoid,el){
+  var grupo=document.getElementById(grupoid);
+  grupo.querySelectorAll('label').forEach(function(l){
+    l.style.borderColor='var(--gris-claro)';
+    l.style.background='#FAFAF8';
+    l.style.fontWeight='normal';
+  });
+  el.style.borderColor='#2D5F4F';
+  el.style.background='#D4EAE4';
+  el.style.fontWeight='600';
+  el.dataset.selected='true';
+}
+
+function togglePA(el){
+  var span=el.querySelector('span');
+  var activo=span.textContent==='☑';
+  span.textContent=activo?'☐':'☑';
+  el.style.borderColor=activo?'var(--gris-claro)':'#2D5F4F';
+  el.style.background=activo?'#FAFAF8':'#D4EAE4';
+}
+
+function getSelPA(grupoid){
+  var grupo=document.getElementById(grupoid);
+  if(!grupo)return'';
+  var sel=grupo.querySelector('[data-selected="true"]');
+  if(!sel)return'';
+  return sel.querySelector('strong')?sel.querySelector('strong').textContent:sel.textContent.trim();
+}
+
+function getCheckedPA(grupoid){
+  var grupo=document.getElementById(grupoid);
+  if(!grupo)return[];
+  return Array.from(grupo.querySelectorAll('span')).filter(function(s){return s.textContent==='☑';}).map(function(s){return s.parentElement.textContent.replace('☑','').trim();});
+}
+
+async function generarPerfilAulicoIA(){
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+
+  var msg=document.getElementById('pa-form-msg');
+  msg.style.color='var(--gris)';msg.textContent='Generando perfil áulico...';
+
+  var ritmo=getSelPA('pa-ritmo');
+  var canal=getSelPA('pa-canal');
+  var dinamica=getSelPA('pa-dinamica');
+  var autonomia=getSelPA('pa-autonomia');
+  var clima=getSelPA('pa-clima');
+  var fortalezas=getCheckedPA('pa-fortalezas');
+  var desafios=getCheckedPA('pa-desafios');
+  var obsLibre=document.getElementById('pa-obs-libre').value.trim();
+
+  // Datos de Supabase
+  var notasGrupo='';
+  if(window.__students&&Object.keys(gradesData).length>0){
+    var areas=['L','M','CS','CN','I','EA','EF'];
+    var areaNames={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
+    areas.forEach(function(a){
+      var vals=window.__students.map(function(s){return gradesData[s.id]&&gradesData[s.id][a]!=null?parseFloat(gradesData[s.id][a]):null;}).filter(function(v){return v!==null;});
+      if(vals.length){var prom=(vals.reduce(function(x,y){return x+y;},0)/vals.length).toFixed(1);notasGrupo+=areaNames[a]+': promedio '+prom+' ('+vals.length+' alumnos con nota). ';}
+    });
+  }
+
+  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de '+
+    (window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: '+(window.__teacherName||'Nicolás Radaelli')+'. Año 2026.\n\n';
+  prompt+='DATOS DEL FORMULARIO DOCENTE:\n';
+  if(ritmo)prompt+='Ritmo de trabajo: '+ritmo+'\n';
+  if(canal)prompt+='Canal de aprendizaje predominante: '+canal+'\n';
+  if(dinamica)prompt+='Dinámica que mejor funciona: '+dinamica+'\n';
+  if(autonomia)prompt+='Nivel de autonomía: '+autonomia+'\n';
+  if(clima)prompt+='Clima áulico: '+clima+'\n';
+  if(fortalezas.length)prompt+='Fortalezas del grupo: '+fortalezas.join(', ')+'\n';
+  if(desafios.length)prompt+='Principales desafíos: '+desafios.join(', ')+'\n';
+  if(obsLibre)prompt+='Observación del docente: '+obsLibre+'\n';
+  if(notasGrupo)prompt+='\nDATOS DE NOTAS (1er Trimestre):\n'+notasGrupo+'\n';
+  prompt+='\nGenerá un perfil áulico grupal con estas secciones:\n';
+  prompt+='1. Caracterización general del grupo\n';
+  prompt+='2. Fortalezas colectivas\n';
+  prompt+='3. Desafíos y áreas de oportunidad\n';
+  prompt+='4. Recomendaciones pedagógicas para la planificación (tiempos, formatos, agrupamientos)\n';
+  prompt+='5. Estrategias sugeridas para el docente\n';
+  prompt+='6. Consideraciones para la atención a la diversidad\n';
+  prompt+='\nTono profesional pero accesible. Lenguaje pedagógico argentino. Que sirva como insumo real para planificar.';
+
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+
+    // Descargar
+    var fecha=new Date().toLocaleDateString('es-AR');
+    var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Áulico Grupal</title>'
+      +'<style>body{font-family:Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 28px;font-size:13px;line-height:1.75;color:#222;}'
+      +'h1{color:#2D5F4F;font-size:18px;border-bottom:2px solid #2D5F4F;padding-bottom:8px;}'
+      +'h2{color:#2D5F4F;font-size:15px;margin-top:20px;}'
+      +'h3{color:#3A7A65;font-size:13px;}'
+      +'.header{text-align:center;margin-bottom:20px;}'
+      +'.escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;}'
+      +'@media print{body{margin:15mm 20mm;}}</style></head><body>'
+      +'<div class="header"><div class="escuela">Escuela La Concepción · Tigre · Provincia de Buenos Aires</div>'
+      +'<h1>Perfil Áulico Grupal</h1>'
+      +'<div style="font-size:11px;color:#888;">'+(window.__teacherGrade||'6to Año')+' · 2026 · '+fecha+'</div></div>'
+      +markdownToHtml(texto)
+      +'</body></html>';
+
+    var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Perfil_Aulico_Grupal_2026.html';
+    a.click();
+
+    msg.style.color='var(--verde)';msg.textContent='✅ Perfil áulico generado y descargado';
+    cerrarFormPerfilAulico();
+
+    // Guardar como observación grupal
+    if(window.__sb){
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var resumen='[Perfil Áulico '+fecha+'] Ritmo: '+(ritmo||'—')+'. Canal: '+(canal||'—')+'. Clima: '+(clima||'—')+'. Fortalezas: '+(fortalezas.join(', ')||'—')+'. Desafíos: '+(desafios.join(', ')||'—')+'.';
+        await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});
+      }
+    }
+  }catch(e){
+    msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
+  }
+}
+
+
+// ── CUESTIONARIO ÁULICO ──
+function abrirCuestionarioAulico(){
+  document.getElementById('modal-cuestionario-aulico').style.display='block';
+  document.getElementById('ca-msg').textContent='';
+  // Cargar datos guardados si existen
+  var saved=localStorage.getItem('huellaed_perfil_aulico');
+  if(saved){
+    try{
+      var d=JSON.parse(saved);
+      if(d.ritmo){var r=document.querySelector('input[name="ca-ritmo"][value="'+d.ritmo+'"]');if(r){r.checked=true;selCArad(r.closest('label'));}}
+      if(d.canal){var c=document.querySelector('input[name="ca-canal"][value="'+d.canal+'"]');if(c){c.checked=true;selCArad(c.closest('label'));}}
+      if(d.dinamica){var di=document.querySelector('input[name="ca-dinamica"][value="'+d.dinamica+'"]');if(di){di.checked=true;selCArad(di.closest('label'));}}
+      if(d.autonomia){var a=document.querySelector('input[name="ca-autonomia"][value="'+d.autonomia+'"]');if(a){a.checked=true;selCArad(a.closest('label'));}}
+      if(d.clima){var cl=document.querySelector('input[name="ca-clima"][value="'+d.clima+'"]');if(cl){cl.checked=true;selCArad(cl.closest('label'));}}
+      var campos=['ritmo-nota','canal-nota','dinamica-nota','autonomia-nota','clima-nota','obs-general'];
+      campos.forEach(function(c){var el=document.getElementById('ca-'+c);if(el&&d[c.replace('-','_')])el.value=d[c.replace('-','_')];});
+    }catch(e){}
+  }
+}
+
+function cerrarCuestionarioAulico(){
+  document.getElementById('modal-cuestionario-aulico').style.display='none';
+}
+
+function selCA(grupo,label){
+  document.querySelectorAll('#'+grupo+' label').forEach(function(l){
+    l.style.background='#F5F2EE';
+    l.style.borderColor='transparent';
+  });
+  selCArad(label);
+}
+
+function selCArad(label){
+  if(label){
+    label.style.background='var(--verde-bg)';
+    label.style.borderColor='var(--verde-claro)';
+  }
+}
+
+function getCA(name){
+  var r=document.querySelector('input[name="'+name+'"]:checked');
+  return r?r.value:'';
+}
+
+async function guardarCuestionarioAulico(){
+  var datos={
+    ritmo:getCA('ca-ritmo'),
+    canal:getCA('ca-canal'),
+    dinamica:getCA('ca-dinamica'),
+    autonomia:getCA('ca-autonomia'),
+    clima:getCA('ca-clima'),
+    ritmo_nota:document.getElementById('ca-ritmo-nota').value,
+    canal_nota:document.getElementById('ca-canal-nota').value,
+    dinamica_nota:document.getElementById('ca-dinamica-nota').value,
+    autonomia_nota:document.getElementById('ca-autonomia-nota').value,
+    clima_nota:document.getElementById('ca-clima-nota').value,
+    obs_general:document.getElementById('ca-obs-general').value,
+    fecha:new Date().toLocaleDateString('es-AR')
+  };
+  localStorage.setItem('huellaed_perfil_aulico',JSON.stringify(datos));
+  // Guardar también como observación grupal en Supabase
+  if(window.__sb){
+    try{
+      var user=(await window.__sb.auth.getUser()).data.user;
+      if(user){
+        var resumen='[GRUPO] [Perfil áulico '+datos.fecha+'] '
+          +'Ritmo: '+datos.ritmo+'. Canal: '+datos.canal+'. Dinámica: '+datos.dinamica
+          +'. Autonomía: '+datos.autonomia+'. Clima: '+datos.clima+'.'
+          +(datos.obs_general?' '+datos.obs_general:'');
+        await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});
+      }
+    }catch(e){}
+  }
+  var msg=document.getElementById('ca-msg');
+  msg.style.color='var(--verde)';msg.textContent='✅ Perfil guardado';
+  setTimeout(function(){msg.textContent='';},2000);
+}
+
+async function generarPerfilAulicoIA(){
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  
+  var ritmo=getCA('ca-ritmo');
+  var canal=getCA('ca-canal');
+  var dinamica=getCA('ca-dinamica');
+  var autonomia=getCA('ca-autonomia');
+  var clima=getCA('ca-clima');
+  var obsGeneral=document.getElementById('ca-obs-general').value;
+
+  if(!ritmo&&!canal&&!clima){
+    document.getElementById('ca-msg').style.color='#C0392B';
+    document.getElementById('ca-msg').textContent='Completá al menos las primeras 3 opciones';
+    return;
+  }
+
+  await guardarCuestionarioAulico();
+  
+  var msg=document.getElementById('ca-msg');
+  msg.style.color='var(--gris)';msg.textContent='Generando perfil áulico...';
+
+  var etiquetas={
+    ritmo:{rapido:'Rápido',sostenido:'Sostenido/Adecuado',lento:'Lento/Heterogéneo'},
+    canal:{visual:'Visual/Audiovisual',practico:'Práctico/Vivencial',lectoescritor:'Lecto-escritor'},
+    dinamica:{cooperativo:'Cooperativo',individual:'Individual autónomo',plenaria:'Plenaria guiada'},
+    autonomia:{alto:'Alto',medio:'Medio',bajo:'Bajo'},
+    clima:{colaborativo:'Colaborativo y activo',pasivo:'Pasivo/Silencioso',disruptivo:'Disruptivo frecuente'}
+  };
+
+  var notas={
+    ritmo:document.getElementById('ca-ritmo-nota').value,
+    canal:document.getElementById('ca-canal-nota').value,
+    dinamica:document.getElementById('ca-dinamica-nota').value,
+    autonomia:document.getElementById('ca-autonomia-nota').value,
+    clima:document.getElementById('ca-clima-nota').value
+  };
+
+  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: Nicolás Radaelli. Año 2026. Grupo de 19 alumnos.\n\n';
+  prompt+='DATOS DEL CUESTIONARIO:\n';
+  prompt+='- Ritmo de trabajo: '+(etiquetas.ritmo[ritmo]||'No informado')+(notas.ritmo?' ('+notas.ritmo+')':'')+'\n';
+  prompt+='- Canal de aprendizaje predominante: '+(etiquetas.canal[canal]||'No informado')+(notas.canal?' ('+notas.canal+')':'')+'\n';
+  prompt+='- Dinámica que mejor funciona: '+(etiquetas.dinamica[dinamica]||'No informado')+(notas.dinamica?' ('+notas.dinamica+')':'')+'\n';
+  prompt+='- Nivel de autonomía: '+(etiquetas.autonomia[autonomia]||'No informado')+(notas.autonomia?' ('+notas.autonomia+')':'')+'\n';
+  prompt+='- Clima áulico: '+(etiquetas.clima[clima]||'No informado')+(notas.clima?' ('+notas.clima+')':'')+'\n';
+  if(obsGeneral)prompt+='- Observación general: '+obsGeneral+'\n';
+  prompt+='\nGenerá un perfil áulico grupal con estas secciones:\n';
+  prompt+='## Caracterización general del grupo\n';
+  prompt+='## Fortalezas colectivas\n';
+  prompt+='## Desafíos pedagógicos\n';
+  prompt+='## Recomendaciones para la planificación\n  (incluí: diseño de tiempos, formato de recursos, diseño de agrupamientos)\n';
+  prompt+='## Estrategias prioritarias para este grupo\n\n';
+  prompt+='Tono profesional pedagógico. Lenguaje docente argentino. Orientado a la toma de decisiones didácticas concretas.';
+
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    
+    // Mostrar en el perfil áulico
+    cerrarCuestionarioAulico();
+    var body=document.getElementById('aula-body');
+    if(body){
+      var resultDiv=document.createElement('div');
+      resultDiv.style.cssText='margin-top:16px;padding-top:16px;border-top:2px solid var(--verde-claro);';
+      resultDiv.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🤖 Perfil Áulico Grupal · IA</div>'
+        +'<div style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);">'+markdownToHtml(texto)+'</div>'
+        +'<button onclick="imprimirInforme(\'6to Año\',\'Perfil Áulico Grupal\',this.previousElementSibling.innerHTML)" class="save-btn" style="margin-top:8px;font-size:12px;">⬇️ Descargar PDF</button>';
+      body.appendChild(resultDiv);
+      resultDiv.scrollIntoView({behavior:'smooth'});
+    }
+    msg.style.color='var(--verde)';msg.textContent='✅ Perfil generado';
   }catch(e){
     msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
   }
