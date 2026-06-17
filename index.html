@@ -2498,12 +2498,7 @@ async function abrirPlanificaciones(){
   _planifFiltroArea='';
   document.getElementById('modal-planificaciones').style.display='block';
   document.getElementById('planif-btn-nueva').style.display='inline-block';
-  await cargarListaPlanif();
-  // Si hay datos y ningún área está abierta todavía, abrir la primera que tenga contenido
-  if(_planifAreaAbierta===null&&_planifData.length){
-    var primeraConDatos=AREAS.find(function(ac){return _planifData.some(function(p){return SUBJECT_CODES[p.subject_id]===ac;});});
-    if(primeraConDatos){_planifAreaAbierta=primeraConDatos;cargarListaPlanif();}
-  }
+  cargarListaPlanif();
 }
 
 async function cargarListaPlanif(){
@@ -2512,77 +2507,57 @@ async function cargarListaPlanif(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('planifications').select('*').eq('teacher_id',user.id).order('week_number',{ascending:true});
+  var query=window.__sb.from('planifications').select('*').eq('teacher_id',user.id).order('week_number',{ascending:true});
+  if(_planifFiltroArea)query=query.eq('subject_id',SUBJECT_IDS[_planifFiltroArea]);
+  var {data}=await query;
   _planifData=data||[];
 
   var html='';
+  // Filtro materia
+  html+='<div style="margin-bottom:12px;">';
+  html+='<select onchange="_planifFiltroArea=this.value;cargarListaPlanif()" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">';
+  html+='<option value="">Todas las materias</option>';
+  AREAS.forEach(function(a){html+='<option value="'+a+'"'+(a===_planifFiltroArea?' selected':'')+'>'+AREA_ICONS[a]+' '+AREA_NAMES[a]+'</option>';});
+  html+='</select></div>';
 
   if(!_planifData.length){
     html+='<div style="text-align:center;padding:32px;color:var(--gris);font-size:13px;">'
       +'<div style="font-size:36px;margin-bottom:10px;">📋</div>'
       +'<div style="font-weight:600;">Sin planificaciones todavía</div>'
-      +'<div style="font-size:12px;margin-top:4px;">Usá <strong>+ Nueva</strong> o <strong>📎 Subir archivo</strong> para crear la primera.</div>'
+      +'<div style="font-size:12px;margin-top:4px;">Usá <strong>+ Nueva</strong> para crear la primera.</div>'
       +'</div>';
-    body.innerHTML=html;
-    return;
-  }
-
-  // Agrupar por área, respetando el orden de AREAS
-  var grupos={};
-  AREAS.forEach(function(a){grupos[a]=[];});
-  _planifData.forEach(function(p){
-    var ac=SUBJECT_CODES[p.subject_id]||'';
-    if(!grupos[ac])grupos[ac]=[];
-    grupos[ac].push(p);
-  });
-
-  AREAS.forEach(function(ac){
-    var lista=grupos[ac];
-    if(!lista||!lista.length)return;
-    var an=AREA_NAMES[ac]||ac;
-    var ai=AREA_ICONS[ac]||'📋';
-    var abierto=(_planifAreaAbierta===ac);
-
-    html+='<div style="margin-bottom:10px;">';
-    html+='<div onclick="togglePlanifArea(\''+ac+'\')" style="display:flex;align-items:center;gap:10px;background:var(--verde);border-radius:'+(abierto?'12px 12px 0 0':'12px')+';padding:12px 14px;cursor:pointer;">';
-    html+='<div style="font-size:20px;">'+ai+'</div>';
-    html+='<div style="flex:1;color:#fff;font-weight:700;font-size:13px;">'+an+'</div>';
-    html+='<div style="background:rgba(255,255,255,0.25);color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:2px 9px;">'+lista.length+'</div>';
-    html+='<div style="color:#fff;font-size:13px;">'+(abierto?'▾':'▸')+'</div>';
-    html+='</div>';
-
-    if(abierto){
-      html+='<div style="background:var(--crema);border-radius:0 0 12px 12px;padding:10px;display:flex;flex-direction:column;gap:8px;">';
-      lista.forEach(function(p){
-        var fechas='';
-        if(p.date_from||p.date_to){
-          var fmt=function(d){return d?new Date(d+'T12:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}):''};
-          fechas=fmt(p.date_from)+(p.date_to?' al '+fmt(p.date_to):'');
-        }
-        html+='<div style="background:#fff;border-radius:10px;padding:12px;border:1.5px solid var(--gris-claro);">';
-        html+='<div style="font-size:13px;font-weight:700;color:var(--negro);">'+p.title+'</div>';
-        html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;">';
-        if(p.week_number)html+='<span style="font-size:10px;background:var(--verde-bg);color:var(--verde);border-radius:5px;padding:2px 7px;font-weight:600;">Secuencia '+p.week_number+'</span>';
-        if(fechas)html+='<span style="font-size:10px;color:var(--gris);">'+fechas+'</span>';
-        html+='</div>';
-        if(p.content)html+='<div style="font-size:11px;color:var(--gris);margin-top:6px;line-height:1.5;white-space:pre-line;max-height:60px;overflow:hidden;">'+p.content.substring(0,160)+(p.content.length>160?'…':'')+'</div>';
-        html+='<div style="display:flex;gap:6px;margin-top:10px;">';
-        html+='<button onclick="abrirEditorPlanif(\''+p.id+'\')" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Editar</button>';
-        html+='<button onclick="generarMaterialDesdePlanif(\''+p.id+'\')" style="flex:1;background:linear-gradient(135deg,#C8973A,#D4A84B);color:#fff;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Generar material</button>';
-        html+='<button onclick="borrarPlanif(\''+p.id+'\')" style="background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:8px;padding:7px 9px;font-size:11px;cursor:pointer;font-family:inherit;">🗑️</button>';
-        html+='</div></div>';
-      });
+  }else{
+    html+='<div style="display:flex;flex-direction:column;gap:8px;">';
+    _planifData.forEach(function(p){
+      var ac=SUBJECT_CODES[p.subject_id]||'';
+      var an=AREA_NAMES[ac]||ac;
+      var ai=AREA_ICONS[ac]||'📋';
+      var fechas='';
+      if(p.date_from||p.date_to){
+        var fmt=function(d){return d?new Date(d+'T12:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}):''};
+        fechas=fmt(p.date_from)+(p.date_to?' al '+fmt(p.date_to):'');
+      }
+      html+='<div style="background:var(--crema);border-radius:12px;padding:14px;border:1.5px solid var(--gris-claro);">';
+      html+='<div style="display:flex;align-items:flex-start;gap:10px;">';
+      html+='<div style="background:var(--verde-bg);border-radius:9px;padding:7px;font-size:20px;flex-shrink:0;">'+ai+'</div>';
+      html+='<div style="flex:1;min-width:0;">';
+      html+='<div style="font-size:13px;font-weight:700;color:var(--negro);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.title+'</div>';
+      html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;">';
+      html+='<span style="font-size:10px;background:var(--verde);color:#fff;border-radius:5px;padding:2px 7px;">'+an+'</span>';
+      if(p.week_number)html+='<span style="font-size:10px;color:var(--gris);">Sem. '+p.week_number+'</span>';
+      if(fechas)html+='<span style="font-size:10px;color:var(--gris);">'+fechas+'</span>';
       html+='</div>';
-    }
+      if(p.content)html+='<div style="font-size:11px;color:var(--gris);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.content.substring(0,90)+(p.content.length>90?'…':'')+'</div>';
+      html+='</div></div>';
+      html+='<div style="display:flex;gap:6px;margin-top:10px;">';
+      html+='<button onclick="abrirEditorPlanif(\''+p.id+'\')" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Editar</button>';
+      html+='<button onclick="generarMaterialDesdePlanif(\''+p.id+'\')" style="flex:1;background:linear-gradient(135deg,#C8973A,#D4A84B);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Generar material</button>';
+      html+='<button onclick="borrarPlanif(\''+p.id+'\')" style="background:transparent;color:#C0392B;border:1.5px solid #C0392B;border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;font-family:inherit;">🗑️</button>';
+      html+='</div></div>';
+    });
     html+='</div>';
-  });
-
+  }
   body.innerHTML=html;
-}
-
-function togglePlanifArea(ac){
-  _planifAreaAbierta=(_planifAreaAbierta===ac)?null:ac;
-  cargarListaPlanif();
 }
 
 async function abrirEditorPlanif(planifId){
@@ -2817,7 +2792,7 @@ var AREAS=['L','M','CS','CN','I','EA','EF'];
 var AREA_NAMES={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
 var AREA_ICONS={L:'📖',M:'🔢',CS:'🌍',CN:'🔬',I:'🇬🇧',EA:'🎨',EF:'⚽'};
 var _perfilStudentId=null,_perfilUserId=null;
-var _planifEditing=null,_planifFiltroArea='',_planifData=[],_planifAreaAbierta=null;
+var _planifEditing=null,_planifFiltroArea='',_planifData=[];
 var SUBJECT_IDS={L:'10000000-0000-0000-0000-000000000001',M:'10000000-0000-0000-0000-000000000002',CS:'10000000-0000-0000-0000-000000000003',CN:'10000000-0000-0000-0000-000000000004',I:'10000000-0000-0000-0000-000000000005',EA:'10000000-0000-0000-0000-000000000006',EF:'10000000-0000-0000-0000-000000000007'};
 var SUBJECT_CODES={};Object.keys(SUBJECT_IDS).forEach(function(c){SUBJECT_CODES[SUBJECT_IDS[c]]=c;});
 var gradesData={};
@@ -4748,7 +4723,10 @@ async function caGenerarPerfil(){
   }catch(e){msg.style.color='#C0392B';msg.textContent='Error: '+e.message;}
 }
 
+var _perfilAulicoActual='';
+
 function mostrarPerfilAulicoEnPantalla(htmlTexto){
+  _perfilAulicoActual=htmlTexto;
   var body=document.getElementById('aula-body');
   if(!body)return;
   var prev=document.getElementById('perfil-aulico-ia');
@@ -4758,7 +4736,16 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
   div.style.cssText='margin-top:16px;padding-top:16px;border-top:2px solid var(--verde-claro);';
   div.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🤖 Perfil Áulico Grupal</div>'
     +'<div id="perfil-aulico-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);max-height:320px;overflow-y:auto;">'+htmlTexto+'</div>'
-    +'<button onclick="imprimirInforme(\'6to Año\',\'Perfil Áulico Grupal\',document.getElementById(\'perfil-aulico-texto\').innerHTML)" class="save-btn" style="margin-top:8px;font-size:12px;width:100%;">⬇️ Descargar PDF</button>';
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
+    +'<button onclick="imprimirInforme(\'6to Año\',\'Perfil Áulico Grupal\',document.getElementById(\'perfil-aulico-texto\').innerHTML)" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
+    +'<button onclick="abrirAjustePerfilAulico()" style="background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Ajustar</button>'
+    +'</div>'
+    +'<div id="ajuste-aulico-box" style="display:none;margin-top:10px;background:#FDF0EC;border-radius:10px;padding:12px;border:1.5px solid var(--terracota);">'
+    +'<div style="font-size:11px;font-weight:700;color:var(--terracota);margin-bottom:6px;">¿Qué querés cambiar o agregar?</div>'
+    +'<textarea id="ajuste-aulico-texto" rows="3" placeholder="Ej: el grupo mejoró mucho la autonomía esta semana, o agregar que ahora trabajan mejor en parejas..." style="width:100%;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;background:#fff;"></textarea>'
+    +'<button onclick="ajustarPerfilAulico()" class="save-btn" style="margin-top:8px;width:100%;font-size:12px;">🤖 Regenerar con este cambio</button>'
+    +'<div id="ajuste-aulico-msg" style="text-align:center;font-size:11px;margin-top:6px;"></div>'
+    +'</div>';
   body.appendChild(div);
   div.scrollIntoView({behavior:'smooth'});
 }
@@ -5098,6 +5085,62 @@ function generarMaterialDesdePlanif(planifId){
     if(temaInput)temaInput.value=p.title||'';
     if(detallesInput&&p.content)detallesInput.value=p.content;
   },50);
+}
+
+
+
+function abrirAjustePerfilAulico(){
+  var box=document.getElementById('ajuste-aulico-box');
+  if(box)box.style.display=box.style.display==='none'?'block':'none';
+}
+
+async function ajustarPerfilAulico(){
+  var cambio=document.getElementById('ajuste-aulico-texto').value.trim();
+  if(!cambio){
+    document.getElementById('ajuste-aulico-msg').style.color='#C0392B';
+    document.getElementById('ajuste-aulico-msg').textContent='Escribí qué querés cambiar';
+    return;
+  }
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+
+  var msg=document.getElementById('ajuste-aulico-msg');
+  msg.style.color='var(--gris)';msg.textContent='Ajustando el perfil...';
+
+  // Extraer texto plano del perfil actual (sin HTML) para mandarlo de contexto
+  var temp=document.createElement('div');
+  temp.innerHTML=_perfilAulicoActual;
+  var textoPlano=temp.textContent||temp.innerText||'';
+
+  var prompt='Este es el perfil áulico grupal vigente de un curso de 6to Año, Escuela La Concepción, Tigre, PBA:\n\n'+textoPlano+'\n\n';
+  prompt+='El docente quiere actualizar o ajustar este perfil con la siguiente observación nueva:\n"'+cambio+'"\n\n';
+  prompt+='Generá una VERSIÓN ACTUALIZADA del perfil áulico completo, incorporando este cambio de forma coherente con el resto. Mantené la misma estructura de secciones (Caracterización general del grupo, Fortalezas colectivas, Desafíos pedagógicos, Recomendaciones para la planificación, Estrategias prioritarias). No repitas literalmente el perfil anterior: actualizalo de verdad reflejando el cambio indicado.';
+
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3500,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var data=await res.json();
+    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var htmlNuevo=markdownToHtml(texto);
+
+    mostrarPerfilAulicoEnPantalla(htmlNuevo);
+
+    // Actualizar también el guardado en Supabase
+    if(window.__sb){
+      try{
+        var user=(await window.__sb.auth.getUser()).data.user;
+        if(user){
+          await window.__sb.from('perfiles_generados').insert({teacher_id:user.id,student_id:null,tipo:'aulico_grupal',contenido:htmlNuevo});
+        }
+      }catch(e3){console.log('No se pudo guardar el ajuste:',e3);}
+    }
+  }catch(e){
+    msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
+  }
 }
 
 </script>
