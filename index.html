@@ -620,7 +620,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📅 Asistencia</strong>
       <div style="display:flex;gap:8px;align-items:center;">
-        <button onclick="document.getElementById('asist-foto-input').click()" style="background:var(--verde-bg);color:var(--verde);border:1.5px solid var(--verde-claro);border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">📷 Cargar foto</button>
+        <button onclick="document.getElementById('asist-foto-input').click()" style="background:var(--verde-bg);color:var(--verde);border:1.5px solid var(--verde-claro);border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">📷 Cargar registro</button>
         <input type="file" id="asist-foto-input" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoAsistencia(this)">
         <button onclick="cerrarAsistencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
       </div>
@@ -5055,7 +5055,7 @@ async function procesarFotoAsistencia(input){
   if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
 
   document.getElementById('modal-confirmar-foto').style.display='block';
-  document.getElementById('confirmar-foto-msg').textContent='Leyendo la foto con IA...';
+  document.getElementById('confirmar-foto-msg').textContent='Leyendo el registro con IA, puede tardar unos segundos...';
   document.getElementById('confirmar-foto-tabla').innerHTML='';
   document.getElementById('confirmar-foto-resultado').textContent='';
 
@@ -5065,19 +5065,20 @@ async function procesarFotoAsistencia(input){
     var base64Data=base64.split(',')[1];
 
     var nombresAlumnos=(window.__students||[]).map(function(s){return s.full_name;});
-    var fecha=document.getElementById('asist-fecha')?document.getElementById('asist-fecha').value:new Date().toISOString().slice(0,10);
+    var anioActual=new Date().getFullYear();
 
-    var promptTexto='Esta imagen es una planilla o registro de asistencia escolar manuscrito o impreso. Tu tarea es leer quién está presente, ausente, tardanza o justificado para la fecha que se vea en la planilla.\n\n';
-    promptTexto+='LISTA DE ALUMNOS REALES DEL CURSO (usá estos nombres exactos, no inventes otros):\n'+nombresAlumnos.join('\n')+'\n\n';
+    var promptTexto='Esta imagen es un REGISTRO DE ASISTENCIA escolar manuscrito con formato de matriz: una fila por alumno, una columna por cada día del mes. Los códigos habituales son: 1 = presente, 3 = ausente (a veces hay otros códigos como T para tardanza o J para justificado, pero usá 1 y 3 como los más comunes).\n\n';
+    promptTexto+='LISTA DE ALUMNOS REALES DEL CURSO en orden (usá estos nombres exactos, no inventes otros, y respetá el orden de filas de la foto para asociarlos):\n'+nombresAlumnos.join('\n')+'\n\n';
+    promptTexto+='Identificá qué mes y año corresponde (si no se ve el año, asumí '+anioActual+'). Identificá el número de día de cada columna (los encabezados L M M J V indican el día de la semana, y debajo el número de día del mes).\n\n';
     promptTexto+='Respondé SOLO con un JSON válido, sin texto antes ni después, con este formato exacto:\n';
-    promptTexto+='{"fecha_detectada":"YYYY-MM-DD o null si no se ve","registros":[{"nombre":"nombre exacto de la lista","status":"presente|ausente|tardanza|justificado"}]}\n\n';
-    promptTexto+='Si no podés identificar el estado de algún alumno con certeza, no lo incluyas en la lista (mejor omitir que inventar). Si un nombre de la foto no coincide exactamente con la lista, usá el más parecido de la lista proporcionada.';
+    promptTexto+='{"mes":1-12,"anio":YYYY,"dias":[numero_dia1,numero_dia2,...],"alumnos":[{"nombre":"nombre exacto de la lista","valores":["presente","ausente",null,...]}]}\n\n';
+    promptTexto+='El array "valores" debe tener la MISMA cantidad de elementos que "dias", en el mismo orden (una entrada por columna/día). Usá "presente" para el código 1, "ausente" para el código 3, "tardanza" o "justificado" si detectás otro código distinto, y null si la celda está vacía o no se puede leer con certeza. Mejor poner null que inventar.';
 
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:2000,
+        model:'claude-sonnet-4-6',max_tokens:4000,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mediaType,data:base64Data}},
           {type:'text',text:promptTexto}
@@ -5090,31 +5091,35 @@ async function procesarFotoAsistencia(input){
     var m=texto.match(/```json([\s\S]*?)```/)||texto.match(/(\{[\s\S]*\})/);
     var parsed=JSON.parse(m?m[1]:texto);
 
-    _fotoAsistDatos={fecha:parsed.fecha_detectada||fecha,registros:parsed.registros||[]};
-
-    if(!_fotoAsistDatos.registros.length){
-      document.getElementById('confirmar-foto-msg').innerHTML='<span style="color:#C0392B;">No se pudo leer ningún alumno con certeza. Probá con una foto más clara o con mejor luz.</span>';
+    if(!parsed.dias||!parsed.dias.length||!parsed.alumnos||!parsed.alumnos.length){
+      document.getElementById('confirmar-foto-msg').innerHTML='<span style="color:#C0392B;">No se pudo leer el registro con certeza. Probá con una foto más clara, con buena luz y sin sombras sobre la tabla.</span>';
       input.value='';
       return;
     }
 
-    var nombreToId={};
-    (window.__students||[]).forEach(function(s){nombreToId[s.full_name]=s.id;});
+    var mesStr=String(parsed.mes).padStart(2,'0');
+    _fotoAsistDatos={mes:parsed.mes,anio:parsed.anio,dias:parsed.dias,alumnos:parsed.alumnos,mesStr:mesStr};
 
-    document.getElementById('confirmar-foto-msg').innerHTML='Fecha detectada: <strong>'+_fotoAsistDatos.fecha+'</strong>. Se leyeron '+_fotoAsistDatos.registros.length+' de '+nombresAlumnos.length+' alumnos. Revisá y corregí si hace falta:';
+    var totalCeldas=parsed.alumnos.reduce(function(acc,a){return acc+a.valores.filter(function(v){return v!=null;}).length;},0);
+    document.getElementById('confirmar-foto-msg').innerHTML='Detecté <strong>'+parsed.dias.length+' días</strong> de <strong>'+parsed.anio+'-'+mesStr+'</strong> para <strong>'+parsed.alumnos.length+' alumnos</strong> ('+totalCeldas+' registros leídos). Revisá la tabla, corregí lo que haga falta y guardá:';
 
-    var statusOpts={presente:'✅ Presente',ausente:'❌ Ausente',tardanza:'⏰ Tardanza',justificado:'📋 Justificado'};
-    var html='<div style="display:flex;flex-direction:column;gap:6px;">';
-    _fotoAsistDatos.registros.forEach(function(r,i){
-      html+='<div style="display:flex;align-items:center;gap:8px;background:var(--crema);border-radius:8px;padding:7px 10px;">';
-      html+='<div style="flex:1;font-size:12px;font-weight:600;">'+r.nombre+'</div>';
-      html+='<select onchange="_fotoAsistDatos.registros['+i+'].status=this.value" style="font-size:11px;padding:5px 7px;border-radius:6px;border:1.5px solid var(--gris-claro);font-family:inherit;">';
-      Object.keys(statusOpts).forEach(function(k){
-        html+='<option value="'+k+'"'+(r.status===k?' selected':'')+'>'+statusOpts[k]+'</option>';
+    var statusOpts={presente:'✅',ausente:'❌',tardanza:'⏰',justificado:'📋'};
+    var html='<div style="overflow-x:auto;"><table style="border-collapse:collapse;font-size:10.5px;min-width:'+(150+parsed.dias.length*42)+'px;">';
+    html+='<thead><tr style="background:var(--verde);color:#fff;"><th style="padding:5px 7px;text-align:left;position:sticky;left:0;background:var(--verde);">Alumno</th>';
+    parsed.dias.forEach(function(d){html+='<th style="padding:5px 4px;text-align:center;">'+d+'</th>';});
+    html+='</tr></thead><tbody>';
+    parsed.alumnos.forEach(function(al,ai){
+      html+='<tr style="background:'+(ai%2===0?'#fff':'#F5F2EE')+';"><td style="padding:4px 7px;font-weight:600;white-space:nowrap;position:sticky;left:0;background:'+(ai%2===0?'#fff':'#F5F2EE')+';">'+al.nombre+'</td>';
+      al.valores.forEach(function(v,vi){
+        var sel='<select onchange="_fotoAsistDatos.alumnos['+ai+'].valores['+vi+']=this.value===\'vacio\'?null:this.value" style="font-size:13px;border:1px solid var(--gris-claro);border-radius:5px;width:38px;padding:2px;text-align:center;">';
+        sel+='<option value="vacio"'+(!v?' selected':'')+'>—</option>';
+        Object.keys(statusOpts).forEach(function(k){sel+='<option value="'+k+'"'+(v===k?' selected':'')+'>'+statusOpts[k]+'</option>';});
+        sel+='</select>';
+        html+='<td style="padding:2px;text-align:center;">'+sel+'</td>';
       });
-      html+='</select></div>';
+      html+='</tr>';
     });
-    html+='</div>';
+    html+='</tbody></table></div>';
     document.getElementById('confirmar-foto-tabla').innerHTML=html;
     input.value='';
   }catch(e){
@@ -5124,7 +5129,7 @@ async function procesarFotoAsistencia(input){
 }
 
 async function guardarDesdeFoto(){
-  if(!_fotoAsistDatos||!_fotoAsistDatos.registros.length)return;
+  if(!_fotoAsistDatos||!_fotoAsistDatos.alumnos||!_fotoAsistDatos.alumnos.length)return;
   if(!window.__sb){alert('Sin conexión a la base');return;}
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
@@ -5134,11 +5139,20 @@ async function guardarDesdeFoto(){
   var msgEl=document.getElementById('confirmar-foto-resultado');
   msgEl.style.color='var(--gris)';msgEl.textContent='Guardando...';
 
-  var filas=_fotoAsistDatos.registros.map(function(r){
-    var sid=nombreToId[r.nombre];
-    if(!sid)return null;
-    return {teacher_id:user.id,student_id:sid,date:_fotoAsistDatos.fecha,status:r.status,notes:''};
-  }).filter(Boolean);
+  var anio=_fotoAsistDatos.anio;
+  var mesStr=_fotoAsistDatos.mesStr;
+  var filas=[];
+  _fotoAsistDatos.alumnos.forEach(function(al){
+    var sid=nombreToId[al.nombre];
+    if(!sid)return;
+    al.valores.forEach(function(v,i){
+      if(!v)return;
+      var dia=_fotoAsistDatos.dias[i];
+      var diaStr=String(dia).padStart(2,'0');
+      var fechaCelda=anio+'-'+mesStr+'-'+diaStr;
+      filas.push({teacher_id:user.id,student_id:sid,date:fechaCelda,status:v,notes:''});
+    });
+  });
 
   if(!filas.length){msgEl.style.color='#C0392B';msgEl.textContent='No se pudo asociar ningún registro a un alumno real';return;}
 
@@ -5147,12 +5161,12 @@ async function guardarDesdeFoto(){
     msgEl.style.color='#C0392B';msgEl.textContent='Error al guardar: '+error.message;
     return;
   }
-  msgEl.style.color='var(--verde)';msgEl.textContent='✅ Asistencia guardada para '+filas.length+' alumnos';
+  msgEl.style.color='var(--verde)';msgEl.textContent='✅ Se guardaron '+filas.length+' registros de asistencia ('+_fotoAsistDatos.alumnos.length+' alumnos × '+_fotoAsistDatos.dias.length+' días)';
   setTimeout(function(){
     document.getElementById('modal-confirmar-foto').style.display='none';
     var fechaInput=document.getElementById('asist-fecha');
-    if(fechaInput){fechaInput.value=_fotoAsistDatos.fecha;cargarAsistenciaFecha();}
-  },1200);
+    if(fechaInput){var ultimoDia=String(_fotoAsistDatos.dias[_fotoAsistDatos.dias.length-1]).padStart(2,'0');fechaInput.value=anio+'-'+mesStr+'-'+ultimoDia;cargarAsistenciaFecha();}
+  },1500);
 }
 </script>
 
@@ -5415,7 +5429,7 @@ async function guardarDesdeFoto(){
 
 <!-- MODAL CONFIRMAR LECTURA DE FOTO (asistencia) -->
 <div id="modal-confirmar-foto" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:3500;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
+  <div style="background:#fff;border-radius:16px;max-width:90vw;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:15px;font-weight:700;color:#fff;">📷 Revisá lo que leyó la IA</div>
