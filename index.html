@@ -3334,7 +3334,8 @@ function renderLibro(respuestaIA,contenedor){
   var pags=data.paginas||[{titulo:data.titulo,secciones:data.secciones||[]}];
   var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+LB[pi2%6]+'">'+LI[pi2%6]+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina"><div class="lb-banda"></div><div class="lb-marca">HuellaED</div>'+cp+pie(pi2+1)+'</div>';}).join('');
   var MAP_AREA_GENERADOR={'Matemática':'M','Prácticas del Lenguaje':'L','Ciencias Sociales':'CS','Ciencias Naturales':'CN'};
-  var areaClaseLB=MAP_AREA_GENERADOR[area]||'';
+  var areaActual=tipoSel==='proyecto'?(document.getElementById('gen-areas-multi').value||''):document.getElementById('gen-area').value;
+  var areaClaseLB=MAP_AREA_GENERADOR[areaActual]||'';
   var tonoClaseLB=tonoSel!=='normal'?('lb-tono-'+tonoSel):'';
   var clasesExtra=(areaClaseLB?' lb-area-'+areaClaseLB:'')+(tonoClaseLB?' '+tonoClaseLB:'');
   _genHtmlRenderizado='<div id="libro-preview" class="'+clasesExtra.trim()+'"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">Exportar PDF</button></div>'+ph+'</div>';
