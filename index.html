@@ -4558,7 +4558,7 @@ function configurarApiKey(tipo){
     link.textContent='→ Ir a aistudio.google.com/app/apikey';
     var actual2=localStorage.getItem('huellaed_gemini_key');
     input.value=actual2?'••••••••••••'+actual2.slice(-4):'';
-    input.placeholder='AIza...';
+    input.placeholder='Pegá tu clave acá...';
   }
 
   modal.style.display='block';
@@ -4581,7 +4581,7 @@ async function guardarApiKeyConfig(){
   if(_apikeyTipo==='anthropic'){
     if(!val.startsWith('sk-ant-')&&!val.startsWith('sk-')){msg.style.color='#C0392B';msg.textContent='La clave de Anthropic empieza con sk-ant- (clave detectada: '+val.substring(0,8)+'...)';return;}
   } else {
-    if(!val.toUpperCase().startsWith('AIZA')){msg.style.color='#C0392B';msg.textContent='La clave de Gemini empieza con AIza (clave detectada: '+val.substring(0,8)+'...)';return;}
+    if(val.length<15){msg.style.color='#C0392B';msg.textContent='La clave parece muy corta, revisá que se haya copiado completa';return;}
   }
   msg.style.color='var(--gris)';msg.textContent='Guardando...';
   // Guardar en Supabase (por usuario) Y en localStorage (para acceso rápido)
