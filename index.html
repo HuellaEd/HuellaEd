@@ -183,9 +183,9 @@
     <ellipse cx="28" cy="35" rx="3.5" ry="4.5" fill="none" stroke="#7BAE99" stroke-width="1.2"/>
     <circle cx="50" cy="9" r="3.5" fill="#C8845A"/>
   </svg>
-  <div class="header-text">
+  <div class="header-text" onclick="abrirPerfilDocente()" style="cursor:pointer;">
     <h1>Huella<span>ED</span></h1>
-    <p id="header-docente">cada alumno, su trayecto</p>
+    <p id="header-docente">cada alumno, su trayecto ⚙️</p>
   </div>
   <button class="btn-logout" id="btn-logout">Salir</button>
 </header>
@@ -2807,8 +2807,8 @@ function imprimirFicha(){
 }
 
 // ── DATOS ──
-const NOTAS_DATA=[{a:"Aguirre, Ziomara",n:[7,7,7,7,7,8,9]},{a:"Barrera, Felipe",n:[8,8,8,8,7,9,9]},{a:"Barrera, Joaquín",n:[7,7,7,7,7,8,9]},{a:"Bravo, Álvaro",n:[7,7,8,7,7,8,9]},{a:"Carbonel, Tiziano",n:[6,6,6,7,7,9,9]},{a:"Cuello, Thomas",n:[6,6,6,7,8,8,8]},{a:"Diaz, Monserrat",n:[7,6,9,7,7,9,9]},{a:"Espindola, Sofía",n:[8,8,8,8,7,9,9]},{a:"Gamon, Ciro",n:[6,8,7,8,7,9,8]},{a:"Garcia, Milton",n:[8,9,6,8,8,10,9]},{a:"Godoy, Katia",n:[6,7,7,7,7,8,7]},{a:"Monteros Cruz, Máximo",n:[8,8,8,8,7,9,9]},{a:"Nievas, Nicolás",n:[6,6,6,6,7,8,9]},{a:"Santa Cruz, Alma",n:[8,8,8,8,7,9,9]},{a:"Sosa Muñoz, Benjamín",n:[9,9,9,8,8,9,9]},{a:"Tabares, Andrés",n:[7,7,7,7,8,9,9]},{a:"Tablada, Santino",n:[7,7,7,7,7,9,9]},{a:"Tagliabue, Delfina",n:[7,7,7,7,7,9,9]},{a:"Villalba, Benjamín",n:[7,7,7,7,7,9,8]}];
-const INASIST_DATA=[{a:"Aguirre, Ziomara",m:0,ab:0,my:0},{a:"Barrera, Felipe",m:2,ab:1,my:3},{a:"Barrera, Joaquín",m:5,ab:4,my:6},{a:"Bravo, Álvaro",m:2,ab:1,my:1},{a:"Carbonel, Tiziano",m:3,ab:3,my:2},{a:"Cuello, Thomas",m:1,ab:0,my:1},{a:"Diaz, Monserrat",m:1,ab:0,my:1},{a:"Espindola, Sofía",m:0,ab:1,my:0},{a:"Gamon, Ciro",m:1,ab:1,my:2},{a:"Garcia, Milton",m:0,ab:1,my:0},{a:"Godoy, Katia",m:0,ab:4,my:3},{a:"Monteros Cruz, Máximo",m:2,ab:2,my:1},{a:"Nievas, Nicolás",m:0,ab:1,my:1},{a:"Santa Cruz, Alma",m:1,ab:0,my:1},{a:"Sosa Muñoz, Benjamín",m:0,ab:0,my:0},{a:"Tabares, Andrés",m:1,ab:1,my:2},{a:"Tablada, Santino",m:1,ab:2,my:3},{a:"Tagliabue, Delfina",m:3,ab:1,my:4},{a:"Villalba, Benjamín",m:0,ab:1,my:2}];
+const NOTAS_DATA=[];
+const INASIST_DATA=[];
 const APROBADO=7,DIAS=55;
 var AREAS=['L','M','CS','CN','I','EA','EF'];
 var AREA_NAMES={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
@@ -3969,7 +3969,7 @@ function generarPromptNota(){var pend=notasG.filter(n=>!n.sync);if(!pend.length)
 function copiarPromptNota(){navigator.clipboard.writeText(document.getElementById('nota-prompt-text').textContent);}
 
 // ── AGENDA ──
-const TAREAS_INICIALES=[{id:1,texto:"Hablar con familia de Barrera Joaquín por ausentismo crítico",cat:"urgente",hecha:false},{id:2,texto:"Articular con EOE caso Tablada Santino",cat:"urgente",hecha:false},{id:3,texto:"Hablar con familias de Barrera Felipe, Godoy, Carbonel, Tagliabue por asistencia",cat:"urgente",hecha:false},{id:4,texto:"Acto 9 de julio — coordinar con Karen y Laura",cat:"importante",hecha:false},{id:5,texto:"Completar perfiles 5to con Myriam Rastelli",cat:"importante",hecha:false},{id:6,texto:"Revisar y ampliar reservorio de prompts",cat:"importante",hecha:false},{id:7,texto:"Expandir HuellaED a los 6 grados",cat:"proceso",hecha:false},{id:8,texto:"Incorporar observaciones grupales al formulario",cat:"proceso",hecha:false},{id:9,texto:"Evaluar integración WhatsApp para familias",cat:"idea",hecha:false},{id:10,texto:"Sistema de info desde gabinete (Soledad)",cat:"idea",hecha:false}];
+const TAREAS_INICIALES=[];
 var tareas=JSON.parse(localStorage.getItem('huellaed_agenda')||'null')||TAREAS_INICIALES;
 var filtroActual='todas';
 function guardarTareas(){
@@ -4181,7 +4181,7 @@ var PLANIF_PL = {
 
 function abrirPlanifNuevo(){
   document.getElementById('modal-planif-nuevo').style.display='block';
-  renderPlanifNuevo();
+  document.getElementById('planif-nuevo-body').innerHTML='<div style="text-align:center;padding:30px 16px;color:var(--gris);font-size:13px;line-height:1.6;">🔒 Esta sección está temporalmente deshabilitada mientras migramos las planificaciones para que cada docente tenga las suyas de forma privada.</div>';
 }
 
 function cerrarPlanifNuevo(){
@@ -5168,6 +5168,40 @@ async function guardarDesdeFoto(){
     if(fechaInput){var ultimoDia=String(_fotoAsistDatos.dias[_fotoAsistDatos.dias.length-1]).padStart(2,'0');fechaInput.value=anio+'-'+mesStr+'-'+ultimoDia;cargarAsistenciaFecha();}
   },1500);
 }
+
+
+// ── PERFIL DOCENTE / AJUSTES ──
+async function abrirPerfilDocente(){
+  document.getElementById('modal-perfil-docente').style.display='block';
+  document.getElementById('perfil-doc-msg').textContent='';
+  document.getElementById('perfil-doc-nombre').value=window.__teacherName||'';
+  document.getElementById('perfil-doc-grado').value=window.__teacherGrade||'';
+  // Reflejar estado de API keys también acá
+  var ant=localStorage.getItem('huellaed_anthropic_key');
+  var gem=localStorage.getItem('huellaed_gemini_key');
+  var elAnt=document.getElementById('estado-anthropic-perfil');
+  var elGem=document.getElementById('estado-gemini-perfil');
+  if(elAnt)elAnt.innerHTML=ant?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
+  if(elGem)elGem.innerHTML=gem?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
+}
+
+async function guardarPerfilDocente(){
+  if(!window.__sb)return;
+  var nombre=document.getElementById('perfil-doc-nombre').value.trim();
+  var grado=document.getElementById('perfil-doc-grado').value.trim();
+  var msg=document.getElementById('perfil-doc-msg');
+  msg.style.color='var(--gris)';msg.textContent='Guardando...';
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user){msg.style.color='#C0392B';msg.textContent='Sin sesión activa';return;}
+  var {error}=await window.__sb.from('teachers').update({full_name:nombre,grade:grado}).eq('id',user.id);
+  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;return;}
+  window.__teacherName=nombre;
+  window.__teacherGrade=grado;
+  var hdr=document.getElementById('header-docente');
+  if(hdr)hdr.textContent=(nombre||'')+(grado?' · '+grado:'')+' ⚙️';
+  msg.style.color='var(--verde)';msg.textContent='✅ Guardado';
+}
+
 </script>
 
 
@@ -5446,5 +5480,47 @@ async function guardarDesdeFoto(){
   </div>
 </div>
 
+
+<!-- MODAL PERFIL DOCENTE / AJUSTES -->
+<div id="modal-perfil-docente" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:3800;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
+    <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:16px;font-weight:700;color:#fff;">⚙️ Mi perfil y ajustes</div>
+      <button onclick="document.getElementById('modal-perfil-docente').style.display='none'" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:18px;max-height:75vh;overflow-y:auto;">
+
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Datos personales</div>
+      <div class="form-row">
+        <label>Nombre completo</label>
+        <input type="text" id="perfil-doc-nombre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+      </div>
+      <div class="form-row">
+        <label>Grado / sección a cargo</label>
+        <input type="text" id="perfil-doc-grado" placeholder="Ej: 6to Año" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+      </div>
+      <button onclick="guardarPerfilDocente()" class="save-btn" style="margin-bottom:6px;">💾 Guardar datos</button>
+      <div id="perfil-doc-msg" style="text-align:center;font-size:11px;margin-bottom:18px;"></div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-top:8px;border-top:1px solid var(--gris-claro);">Mis API Keys</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
+        <div onclick="configurarApiKey('anthropic')" style="cursor:pointer;background:var(--crema);border-radius:10px;padding:11px;border:1.5px solid var(--gris-claro);">
+          <div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:3px;">🤖 Claude (Anthropic)</div>
+          <div id="estado-anthropic-perfil" style="font-size:10px;color:var(--gris);">Verificando...</div>
+        </div>
+        <div onclick="configurarApiKey('gemini')" style="cursor:pointer;background:var(--crema);border-radius:10px;padding:11px;border:1.5px solid var(--gris-claro);">
+          <div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:3px;">✨ Gemini (Google)</div>
+          <div id="estado-gemini-perfil" style="font-size:10px;color:var(--gris);">Verificando...</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-top:8px;border-top:1px solid var(--gris-claro);">Privacidad</div>
+      <div style="font-size:11px;color:var(--gris);line-height:1.6;margin-bottom:14px;">Tus alumnos, notas, asistencia y agenda son privados — solo vos podés verlos. Si en algún momento ves datos que no son tuyos, avisá de inmediato para corregirlo.</div>
+
+      <button onclick="document.getElementById('btn-logout').click()" style="width:100%;background:#FDE8E8;color:#C0392B;border:1.5px solid #F5C6C6;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🚪 Cerrar sesión</button>
+
+    </div>
+  </div>
+</div>
 </body>
 </html>
