@@ -491,7 +491,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Cuello, Thomas','adecuacion','Dificultad sostenida de concentración. Necesita consignas cortas y actividades de menor extensión.')"><span class="check-icon">☐</span> Cuello, Thomas<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>
       </div>
     </div>
-    <div class="form-row"><label>Detalles (opcional)</label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, adjunto PDF del libro..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:65px;resize:none;box-sizing:border-box;"></textarea></div>
+    <div class="form-row"><label style="display:flex;justify-content:space-between;align-items:center;">Detalles (opcional)<button type="button" id="btn-voz-detalles" onclick="toggleDictadoDetalles()" style="background:var(--crema);border:1.5px solid var(--gris-claro);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--negro);display:flex;align-items:center;gap:4px;">🎤 Dictar</button></label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, adjunto PDF del libro..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:65px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row">
       <label>Archivo adjunto <span style="font-size:10px;color:var(--gris);font-weight:400;">(opcional — PDF o imagen)</span></label>
       <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:11px;cursor:pointer;">
@@ -5361,6 +5361,70 @@ async function ajustarPerfilAulico(){
   }catch(e){
     msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
   }
+}
+
+
+
+// ── DICTADO POR VOZ (Web Speech API nativa) ──
+var _recognitionDetalles=null;
+var _dictandoDetalles=false;
+
+function toggleDictadoDetalles(){
+  var SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    alert('El dictado por voz no está disponible en este navegador. Probá con Chrome.');
+    return;
+  }
+  var btn=document.getElementById('btn-voz-detalles');
+  if(_dictandoDetalles){
+    if(_recognitionDetalles)_recognitionDetalles.stop();
+    return;
+  }
+  _recognitionDetalles=new SpeechRecognition();
+  _recognitionDetalles.lang='es-AR';
+  _recognitionDetalles.continuous=true;
+  _recognitionDetalles.interimResults=false;
+
+  var textarea=document.getElementById('gen-detalles');
+  var textoBase=textarea.value;
+  if(textoBase&&!textoBase.endsWith(' ')&&!textoBase.endsWith('\n'))textoBase+=' ';
+
+  _recognitionDetalles.onstart=function(){
+    _dictandoDetalles=true;
+    btn.innerHTML='🔴 Escuchando...';
+    btn.style.background='#FDE8E8';
+    btn.style.borderColor='#C0392B';
+    btn.style.color='#C0392B';
+  };
+
+  _recognitionDetalles.onresult=function(event){
+    var transcript='';
+    for(var i=0;i<event.results.length;i++){
+      transcript+=event.results[i][0].transcript+' ';
+    }
+    textarea.value=textoBase+transcript.trim();
+  };
+
+  _recognitionDetalles.onerror=function(event){
+    if(event.error==='not-allowed'){
+      alert('No se pudo acceder al micrófono. Revisá los permisos del navegador.');
+    }
+    _dictandoDetalles=false;
+    btn.innerHTML='🎤 Dictar';
+    btn.style.background='var(--crema)';
+    btn.style.borderColor='var(--gris-claro)';
+    btn.style.color='var(--negro)';
+  };
+
+  _recognitionDetalles.onend=function(){
+    _dictandoDetalles=false;
+    btn.innerHTML='🎤 Dictar';
+    btn.style.background='var(--crema)';
+    btn.style.borderColor='var(--gris-claro)';
+    btn.style.color='var(--negro)';
+  };
+
+  _recognitionDetalles.start();
 }
 
 </script>
