@@ -2271,7 +2271,11 @@ async function abrirPerfilAcademico(studentId){
   document.getElementById('modal-perfil-academico').style.display='block';
   document.getElementById('perf-ini').textContent=nameToInitials(s.full_name);
   document.getElementById('perf-nombre').textContent=s.full_name;
-  document.getElementById('perf-badge').textContent=s.has_differential?'⚡ Atención diferenciada':(window.__teacherGrade||'6to Año');
+  var esDif=s.has_differential||false;
+  var badgeEl=document.getElementById('perf-badge');
+  badgeEl.innerHTML=(esDif
+    ?'<span style="color:#C8845A;font-weight:700;">⚡ Atención diferenciada</span> <button onclick="toggleDiferenciado()" style="background:rgba(200,132,90,0.15);border:1px solid #C8845A;color:#C8845A;border-radius:5px;padding:1px 7px;font-size:10px;cursor:pointer;font-family:inherit;">quitar</button>'
+    :'<span style="color:rgba(255,255,255,0.7);">'+(window.__teacherGrade||'6to Año')+'</span> <button onclick="toggleDiferenciado()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:5px;padding:1px 7px;font-size:10px;cursor:pointer;font-family:inherit;">+ marcar diferenciado</button>');
   var body=document.getElementById('perf-body');
   body.innerHTML='<div style="text-align:center;padding:32px;color:var(--gris);font-size:13px;">Cargando…</div>';
   if(!window.__sb)return;
@@ -5568,6 +5572,22 @@ async function generarPerfilAulicoIA(){
   }catch(e){
     msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
   }
+}
+
+
+async function toggleDiferenciado(){
+  if(!window.__sb||!_perfilStudentId)return;
+  var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
+  if(!s)return;
+  var nuevoValor=!s.has_differential;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('students').update({has_differential:nuevoValor}).eq('id',_perfilStudentId).eq('teacher_id',user.id);
+  if(error){alert('Error: '+error.message);return;}
+  // Actualizar en memoria
+  s.has_differential=nuevoValor;
+  // Reabrir el perfil para reflejar el cambio
+  abrirPerfilAcademico(_perfilStudentId);
 }
 </script>
 
