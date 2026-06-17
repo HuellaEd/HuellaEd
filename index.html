@@ -1535,7 +1535,12 @@ async function initAgenda() {
   if (!user) return;
   // Limpiar localStorage para que no se mezclen datos entre usuarios
   localStorage.removeItem('huellaed_agenda');
-  var { data } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
+  var { data, error } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
+  if (error) {
+    console.log('Error al cargar agenda:', error.message);
+    tareas = [];
+    return;
+  }
   if (!data || !data.length) {
     // Primera vez: cargar tareas iniciales para este usuario
     tareas = TAREAS_INICIALES.map(function(t){return {id:t.id,texto:t.texto,cat:t.cat,hecha:t.hecha};});
@@ -4107,11 +4112,18 @@ function guardarTareas(){
   (async function() {
     var user = (await window.__sb.auth.getUser()).data.user;
     if (!user) return;
-    await window.__sb.from('agenda').delete().eq('user_id', user.id);
+    var {error:errDel} = await window.__sb.from('agenda').delete().eq('user_id', user.id);
+    if (errDel) {
+      alert('No se pudo guardar la agenda: ' + errDel.message);
+      return;
+    }
     if (tareas.length > 0) {
-      await window.__sb.from('agenda').insert(
+      var {error:errIns} = await window.__sb.from('agenda').insert(
         tareas.map(function(t) { return { id: t.id, user_id: user.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; })
       );
+      if (errIns) {
+        alert('No se pudo guardar la agenda: ' + errIns.message + '\n\nEs probable que falte configurar permisos (RLS) en la tabla agenda de Supabase.');
+      }
     }
   })();
 }
