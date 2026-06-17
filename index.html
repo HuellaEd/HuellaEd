@@ -333,6 +333,20 @@
 
   <!-- PIE DISCRETO -->
   <div style="margin-top:28px;padding-top:16px;border-top:1px solid var(--gris-claro);">
+    <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">⚙️ Mis API Keys</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div onclick="configurarApiKey('anthropic')" style="cursor:pointer;background:var(--crema);border-radius:10px;padding:11px;border:1.5px solid var(--gris-claro);">
+        <div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:3px;">🤖 Claude (Anthropic)</div>
+        <div id="estado-anthropic" style="font-size:10px;color:var(--gris);">Verificando...</div>
+      </div>
+      <div onclick="configurarApiKey('gemini')" style="cursor:pointer;background:var(--crema);border-radius:10px;padding:11px;border:1.5px solid var(--gris-claro);">
+        <div style="font-size:11px;font-weight:700;color:var(--negro);margin-bottom:3px;">✨ Gemini (Google)</div>
+        <div id="estado-gemini" style="font-size:10px;color:var(--gris);">Verificando...</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--gris-claro);">
     <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Recursos y documentos</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;">
       <a href=?authuser=0"https://drive.google.com/drive/folders/1YYA55HD6BPS6V6ubl3v2gezOlM7gyAJr" target="_blank" class="pie-link">📄 Cuadernillos</a>
@@ -657,7 +671,6 @@ App: https://huellaed.github.io/HuellaEd/</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
         <button onclick="abrirCuestionarioAulico()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">📝 Cuestionario</button>
-        <button onclick="abrirGenerarPerfilGrupal()" style="background:rgba(200,151,58,0.3);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">🤖 Perfil grupal</button>
         <button onclick="cerrarAula()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
       </div>
     </div>
@@ -1231,14 +1244,13 @@ Si el audio es muy corto o hay ruido ambiental, indicalo brevemente.`;
         }
       } catch(e) { console.error('Error guardando en Supabase:', e); }
     }
-    await guardarAnalisisEnDrive(alumno, alumnoNombre, fecha, tituloTexto, analisis);
-    document.getElementById('gemini-loading').style.display = 'none';
-    if (resultado && resultado.ok) {
-      document.getElementById('gemini-loading').textContent = '✅ Guardado en el Drive de ' + alumnoNombre;
-    } else {
-      document.getElementById('gemini-loading').textContent = '💾 Guardado localmente (configurar Apps Script para guardar en Drive)';
-    }
+    var resultadoDrive = await guardarAnalisisEnDrive(alumno, alumnoNombre, fecha, tituloTexto, analisis);
     document.getElementById('gemini-loading').style.display = 'block';
+    if (resultadoDrive && resultadoDrive.ok) {
+      document.getElementById('gemini-loading').textContent = '✅ Guardado en el perfil y en el Drive de ' + alumnoNombre;
+    } else {
+      document.getElementById('gemini-loading').textContent = '✅ Guardado en el perfil de ' + alumnoNombre;
+    }
     setTimeout(() => { document.getElementById('gemini-loading').style.display = 'none'; }, 4000);
 
   } catch (error) {
@@ -1377,10 +1389,13 @@ async function initStudents() {
   if (!user) return;
   var { data: students, error } = await window.__sb
     .from('students')
-    .select('id, full_name, has_differential')
+    .select('id, full_name, has_differential, active')
     .eq('teacher_id', user.id)
     .order('full_name');
   if (error || !students || !students.length) return;
+  // Filtrar alumnos dados de baja (active=false). Si la columna no existe en algún registro legacy, se considera activo.
+  students = students.filter(function(s){ return s.active !== false; });
+  if (!students.length) return;
 
   window.__students = students;
 
@@ -1476,7 +1491,7 @@ async function initTeacher(){
   actualizarEstadoApiKeys();
 }
 
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); });
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); var btn=document.getElementById('btn-config-script'); if(btn && APPS_SCRIPT_URL) btn.textContent='✅ Script activo'; actualizarEstadoApiKeys(); });
 
 
 function configurarScriptURL() {
@@ -1495,13 +1510,6 @@ function configurarScriptURL() {
 }
 
 // Mostrar estado del script al cargar
-document.addEventListener('DOMContentLoaded', function(){
-  checkAnalisisPendientes();
-  var btn = document.getElementById('btn-config-script');
-  if(btn && APPS_SCRIPT_URL) btn.textContent = '✅ Script activo';
-});
-
-
 // ── DICTADO CON GEMINI EN NOTA RÁPIDA ──
 var dictadoRecorder = null;
 var dictadoChunks = [];
@@ -4566,11 +4574,6 @@ function actualizarEstadoApiKeys(){
 }
 
 // Verificar al cargar
-document.addEventListener('DOMContentLoaded',function(){
-  actualizarEstadoApiKeys();
-});
-
-
 // ── ASISTENTE DEI ──
 function abrirAsistenteDEI(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
@@ -4704,256 +4707,6 @@ async function generarDEI(){
           teacher_id:user.id,
           content:'[DEI generado '+fecha+'] Documento DEI completo generado y descargado.'
         });
-      }
-    }
-  }catch(e){
-    msg.style.color='#C0392B';msg.textContent='Error: '+e.message;
-  }
-}
-
-
-// ── CUESTIONARIO ÁULICO ──
-var _ca={ritmo:'',canal:'',dinamica:'',autonomia:'',clima:''};
-var _caTxt={
-  ritmo:{rapido:'rápido — resuelven pronto y demandan extensión',sostenido:'sostenido y parejo — cumplen los tiempos planificados',lento:'lento/heterogéneo — requieren mucho andamiaje'},
-  canal:{visual:'visual/audiovisual — responden mejor a videos e imágenes',practico:'práctico/vivencial — necesitan el debate oral y material concreto',lectoescritor:'lecto-escritor — se manejan con fluidez en textos escritos'},
-  dinamica:{cooperativo:'cooperativo en grupos pequeños con roles',individual:'individual autónomo y silencioso',plenaria:'plenaria guiada por el docente'},
-  autonomia:{alto:'alta — comprenden e inician solos tras una breve explicación',medio:'media — necesitan que se reformulen las consignas',bajo:'baja — necesitan supervisión constante paso a paso'},
-  clima:{colaborativo:'colaborativo y activo — se ayudan aunque hay que regular el volumen',pasivo:'pasivo/silencioso — cuesta arrancar la participación espontánea',disruptivo:'disruptivo frecuente — conflictos o dispersión que cortan el ritmo'}
-};
-
-function caSelect(dim,val,el){
-  _ca[dim]=val;
-  var g=document.getElementById('ca-g-'+dim);
-  if(g) g.querySelectorAll('.ca-o').forEach(function(o){o.classList.remove('sel');});
-  el.classList.add('sel');
-  if(document.getElementById('ca-resumen-box').style.display!=='none') caVerResumen();
-}
-
-function abrirCuestionarioAulico(){
-  document.getElementById('modal-cuestionario-aulico').style.display='block';
-  document.getElementById('ca-msg').textContent='';
-  document.getElementById('ca-resumen-box').style.display='none';
-  var saved=localStorage.getItem('huellaed_ca_v3');
-  if(saved){
-    try{
-      var d=JSON.parse(saved);
-      if(d.sel) _ca=d.sel;
-      Object.keys(_ca).forEach(function(dim){
-        if(!_ca[dim]) return;
-        var g=document.getElementById('ca-g-'+dim);
-        if(!g) return;
-        g.querySelectorAll('.ca-o').forEach(function(o){
-          o.classList.remove('sel');
-          if(o.getAttribute('onclick')&&o.getAttribute('onclick').indexOf("'"+_ca[dim]+"'")>-1) o.classList.add('sel');
-        });
-      });
-      if(d.obs) document.getElementById('ca-obs').value=d.obs;
-    }catch(e){}
-  }
-}
-
-function cerrarCuestionarioAulico(){
-  document.getElementById('modal-cuestionario-aulico').style.display='none';
-}
-
-function caVerResumen(){
-  var partes=[];
-  var dims=['ritmo','canal','dinamica','autonomia','clima'];
-  var noms={ritmo:'Ritmo',canal:'Canal',dinamica:'Dinámica',autonomia:'Autonomía',clima:'Clima'};
-  dims.forEach(function(d){
-    if(_ca[d]&&_caTxt[d]&&_caTxt[d][_ca[d]]){
-      partes.push('<strong>'+noms[d]+':</strong> El grupo es '+_caTxt[d][_ca[d]]+'.');
-    }
-  });
-  var obs=document.getElementById('ca-obs').value.trim();
-  if(obs) partes.push('<strong>Observación del docente:</strong> '+obs);
-  if(!partes.length){
-    document.getElementById('ca-msg').style.color='#C0392B';
-    document.getElementById('ca-msg').textContent='Seleccioná al menos una opción primero';
-    return;
-  }
-  document.getElementById('ca-resumen-texto').innerHTML=partes.join('<br>');
-  document.getElementById('ca-resumen-box').style.display='block';
-  document.getElementById('ca-msg').textContent='';
-  localStorage.setItem('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
-}
-
-async function caGenerarPerfil(){
-  if(!_ca.ritmo&&!_ca.canal&&!_ca.clima){
-    document.getElementById('ca-msg').style.color='#C0392B';
-    document.getElementById('ca-msg').textContent='Completá al menos 3 dimensiones';
-    return;
-  }
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
-  var obs=document.getElementById('ca-obs').value.trim();
-  localStorage.setItem('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
-  var msg=document.getElementById('ca-msg');
-  msg.style.color='var(--gris)';msg.textContent='Generando perfil áulico...';
-  var dims=['ritmo','canal','dinamica','autonomia','clima'];
-  var lineas=[];
-  dims.forEach(function(d){if(_ca[d]&&_caTxt[d]&&_caTxt[d][_ca[d]])lineas.push('- '+_caTxt[d][_ca[d]]);});
-  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: Nicolás Radaelli. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
-  try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})
-    });
-    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
-    var data=await res.json();
-    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
-    cerrarCuestionarioAulico();
-    var body=document.getElementById('aula-body');
-    if(body){
-      var prev=document.getElementById('perfil-aulico-ia');
-      if(prev) prev.remove();
-      var div=document.createElement('div');
-      div.id='perfil-aulico-ia';
-      div.style.cssText='margin-top:16px;padding-top:16px;border-top:2px solid var(--verde-claro);';
-      div.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🤖 Perfil Áulico Grupal · IA</div>'
-        +'<div id="perfil-aulico-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);max-height:320px;overflow-y:auto;">'+markdownToHtml(texto)+'</div>'
-        +'<button onclick="imprimirInforme(\'6to Año\',\'Perfil Áulico Grupal\',document.getElementById(\'perfil-aulico-texto\').innerHTML)" class="save-btn" style="margin-top:8px;font-size:12px;width:100%;">⬇️ Descargar PDF</button>';
-      body.appendChild(div);
-      div.scrollIntoView({behavior:'smooth'});
-    }
-  }catch(e){msg.style.color='#C0392B';msg.textContent='Error: '+e.message;}
-}
-
-
-// ── FORMULARIO PERFIL ÁULICO ──
-function abrirFormPerfilAulico(){
-  document.getElementById('modal-perfil-aulico-form').style.display='block';
-  document.getElementById('pa-form-msg').textContent='';
-}
-function cerrarFormPerfilAulico(){
-  document.getElementById('modal-perfil-aulico-form').style.display='none';
-}
-
-function selPA(grupoid,el){
-  var grupo=document.getElementById(grupoid);
-  grupo.querySelectorAll('label').forEach(function(l){
-    l.style.borderColor='var(--gris-claro)';
-    l.style.background='#FAFAF8';
-    l.style.fontWeight='normal';
-  });
-  el.style.borderColor='#2D5F4F';
-  el.style.background='#D4EAE4';
-  el.style.fontWeight='600';
-  el.dataset.selected='true';
-}
-
-function togglePA(el){
-  var span=el.querySelector('span');
-  var activo=span.textContent==='☑';
-  span.textContent=activo?'☐':'☑';
-  el.style.borderColor=activo?'var(--gris-claro)':'#2D5F4F';
-  el.style.background=activo?'#FAFAF8':'#D4EAE4';
-}
-
-function getSelPA(grupoid){
-  var grupo=document.getElementById(grupoid);
-  if(!grupo)return'';
-  var sel=grupo.querySelector('[data-selected="true"]');
-  if(!sel)return'';
-  return sel.querySelector('strong')?sel.querySelector('strong').textContent:sel.textContent.trim();
-}
-
-function getCheckedPA(grupoid){
-  var grupo=document.getElementById(grupoid);
-  if(!grupo)return[];
-  return Array.from(grupo.querySelectorAll('span')).filter(function(s){return s.textContent==='☑';}).map(function(s){return s.parentElement.textContent.replace('☑','').trim();});
-}
-
-async function generarPerfilAulicoIA(){
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
-
-  var msg=document.getElementById('pa-form-msg');
-  msg.style.color='var(--gris)';msg.textContent='Generando perfil áulico...';
-
-  var ritmo=getSelPA('pa-ritmo');
-  var canal=getSelPA('pa-canal');
-  var dinamica=getSelPA('pa-dinamica');
-  var autonomia=getSelPA('pa-autonomia');
-  var clima=getSelPA('pa-clima');
-  var fortalezas=getCheckedPA('pa-fortalezas');
-  var desafios=getCheckedPA('pa-desafios');
-  var obsLibre=document.getElementById('pa-obs-libre').value.trim();
-
-  // Datos de Supabase
-  var notasGrupo='';
-  if(window.__students&&Object.keys(gradesData).length>0){
-    var areas=['L','M','CS','CN','I','EA','EF'];
-    var areaNames={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
-    areas.forEach(function(a){
-      var vals=window.__students.map(function(s){return gradesData[s.id]&&gradesData[s.id][a]!=null?parseFloat(gradesData[s.id][a]):null;}).filter(function(v){return v!==null;});
-      if(vals.length){var prom=(vals.reduce(function(x,y){return x+y;},0)/vals.length).toFixed(1);notasGrupo+=areaNames[a]+': promedio '+prom+' ('+vals.length+' alumnos con nota). ';}
-    });
-  }
-
-  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de '+
-    (window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: '+(window.__teacherName||'Nicolás Radaelli')+'. Año 2026.\n\n';
-  prompt+='DATOS DEL FORMULARIO DOCENTE:\n';
-  if(ritmo)prompt+='Ritmo de trabajo: '+ritmo+'\n';
-  if(canal)prompt+='Canal de aprendizaje predominante: '+canal+'\n';
-  if(dinamica)prompt+='Dinámica que mejor funciona: '+dinamica+'\n';
-  if(autonomia)prompt+='Nivel de autonomía: '+autonomia+'\n';
-  if(clima)prompt+='Clima áulico: '+clima+'\n';
-  if(fortalezas.length)prompt+='Fortalezas del grupo: '+fortalezas.join(', ')+'\n';
-  if(desafios.length)prompt+='Principales desafíos: '+desafios.join(', ')+'\n';
-  if(obsLibre)prompt+='Observación del docente: '+obsLibre+'\n';
-  if(notasGrupo)prompt+='\nDATOS DE NOTAS (1er Trimestre):\n'+notasGrupo+'\n';
-  prompt+='\nGenerá un perfil áulico grupal con estas secciones:\n';
-  prompt+='1. Caracterización general del grupo\n';
-  prompt+='2. Fortalezas colectivas\n';
-  prompt+='3. Desafíos y áreas de oportunidad\n';
-  prompt+='4. Recomendaciones pedagógicas para la planificación (tiempos, formatos, agrupamientos)\n';
-  prompt+='5. Estrategias sugeridas para el docente\n';
-  prompt+='6. Consideraciones para la atención a la diversidad\n';
-  prompt+='\nTono profesional pero accesible. Lenguaje pedagógico argentino. Que sirva como insumo real para planificar.';
-
-  try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})
-    });
-    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
-    var data=await res.json();
-    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
-
-    // Descargar
-    var fecha=new Date().toLocaleDateString('es-AR');
-    var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Áulico Grupal</title>'
-      +'<style>body{font-family:Arial,sans-serif;max-width:760px;margin:30px auto;padding:0 28px;font-size:13px;line-height:1.75;color:#222;}'
-      +'h1{color:#2D5F4F;font-size:18px;border-bottom:2px solid #2D5F4F;padding-bottom:8px;}'
-      +'h2{color:#2D5F4F;font-size:15px;margin-top:20px;}'
-      +'h3{color:#3A7A65;font-size:13px;}'
-      +'.header{text-align:center;margin-bottom:20px;}'
-      +'.escuela{font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;}'
-      +'@media print{body{margin:15mm 20mm;}}</style></head><body>'
-      +'<div class="header"><div class="escuela">Escuela La Concepción · Tigre · Provincia de Buenos Aires</div>'
-      +'<h1>Perfil Áulico Grupal</h1>'
-      +'<div style="font-size:11px;color:#888;">'+(window.__teacherGrade||'6to Año')+' · 2026 · '+fecha+'</div></div>'
-      +markdownToHtml(texto)
-      +'</body></html>';
-
-    var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
-    var a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download='Perfil_Aulico_Grupal_2026.html';
-    a.click();
-
-    msg.style.color='var(--verde)';msg.textContent='✅ Perfil áulico generado y descargado';
-    cerrarFormPerfilAulico();
-
-    // Guardar como observación grupal
-    if(window.__sb){
-      var user=(await window.__sb.auth.getUser()).data.user;
-      if(user){
-        var resumen='[Perfil Áulico '+fecha+'] Ritmo: '+(ritmo||'—')+'. Canal: '+(canal||'—')+'. Clima: '+(clima||'—')+'. Fortalezas: '+(fortalezas.join(', ')||'—')+'. Desafíos: '+(desafios.join(', ')||'—')+'.';
-        await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});
       }
     }
   }catch(e){
