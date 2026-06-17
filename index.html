@@ -2155,9 +2155,15 @@ async function generarPerfilAcademico(){
       try{
         var userP=(await window.__sb.auth.getUser()).data.user;
         if(userP){
-          await window.__sb.from('perfiles_generados').insert({
+          var {error:errP}=await window.__sb.from('perfiles_generados').insert({
             teacher_id:userP.id,student_id:_perfilStudentId,tipo:'academico',contenido:htmlTexto
           });
+          if(errP){
+            var aviso2=document.createElement('div');
+            aviso2.style.cssText='background:#FDE8E8;border-radius:8px;padding:8px 12px;font-size:11px;color:#C0392B;margin-top:8px;';
+            aviso2.textContent='⚠️ No se pudo guardar en la base: '+errP.message+'. Descargá el PDF para no perderlo.';
+            resultDiv.appendChild(aviso2);
+          }
         }
       }catch(e3){console.log('No se pudo guardar el perfil en Supabase:',e3);}
     }
@@ -4858,7 +4864,16 @@ async function caGenerarPerfil(){
       try{
         var userCA=(await window.__sb.auth.getUser()).data.user;
         if(userCA){
-          await window.__sb.from('perfiles_generados').insert({teacher_id:userCA.id,student_id:null,tipo:'aulico_grupal',contenido:htmlTexto});
+          var {error:errCA}=await window.__sb.from('perfiles_generados').insert({teacher_id:userCA.id,student_id:null,tipo:'aulico_grupal',contenido:htmlTexto});
+          if(errCA){
+            var avisoEl=document.getElementById('perfil-aulico-ia');
+            if(avisoEl){
+              var aviso=document.createElement('div');
+              aviso.style.cssText='background:#FDE8E8;border-radius:8px;padding:8px 12px;font-size:11px;color:#C0392B;margin-top:8px;';
+              aviso.textContent='⚠️ No se pudo guardar en la base: '+errCA.message+'. Descargá el PDF para no perderlo.';
+              avisoEl.appendChild(aviso);
+            }
+          }
         }
       }catch(e3){console.log('No se pudo guardar el perfil áulico en Supabase:',e3);}
     }
