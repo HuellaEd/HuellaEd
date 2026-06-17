@@ -1803,7 +1803,12 @@ async function cargarObservacionesGrupales(){
     .eq('teacher_id',user.id)
     .is('student_id',null)
     .order('created_at',{ascending:false})
-    .limit(20);
+    .limit(30);
+  // Filtrar observaciones vacías/basura de pruebas anteriores (ej: "Ritmo: . Canal: .")
+  if(data) data=data.filter(function(n){
+    var limpio=n.content.replace(/\[.*?\]/g,'').replace(/Ritmo:|Canal:|Dinámica:|Autonomía:|Clima:|\.|\s/g,'');
+    return limpio.length>0;
+  });
   if(!data||!data.length){
     lista.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin observaciones grupales</div>';
     return;
@@ -4847,11 +4852,28 @@ async function caGenerarPerfil(){
   var dims=['ritmo','canal','dinamica','autonomia','clima'];
   var lineas=[];
   dims.forEach(function(d){if(_ca[d]&&_caTxt[d]&&_caTxt[d][_ca[d]])lineas.push('- '+_caTxt[d][_ca[d]]);});
-  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: Nicolás Radaelli. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
+  // Incluir observaciones grupales reales guardadas previamente (filtrando basura vacía)
+  var obsHistoricasTexto='';
+  if(window.__sb){
+    try{
+      var userObs=(await window.__sb.auth.getUser()).data.user;
+      if(userObs){
+        var {data:obsData}=await window.__sb.from('notas_rapidas').select('content,created_at').eq('teacher_id',userObs.id).is('student_id',null).order('created_at',{ascending:false}).limit(10);
+        if(obsData&&obsData.length){
+          var obsValidas=obsData.filter(function(n){
+            var limpio=n.content.replace(/\[.*?\]/g,'').replace(/Ritmo:|Canal:|Dinámica:|Autonomía:|Clima:|\.|\s/g,'');
+            return limpio.length>0;
+          }).slice(0,5);
+          if(obsValidas.length) obsHistoricasTexto=obsValidas.map(function(n){return '- '+n.content.replace('[GRUPO] ','');}).join('\n');
+        }
+      }
+    }catch(e4){}
+  }
+  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: Nicolás Radaelli. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3500,messages:[{role:'user',content:prompt}]})
     });
     if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
     var data=await res.json();
