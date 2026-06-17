@@ -5165,7 +5165,7 @@ async function guardarCuestionarioAulico(){
           +'Clima: '+(climaLabels[data.clima]||'—')+'\n'
           +'Vínculo con el conocimiento: '+(vinculoLabels[data.vinculo]||'—')
           +(data.obs_libre?'\nObservación docente: '+data.obs_libre:'');
-        await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});
+        try{await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});}catch(e2){console.log('guardado local');}
       }
     }catch(e){console.error(e);}
   }
@@ -5483,7 +5483,7 @@ async function guardarCuestionarioAulico(){
           +'Ritmo: '+datos.ritmo+'. Canal: '+datos.canal+'. Dinámica: '+datos.dinamica
           +'. Autonomía: '+datos.autonomia+'. Clima: '+datos.clima+'.'
           +(datos.obs_general?' '+datos.obs_general:'');
-        await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});
+        try{await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:resumen});}catch(e2){console.log('guardado local');}
       }
     }catch(e){}
   }
