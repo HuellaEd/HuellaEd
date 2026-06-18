@@ -2173,6 +2173,38 @@ async function abrirPerfilAcademico(studentId){
   cargarUltimoPerfilAcademico(studentId);
 }
 
+async function verTrazabilidadPAF(){
+  if(!window.__sb||!_perfilStudentId)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {data,error}=await window.__sb.from('perfiles_generados')
+    .select('contenido,created_at')
+    .eq('teacher_id',user.id)
+    .eq('student_id',_perfilStudentId)
+    .eq('tipo','academico_traza')
+    .order('created_at',{ascending:false})
+    .limit(1);
+  if(error||!data||!data.length){
+    alert('No hay trazabilidad guardada para este alumno todavía.\nGenerá el Perfil Académico Funcional primero.');
+    return;
+  }
+  var traza=data[0].contenido;
+  var fecha=new Date(data[0].created_at).toLocaleString('es-AR');
+  // Mostrar en un modal simple reutilizando el estilo ya existente en la app
+  var modal=document.createElement('div');
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;';
+  modal.innerHTML='<div style="background:white;border-radius:14px;padding:20px;max-width:680px;width:100%;margin:auto;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+    +'<strong style="font-size:14px;color:var(--verde);">🔍 Trazabilidad del PAF</strong>'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>'
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--gris);margin-bottom:12px;">Última generación: '+fecha+'</div>'
+    +'<pre style="font-family:monospace;font-size:11px;white-space:pre-wrap;word-break:break-word;background:#F5F3EF;border-radius:9px;padding:14px;line-height:1.6;max-height:65vh;overflow-y:auto;">'+traza.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
+    +'</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+}
+
 async function cargarUltimoPerfilAcademico(studentId){
   if(!window.__sb)return;
   try{
@@ -2358,6 +2390,7 @@ async function generarPerfilAcademico(){
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;">'
       +'<button onclick="imprimirPerfilAcademicoDoc(\''+nombre.replace(/'/g,"\'")+'\',\''+iniciales+'\',\''+promReal+'\',\''+pctAsistReal+'\',\''+alertasReal+'\')" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
       +'<button onclick="abrirModalInforme()" class="sec-btn" style="font-size:12px;">📄 Generar informe</button>'
+      +'<button onclick="verTrazabilidadPAF()" class="sec-btn" style="font-size:12px;background:#F7EDDB;color:#8a5a3a;border-color:#C8973A;">🔍 Ver trazabilidad</button>'
       +'</div></div>';
     body.appendChild(resultDiv);
     resultDiv.scrollIntoView({behavior:'smooth'});
@@ -2369,6 +2402,53 @@ async function generarPerfilAcademico(){
           var {error:errP}=await window.__sb.from('perfiles_generados').insert({
             teacher_id:userP.id,student_id:_perfilStudentId,tipo:'academico',contenido:htmlTexto
           });
+          // Guardar también la trazabilidad: qué fuentes se usaron y qué aportó cada una
+          if(!errP){
+            var fechaGen=new Date().toLocaleString('es-AR');
+            var trazaLineas=[
+              '═══════════════════════════════════════',
+              'TRAZABILIDAD DEL PERFIL ACADÉMICO FUNCIONAL',
+              'Alumno: '+nombre,
+              'Generado: '+fechaGen,
+              '═══════════════════════════════════════',
+              '',
+              '1. NOTAS DEL TRIMESTRE '+gradesPeriodo+'° ─────────────',
+              notasReales.length>0
+                ?'✅ Con datos ('+notasReales.length+' áreas):\n'+notasTexto
+                :'❌ Sin notas cargadas en el sistema.',
+              '',
+              '2. ASISTENCIA ─────────────────────────────',
+              pctAsistNumero!==null
+                ?'✅ Con datos:\n'+pctAsistTexto
+                :'❌ Sin registros de asistencia cargados.',
+              '',
+              '3. FICHA DE CONOCIMIENTO ──────────────────',
+              fichaTexto
+                ?'✅ Con datos:\n'+fichaTexto
+                :'❌ Sin ficha de conocimiento cargada.',
+              '',
+              '4. PERFIL DIFERENCIAL ─────────────────────',
+              perfilDif
+                ?'✅ Con datos:\n'+perfilDif
+                :'❌ Sin perfil diferencial cargado.',
+              '',
+              '5. OBSERVACIONES DEL DOCENTE ──────────────',
+              '(incluye notas sueltas, reuniones familiares,\ndocumentos adjuntos con análisis, y transcripciones de lecturas grabadas)',
+              obsTexto&&obsTexto.indexOf('sin observaciones')===-1
+                ?'✅ Con datos:\n'+obsTexto
+                :'❌ Sin observaciones cargadas.',
+              '',
+              '═══════════════════════════════════════',
+              'NOTA: Evidencia (fotos del menú Registrar) se analiza',
+              'automáticamente al guardar y queda incluida en las',
+              'observaciones de arriba si fue cargada.',
+              '═══════════════════════════════════════'
+            ];
+            var trazaTexto=trazaLineas.join('\n');
+            await window.__sb.from('perfiles_generados').insert({
+              teacher_id:userP.id,student_id:_perfilStudentId,tipo:'academico_traza',contenido:trazaTexto
+            });
+          }
           if(errP){
             var aviso2=document.createElement('div');
             aviso2.style.cssText='background:#FDE8E8;border-radius:8px;padding:8px 12px;font-size:11px;color:#C0392B;margin-top:8px;';
