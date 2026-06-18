@@ -5874,22 +5874,53 @@ function renderGridMapas(){
   grid.innerHTML=html;
 }
 
-async function obtenerGeoJsonProvincia(id){
-  var url='https://apis.datos.gob.ar/georef/api/provincias?id='+id+'&campos=geometria,nombre,id&formato=json';
+async function _fetchProvinciaPorParametro(param,valor){
+  var url='https://apis.datos.gob.ar/georef/api/provincias?'+param+'='+encodeURIComponent(valor)+'&campos=geometria,nombre,id&formato=json&max=1';
   var res=await fetch(url);
-  if(!res.ok)throw new Error('No se pudo obtener el mapa de esta provincia');
+  if(!res.ok)throw new Error('Error '+res.status+' ('+res.statusText+') con '+param+'='+valor);
   var data=await res.json();
   var prov=data.provincias&&data.provincias[0];
-  if(!prov||!prov.geometria)throw new Error('Mapa no disponible para esta provincia');
+  if(!prov||!prov.geometria)throw new Error('Sin geometría en la respuesta para '+param+'='+valor);
+  return prov;
+}
+
+async function obtenerGeoJsonProvincia(id,nombre){
+  var prov=null,ultimoError=null;
+  // Intento 1: por id. Intento 2 (si falla): por nombre. Da más chances de éxito ante cambios de la API.
+  try{
+    prov=await _fetchProvinciaPorParametro('id',id);
+  }catch(e1){
+    ultimoError=e1;
+    if(nombre){
+      try{
+        prov=await _fetchProvinciaPorParametro('nombre',nombre);
+      }catch(e2){
+        ultimoError=e2;
+      }
+    }
+  }
+  if(!prov){
+    throw new Error('No se pudo obtener el mapa de esta provincia tras 2 intentos. Último error: '+(ultimoError?ultimoError.message:'desconocido'));
+  }
   return {type:'Feature',properties:{nombre:prov.nombre},geometry:prov.geometria};
 }
 
 async function obtenerGeoJsonArgentinaCompleta(){
   if(_geojsonArgentinaCache)return _geojsonArgentinaCache;
   var url='https://apis.datos.gob.ar/georef/api/provincias.geojson';
-  var res=await fetch(url);
-  if(!res.ok)throw new Error('No se pudo obtener el mapa de Argentina');
-  var data=await res.json();
+  var res;
+  try{
+    res=await fetch(url);
+  }catch(e){
+    throw new Error('No se pudo conectar con el servicio de mapas. Detalle: '+e.message);
+  }
+  if(!res.ok)throw new Error('El servicio de mapas respondió con error '+res.status+' ('+res.statusText+').');
+  var data;
+  try{
+    data=await res.json();
+  }catch(e){
+    throw new Error('La respuesta no es JSON válido. Puede que la URL del servicio haya cambiado.');
+  }
   _geojsonArgentinaCache=data;
   return data;
 }
@@ -5914,10 +5945,16 @@ async function elegirMapaCatalogo(tipo,id,nombre){
   try{
     var geojson=null,resaltarId=null;
     if(tipo==='provincia'){
-      var featureProv=await obtenerGeoJsonProvincia(id);
+      var featureProv=await obtenerGeoJsonProvincia(id,nombre);
       geojson={type:'FeatureCollection',features:[featureProv]};
-      // También traemos Argentina completa para dar contexto (la provincia resaltada sobre el país)
-      var argentinaCompleta=await obtenerGeoJsonArgentinaCompleta();
+      // También intentamos traer Argentina completa para dar contexto, PERO es opcional:
+      // si esto falla (archivo pesado, timeout), mostramos la provincia sola en vez de fallar todo.
+      var argentinaCompleta=null;
+      try{
+        argentinaCompleta=await obtenerGeoJsonArgentinaCompleta();
+      }catch(eContexto){
+        console.log('No se pudo cargar el contexto de Argentina completa, se muestra solo la provincia:',eContexto.message);
+      }
       _mapaSeleccionActual={tipo:tipo,id:id,nombre:nombre,geojsonResaltado:geojson,geojsonContexto:argentinaCompleta};
     }else if(tipo==='argentina'){
       geojson=await obtenerGeoJsonArgentinaCompleta();
