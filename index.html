@@ -587,11 +587,11 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <!-- Modo sesión de lectura -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:var(--verde-bg);border-radius:9px;padding:10px 12px;cursor:pointer;" onclick="toggleSesionLectura()">
       <input type="checkbox" id="grab-sesion-modo" style="width:17px;height:17px;accent-color:var(--verde);flex-shrink:0;pointer-events:none;">
-      <div><div style="font-size:13px;font-weight:600;color:var(--verde);">📖 Sesión de lectura grupal</div><div style="font-size:11px;color:var(--gris);">Cargá el texto una vez — grabás alumno por alumno</div></div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--verde);">📖 Sesión de lectura grupal</div><div style="font-size:11px;color:var(--gris);">Elegí rápido entre todos los alumnos, sin volver a seleccionar cada vez</div></div>
     </div>
 
-    <!-- Texto a leer (solo en modo sesión) -->
-    <div id="grab-texto-container" style="display:none;">
+    <!-- Texto a leer (siempre visible, en ambos modos) -->
+    <div id="grab-texto-container" style="display:block;">
       <div class="form-row">
         <label>Título del texto</label>
         <input type="text" id="grab-titulo-texto" placeholder="Ej: El camino de Miguitas — capítulo 3">
@@ -3741,10 +3741,11 @@ function toggleTextoManual(){
   btn.style.borderColor=visible?'var(--gris-claro)':'var(--verde)';
 }
 
+var grabSesionActivo=false;
 function toggleSesionLectura(){
   grabSesionActivo=!grabSesionActivo;
   document.getElementById('grab-sesion-modo').checked=grabSesionActivo;
-  document.getElementById('grab-texto-container').style.display=grabSesionActivo?'block':'none';
+  // El texto/foto a leer ya NO depende de este toggle: siempre queda visible, en ambos modos.
   document.getElementById('grab-sesion-panel').style.display=grabSesionActivo?'block':'none';
   document.getElementById('grab-campo-alumno').style.display=grabSesionActivo?'none':'block';
   document.getElementById('grab-siguiente-btn').style.display=grabSesionActivo?'block':'none';
@@ -3813,7 +3814,14 @@ function siguienteAlumnoLectura(){
 
 var mr=null,ac=[],grab=false,ti=null,seg=0,ab=null;
 function abrirGrabador(){document.getElementById('modal-grabador').style.display='block';document.getElementById('grab-resultado').style.display='none';document.getElementById('grab-timer').style.display='none';document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-status').textContent='Seleccioná el alumno y tocá Grabar';seg=0;}
-function cerrarGrabador(){if(grab)toggleGrabacion();document.getElementById('modal-grabador').style.display='none';}
+function cerrarGrabador(){
+  if(grab)toggleGrabacion();
+  document.getElementById('modal-grabador').style.display='none';
+  // Resetear el modo sesión al cerrar, para que no quede desincronizado la próxima vez que se abra
+  grabSesionActivo=false;
+  document.getElementById('grab-sesion-modo').checked=false;
+  document.getElementById('grab-sesion-panel').style.display='none';
+}
 function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];var mimeTypeG=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';mr=new MediaRecorder(st,mimeTypeG?{mimeType:mimeTypeG}:{});mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
 function descargarAudio(){
   var al=document.getElementById('grab-alumno').value;
