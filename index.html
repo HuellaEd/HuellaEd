@@ -406,7 +406,7 @@
     <span class="card-arr">›</span>
   </button>
   <div class="grupo-panel" id="panel-generar">
-    <div class="subcard" onclick="abrirGenerador()"><span class="subcard-icon">✨</span><span class="subcard-label">Material</span><span class="subcard-sub">Cuadernillos, fichas</span></div>
+    <div class="subcard boton-generador" onclick="abrirGenerador()"><span class="subcard-icon">✨</span><span class="subcard-label">Material</span><span class="subcard-sub">Cuadernillos, fichas</span></div>
     <div class="subcard" onclick="togglePrompts()"><span class="subcard-icon">🧩</span><span class="subcard-label">Prompts</span><span class="subcard-sub">Secuencias didácticas</span></div>
     <div class="subcard" onclick="abrirGeneradorBoletin()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Generar informes de boletín</span><span class="subcard-sub">Usando evidencias y observaciones del período</span></div>
   </div>
@@ -1612,10 +1612,12 @@ async function initTeacher(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key').eq('id',user.id).maybeSingle();
+  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar').eq('id',user.id).maybeSingle();
   if(!data)return;
   window.__teacherGrade=data.grade||'';
   window.__teacherName=data.full_name||'';
+  // puede_generar default true si la columna todavía no existiera o viniera null (no afecta a nadie por accidente)
+  window.__puedeGenerar=(data.puede_generar!==false);
   var hdr=document.getElementById('header-docente');
   if(hdr)hdr.textContent=(data.full_name||'')+(data.grade?' · '+data.grade:'');
   var banner=document.getElementById('banner-grado');
@@ -1624,6 +1626,14 @@ async function initTeacher(){
   if(data.anthropic_key){localStorage.setItem('huellaed_anthropic_key',data.anthropic_key);}
   if(data.gemini_key){localStorage.setItem('huellaed_gemini_key',data.gemini_key);}
   actualizarEstadoApiKeys();
+  aplicarVisibilidadGenerador();
+}
+
+function aplicarVisibilidadGenerador(){
+  var oculto=(window.__puedeGenerar===false);
+  document.querySelectorAll('.boton-generador').forEach(function(el){
+    el.style.display=oculto?'none':'';
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); var btn=document.getElementById('btn-config-script'); if(btn && APPS_SCRIPT_URL) btn.textContent='✅ Script activo'; actualizarEstadoApiKeys(); });
