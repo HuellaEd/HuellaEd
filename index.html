@@ -1921,24 +1921,18 @@ async function cargarObservacionesGrupales(){
   if(!lista||!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('notas_rapidas')
+  var {data}=await window.__sb.from('observaciones_grupales')
     .select('id,content,created_at')
     .eq('teacher_id',user.id)
-    .is('student_id',null)
     .order('created_at',{ascending:false})
     .limit(30);
-  // Filtrar observaciones vacías/basura de pruebas anteriores (ej: "Ritmo: . Canal: .")
-  if(data) data=data.filter(function(n){
-    var limpio=n.content.replace(/\[.*?\]/g,'').replace(/Ritmo:|Canal:|Dinámica:|Autonomía:|Clima:|\.|\s/g,'');
-    return limpio.length>0;
-  });
   if(!data||!data.length){
     lista.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin observaciones grupales</div>';
     return;
   }
   lista.innerHTML=data.map(function(n){
     var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
-    var txt=n.content.replace('[GRUPO] ','');
+    var txt=n.content;
     var html='<div id="grp-card-'+n.id+'" style="background:var(--crema);border-radius:9px;padding:8px 12px;margin-bottom:6px;border:1.5px solid var(--gris-claro);">';
     html+='<div style="display:flex;gap:8px;align-items:flex-start;">';
     html+='<div style="flex:1;">';
@@ -1976,7 +1970,7 @@ async function guardarEdicionGrupal(id){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {error}=await window.__sb.from('notas_rapidas').update({content:'[GRUPO] '+txt}).eq('id',id).eq('teacher_id',user.id);
+  var {error}=await window.__sb.from('observaciones_grupales').update({content:txt}).eq('id',id).eq('teacher_id',user.id);
   if(!error){
     document.getElementById('grp-txt-'+id).textContent=txt;
     cancelarEdicionGrupal(id);
@@ -1989,12 +1983,12 @@ async function guardarObservacionGrupal(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {error}=await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,student_id:null,content:'[GRUPO] '+txt});
+  var {error}=await window.__sb.from('observaciones_grupales').insert({teacher_id:user.id,content:txt});
   if(!error){
     ta.value='';
     cargarObservacionesGrupales();
   }else{
-    alert('No se pudo guardar la observación: '+error.message+'\n\nEjecutá el SQL de fix-persistencia en Supabase si no lo hiciste todavía.');
+    alert('No se pudo guardar la observación: '+error.message+'\n\nEjecutá el SQL de observaciones-grupales en Supabase si no lo hiciste todavía.');
   }
 }
 
@@ -2002,7 +1996,7 @@ async function borrarObsGrupal(btn,id){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('teacher_id',user.id);
+  await window.__sb.from('observaciones_grupales').delete().eq('id',id).eq('teacher_id',user.id);
   cargarObservacionesGrupales();
 }
 
@@ -4339,8 +4333,8 @@ async function guardarObservacionModal(){
     if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
     else{msg.style.color='var(--verde)';msg.textContent='✅ Observación guardada en el perfil';document.getElementById('obs-texto-modal').value='';setTimeout(function(){cerrarObservacion();},1500);}
   } else {
-    // Grupo — guardar sin student_id
-    var {error}=await window.__sb.from('notas_rapidas').insert({teacher_id:user.id,content:'[GRUPO] '+texto});
+    // Grupo — tabla separada observaciones_grupales
+    var {error}=await window.__sb.from('observaciones_grupales').insert({teacher_id:user.id,content:texto});
     if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;}
     else{msg.style.color='var(--verde)';msg.textContent='✅ Observación grupal guardada';document.getElementById('obs-texto-modal').value='';setTimeout(function(){cerrarObservacion();},1500);}
   }
@@ -4938,13 +4932,10 @@ async function caGenerarPerfil(){
     try{
       var userObs=(await window.__sb.auth.getUser()).data.user;
       if(userObs){
-        var {data:obsData}=await window.__sb.from('notas_rapidas').select('content,created_at').eq('teacher_id',userObs.id).is('student_id',null).order('created_at',{ascending:false}).limit(10);
+        var {data:obsData}=await window.__sb.from('observaciones_grupales').select('content,created_at').eq('teacher_id',userObs.id).order('created_at',{ascending:false}).limit(10);
         if(obsData&&obsData.length){
-          var obsValidas=obsData.filter(function(n){
-            var limpio=n.content.replace(/\[.*?\]/g,'').replace(/Ritmo:|Canal:|Dinámica:|Autonomía:|Clima:|\.|\s/g,'');
-            return limpio.length>0;
-          }).slice(0,5);
-          if(obsValidas.length) obsHistoricasTexto=obsValidas.map(function(n){return '- '+n.content.replace('[GRUPO] ','');}).join('\n');
+          var obsValidas=obsData.slice(0,5);
+          if(obsValidas.length) obsHistoricasTexto=obsValidas.map(function(n){return '- '+n.content;}).join('\n');
         }
       }
     }catch(e4){}
