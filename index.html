@@ -2309,15 +2309,18 @@ async function generarPerfilAcademico(){
       if(userFicha){
         try{
           var {data:dataFicha,error:errFicha}=await window.__sb.from('differential_profiles')
-            .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas')
+            .select('primera_impresion,como_aprende,comprension_consignas,autonomia,matematica,lectura_escritura,emocional,funciona_no,algo_mas')
             .eq('student_id',_perfilStudentId)
             .maybeSingle();
           if(!errFicha&&dataFicha){
             var camposFicha=[];
             if(dataFicha.primera_impresion)camposFicha.push('Primera impresión: '+dataFicha.primera_impresion);
             if(dataFicha.como_aprende)camposFicha.push('Cómo aprende: '+dataFicha.como_aprende);
+            if(dataFicha.comprension_consignas)camposFicha.push('Comprensión de consignas: '+dataFicha.comprension_consignas);
+            if(dataFicha.autonomia)camposFicha.push('Autonomía y organización: '+dataFicha.autonomia);
             if(dataFicha.matematica)camposFicha.push('Matemática: '+dataFicha.matematica);
             if(dataFicha.lectura_escritura)camposFicha.push('Lectura y escritura: '+dataFicha.lectura_escritura);
+            if(dataFicha.emocional)camposFicha.push('Cuando algo le cuesta (emocional): '+dataFicha.emocional);
             if(dataFicha.funciona_no)camposFicha.push('Qué funciona / qué no: '+dataFicha.funciona_no);
             if(dataFicha.algo_mas)camposFicha.push('Otras observaciones: '+dataFicha.algo_mas);
             if(camposFicha.length>0){
@@ -3065,7 +3068,7 @@ async function cargarFicha(){
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
   var {data,error}=await window.__sb.from('differential_profiles')
-    .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas,updated_at')
+    .select('primera_impresion,como_aprende,comprension_consignas,autonomia,matematica,lectura_escritura,emocional,funciona_no,algo_mas,updated_at')
     .eq('student_id',s.id)
     .maybeSingle();
   if(error){
@@ -3077,7 +3080,10 @@ async function cargarFicha(){
   var set=function(id,val){var el=document.getElementById(id);if(el)el.value=val||'';};
   set('f1-nota1',data.primera_impresion);
   set('f2-trabajo',data.como_aprende);
+  set('f3b-consignas',data.comprension_consignas);
+  set('f4b-autonomia',data.autonomia);
   set('f4-lengua',data.lectura_escritura);
+  set('f7-calma',data.emocional);
   set('f6-libre',data.algo_mas);
   if(data.matematica){var mp=data.matematica.split('|||');set('f3-bien',mp[0]);set('f3-traba',mp[1]||'');set('f3-funciona',mp[2]||'');}
   if(data.funciona_no){var fp=data.funciona_no.split('|||');set('f5-funciona',fp[0]);set('f5-evitar',fp[1]||'');set('f5-apoyo',fp[2]||'');}
@@ -3099,8 +3105,11 @@ async function guardarFicha(){
     teacher_id:user.id,
     primera_impresion:get('f1-nota1'),
     como_aprende:get('f2-trabajo'),
+    comprension_consignas:get('f3b-consignas'),
+    autonomia:get('f4b-autonomia'),
     matematica:get('f3-bien')+'|||'+get('f3-traba')+'|||'+get('f3-funciona'),
     lectura_escritura:get('f4-lengua'),
+    emocional:get('f7-calma'),
     funciona_no:get('f5-funciona')+'|||'+get('f5-evitar')+'|||'+get('f5-apoyo'),
     algo_mas:get('f6-libre'),
     updated_at:new Date().toISOString()
@@ -3124,10 +3133,13 @@ function generarPromptFicha(){
   var campos={
     'f1-nota1':'Primera impresión',
     'f2-trabajo':'Cómo trabaja',
+    'f3b-consignas':'Comprensión de consignas',
+    'f4b-autonomia':'Autonomía y organización',
     'f3-bien':'Matemática — fortalezas',
     'f3-traba':'Matemática — dificultades',
     'f3-funciona':'Matemática — qué le funciona',
     'f4-lengua':'Lengua — observaciones',
+    'f7-calma':'Cuando algo le cuesta — qué lo ayuda',
     'f5-funciona':'Lo que le funciona',
     'f5-evitar':'Lo que hay que evitar',
     'f5-apoyo':'Apoyos necesarios',
@@ -6645,9 +6657,69 @@ function quitarPictograma(boxId,oi){
         <textarea class="ficha-txt" id="f2-trabajo" placeholder="Descripción libre..."></textarea>
       </div>
 
-      <!-- PARTE 3 -->
+      <!-- PARTE 3 (nueva) -->
       <div class="ficha-seccion">
-        <div class="ficha-titulo">3 · Matemática</div>
+        <div class="ficha-titulo">3 · Comprensión de consignas</div>
+
+        <div class="ficha-preg">¿Entiende mejor las consignas orales o escritas?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Oral mejor</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Escrita mejor</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Igual ambas</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Le cuesta cualquiera</div>
+        </div>
+
+        <div class="ficha-preg">¿Necesita que se la repitan o reformulen?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">No, a la primera</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">A veces</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Siempre necesita repetición</div>
+        </div>
+
+        <div class="ficha-preg">¿Puede seguir consignas de varios pasos?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Sí, sin problema</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se pierde a partir del 2do paso</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Solo un paso a la vez</div>
+        </div>
+
+        <div class="ficha-preg">Algo más sobre cómo entiende las consignas:</div>
+        <textarea class="ficha-txt" id="f3b-consignas" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+
+      <!-- PARTE 4 (nueva) -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">4 · Autonomía y organización</div>
+
+        <div class="ficha-preg">¿Cómo maneja sus materiales y pertenencias?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Muy prolijo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Pierde cosas seguido</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Rompe/maltrata útiles</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Necesita ayuda para organizarse</div>
+        </div>
+
+        <div class="ficha-preg">¿Puede empezar una tarea solo, sin que lo guíen paso a paso?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Sí, autónomo</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Necesita el primer empujón</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Necesita acompañamiento constante</div>
+        </div>
+
+        <div class="ficha-preg">¿Termina lo que empieza?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Sí, casi siempre</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Si le interesa, sí</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Le cuesta sostener hasta el final</div>
+        </div>
+
+        <div class="ficha-preg">Algo más sobre su autonomía:</div>
+        <textarea class="ficha-txt" id="f4b-autonomia" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+
+      <!-- PARTE 5 (antes era PARTE 3) -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">5 · Matemática</div>
 
         <div class="ficha-preg">¿Qué sabe hacer bien?</div>
         <textarea class="ficha-txt" id="f3-bien" placeholder="Lo que domina o se destaca..."></textarea>
@@ -6659,9 +6731,9 @@ function quitarPictograma(boxId,oi){
         <textarea class="ficha-txt" id="f3-funciona" placeholder="Estrategias que le ayudan..."></textarea>
       </div>
 
-      <!-- PARTE 4 -->
+      <!-- PARTE 6 (antes era PARTE 4) -->
       <div class="ficha-seccion">
-        <div class="ficha-titulo">4 · Lectura y escritura</div>
+        <div class="ficha-titulo">6 · Lectura y escritura</div>
 
         <div class="ficha-preg">Lectura</div>
         <div class="ficha-opciones">
@@ -6691,9 +6763,34 @@ function quitarPictograma(boxId,oi){
         <textarea class="ficha-txt" id="f4-lengua" placeholder="Observaciones adicionales..."></textarea>
       </div>
 
-      <!-- PARTE 5 -->
+      <!-- PARTE 7 (nueva) -->
       <div class="ficha-seccion">
-        <div class="ficha-titulo">5 · Lo que funciona y lo que no</div>
+        <div class="ficha-titulo">7 · Cuando algo le cuesta (emocional)</div>
+
+        <div class="ficha-preg">¿Qué hace cuando se frustra?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Lo verbaliza y sigue</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se bloquea</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se enoja/reacciona fuerte</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se aísla</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Pide ayuda</div>
+        </div>
+
+        <div class="ficha-preg">¿Cómo reacciona ante el error o la corrección?</div>
+        <div class="ficha-opciones">
+          <div class="ficha-chip" onclick="toggleChip(this)">Lo toma bien</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se pone a la defensiva</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Se angustia</div>
+          <div class="ficha-chip" onclick="toggleChip(this)">Evita mostrar su trabajo</div>
+        </div>
+
+        <div class="ficha-preg">¿Qué lo ayuda a calmarse o reencauzarse?</div>
+        <textarea class="ficha-txt" id="f7-calma" placeholder="Lo que sabés que funciona en esos momentos..."></textarea>
+      </div>
+
+      <!-- PARTE 8 (antes era PARTE 5) -->
+      <div class="ficha-seccion">
+        <div class="ficha-titulo">8 · Lo que funciona y lo que no</div>
 
         <div class="ficha-preg">Una cosa que le funciona muy bien con este chico:</div>
         <textarea class="ficha-txt" id="f5-funciona" placeholder="La estrategia o situación que mejor le sale..."></textarea>
@@ -6705,9 +6802,9 @@ function quitarPictograma(boxId,oi){
         <textarea class="ficha-txt" id="f5-apoyo" placeholder="Adecuaciones, adaptaciones, soportes que usaste..."></textarea>
       </div>
 
-      <!-- PARTE 6 -->
+      <!-- PARTE 9 (antes era PARTE 6) -->
       <div class="ficha-seccion">
-        <div class="ficha-titulo">6 · Algo más</div>
+        <div class="ficha-titulo">9 · Algo más</div>
         <div class="ficha-preg">Lo que sentís que el próximo docente necesita saber:</div>
         <textarea class="ficha-txt" id="f6-libre" placeholder="Todo lo que no entra en ninguna casilla..." style="height:80px;"></textarea>
       </div>
