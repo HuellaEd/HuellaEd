@@ -2235,10 +2235,13 @@ async function generarPerfilAcademico(){
   }
 
   // Observaciones visibles en pantalla (cargadas desde Supabase)
+  // NOTA: estas observaciones ya incluyen, automáticamente, varias fuentes que se copian
+  // a notas_rapidas en el momento de cargarse: reunión familiar (acta), documentos adjuntos
+  // (aviso + análisis de contenido si es PDF/imagen), y grabaciones de lectura (transcripción).
   var obsTexto='';
   var obsEls=document.querySelectorAll('#obs-lista > div');
   if(obsEls.length>0&&obsEls[0].textContent.indexOf('Sin observaciones')===-1){
-    obsTexto='OBSERVACIONES REGISTRADAS POR EL DOCENTE:\n';
+    obsTexto='OBSERVACIONES REGISTRADAS POR EL DOCENTE (incluye notas sueltas, reuniones familiares, documentos adjuntados con su análisis, y transcripciones de lecturas grabadas):\n';
     obsEls.forEach(function(el){
       var fecha=el.querySelector('div:first-child');
       var texto=el.querySelector('div:last-child');
@@ -2248,18 +2251,67 @@ async function generarPerfilAcademico(){
     obsTexto='Observaciones: sin observaciones cargadas en el sistema aún.\n';
   }
 
+  // Ficha de conocimiento (perfil inicial del alumno, tabla differential_profiles)
+  // Es una fuente distinta del "perfil diferencial" de arriba: estos son los campos del
+  // formulario inicial (primera impresión, cómo aprende, matemática, lectura/escritura, funciona/no, otros).
+  var fichaTexto='';
+  var pctAsistTexto='—';
+  var pctAsistNumero=null;
+  if(window.__sb){
+    var userFicha=(await window.__sb.auth.getUser()).data.user;
+    if(userFicha){
+      try{
+        var {data:dataFicha,error:errFicha}=await window.__sb.from('differential_profiles')
+          .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas')
+          .eq('student_id',_perfilStudentId)
+          .maybeSingle();
+        if(!errFicha&&dataFicha){
+          var camposFicha=[];
+          if(dataFicha.primera_impresion)camposFicha.push('Primera impresión: '+dataFicha.primera_impresion);
+          if(dataFicha.como_aprende)camposFicha.push('Cómo aprende: '+dataFicha.como_aprende);
+          if(dataFicha.matematica)camposFicha.push('Matemática: '+dataFicha.matematica);
+          if(dataFicha.lectura_escritura)camposFicha.push('Lectura y escritura: '+dataFicha.lectura_escritura);
+          if(dataFicha.funciona_no)camposFicha.push('Qué funciona / qué no: '+dataFicha.funciona_no);
+          if(dataFicha.algo_mas)camposFicha.push('Otras observaciones: '+dataFicha.algo_mas);
+          if(camposFicha.length>0){
+            fichaTexto='FICHA DE CONOCIMIENTO (perfil inicial cargado por el docente):\n'+camposFicha.join('\n')+'\n';
+          }
+        }
+      }catch(eFicha){console.log('No se pudo cargar ficha de conocimiento para el PAF:',eFicha);}
+
+      // Asistencia: porcentaje de presentes sobre el total de registros del alumno
+      try{
+        var {data:dataAsist,error:errAsist}=await window.__sb.from('attendance')
+          .select('status')
+          .eq('teacher_id',userFicha.id)
+          .eq('student_id',_perfilStudentId);
+        if(!errAsist&&dataAsist&&dataAsist.length>0){
+          var totalRegistros=dataAsist.length;
+          var totalPresentes=dataAsist.filter(function(r){return r.status==='presente';}).length;
+          pctAsistNumero=Math.round((totalPresentes/totalRegistros)*100);
+          pctAsistTexto=pctAsistNumero+'% ('+totalPresentes+' de '+totalRegistros+' días registrados)';
+        }
+      }catch(eAsist){console.log('No se pudo calcular asistencia para el PAF:',eAsist);}
+    }
+  }
+  var asistTextoPrompt='ASISTENCIA: '+(pctAsistNumero!==null?pctAsistTexto:'Sin registros de asistencia cargados en el sistema.')+'\n';
+
   var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026. Docente: Nicolás Radaelli.\n\n';
   prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, NO agregues datos que no estén aquí. Si hay campos vacíos o sin datos, indicalo explícitamente en el informe.\n\n';
   prompt+='DATOS REALES DEL ALUMNO EN EL SISTEMA:\n\n';
   prompt+='NOTAS 1er TRIMESTRE (aprobado: 7):\n'+notasTexto+'\n\n';
+  prompt+=asistTextoPrompt+'\n';
+  if(fichaTexto)prompt+=fichaTexto+'\n';
   if(perfilDif)prompt+=perfilDif+'\n';
   prompt+=obsTexto+'\n';
   prompt+='SECCIONES DEL PERFIL:\n';
   prompt+='1. Perfil académico basado en las notas registradas\n';
-  prompt+='2. Observaciones del docente (solo las registradas arriba)\n';
-  prompt+='3. Fortalezas identificadas (solo si hay datos que las sustenten)\n';
-  prompt+='4. Áreas a fortalecer (solo si hay datos que las sustenten)\n';
-  if(s.has_differential)prompt+='5. Consideraciones para la atención diferenciada (solo datos cargados)\n';
+  prompt+='2. Asistencia (solo el dato registrado arriba, sin inventar causas)\n';
+  if(fichaTexto)prompt+='3. Ficha de conocimiento (solo lo registrado arriba)\n';
+  prompt+=(fichaTexto?'4':'3')+'. Observaciones del docente (incluye notas sueltas, reuniones familiares, documentos adjuntados con su análisis, y transcripciones de lecturas grabadas, solo lo registrado arriba)\n';
+  prompt+=(fichaTexto?'5':'4')+'. Fortalezas identificadas (solo si hay datos que las sustenten)\n';
+  prompt+=(fichaTexto?'6':'5')+'. Áreas a fortalecer (solo si hay datos que las sustenten)\n';
+  if(s.has_differential)prompt+=(fichaTexto?'7':'6')+'. Consideraciones para la atención diferenciada (solo datos cargados)\n';
   prompt+='\nSi alguna sección no tiene datos suficientes, escribí: "Sin datos registrados para esta sección." Tono profesional, tercera persona, lenguaje escolar argentino.';
 
   var body=document.getElementById('perf-body');
@@ -2286,7 +2338,7 @@ async function generarPerfilAcademico(){
     var htmlTexto=markdownToHtml(texto);
     var iniciales=nombre.split(',').map(function(p){return p.trim().charAt(0);}).join('').toUpperCase().substring(0,2);
     var promReal=notasReales.length>0?(notasReales.reduce(function(a,k){return a+notas[k];},0)/notasReales.length).toFixed(1):'—';
-    var pctAsistReal='—';
+    var pctAsistReal=pctAsistNumero!==null?pctAsistNumero+'%':'—';
     var alertasReal=s.has_differential?'DEI':'0';
     var resultDiv=document.createElement('div');
     resultDiv.id='perfil-academico-doc';
@@ -2330,8 +2382,6 @@ async function generarPerfilAcademico(){
     loadDiv.innerHTML='<div style="color:#C0392B;font-size:12px;">Error: '+e.message+'</div>';
   }
 }
-
-
 function abrirModalInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
@@ -3839,6 +3889,74 @@ function descargarAudio(){
     document.getElementById('grab-siguiente-btn').style.display='block';
     renderSesionLectura();
   }
+  // Subir el audio a Supabase y transcribirlo, para que la lectura grabada quede
+  // disponible en el perfil del alumno y pueda usarse en el Perfil Académico Funcional.
+  subirYTranscribirAudioLectura(al,titulo,nombre);
+}
+
+async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBase){
+  if(!window.__sb||!nombreAlumno)return;
+  var st=(window.__students||[]).find(function(s){return s.full_name===nombreAlumno;});
+  if(!st)return;
+  var statusEl=document.getElementById('grab-status');
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    if(!user)return;
+    var path=user.id+'/'+st.id+'/lecturas/'+nombreArchivoBase+'.webm';
+    var {error:errUpload}=await window.__sb.storage.from('evidencias').upload(path,ab);
+    if(errUpload){
+      console.log('No se pudo guardar el audio en la base:',errUpload.message);
+      if(statusEl)statusEl.textContent='Audio descargado (no se pudo guardar en la base: '+errUpload.message+')';
+      return;
+    }
+    if(statusEl)statusEl.textContent='Audio guardado. Transcribiendo...';
+
+    // Transcripción con la API de Anthropic (Claude puede procesar audio en base64)
+    var apiKey=localStorage.getItem('huellaed_anthropic_key');
+    if(!apiKey){
+      if(statusEl)statusEl.textContent='Audio guardado (sin clave de API, no se transcribió automáticamente)';
+      return;
+    }
+    var audioBase64=await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){resolve(reader.result.split(',')[1]);};
+      reader.onerror=reject;
+      reader.readAsDataURL(ab);
+    });
+    var mediaType=ab.type||'audio/webm';
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:1500,
+        messages:[{role:'user',content:[
+          {type:'document',source:{type:'base64',media_type:mediaType,data:audioBase64}},
+          {type:'text',text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'}
+        ]}]
+      })
+    });
+    if(!res.ok){
+      var ed=await res.json().catch(function(){return {};});
+      throw new Error((ed.error&&ed.error.message)||'Error '+res.status);
+    }
+    var data=await res.json();
+    var transcripcion=(data.content&&data.content[0]&&data.content[0].text)||'';
+    if(transcripcion){
+      var textoObs='[Grabación de lectura'+(titulo?' · '+titulo:'')+' · '+new Date().toLocaleDateString('es-AR')+']\nTranscripción: '+transcripcion;
+      var {error:errObs}=await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObs});
+      if(errObs){
+        console.log('No se pudo guardar la transcripción como observación:',errObs.message);
+        if(statusEl)statusEl.textContent='Audio guardado y transcrito, pero no se pudo guardar la transcripción: '+errObs.message;
+      }else{
+        if(statusEl)statusEl.textContent='✅ Audio guardado y transcripto en el perfil';
+      }
+    }else{
+      if(statusEl)statusEl.textContent='Audio guardado (no se obtuvo transcripción)';
+    }
+  }catch(eTrans){
+    console.log('Error al transcribir el audio de lectura:',eTrans);
+    if(statusEl)statusEl.textContent='Audio guardado (no se pudo transcribir: '+eTrans.message+')';
+  }
 }
 
 // ── EVIDENCIA ──
@@ -3964,15 +4082,18 @@ function descargarEvidenciaSesion(){
   var nombre=actualizarNombreEv();
   if(!nombre)return;
   var alActual=document.getElementById('ev-alumno').value;
-  evReg.unshift({id:Date.now(),alumno:alActual,area:document.getElementById('ev-area').value,tema:document.getElementById('ev-tema').value,obs:'',fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});
+  var area=document.getElementById('ev-area').value;
+  var tema=document.getElementById('ev-tema').value;
+  evReg.unshift({id:Date.now(),alumno:alActual,area:area,tema:tema,obs:'',fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});
   if(!evSesionCompletados.includes(alActual)) evSesionCompletados.push(alActual);
   var ext=evFile.type.includes('png')?'.png':'.jpg';
   var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();
+  // Subir a Supabase y analizar el contenido de la foto en segundo plano
+  subirYAnalizarEvidencia(evFile,alActual,area,tema,'',nombre+ext);
   // Feedback y reset
-  var alumnoNombre=document.getElementById('ev-alumno').value.split(',')[0];
+  var alumnoNombre=alActual.split(',')[0];
   document.getElementById('ev-sesion-status').textContent='✅ '+alumnoNombre+' guardado — elegí el siguiente';
-  // Marcar botón como completado
-  var btnId='ev-btn-'+document.getElementById('ev-alumno').value.replace(/[^a-zA-Z]/g,'_');
+  var btnId='ev-btn-'+alActual.replace(/[^a-zA-Z]/g,'_');
   var btn=document.getElementById(btnId);
   if(btn){btn.style.background='var(--verde-bg)';btn.style.borderColor='var(--verde)';}
   document.getElementById('ev-preview-container').style.display='none';
@@ -3980,10 +4101,76 @@ function descargarEvidenciaSesion(){
   evFile=null;
   renderEvidencias();
 }
-function descargarEvidencia(){if(!evFile)return;var nombre=actualizarNombreEv();if(!nombre){alert('Completá el alumno y el tema');return;}evReg.unshift({id:Date.now(),alumno:document.getElementById('ev-alumno').value,area:document.getElementById('ev-area').value,tema:document.getElementById('ev-tema').value,obs:document.getElementById('ev-obs').value,fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});var ext=evFile.type.includes('png')?'.png':'.jpg';var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();renderEvidencias();}
+function descargarEvidencia(){
+  if(!evFile)return;
+  var nombre=actualizarNombreEv();
+  if(!nombre){alert('Completá el alumno y el tema');return;}
+  var alumno=document.getElementById('ev-alumno').value;
+  var area=document.getElementById('ev-area').value;
+  var tema=document.getElementById('ev-tema').value;
+  var obs=document.getElementById('ev-obs').value;
+  evReg.unshift({id:Date.now(),alumno:alumno,area:area,tema:tema,obs:obs,fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});
+  var ext=evFile.type.includes('png')?'.png':'.jpg';
+  var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();
+  renderEvidencias();
+  // Subir a Supabase y analizar el contenido de la foto en segundo plano
+  subirYAnalizarEvidencia(evFile,alumno,area,tema,obs,nombre+ext);
+}
 var evSesionActivo=false;
 var evSesionAlumnoActual='';
 var EV_ALUMNOS=[];
+
+async function subirYAnalizarEvidencia(archivo,nombreAlumno,area,tema,obs,nombreArchivo){
+  if(!window.__sb||!nombreAlumno)return;
+  var st=(window.__students||[]).find(function(s){return s.full_name===nombreAlumno;});
+  if(!st)return;
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    if(!user)return;
+    var path=user.id+'/'+st.id+'/evidencias/'+nombreArchivo;
+    var {error:errUpload}=await window.__sb.storage.from('evidencias').upload(path,archivo);
+    if(errUpload){console.log('No se pudo guardar la evidencia en la base:',errUpload.message);return;}
+
+    // Analizar el contenido de la foto con IA
+    var apiKey=localStorage.getItem('huellaed_anthropic_key');
+    if(!apiKey){
+      // Sin clave: al menos guardar el registro genérico como observación
+      var textoObsSimple='[Evidencia'+(area?' · '+area:'')+(tema?' · '+tema:'')+' · '+new Date().toLocaleDateString('es-AR')+'] Foto archivada en el perfil del alumno.'+(obs?' Obs: '+obs:'');
+      await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObsSimple});
+      return;
+    }
+    var mimeType=archivo.type||'image/jpeg';
+    var base64=await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){resolve(reader.result.split(',')[1]);};
+      reader.onerror=reject;
+      reader.readAsDataURL(archivo);
+    });
+    var contexto='Esta es una foto de evidencia de trabajo escolar'
+      +(area?' del área de '+area:'')
+      +(tema?' sobre el tema "'+tema+'"':'')
+      +(obs?' (observación del docente: "'+obs+'")':'')
+      +' de un alumno de 6to grado de escuela primaria en Argentina.';
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:500,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
+          {type:'text',text:contexto+' Describí brevemente (máximo 4 líneas) qué muestra esta foto en términos pedagógicos: qué realizó el alumno, qué nivel de producción se observa, qué aspectos del aprendizaje evidencia. Si la imagen no es legible o no es claramente un trabajo escolar, indicalo. No inventes información que no se vea.'}
+        ]}]
+      })
+    });
+    if(!res.ok){throw new Error('Error '+res.status);}
+    var data=await res.json();
+    var descripcion=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var textoObs='[Evidencia'+(area?' · '+area:'')+(tema?' · '+tema:'')+' · '+new Date().toLocaleDateString('es-AR')+']\n'+descripcion+(obs?'\nObservación docente: '+obs:'');
+    await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObs});
+  }catch(eEv){
+    console.log('No se pudo subir/analizar la evidencia:',eEv);
+  }
+}
 
 function toggleSesion(){
   evSesionActivo=!evSesionActivo;
@@ -4696,12 +4883,14 @@ async function subirDocumentoAlumno(){
   msg.style.color='var(--gris)';msg.textContent='Subiendo...';
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var ext=window._adjFile.name.split('.').pop();
+  var archivoAdj=window._adjFile;
+  var ext=archivoAdj.name.split('.').pop();
   var nombre=(desc||tipo).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').replace(/ /g,'_').substring(0,40)+'_'+new Date().toISOString().slice(0,10)+'.'+ext;
   var path=user.id+'/'+studentId+'/docs/'+nombre;
-  var {error}=await window.__sb.storage.from('evidencias').upload(path,window._adjFile);
+  var {error}=await window.__sb.storage.from('evidencias').upload(path,archivoAdj);
   if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;return;}
-  // Registrar como observación en el perfil
+  // Registrar como observación en el perfil (aviso genérico inmediato; el análisis del
+  // CONTENIDO del documento, si es posible, se agrega después como una segunda observación)
   var textoObs='[Documento: '+tipo+(desc?' · '+desc:'')+' · '+new Date().toLocaleDateString('es-AR')+'] Archivado en el perfil del alumno.';
   await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:textoObs});
   msg.style.color='var(--verde)';msg.textContent='✅ Documento guardado en el perfil';
@@ -4710,6 +4899,53 @@ async function subirDocumentoAlumno(){
   document.getElementById('adj-archivo-label').textContent='Seleccionar archivo';
   document.getElementById('adj-desc').value='';
   setTimeout(cerrarAdjuntarDocumento,1500);
+  // Analizar el contenido del documento en segundo plano (no bloquea el cierre del modal)
+  analizarDocumentoAdjunto(archivoAdj,studentId,user.id,tipo,desc);
+}
+
+async function analizarDocumentoAdjunto(archivo,studentId,teacherId,tipo,desc){
+  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  if(!apiKey){console.log('Sin clave de API: no se analizó el contenido del documento adjunto.');return;}
+  var mimeType=archivo.type||'';
+  var esPdf=mimeType==='application/pdf';
+  var esImagen=mimeType.indexOf('image/')===0;
+  if(!esPdf&&!esImagen){
+    // Word, Excel y otros formatos no tienen soporte directo de lectura en la API hoy.
+    console.log('Tipo de archivo no analizable automáticamente todavía:',mimeType);
+    return;
+  }
+  try{
+    var base64=await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){resolve(reader.result.split(',')[1]);};
+      reader.onerror=reject;
+      reader.readAsDataURL(archivo);
+    });
+    var contenidoMsg=esPdf
+      ?{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}}
+      :{type:'image',source:{type:'base64',media_type:mimeType,data:base64}};
+    var instruccion='Este es un documento de tipo "'+tipo+'"'+(desc?' ("'+desc+'")':'')+' adjuntado al perfil de un alumno de escuela primaria en Argentina. Resumí en un párrafo breve (máximo 5 líneas) qué información relevante contiene para el seguimiento pedagógico del alumno (diagnósticos, recomendaciones, observaciones de especialistas, etc.). Si el documento no es legible o no tiene contenido relevante para seguimiento escolar, decilo explícitamente. No inventes información que no esté en el documento.';
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:600,
+        messages:[{role:'user',content:[contenidoMsg,{type:'text',text:instruccion}]}]
+      })
+    });
+    if(!res.ok){
+      var ed=await res.json().catch(function(){return {};});
+      throw new Error((ed.error&&ed.error.message)||'Error '+res.status);
+    }
+    var data=await res.json();
+    var resumen=(data.content&&data.content[0]&&data.content[0].text)||'';
+    if(resumen&&window.__sb){
+      var textoObsAnalisis='[Análisis de documento: '+tipo+(desc?' · '+desc:'')+' · '+new Date().toLocaleDateString('es-AR')+']\n'+resumen;
+      await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:teacherId,content:textoObsAnalisis});
+    }
+  }catch(eAnalisis){
+    console.log('No se pudo analizar el contenido del documento adjunto:',eAnalisis);
+  }
 }
 
 
