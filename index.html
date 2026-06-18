@@ -1249,14 +1249,24 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 // ── INTEGRACIÓN GEMINI PARA ANÁLISIS DE LECTURA ──
 
+// Wrapper seguro para localStorage: si el navegador lo bloquea
+// (Safari con cookies estrictas, Chrome con configuración restrictiva, etc.),
+// usa un objeto en memoria como fallback. La app funciona igual, solo la
+// clave no persiste entre sesiones en ese caso.
+var _storageMemory={};
+var _storageOK=(function(){try{_sget('__test__');return true;}catch(e){return false;}})();
+function _sget(k){if(_storageOK){try{return _sget(k);}catch(e){}}return _storageMemory[k]||null;}
+function _sset(k,v){if(_storageOK){try{_sset(k,v);return;}catch(e){}}_storageMemory[k]=v;}
+function _sdel(k){if(_storageOK){try{_sdel(k);return;}catch(e){}}_storageMemory[k]=undefined;}
+
 function getApiKey() {
-  return localStorage.getItem('huellaed_gemini_key') || '';
+  return _sget('huellaed_gemini_key') || '';
 }
 
 function guardarApiKey() {
   var key = document.getElementById('gemini-api-key-input').value.trim();
   if (!key) { alert('Ingresá la API Key'); return; }
-  localStorage.setItem('huellaed_gemini_key', key);
+  _sset('huellaed_gemini_key', key);
   document.getElementById('modal-gemini-config').style.display = 'none';
   analizarConGemini(); // Continúa el análisis
 }
@@ -1384,7 +1394,7 @@ Si el audio es muy corto o hay ruido ambiental, indicalo brevemente.`;
     document.getElementById('gemini-loading').style.display = 'none';
     var msg = error.message || 'Error desconocido';
     if (msg.includes('API_KEY') || msg.includes('401') || msg.includes('403')) {
-      localStorage.removeItem('huellaed_gemini_key');
+      _sdel('huellaed_gemini_key');
       alert('API Key inválida. Volvé a ingresarla.');
       document.getElementById('modal-gemini-config').style.display = 'block';
     } else {
@@ -1396,18 +1406,18 @@ Si el audio es muy corto o hay ruido ambiental, indicalo brevemente.`;
 
 // URL del Google Apps Script — reemplazar con la URL real después de crear el script
 // Guía en Drive: "HuellaED — Google Apps Script · Guía de configuración"
-var APPS_SCRIPT_URL = localStorage.getItem('huellaed_script_url') || 'https://script.google.com/macros/s/AKfycbyjX6jf5hz3fjQp8xjAATnpe_rC-JWctyPZdhH5hJWolQQFUTBWudb_CEvV74PvUZx8bw/exec';
+var APPS_SCRIPT_URL = _sget('huellaed_script_url') || 'https://script.google.com/macros/s/AKfycbyjX6jf5hz3fjQp8xjAATnpe_rC-JWctyPZdhH5hJWolQQFUTBWudb_CEvV74PvUZx8bw/exec';
 
 async function guardarAnalisisEnDrive(alumnoKey, alumnoNombre, fecha, tituloTexto, analisis) {
   if (!APPS_SCRIPT_URL) {
     // Si no hay URL configurada, guardar local como pendiente
-    var pendientes = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+    var pendientes = JSON.parse(_sget('huellaed_analisis_pendientes') || '[]');
     pendientes.unshift({
       alumno: alumnoNombre, alumnoKey: alumnoKey,
       fecha: fecha, titulo: tituloTexto || 'Sin título',
       analisis: analisis, guardado: false, timestamp: Date.now()
     });
-    localStorage.setItem('huellaed_analisis_pendientes', JSON.stringify(pendientes));
+    _sset('huellaed_analisis_pendientes', JSON.stringify(pendientes));
     return { ok: false, error: 'Sin URL de script configurada' };
   }
   
@@ -1428,13 +1438,13 @@ async function guardarAnalisisEnDrive(alumnoKey, alumnoNombre, fecha, tituloText
     return data;
   } catch(err) {
     // Si falla, guardar local
-    var pendientes = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+    var pendientes = JSON.parse(_sget('huellaed_analisis_pendientes') || '[]');
     pendientes.unshift({
       alumno: alumnoNombre, alumnoKey: alumnoKey,
       fecha: fecha, titulo: tituloTexto || 'Sin título',
       analisis: analisis, guardado: false, timestamp: Date.now()
     });
-    localStorage.setItem('huellaed_analisis_pendientes', JSON.stringify(pendientes));
+    _sset('huellaed_analisis_pendientes', JSON.stringify(pendientes));
     return { ok: false, error: err.toString() };
   }
 }
@@ -1452,7 +1462,7 @@ function blobToBase64(blob) {
 
 
 function checkAnalisisPendientes() {
-  var pend = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  var pend = JSON.parse(_sget('huellaed_analisis_pendientes') || '[]');
   var noGuardados = pend.filter(a => !a.guardado);
   var btn = document.getElementById('btn-sync-analisis');
   if (btn) btn.style.display = noGuardados.length > 0 ? 'flex' : 'none';
@@ -1460,7 +1470,7 @@ function checkAnalisisPendientes() {
 }
 
 function abrirSyncAnalisis() {
-  var pend = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  var pend = JSON.parse(_sget('huellaed_analisis_pendientes') || '[]');
   var lista = document.getElementById('sync-analisis-lista');
   if (pend.length === 0) {
     lista.innerHTML = '<div style="text-align:center;color:var(--gris);padding:20px;">No hay análisis pendientes.</div>';
@@ -1476,7 +1486,7 @@ function abrirSyncAnalisis() {
 }
 
 function enviarAnalisisAClaude() {
-  var pend = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+  var pend = JSON.parse(_sget('huellaed_analisis_pendientes') || '[]');
   var noGuardados = pend.filter(a => !a.guardado);
   if (noGuardados.length === 0) { alert('No hay análisis pendientes.'); return; }
   
@@ -1489,9 +1499,9 @@ function enviarAnalisisAClaude() {
   navigator.clipboard.writeText(texto).then(() => {
     alert('✅ Texto copiado. Pegalo en el chat de Claude para que lo guarde en el Drive.');
     // Marcar como guardados
-    var todos = JSON.parse(localStorage.getItem('huellaed_analisis_pendientes') || '[]');
+    var todos = JSON.parse(_sget('huellaed_analisis_pendientes') || '[]');
     todos = todos.map(a => ({...a, guardado: true}));
-    localStorage.setItem('huellaed_analisis_pendientes', JSON.stringify(todos));
+    _sset('huellaed_analisis_pendientes', JSON.stringify(todos));
     checkAnalisisPendientes();
     document.getElementById('modal-sync-analisis').style.display = 'none';
   });
@@ -1582,7 +1592,7 @@ async function initFichas() {
   data.forEach(function(f) {
     fichasGuardadas[f.alumno] = { alumno: f.alumno, fecha: f.fecha, chips: f.chips || [], textos: f.textos || {} };
   });
-  localStorage.setItem('huellaed_fichas', JSON.stringify(fichasGuardadas));
+  _sset('huellaed_fichas', JSON.stringify(fichasGuardadas));
 }
 
 var _agendaErrorCarga=null;
@@ -1592,7 +1602,7 @@ async function initAgenda() {
   var user = (await window.__sb.auth.getUser()).data.user;
   if (!user) { _agendaErrorCarga='Sesión no detectada.'; return; }
   // Limpiar localStorage para que no se mezclen datos entre usuarios
-  localStorage.removeItem('huellaed_agenda');
+  _sdel('huellaed_agenda');
   var { data, error } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
   if (error) {
     // IMPORTANTE: si falla la lectura, NO vaciar tareas — mejor dejar lo que ya hubiera en pantalla
@@ -1623,8 +1633,8 @@ async function initTeacher(){
   var banner=document.getElementById('banner-grado');
   if(banner&&data.grade)banner.textContent=data.grade;
   // Cargar API keys desde Supabase (sobreescribe localStorage con la key del usuario)
-  if(data.anthropic_key){localStorage.setItem('huellaed_anthropic_key',data.anthropic_key);}
-  if(data.gemini_key){localStorage.setItem('huellaed_gemini_key',data.gemini_key);}
+  if(data.anthropic_key){_sset('huellaed_anthropic_key',data.anthropic_key);}
+  if(data.gemini_key){_sset('huellaed_gemini_key',data.gemini_key);}
   actualizarEstadoApiKeys();
   aplicarVisibilidadGenerador();
 }
@@ -1644,7 +1654,7 @@ function configurarScriptURL() {
   var url = prompt('Pegá la URL del Google Apps Script:' + actual + '\n\nGuía en Drive: HuellaED — Google Apps Script v2');
   if (!url) return;
   if (url.startsWith('https://script.google.com')) {
-    localStorage.setItem('huellaed_script_url', url);
+    _sset('huellaed_script_url', url);
     APPS_SCRIPT_URL = url;
     var btn = document.getElementById('btn-config-script');
     if(btn) btn.textContent = '✅ Script activo';
@@ -2235,8 +2245,8 @@ async function cargarUltimoPerfilAcademico(studentId){
 async function generarPerfilAcademico(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var nombre=s.full_name;
 
   // ── SOLO DATOS REALES DE SUPABASE ──
@@ -2476,8 +2486,8 @@ function cerrarModalInforme(){
 async function generarInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var motivo=document.getElementById('informe-motivo').value;
   var destinatario=document.getElementById('informe-destinatario').value||'Equipo directivo';
   var nombre=s.full_name;
@@ -3533,8 +3543,8 @@ async function generarConIA(){
   });
   if(!p)return;
   document.getElementById('gen-resultado').style.display='none';
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresa tu API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('Ingresa tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var btn=document.getElementById('gen-btn-ia');
   var contenedor=document.getElementById('gen-ai-resultado');
   btn.disabled=true;btn.textContent='Generando...';
@@ -3709,11 +3719,11 @@ function quitarAdjuntoGen(){
 }
 
 async function enviarAClaudeConArchivo(promptText){
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  var apiKey=_sget('huellaed_anthropic_key');
   if(!apiKey){
     apiKey=prompt('Ingresá tu API Key de Anthropic (se guarda solo en este dispositivo):');
     if(!apiKey)return;
-    localStorage.setItem('huellaed_anthropic_key',apiKey.trim());
+    _sset('huellaed_anthropic_key',apiKey.trim());
     apiKey=apiKey.trim();
   }
   var btn=document.getElementById('gen-btn');
@@ -3992,7 +4002,7 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
     if(statusEl)statusEl.textContent='Audio guardado. Transcribiendo...';
 
     // Transcripción con la API de Anthropic (Claude puede procesar audio en base64)
-    var apiKey=localStorage.getItem('huellaed_anthropic_key');
+    var apiKey=_sget('huellaed_anthropic_key');
     if(!apiKey){
       if(statusEl)statusEl.textContent='Audio guardado (sin clave de API, no se transcribió automáticamente)';
       return;
@@ -4212,7 +4222,7 @@ async function subirYAnalizarEvidencia(archivo,nombreAlumno,area,tema,obs,nombre
     if(errUpload){console.log('No se pudo guardar la evidencia en la base:',errUpload.message);return;}
 
     // Analizar el contenido de la foto con IA
-    var apiKey=localStorage.getItem('huellaed_anthropic_key');
+    var apiKey=_sget('huellaed_anthropic_key');
     if(!apiKey){
       // Sin clave: al menos guardar el registro genérico como observación
       var textoObsSimple='[Evidencia'+(area?' · '+area:'')+(tema?' · '+tema:'')+' · '+new Date().toLocaleDateString('es-AR')+'] Foto archivada en el perfil del alumno.'+(obs?' Obs: '+obs:'');
@@ -4573,7 +4583,7 @@ function copiarPromptNota(){navigator.clipboard.writeText(document.getElementByI
 
 // ── AGENDA ──
 const TAREAS_INICIALES=[];
-var tareas=JSON.parse(localStorage.getItem('huellaed_agenda')||'null')||TAREAS_INICIALES;
+var tareas=JSON.parse(_sget('huellaed_agenda')||'null')||TAREAS_INICIALES;
 var filtroActual='todas';
 function guardarTareas(){
   // NO guardar en localStorage (compartido entre usuarios)
@@ -4865,8 +4875,8 @@ async function reactivarAlumno(id,nombre){
 }
 
 async function generarLegajoEgreso(studentId,nombre){
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
@@ -4984,7 +4994,7 @@ async function subirDocumentoAlumno(){
 }
 
 async function analizarDocumentoAdjunto(archivo,studentId,teacherId,tipo,desc){
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
+  var apiKey=_sget('huellaed_anthropic_key');
   if(!apiKey){console.log('Sin clave de API: no se analizó el contenido del documento adjunto.');return;}
   var mimeType=archivo.type||'';
   var esPdf=mimeType==='application/pdf';
@@ -5054,7 +5064,7 @@ function configurarApiKey(tipo){
       +'⚠️ Tu clave es personal — no la compartás con nadie.';
     link.href='https://console.anthropic.com';
     link.textContent='→ Ir a console.anthropic.com';
-    var actual=localStorage.getItem('huellaed_anthropic_key');
+    var actual=_sget('huellaed_anthropic_key');
     input.value=actual?'••••••••••••'+actual.slice(-4):'';
     input.placeholder='sk-ant-...';
   } else {
@@ -5069,7 +5079,7 @@ function configurarApiKey(tipo){
       +'⚠️ Tu clave es personal — no la compartás con nadie.';
     link.href='https://aistudio.google.com/app/apikey';
     link.textContent='→ Ir a aistudio.google.com/app/apikey';
-    var actual2=localStorage.getItem('huellaed_gemini_key');
+    var actual2=_sget('huellaed_gemini_key');
     input.value=actual2?'••••••••••••'+actual2.slice(-4):'';
     input.placeholder='Pegá tu clave acá...';
   }
@@ -5110,8 +5120,8 @@ async function guardarApiKeyConfig(){
     }catch(e){console.error('Error guardando key en Supabase:',e);}
   }
   // También en localStorage como caché
-  if(_apikeyTipo==='anthropic') localStorage.setItem('huellaed_anthropic_key',val);
-  else localStorage.setItem('huellaed_gemini_key',val);
+  if(_apikeyTipo==='anthropic') _sset('huellaed_anthropic_key',val);
+  else _sset('huellaed_gemini_key',val);
   msg.style.color='var(--verde)';msg.textContent='✅ Clave guardada';
   actualizarEstadoApiKeys();
   setTimeout(cerrarConfigApiKey,1200);
@@ -5130,8 +5140,8 @@ async function borrarApiKeyConfig(){
       }
     }catch(e){console.error('Error borrando key:',e);}
   }
-  if(_apikeyTipo==='anthropic') localStorage.removeItem('huellaed_anthropic_key');
-  else localStorage.removeItem('huellaed_gemini_key');
+  if(_apikeyTipo==='anthropic') _sdel('huellaed_anthropic_key');
+  else _sdel('huellaed_gemini_key');
   document.getElementById('apikey-input').value='';
   document.getElementById('apikey-msg').style.color='var(--gris)';
   document.getElementById('apikey-msg').textContent='Clave borrada';
@@ -5139,8 +5149,8 @@ async function borrarApiKeyConfig(){
 }
 
 function actualizarEstadoApiKeys(){
-  var ant=localStorage.getItem('huellaed_anthropic_key');
-  var gem=localStorage.getItem('huellaed_gemini_key');
+  var ant=_sget('huellaed_anthropic_key');
+  var gem=_sget('huellaed_gemini_key');
   var elAnt=document.getElementById('estado-anthropic');
   var elGem=document.getElementById('estado-gemini');
   if(elAnt)elAnt.innerHTML=ant?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
@@ -5184,8 +5194,8 @@ function deiTab(n){
 async function generarDEI(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   
   var msg=document.getElementById('dei-msg');
   msg.style.color='var(--gris)';msg.textContent='Generando DEI... puede tardar unos segundos.';
@@ -5296,7 +5306,7 @@ function abrirCuestionarioAulico(){
   document.getElementById('modal-cuestionario-aulico').style.display='block';
   document.getElementById('ca-msg').textContent='';
   document.getElementById('ca-resumen-box').style.display='none';
-  var saved=localStorage.getItem('huellaed_ca_v3');
+  var saved=_sget('huellaed_ca_v3');
   if(saved){
     try{
       var d=JSON.parse(saved);
@@ -5355,7 +5365,7 @@ function caVerResumen(){
   document.getElementById('ca-resumen-texto').innerHTML=partes.join('<br>');
   document.getElementById('ca-resumen-box').style.display='block';
   document.getElementById('ca-msg').textContent='';
-  localStorage.setItem('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
+  _sset('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
 }
 
 async function caGenerarPerfil(){
@@ -5364,10 +5374,10 @@ async function caGenerarPerfil(){
     document.getElementById('ca-msg').textContent='Completá al menos 3 dimensiones';
     return;
   }
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var obs=document.getElementById('ca-obs').value.trim();
-  localStorage.setItem('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
+  _sset('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
   var msg=document.getElementById('ca-msg');
   msg.style.color='var(--gris)';msg.textContent='Generando perfil áulico...';
   var dims=['ritmo','canal','dinamica','autonomia','clima'];
@@ -5539,8 +5549,8 @@ var _fotoAsistDatos=null;
 async function procesarFotoAsistencia(input){
   var file=input.files[0];
   if(!file)return;
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
 
   document.getElementById('modal-confirmar-foto').style.display='block';
   document.getElementById('confirmar-foto-msg').textContent='Leyendo el registro con IA, puede tardar unos segundos...';
@@ -5665,8 +5675,8 @@ async function abrirPerfilDocente(){
   document.getElementById('perfil-doc-nombre').value=window.__teacherName||'';
   document.getElementById('perfil-doc-grado').value=window.__teacherGrade||'';
   // Reflejar estado de API keys también acá
-  var ant=localStorage.getItem('huellaed_anthropic_key');
-  var gem=localStorage.getItem('huellaed_gemini_key');
+  var ant=_sget('huellaed_anthropic_key');
+  var gem=_sget('huellaed_gemini_key');
   var elAnt=document.getElementById('estado-anthropic-perfil');
   var elGem=document.getElementById('estado-gemini-perfil');
   if(elAnt)elAnt.innerHTML=ant?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
@@ -5698,8 +5708,8 @@ var _planifArchivoDatos=null;
 async function procesarArchivoPlanif(input){
   var file=input.files[0];
   if(!file)return;
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
 
   document.getElementById('modal-confirmar-planif').style.display='block';
   document.getElementById('confirmar-planif-msg').textContent='Leyendo el archivo...';
@@ -5867,8 +5877,8 @@ async function ajustarPerfilAulico(){
     document.getElementById('ajuste-aulico-msg').textContent='Escribí qué querés cambiar';
     return;
   }
-  var apiKey=localStorage.getItem('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;localStorage.setItem('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
 
   var msg=document.getElementById('ajuste-aulico-msg');
   msg.style.color='var(--gris)';msg.textContent='Ajustando el perfil...';
