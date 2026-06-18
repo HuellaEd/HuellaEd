@@ -551,7 +551,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:11px;cursor:pointer;">
         <span style="font-size:20px;">📎</span>
         <span id="gen-adjunto-label" style="font-size:12px;color:var(--gris);">Adjuntar PDF o imagen</span>
-        <input type="file" id="gen-adjunto" accept=".pdf,image/*" style="display:none;" onchange="seleccionarAdjuntoGen()">
+        <input type="file" id="gen-adjunto" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*" style="display:none;" onchange="seleccionarAdjuntoGen()">
       </label>
     </div>
     <button id="gen-btn" onclick="generarPrompt()" class="save-btn" style="margin-bottom:10px;">✨ Armar prompt</button>
@@ -3296,7 +3296,7 @@ function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementB
 
 // ── GENERADOR ──
 var tipoSel='',alumnosEsp=[],soloDif=false;
-var _genAdjuntoBase64=null,_genAdjuntoType=null,_genAdjuntoIsPDF=false;
+var _genAdjuntoBase64=null,_genAdjuntoType=null,_genAdjuntoIsPDF=false,_genAdjuntoTexto=null;
 var _genAiRawText='';
 var _genHtmlRenderizado='';
 function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
@@ -3392,7 +3392,8 @@ async function generarConIA(){
   var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+' Lenguaje directo al alumno.';
   var contentParts=[];
   if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
-  contentParts.push({type:'text',text:p});
+  var textoConAdjunto=_genAdjuntoTexto?(p+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):p;
+  contentParts.push({type:'text',text:textoConAdjunto});
   var headers={'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'};
   if(_genAdjuntoIsPDF)headers['anthropic-beta']='pdfs-2024-09-25';
   try{
@@ -3484,24 +3485,58 @@ function renderLibro(respuestaIA,contenedor){
 }
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
-function seleccionarAdjuntoGen(){
+async function seleccionarAdjuntoGen(){
   var input=document.getElementById('gen-adjunto');
-  if(!input.files||!input.files[0]){_genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;return;}
+  if(!input.files||!input.files[0]){quitarAdjuntoGen();return;}
   var file=input.files[0];
-  _genAdjuntoIsPDF=file.type==='application/pdf';
-  _genAdjuntoType=file.type||'image/jpeg';
-  document.getElementById('gen-adjunto-label').textContent='📎 '+file.name;
-  var reader=new FileReader();
-  reader.onload=function(e){_genAdjuntoBase64=e.target.result.split(',')[1];};
-  reader.readAsDataURL(file);
+  var ext=file.name.split('.').pop().toLowerCase();
+  var lbl=document.getElementById('gen-adjunto-label');
+  _genAdjuntoTexto=null;
+  if(ext==='doc'||ext==='docx'){
+    lbl.textContent='Leyendo Word...';
+    try{
+      var arrayBuffer=await file.arrayBuffer();
+      var result=await mammoth.extractRawText({arrayBuffer:arrayBuffer});
+      _genAdjuntoTexto=result.value||'';
+      if(!_genAdjuntoTexto.trim()){alert('No se pudo extraer texto de este Word. Probá guardándolo como PDF.');quitarAdjuntoGen();return;}
+      _genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;
+      lbl.textContent='📎 '+file.name;
+    }catch(e){alert('No se pudo leer el Word: '+e.message);quitarAdjuntoGen();}
+  }else if(ext==='xls'||ext==='xlsx'){
+    lbl.textContent='Leyendo Excel...';
+    try{
+      if(typeof XLSX==='undefined')throw new Error('Lector de Excel no disponible');
+      var arrayBufferXl=await file.arrayBuffer();
+      var workbook=XLSX.read(arrayBufferXl,{type:'array'});
+      var textoExcel='';
+      workbook.SheetNames.forEach(function(nombreHoja){
+        var hoja=workbook.Sheets[nombreHoja];
+        var filas=XLSX.utils.sheet_to_json(hoja,{header:1,blankrows:false,defval:''});
+        if(!filas.length)return;
+        textoExcel+='\n--- Hoja: '+nombreHoja+' ---\n';
+        filas.forEach(function(fila){textoExcel+=fila.map(function(c){return String(c).trim();}).filter(Boolean).join(' | ')+'\n';});
+      });
+      if(!textoExcel.trim()){alert('El Excel parece estar vacío.');quitarAdjuntoGen();return;}
+      _genAdjuntoTexto=textoExcel;
+      _genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;
+      lbl.textContent='📎 '+file.name;
+    }catch(e){alert('No se pudo leer el Excel: '+e.message);quitarAdjuntoGen();}
+  }else{
+    _genAdjuntoIsPDF=file.type==='application/pdf';
+    _genAdjuntoType=file.type||'image/jpeg';
+    lbl.textContent='📎 '+file.name;
+    var reader=new FileReader();
+    reader.onload=function(e){_genAdjuntoBase64=e.target.result.split(',')[1];};
+    reader.readAsDataURL(file);
+  }
 }
 
 function quitarAdjuntoGen(){
-  _genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;
+  _genAdjuntoBase64=null;_genAdjuntoType=null;_genAdjuntoIsPDF=false;_genAdjuntoTexto=null;
   var input=document.getElementById('gen-adjunto');
   if(input)input.value='';
   var lbl=document.getElementById('gen-adjunto-label');
-  if(lbl)lbl.textContent='Adjuntar PDF o imagen';
+  if(lbl)lbl.textContent='Adjuntar PDF, Word, Excel o imagen';
 }
 
 async function enviarAClaudeConArchivo(promptText){
@@ -3515,12 +3550,15 @@ async function enviarAClaudeConArchivo(promptText){
   var btn=document.getElementById('gen-btn');
   btn.disabled=true;btn.textContent='⏳ Consultando a Claude…';
   var contentParts=[];
-  if(_genAdjuntoIsPDF){
-    contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});
-  } else {
-    contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});
+  if(_genAdjuntoBase64){
+    if(_genAdjuntoIsPDF){
+      contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});
+    } else {
+      contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});
+    }
   }
-  contentParts.push({type:'text',text:promptText});
+  var promptTextConAdjunto=_genAdjuntoTexto?(promptText+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):promptText;
+  contentParts.push({type:'text',text:promptTextConAdjunto});
   var headers={
     'x-api-key':apiKey,
     'anthropic-version':'2023-06-01',
