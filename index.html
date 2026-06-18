@@ -2243,8 +2243,9 @@ async function cargarUltimoPerfilAcademico(studentId){
 
 
 async function generarPerfilAcademico(){
+ try{
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
-  if(!s)return;
+  if(!s){alert('No se encontró el alumno. Cerrá el perfil y volvé a abrirlo.');return;}
   var apiKey=_sget('huellaed_anthropic_key');
   if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var nombre=s.full_name;
@@ -2296,45 +2297,52 @@ async function generarPerfilAcademico(){
   // Ficha de conocimiento (perfil inicial del alumno, tabla differential_profiles)
   // Es una fuente distinta del "perfil diferencial" de arriba: estos son los campos del
   // formulario inicial (primera impresión, cómo aprende, matemática, lectura/escritura, funciona/no, otros).
+  // IMPORTANTE: todo este bloque está en su propio try/catch para que, si falla la consulta
+  // a Supabase (sesión expirada, red, etc.), el PAF se siga generando solo sin esa fuente,
+  // en vez de detener TODA la función en silencio.
   var fichaTexto='';
   var pctAsistTexto='—';
   var pctAsistNumero=null;
-  if(window.__sb){
-    var userFicha=(await window.__sb.auth.getUser()).data.user;
-    if(userFicha){
-      try{
-        var {data:dataFicha,error:errFicha}=await window.__sb.from('differential_profiles')
-          .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas')
-          .eq('student_id',_perfilStudentId)
-          .maybeSingle();
-        if(!errFicha&&dataFicha){
-          var camposFicha=[];
-          if(dataFicha.primera_impresion)camposFicha.push('Primera impresión: '+dataFicha.primera_impresion);
-          if(dataFicha.como_aprende)camposFicha.push('Cómo aprende: '+dataFicha.como_aprende);
-          if(dataFicha.matematica)camposFicha.push('Matemática: '+dataFicha.matematica);
-          if(dataFicha.lectura_escritura)camposFicha.push('Lectura y escritura: '+dataFicha.lectura_escritura);
-          if(dataFicha.funciona_no)camposFicha.push('Qué funciona / qué no: '+dataFicha.funciona_no);
-          if(dataFicha.algo_mas)camposFicha.push('Otras observaciones: '+dataFicha.algo_mas);
-          if(camposFicha.length>0){
-            fichaTexto='FICHA DE CONOCIMIENTO (perfil inicial cargado por el docente):\n'+camposFicha.join('\n')+'\n';
+  try{
+    if(window.__sb){
+      var userFicha=(await window.__sb.auth.getUser()).data.user;
+      if(userFicha){
+        try{
+          var {data:dataFicha,error:errFicha}=await window.__sb.from('differential_profiles')
+            .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas')
+            .eq('student_id',_perfilStudentId)
+            .maybeSingle();
+          if(!errFicha&&dataFicha){
+            var camposFicha=[];
+            if(dataFicha.primera_impresion)camposFicha.push('Primera impresión: '+dataFicha.primera_impresion);
+            if(dataFicha.como_aprende)camposFicha.push('Cómo aprende: '+dataFicha.como_aprende);
+            if(dataFicha.matematica)camposFicha.push('Matemática: '+dataFicha.matematica);
+            if(dataFicha.lectura_escritura)camposFicha.push('Lectura y escritura: '+dataFicha.lectura_escritura);
+            if(dataFicha.funciona_no)camposFicha.push('Qué funciona / qué no: '+dataFicha.funciona_no);
+            if(dataFicha.algo_mas)camposFicha.push('Otras observaciones: '+dataFicha.algo_mas);
+            if(camposFicha.length>0){
+              fichaTexto='FICHA DE CONOCIMIENTO (perfil inicial cargado por el docente):\n'+camposFicha.join('\n')+'\n';
+            }
           }
-        }
-      }catch(eFicha){console.log('No se pudo cargar ficha de conocimiento para el PAF:',eFicha);}
+        }catch(eFicha){console.log('No se pudo cargar ficha de conocimiento para el PAF:',eFicha);}
 
-      // Asistencia: porcentaje de presentes sobre el total de registros del alumno
-      try{
-        var {data:dataAsist,error:errAsist}=await window.__sb.from('attendance')
-          .select('status')
-          .eq('teacher_id',userFicha.id)
-          .eq('student_id',_perfilStudentId);
-        if(!errAsist&&dataAsist&&dataAsist.length>0){
-          var totalRegistros=dataAsist.length;
-          var totalPresentes=dataAsist.filter(function(r){return r.status==='presente';}).length;
-          pctAsistNumero=Math.round((totalPresentes/totalRegistros)*100);
-          pctAsistTexto=pctAsistNumero+'% ('+totalPresentes+' de '+totalRegistros+' días registrados)';
-        }
-      }catch(eAsist){console.log('No se pudo calcular asistencia para el PAF:',eAsist);}
+        // Asistencia: porcentaje de presentes sobre el total de registros del alumno
+        try{
+          var {data:dataAsist,error:errAsist}=await window.__sb.from('attendance')
+            .select('status')
+            .eq('teacher_id',userFicha.id)
+            .eq('student_id',_perfilStudentId);
+          if(!errAsist&&dataAsist&&dataAsist.length>0){
+            var totalRegistros=dataAsist.length;
+            var totalPresentes=dataAsist.filter(function(r){return r.status==='presente';}).length;
+            pctAsistNumero=Math.round((totalPresentes/totalRegistros)*100);
+            pctAsistTexto=pctAsistNumero+'% ('+totalPresentes+' de '+totalRegistros+' días registrados)';
+          }
+        }catch(eAsist){console.log('No se pudo calcular asistencia para el PAF:',eAsist);}
+      }
     }
+  }catch(eSesion){
+    console.log('No se pudo obtener la sesión para ficha/asistencia, el PAF sigue sin esas fuentes:',eSesion);
   }
   var asistTextoPrompt='ASISTENCIA: '+(pctAsistNumero!==null?pctAsistTexto:'Sin registros de asistencia cargados en el sistema.')+'\n';
 
@@ -2366,6 +2374,7 @@ async function generarPerfilAcademico(){
   loadDiv.style.cssText='background:var(--verde-bg);border-radius:12px;padding:18px;margin-top:10px;text-align:center;';
   loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:8px;">🤖</div><div style="font-size:13px;font-weight:600;color:var(--verde);">Generando perfil con datos reales...</div>';
   body.appendChild(loadDiv);
+  loadDiv.scrollIntoView({behavior:'smooth'});
 
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{
@@ -2471,6 +2480,13 @@ async function generarPerfilAcademico(){
   }catch(e){
     loadDiv.innerHTML='<div style="color:#C0392B;font-size:12px;">Error: '+e.message+'</div>';
   }
+ }catch(eGlobal){
+   // Red de seguridad: si algo falla ANTES de llegar al bloque anterior
+   // (por ejemplo, al consultar la sesión de Supabase), esto evita que
+   // el botón "no haga nada" en silencio.
+   alert('No se pudo generar el Perfil Académico.\n\nDetalle técnico: '+eGlobal.message+'\n\nProbá recargar la página (Ctrl+F5 o Cmd+Shift+R) y volver a intentar.');
+   console.log('Error global en generarPerfilAcademico:',eGlobal);
+ }
 }
 function abrirModalInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
