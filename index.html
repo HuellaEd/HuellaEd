@@ -1583,16 +1583,19 @@ async function initFichas() {
   localStorage.setItem('huellaed_fichas', JSON.stringify(fichasGuardadas));
 }
 
+var _agendaErrorCarga=null;
 async function initAgenda() {
-  if (!window.__sb) return;
+  _agendaErrorCarga=null;
+  if (!window.__sb) { _agendaErrorCarga='Sin conexión a la base de datos.'; return; }
   var user = (await window.__sb.auth.getUser()).data.user;
-  if (!user) return;
+  if (!user) { _agendaErrorCarga='Sesión no detectada.'; return; }
   // Limpiar localStorage para que no se mezclen datos entre usuarios
   localStorage.removeItem('huellaed_agenda');
   var { data, error } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
   if (error) {
-    console.log('Error al cargar agenda:', error.message);
-    tareas = [];
+    // IMPORTANTE: si falla la lectura, NO vaciar tareas — mejor dejar lo que ya hubiera en pantalla
+    // que mostrar una agenda vacía y arriesgar que parezca que se perdió información.
+    _agendaErrorCarga='No se pudo cargar la agenda: '+error.message+'. Tus datos siguen guardados, esto es solo un problema para mostrarlos. Recargá la página o avisá si persiste.';
     return;
   }
   if (!data || !data.length) {
@@ -2525,14 +2528,19 @@ async function guardarPerfilDif(studentId){
 async function cargarObservacionesAlumno(){
   var lista=document.getElementById('obs-lista');
   if(!lista||!window.__sb||!_perfilStudentId)return;
+  lista.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Cargando...</div>';
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('notas_rapidas')
+  var {data,error}=await window.__sb.from('notas_rapidas')
     .select('id,content,created_at')
     .eq('teacher_id',user.id)
     .eq('student_id',_perfilStudentId)
     .order('created_at',{ascending:false})
     .limit(20);
+  if(error){
+    lista.innerHTML='<div style="font-size:12px;color:#C0392B;text-align:center;padding:8px;background:#FDE8E8;border-radius:8px;">⚠️ No se pudieron cargar las observaciones (error de conexión). Tus datos siguen guardados — recargá la página para reintentar.</div>';
+    return;
+  }
   if(!data||!data.length){
     lista.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin observaciones registradas</div>';
     return;
@@ -2625,9 +2633,14 @@ async function guardarObservacionAlumno(){
 async function cargarArchivosAlumno(){
   var lista=document.getElementById('archivos-lista');
   if(!lista||!window.__sb||!_perfilStudentId||!_perfilUserId)return;
+  lista.innerHTML='<div style="text-align:center;font-size:12px;color:var(--gris);padding:8px;">Cargando...</div>';
   var path=_perfilUserId+'/'+_perfilStudentId;
   var {data,error}=await window.__sb.storage.from('evidencias').list(path,{sortBy:{column:'created_at',order:'desc'}});
-  if(error||!data||!data.length){
+  if(error){
+    lista.innerHTML='<div style="text-align:center;font-size:12px;color:#C0392B;padding:8px;background:#FDE8E8;border-radius:8px;">⚠️ No se pudieron cargar los archivos (error de conexión). Recargá la página para reintentar.</div>';
+    return;
+  }
+  if(!data||!data.length){
     lista.innerHTML='<div style="text-align:center;font-size:12px;color:var(--gris);padding:8px;">Sin archivos subidos</div>';
     return;
   }
@@ -4267,13 +4280,26 @@ function guardarTareas(){
     }
   })();
 }
-function abrirAgenda(){document.getElementById('modal-agenda').style.display='block';renderAgenda();}
+async function abrirAgenda(){
+  document.getElementById('modal-agenda').style.display='block';
+  var lista=document.getElementById('agenda-lista');
+  if(lista&&!tareas.length&&!_agendaErrorCarga){lista.innerHTML='<div style="text-align:center;color:var(--gris);padding:18px;font-size:12px;">Cargando...</div>';}
+  await initAgenda();
+  renderAgenda();
+}
 function cerrarAgenda(){document.getElementById('modal-agenda').style.display='none';}
 function agregarTarea(){var txt=document.getElementById('nueva-tarea').value.trim(),cat=document.getElementById('tarea-cat').value;if(!txt)return;tareas.unshift({id:Date.now(),texto:txt,cat:cat,hecha:false});guardarTareas();document.getElementById('nueva-tarea').value='';renderAgenda();}
 function toggleTarea(id){var t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;guardarTareas();renderAgenda();}}
 function borrarTarea(id){tareas=tareas.filter(t=>t.id!==id);guardarTareas();renderAgenda();}
 function filtrarAgenda(f){filtroActual=f;document.querySelectorAll('[id^="filtro-"]').forEach(b=>{b.style.background='#fff';b.style.color='var(--gris)';b.style.borderColor='var(--gris-claro)';});var btn=document.getElementById('filtro-'+f);if(btn){btn.style.background='var(--verde)';btn.style.color='#fff';btn.style.borderColor='var(--verde)';}renderAgenda();}
-function renderAgenda(){var lista=document.getElementById('agenda-lista');var cats={urgente:{label:'🔴 Urgente',bg:'#FDE8E8',border:'#C0392B'},importante:{label:'🟡 Importante',bg:'#FDFAE8',border:'#C8845A'},proceso:{label:'🔵 En proceso',bg:'#E8EEF8',border:'#5A7EB8'},idea:{label:'💡 Ideas',bg:'var(--crema)',border:'var(--gris-claro)'}};var filtradas=tareas.filter(t=>filtroActual==='pendiente'?!t.hecha:filtroActual==='hecha'?t.hecha:true);var grupos={};filtradas.forEach(t=>{if(!grupos[t.cat])grupos[t.cat]=[];grupos[t.cat].push(t);});var html='';['urgente','importante','proceso','idea'].forEach(cat=>{if(!grupos[cat]||!grupos[cat].length)return;var c=cats[cat];html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+c.label+'</div>';grupos[cat].forEach(t=>{html+='<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;margin-bottom:5px;background:'+(t.hecha?'var(--crema)':c.bg)+';border:1px solid '+(t.hecha?'var(--gris-claro)':c.border)+';opacity:'+(t.hecha?'0.55':'1')+'"><input type="checkbox" '+(t.hecha?'checked':'')+' onchange="toggleTarea('+t.id+')" style="width:17px;height:17px;cursor:pointer;accent-color:var(--verde);flex-shrink:0;"><span style="flex:1;font-size:12px;'+(t.hecha?'text-decoration:line-through;':'')+'">'+t.texto+'</span><button onclick="borrarTarea('+t.id+')" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:15px;">✕</button></div>';});html+='</div>';});if(!html)html='<div style="text-align:center;color:var(--gris);padding:18px;font-size:12px;">Sin tareas.</div>';lista.innerHTML=html;var urg=tareas.filter(t=>t.cat==='urgente'&&!t.hecha).length;document.getElementById('agenda-badge').textContent=urg>0?'🔴 '+urg:'';}
+function renderAgenda(){var lista=document.getElementById('agenda-lista');var cats={urgente:{label:'🔴 Urgente',bg:'#FDE8E8',border:'#C0392B'},importante:{label:'🟡 Importante',bg:'#FDFAE8',border:'#C8845A'},proceso:{label:'🔵 En proceso',bg:'#E8EEF8',border:'#5A7EB8'},idea:{label:'💡 Ideas',bg:'var(--crema)',border:'var(--gris-claro)'}};var filtradas=tareas.filter(t=>filtroActual==='pendiente'?!t.hecha:filtroActual==='hecha'?t.hecha:true);var grupos={};filtradas.forEach(t=>{if(!grupos[t.cat])grupos[t.cat]=[];grupos[t.cat].push(t);});var html='';['urgente','importante','proceso','idea'].forEach(cat=>{if(!grupos[cat]||!grupos[cat].length)return;var c=cats[cat];html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+c.label+'</div>';grupos[cat].forEach(t=>{html+='<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;margin-bottom:5px;background:'+(t.hecha?'var(--crema)':c.bg)+';border:1px solid '+(t.hecha?'var(--gris-claro)':c.border)+';opacity:'+(t.hecha?'0.55':'1')+'"><input type="checkbox" '+(t.hecha?'checked':'')+' onchange="toggleTarea('+t.id+')" style="width:17px;height:17px;cursor:pointer;accent-color:var(--verde);flex-shrink:0;"><span style="flex:1;font-size:12px;'+(t.hecha?'text-decoration:line-through;':'')+'">'+t.texto+'</span><button onclick="borrarTarea('+t.id+')" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:15px;">✕</button></div>';});html+='</div>';});if(!html){
+  if(_agendaErrorCarga){
+    html='<div style="text-align:center;color:#C0392B;padding:18px;font-size:12px;background:#FDE8E8;border-radius:9px;line-height:1.6;">⚠️ '+_agendaErrorCarga+'</div>';
+  }else{
+    html='<div style="text-align:center;color:var(--gris);padding:18px;font-size:12px;">Sin tareas.</div>';
+  }
+}
+lista.innerHTML=html;var urg=tareas.filter(t=>t.cat==='urgente'&&!t.hecha).length;document.getElementById('agenda-badge').textContent=urg>0?'🔴 '+urg:'';}
 
 // ── IMPRIMIR ──
 function imprimirPanel(id){var panel=document.getElementById(id);var c=panel.querySelector('.panel-body').innerHTML;var t=panel.querySelector('.panel-head strong').textContent;document.getElementById('print-container').innerHTML='<div style="font-family:Arial,sans-serif;padding:20px;"><div style="text-align:center;margin-bottom:14px;color:#2D5F4F;font-size:14px;font-weight:bold;">'+t+'</div>'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
