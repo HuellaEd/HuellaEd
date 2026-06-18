@@ -2720,7 +2720,11 @@ async function cargarListaPlanif(){
   if(!user)return;
   var query=window.__sb.from('planifications').select('*').eq('teacher_id',user.id).order('week_number',{ascending:true});
   if(_planifFiltroArea)query=query.eq('subject_id',SUBJECT_IDS[_planifFiltroArea]);
-  var {data}=await query;
+  var {data,error}=await query;
+  if(error){
+    body.innerHTML='<div style="text-align:center;padding:24px;color:#C0392B;background:#FDE8E8;border-radius:9px;">⚠️ No se pudieron cargar las planificaciones (error de conexión). Tus datos siguen guardados — recargá la página para reintentar.</div>';
+    return;
+  }
   _planifData=data||[];
 
   var html='';
@@ -2894,10 +2898,15 @@ async function cargarFicha(){
   if(!s)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('differential_profiles')
+  var {data,error}=await window.__sb.from('differential_profiles')
     .select('primera_impresion,como_aprende,matematica,lectura_escritura,funciona_no,algo_mas,updated_at')
     .eq('student_id',s.id)
     .maybeSingle();
+  if(error){
+    var msgEl=document.getElementById('ficha-msg');
+    if(msgEl){msgEl.style.color='#C0392B';msgEl.textContent='⚠️ No se pudo cargar la ficha guardada (error de conexión). Tus datos siguen guardados — recargá para reintentar.';}
+    return;
+  }
   if(!data)return;
   var set=function(id,val){var el=document.getElementById(id);if(el)el.value=val||'';};
   set('f1-nota1',data.primera_impresion);
@@ -3264,6 +3273,11 @@ async function initGrades(){
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
   var res=await window.__sb.from('grades').select('student_id,subject_id,score').eq('teacher_id',user.id).eq('period',gradesPeriodo);
+  if(res.error){
+    // CRÍTICO: si falla, NO vaciar gradesData — dejar lo que ya hubiera en pantalla en vez de un boletín en blanco.
+    alert('⚠️ No se pudieron cargar las notas guardadas (error de conexión). Tus datos siguen guardados — recargá la página para reintentar.');
+    return;
+  }
   gradesData={};
   if(res.data&&res.data.length){
     res.data.forEach(function(g){if(!gradesData[g.student_id])gradesData[g.student_id]={};var code=SUBJECT_CODES[g.subject_id];if(code)gradesData[g.student_id][code]=g.score;});
@@ -4052,9 +4066,11 @@ async function guardarReunionSupabase(){
 async function cargarHistorialReuniones(){
   var hist=document.getElementById('reunion-historial');
   if(!hist||!window.__sb)return;
+  hist.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px 0;">Cargando...</div>';
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user){hist.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px 0;">Sin sesión</div>';return;}
-  var {data}=await window.__sb.from('family_meetings').select('*').eq('teacher_id',user.id).order('created_at',{ascending:false}).limit(10);
+  var {data,error}=await window.__sb.from('family_meetings').select('*').eq('teacher_id',user.id).order('created_at',{ascending:false}).limit(10);
+  if(error){hist.innerHTML='<div style="font-size:12px;color:#C0392B;text-align:center;padding:8px;background:#FDE8E8;border-radius:8px;">⚠️ No se pudo cargar el historial (error de conexión). Tus datos siguen guardados — recargá para reintentar.</div>';return;}
   if(!data||!data.length){hist.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px 0;">Sin reuniones registradas</div>';return;}
   hist.innerHTML=data.map(function(r){
     var nombre=r.tipo==='grupal'?'Reunión grupal':(r.student_id?((window.__students||[]).find(function(s){return s.id===r.student_id;})||{full_name:'Alumno'}).full_name:'Sin alumno');
@@ -4107,25 +4123,32 @@ async function cargarAsistenciaFecha() {
   var fecha = document.getElementById('asist-fecha').value;
   if (!fecha || !window.__students || !window.__students.length) return;
 
-  asistenciaHoy = {};
+  var nuevaAsistencia = {};
   window.__students.forEach(function(s) {
-    asistenciaHoy[s.id] = { status: 'presente', notes: '' };
+    nuevaAsistencia[s.id] = { status: 'presente', notes: '' };
   });
 
   if (window.__sb) {
     var user = (await window.__sb.auth.getUser()).data.user;
     if (user) {
-      var { data } = await window.__sb.from('attendance')
+      var { data, error } = await window.__sb.from('attendance')
         .select('student_id, status, notes')
         .eq('teacher_id', user.id)
         .eq('date', fecha);
+      if (error) {
+        // CRÍTICO: si falla la consulta, NO asumir "presente" para todos sin avisar.
+        // Eso sería mostrar un dato incorrecto como si fuera correcto.
+        alert('⚠️ No se pudo cargar la asistencia guardada para esta fecha (error de conexión). NO se muestra el estado real todavía — recargá la página antes de tomar asistencia, para no sobrescribir datos guardados por error.');
+        return;
+      }
       if (data && data.length) {
         data.forEach(function(r) {
-          asistenciaHoy[r.student_id] = { status: r.status, notes: r.notes || '' };
+          nuevaAsistencia[r.student_id] = { status: r.status, notes: r.notes || '' };
         });
       }
     }
   }
+  asistenciaHoy = nuevaAsistencia;
 
   renderAsistencia();
 }
@@ -4246,13 +4269,18 @@ async function guardarNotaLocal(){
 }
 function renderNotasGuardadas(){var l=document.getElementById('notas-lista'),c=document.getElementById('notas-guardadas-container');if(notasG.length===0){c.style.display='none';return;}c.style.display='block';l.innerHTML=notasG.slice(0,5).map(n=>'<div style="background:var(--crema);border-radius:9px;padding:8px 11px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:flex-start;gap:7px;"><div style="flex:1;"><div style="font-size:10px;color:var(--gris);">'+n.fecha+' · '+(n.destino==='alumno'?n.alumno:'Agenda')+'</div><div style="font-size:12px;">'+n.texto.substring(0,100)+'</div></div><button onclick="borrarNota('+n.id+')" style="background:none;border:none;color:#CCC;cursor:pointer;">✕</button></div>').join('');}
 function borrarNota(id){
-  notasG=notasG.filter(n=>n.id!==id);
-  renderNotasGuardadas();
   if (window.__sb) {
     (async function(){
       var user=(await window.__sb.auth.getUser()).data.user;
-      if (user) await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('user_id',user.id);
+      if (!user) return;
+      var {error}=await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('user_id',user.id);
+      if(error){alert('No se pudo borrar la nota (error de conexión). Probá de nuevo.');return;}
+      notasG=notasG.filter(n=>n.id!==id);
+      renderNotasGuardadas();
     })();
+  } else {
+    notasG=notasG.filter(n=>n.id!==id);
+    renderNotasGuardadas();
   }
 }
 function generarPromptNota(){var pend=notasG.filter(n=>!n.sync);if(!pend.length)return;var p='Notas rápidas para HuellaED:\n\n';pend.forEach((n,i)=>{p+=(i+1)+'. ['+n.fecha+'] '+(n.destino==='alumno'?'PERFIL DE '+n.alumno:'AGENDA')+': '+n.texto+'\n';});p+='\nIncorporá cada nota donde corresponde.';document.getElementById('nota-prompt-text').textContent=p;document.getElementById('nota-prompt-container').style.display='block';notasG=notasG.map(n=>({...n,sync:true}));renderNotasGuardadas();}
@@ -4442,13 +4470,13 @@ async function cargarListaGestion(){
   if(!user)return;
   
   // Cargar activos e inactivos
-  var {data:activos}=await window.__sb.from('students')
+  var {data:activos,error:errorActivos}=await window.__sb.from('students')
     .select('id,full_name,has_differential')
     .eq('teacher_id',user.id)
     .eq('active',true)
     .order('full_name');
   
-  var {data:inactivos}=await window.__sb.from('students')
+  var {data:inactivos,error:errorInactivos}=await window.__sb.from('students')
     .select('id,full_name,has_differential,updated_at')
     .eq('teacher_id',user.id)
     .eq('active',false)
@@ -4456,7 +4484,9 @@ async function cargarListaGestion(){
 
   // Activos
   var laActivos=document.getElementById('gestion-lista-activos');
-  if(!activos||!activos.length){
+  if(errorActivos){
+    laActivos.innerHTML='<div style="font-size:12px;color:#C0392B;text-align:center;padding:8px;background:#FDE8E8;border-radius:8px;">⚠️ No se pudo cargar la lista (error de conexión). Tus alumnos siguen guardados — recargá para reintentar.</div>';
+  }else if(!activos||!activos.length){
     laActivos.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin alumnos activos</div>';
   }else{
     laActivos.innerHTML=activos.map(function(s){
@@ -4469,7 +4499,9 @@ async function cargarListaGestion(){
 
   // Inactivos
   var laInactivos=document.getElementById('gestion-lista-inactivos');
-  if(!inactivos||!inactivos.length){
+  if(errorInactivos){
+    laInactivos.innerHTML='<div style="font-size:12px;color:#C0392B;text-align:center;padding:8px;background:#FDE8E8;border-radius:8px;">⚠️ No se pudo cargar la lista (error de conexión). Recargá para reintentar.</div>';
+  }else if(!inactivos||!inactivos.length){
     laInactivos.innerHTML='<div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Sin alumnos archivados</div>';
   }else{
     laInactivos.innerHTML=inactivos.map(function(s){
