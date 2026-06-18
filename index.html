@@ -2247,7 +2247,7 @@ async function generarPerfilAcademico(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s){alert('No se encontró el alumno. Cerrá el perfil y volvé a abrirlo.');return;}
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){apiKey=window.prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var nombre=s.full_name;
 
   // ── SOLO DATOS REALES DE SUPABASE ──
@@ -2503,7 +2503,7 @@ async function generarInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){apiKey=window.prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
   var motivo=document.getElementById('informe-motivo').value;
   var destinatario=document.getElementById('informe-destinatario').value||'Equipo directivo';
   var nombre=s.full_name;
@@ -3737,7 +3737,7 @@ function quitarAdjuntoGen(){
 async function enviarAClaudeConArchivo(promptText){
   var apiKey=_sget('huellaed_anthropic_key');
   if(!apiKey){
-    apiKey=prompt('Ingresá tu API Key de Anthropic (se guarda solo en este dispositivo):');
+    apiKey=window.prompt('Ingresá tu API Key de Anthropic (se guarda solo en este dispositivo):');
     if(!apiKey)return;
     _sset('huellaed_anthropic_key',apiKey.trim());
     apiKey=apiKey.trim();
