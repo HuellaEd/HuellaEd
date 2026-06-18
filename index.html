@@ -301,6 +301,7 @@
 }
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 </head>
@@ -3387,7 +3388,7 @@ async function generarConIA(){
   var esAreaFotos=areaLower.indexOf('natural')>-1||areaLower.indexOf('social')>-1;
   var esAreaClipart=true;
   var instrFotos=esAreaFotos?' Ademas, en 1 o 2 secciones clave (las mas importantes del tema), agrega "fotoReal": una palabra o frase corta en ingles (2-4 palabras maximo) que describa concretamente que foto real buscar para ilustrar (ej: "Andes mountains Argentina", "frog life cycle", "Eiffel Tower"). Usa ingles porque la busqueda de fotos funciona mejor asi. Si la seccion no necesita foto, no agregues el campo.':'';
-  var instrClipart=esAreaClipart?' Ademas, en secciones donde la actividad sea de tipo "dibuja y escribi" o similar, especialmente para primer ciclo, agrega "clipart": el nombre de UN dibujo simple a mostrar, elegido de esta lista exacta: sol, casa, arbol, perro, gato, pelota, manzana, flor, pajaro, pez, estrella, globo, nube, libro, lapiz, vaca, caballo, pollo, rana, mariposa, auto, bicicleta, avion, barco, pan, torta, leche, reloj_pared, mochila, cara_nino, familia, corazon, arcoiris. Elegi el que mejor se relacione con el tema o consigna. Si ninguno aplica bien, no agregues el campo.':'';
+  var instrClipart=esAreaClipart?' Ademas, en secciones donde la actividad sea de tipo "dibuja y escribi" o similar para primer ciclo, agrega "clipart": el nombre de UN dibujo simple a mostrar, elegido de esta lista exacta: sol, casa, arbol, perro, gato, pelota, manzana, flor, pajaro, pez, estrella, globo, nube, libro, lapiz, vaca, caballo, pollo, rana, mariposa, auto, bicicleta, avion, barco, pan, torta, leche, reloj_pared, mochila, cara_nino, familia, corazon, arcoiris. Elegi el que mejor se relacione con el tema o consigna. Si ninguno aplica bien, no agregues el campo.':'';
   var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+' Lenguaje directo al alumno.';
   var contentParts=[];
   if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
@@ -5294,7 +5295,21 @@ async function procesarArchivoPlanif(input){
       if(!textoDoc.trim())throw new Error('No se pudo extraer texto del Word. Probá guardándolo como PDF.');
       contenidoMensaje=[{type:'text',text:promptBase+'\n\nCONTENIDO DEL DOCUMENTO:\n'+textoDoc}];
     } else if(ext==='xls'||ext==='xlsx'){
-      throw new Error('Por ahora los archivos Excel no se pueden leer automáticamente. Guardalo como PDF o copiá el contenido en una planificación manual con "+ Nueva".');
+      if(typeof XLSX==='undefined')throw new Error('No se pudo cargar el lector de Excel. Probá de nuevo o guardalo como PDF.');
+      var arrayBufferXl=await file.arrayBuffer();
+      var workbook=XLSX.read(arrayBufferXl,{type:'array'});
+      var textoExcel='';
+      workbook.SheetNames.forEach(function(nombreHoja){
+        var hoja=workbook.Sheets[nombreHoja];
+        var filas=XLSX.utils.sheet_to_json(hoja,{header:1,blankrows:false,defval:''});
+        if(!filas.length)return;
+        textoExcel+='\n--- Hoja: '+nombreHoja+' ---\n';
+        filas.forEach(function(fila){
+          textoExcel+=fila.map(function(celda){return String(celda).trim();}).filter(Boolean).join(' | ')+'\n';
+        });
+      });
+      if(!textoExcel.trim())throw new Error('El Excel parece estar vacío o no se pudo leer su contenido.');
+      contenidoMensaje=[{type:'text',text:promptBase+'\n\nCONTENIDO DEL DOCUMENTO (Excel, cada fila separada por |):\n'+textoExcel}];
     } else {
       // Imagen
       var base64Img=await blobToBase64(file);
