@@ -3008,7 +3008,7 @@ async function borrarPlanif(id){
 
 
 
-function abrirFicha(){
+async function abrirFicha(){
   document.getElementById('modal-ficha').style.display='block';
   document.getElementById('ficha-fecha').value = new Date().toISOString().slice(0,10);
   document.getElementById('ficha-contenido').style.display='none';
@@ -3017,7 +3017,7 @@ function abrirFicha(){
   document.getElementById('ficha-msg').textContent='';
 }
 
-function cerrarFicha(){
+async function cerrarFicha(){
   document.getElementById('modal-ficha').style.display='none';
 }
 
@@ -3372,7 +3372,7 @@ function renderStatsAreas(){
   }).join('');
 }
 
-function updateGrade(input){
+async function updateGrade(input){
   var sid=input.dataset.sid;
   var area=input.dataset.area;
   var val=input.value!==''?parseFloat(input.value):null;
@@ -3953,7 +3953,7 @@ function cerrarGrabador(){
   document.getElementById('grab-sesion-panel').style.display='none';
 }
 function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];var mimeTypeG=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';mr=new MediaRecorder(st,mimeTypeG?{mimeType:mimeTypeG}:{});mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
-function descargarAudio(){
+async function descargarAudio(){
   var al=document.getElementById('grab-alumno').value;
   var titulo=document.getElementById('grab-titulo-texto').value;
   var tituloSlug=titulo?'_'+titulo.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').trim().replace(/ /g,'_').substring(0,20):'';
@@ -4181,7 +4181,7 @@ function descargarEvidenciaSesion(){
   evFile=null;
   renderEvidencias();
 }
-function descargarEvidencia(){
+async function descargarEvidencia(){
   if(!evFile)return;
   var nombre=actualizarNombreEv();
   if(!nombre){alert('Completá el alumno y el tema');return;}
@@ -4553,7 +4553,7 @@ async function guardarNotaLocal(){
   renderNotasGuardadas();
 }
 function renderNotasGuardadas(){var l=document.getElementById('notas-lista'),c=document.getElementById('notas-guardadas-container');if(notasG.length===0){c.style.display='none';return;}c.style.display='block';l.innerHTML=notasG.slice(0,5).map(n=>'<div style="background:var(--crema);border-radius:9px;padding:8px 11px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:flex-start;gap:7px;"><div style="flex:1;"><div style="font-size:10px;color:var(--gris);">'+n.fecha+' · '+(n.destino==='alumno'?n.alumno:'Agenda')+'</div><div style="font-size:12px;">'+n.texto.substring(0,100)+'</div></div><button onclick="borrarNota('+n.id+')" style="background:none;border:none;color:#CCC;cursor:pointer;">✕</button></div>').join('');}
-function borrarNota(id){
+async function borrarNota(id){
   if (window.__sb) {
     (async function(){
       var user=(await window.__sb.auth.getUser()).data.user;
@@ -4650,7 +4650,7 @@ function cerrarObservacion(){
   if(dictandoObs)detenerDictadoObs();
 }
 
-function toggleDictadoObs(){
+async function toggleDictadoObs(){
   if(!dictandoObs)iniciarDictadoObs();else detenerDictadoObs();
 }
 
