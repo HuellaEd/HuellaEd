@@ -18,7 +18,16 @@
       --negro:#2D3A35;--blanco:#FFFFFF;
       --radius:14px;--radius-sm:10px;--shadow:0 1px 4px rgba(0,0,0,0.08);
     }
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--crema);min-height:100vh;color:var(--negro);}
+    body.modo-oscuro{
+      --verde:#3A8A71;--verde2:#4DA384;--verde-claro:#5A9B82;--verde-bg:#16332A;
+      --terracota:#D99868;--terracota-bg:#3A2A1C;
+      --crema:#252521;--gris-claro:#3A3935;--gris:#9B9486;
+      --negro:#EDEAE3;--blanco:#1C1C19;
+      --radius:14px;--radius-sm:10px;--shadow:0 1px 4px rgba(0,0,0,0.4);
+    }
+    body.modo-oscuro{background-color:#15140F;}
+    body.modo-oscuro .alumno-ini{background:rgba(255,255,255,0.1)!important;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--crema);min-height:100vh;color:var(--negro);transition:background-color 0.2s,color 0.2s;}
 
     /* HEADER */
     header{background:var(--verde);padding:18px 20px 14px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);}
@@ -56,9 +65,10 @@
     .grupo-btn span{color:rgba(168,201,188,0.85);font-size:11px;}
     .grupo-btn .card-arr{color:rgba(255,255,255,0.5);transition:transform 0.2s;}
     .grupo-btn.abierto .card-arr{transform:rotate(90deg);}
-    .grupo-panel{display:none;background:var(--blanco);border-radius:0 0 var(--radius) var(--radius);border:1.5px solid var(--gris-claro);border-top:none;overflow:hidden;margin-top:-4px;}
+    .grupo-panel{display:none;background:var(--blanco);border-radius:0 0 var(--radius) var(--radius);border:2px solid var(--gris-claro);border-top:none;overflow:hidden;margin-top:-4px;box-shadow:0 3px 10px rgba(0,0,0,0.05);}
     .grupo-panel.visible{display:grid;grid-template-columns:1fr 1fr;}
-    .subcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 12px;border-right:1px solid var(--gris-claro);border-bottom:1px solid var(--gris-claro);cursor:pointer;transition:background 0.12s;background:var(--blanco);}
+    .subcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 12px;border-right:2px solid var(--gris-claro);border-bottom:2px solid var(--gris-claro);cursor:pointer;transition:background 0.12s,box-shadow 0.12s;background:#FAFAF8;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.02);}
+    .subcard:hover{background:var(--blanco);box-shadow:0 2px 6px rgba(0,0,0,0.08);position:relative;z-index:1;}
     .subcard:active{background:var(--verde-bg);}
     .subcard:nth-child(even){border-right:none;}
     .subcard:nth-last-child(-n+2){border-bottom:none;}
@@ -327,7 +337,8 @@
     <h1>Huella<span>ED</span></h1>
     <p id="header-docente">cada alumno, su trayecto ⚙️</p>
   </div>
-  <button class="btn-logout" id="btn-logout">Salir</button>
+  <button class="btn-logout" id="btn-modo-oscuro" onclick="toggleModoOscuro()" style="margin-left:auto;margin-right:8px;" title="Modo oscuro">🌙</button>
+  <button class="btn-logout" id="btn-logout" style="margin-left:0;">Salir</button>
 </header>
 
 <main>
@@ -1661,6 +1672,24 @@ async function initAgenda() {
   }
   tareas = data.map(function(t) { return { id: t.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; });
 }
+
+function toggleModoOscuro(){
+  var activado=!document.body.classList.contains('modo-oscuro');
+  document.body.classList.toggle('modo-oscuro',activado);
+  _sset('huellaed_modo_oscuro',activado?'1':'0');
+  var btn=document.getElementById('btn-modo-oscuro');
+  if(btn)btn.textContent=activado?'☀️':'🌙';
+}
+
+function aplicarModoOscuroGuardado(){
+  var guardado=_sget('huellaed_modo_oscuro');
+  if(guardado==='1'){
+    document.body.classList.add('modo-oscuro');
+    var btn=document.getElementById('btn-modo-oscuro');
+    if(btn)btn.textContent='☀️';
+  }
+}
+aplicarModoOscuroGuardado();
 
 async function initTeacher(){
   if(!window.__sb)return;
