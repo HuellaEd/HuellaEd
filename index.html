@@ -310,6 +310,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
 
@@ -372,6 +373,9 @@
     </div>
     <div class="card" onclick="abrirObservacion()">
       <div class="card-icon ic-o">📝</div><div class="card-body"><strong>Cargar Observación</strong><span>Escribir o dictar</span></div><div class="card-arr">›</div>
+    </div>
+    <div class="card" onclick="abrirQRGrado()">
+      <div class="card-icon ic-y">📱</div><div class="card-body"><strong>QR de mis alumnos</strong><span>Imprimir para pegar</span></div><div class="card-arr">›</div>
     </div>
 
   </div>
@@ -778,9 +782,36 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div id="perf-nombre" style="font-size:16px;font-weight:700;color:#fff;"></div>
         <div id="perf-badge" style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;"></div>
       </div>
+      <button onclick="abrirQRAlumno()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:16px;cursor:pointer;line-height:1;" title="Ver código QR">▦</button>
       <button onclick="cerrarPerfilAcademico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;line-height:1;">✕</button>
     </div>
     <div id="perf-body" style="padding:18px;max-height:72vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- QR INDIVIDUAL DEL ALUMNO -->
+<div id="modal-qr-alumno" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1100;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:360px;margin:40px auto;padding:20px;text-align:center;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:14px;color:var(--verde);">📱 Código QR del alumno</strong>
+      <button onclick="cerrarQRAlumno()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>
+    </div>
+    <div id="qr-alumno-nombre" style="font-size:13px;font-weight:700;color:var(--negro);margin-bottom:12px;"></div>
+    <div id="qr-alumno-canvas-container" style="display:flex;justify-content:center;margin-bottom:14px;"></div>
+    <div style="font-size:9.5px;color:var(--gris);margin-bottom:14px;line-height:1.5;">Al escanearlo, abre el perfil del alumno con su Perfil Académico Funcional en HuellaED.</div>
+    <button onclick="imprimirQRAlumno()" class="save-btn" style="width:100%;">🖨️ Imprimir este QR</button>
+  </div>
+</div>
+
+<!-- HOJA DE QR DE TODO EL GRADO -->
+<div id="modal-qr-grado" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1100;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;max-width:680px;margin:20px auto;padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:14px;color:var(--verde);">📱 Códigos QR de todo el grado</strong>
+      <button onclick="document.getElementById('modal-qr-grado').style.display='none';" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>
+    </div>
+    <div id="qr-grado-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;"></div>
+    <button onclick="imprimirHojaQRGrado()" class="save-btn" style="width:100%;">🖨️ Imprimir hoja completa</button>
   </div>
 </div>
 
@@ -1569,6 +1600,16 @@ async function initStudents() {
     + students.map(function(s){
         return '<option value="' + nameToKey(s.full_name) + '">' + s.full_name + '</option>';
       }).join('');
+
+  // Si se llegó a la app escaneando un QR (URL con ?alumno=ID), abrir directo ese perfil
+  try{
+    var paramsQR=new URLSearchParams(window.location.search);
+    var alumnoQR=paramsQR.get('alumno');
+    if(alumnoQR){
+      var existeAlumnoQR=students.some(function(s){return s.id===alumnoQR;});
+      if(existeAlumnoQR)abrirPerfilAcademico(alumnoQR);
+    }
+  }catch(eQR){console.log('No se pudo abrir el perfil desde el QR:',eQR);}
 }
 
 async function initNotas() {
@@ -2030,6 +2071,82 @@ async function borrarObsGrupal(btn,id){
   if(!user)return;
   await window.__sb.from('observaciones_grupales').delete().eq('id',id).eq('teacher_id',user.id);
   cargarObservacionesGrupales();
+}
+
+function urlPerfilAlumno(studentId){
+  return window.location.origin+window.location.pathname+'?alumno='+studentId;
+}
+
+function dibujarQREnContenedor(contenedorEl,url,tamano){
+  contenedorEl.innerHTML='';
+  if(typeof qrcode==='undefined'){
+    contenedorEl.innerHTML='<div style="font-size:11px;color:#C0392B;">No se pudo cargar el generador de QR. Revisá tu conexión.</div>';
+    return;
+  }
+  var qr=qrcode(0,'M');
+  qr.addData(url);
+  qr.make();
+  var tam=tamano||5;
+  contenedorEl.innerHTML=qr.createSvgTag(tam,4);
+}
+
+function abrirQRAlumno(){
+  var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
+  if(!s)return;
+  document.getElementById('qr-alumno-nombre').textContent=s.full_name;
+  var cont=document.getElementById('qr-alumno-canvas-container');
+  dibujarQREnContenedor(cont,urlPerfilAlumno(s.id),6);
+  document.getElementById('modal-qr-alumno').style.display='block';
+}
+
+function cerrarQRAlumno(){
+  document.getElementById('modal-qr-alumno').style.display='none';
+}
+
+function imprimirQRAlumno(){
+  var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
+  if(!s)return;
+  var svgHtml=document.getElementById('qr-alumno-canvas-container').innerHTML;
+  var ventana=window.open('','_blank');
+  ventana.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR - '+s.full_name+'</title>'
+    +'<style>body{font-family:sans-serif;text-align:center;padding:40px;}h2{margin-bottom:20px;}p{font-size:11px;color:#888;margin-top:16px;}</style></head><body>'
+    +'<h2>'+s.full_name+'</h2>'
+    +svgHtml
+    +'<p>Escanear con la cámara para ver el perfil en HuellaED</p>'
+    +'</body></html>');
+  ventana.document.close();
+  setTimeout(function(){ventana.print();},300);
+}
+
+function abrirQRGrado(){
+  var students=window.__students||[];
+  if(!students.length){alert('No hay alumnos cargados todavía');return;}
+  var grid=document.getElementById('qr-grado-grid');
+  grid.innerHTML='';
+  students.forEach(function(s){
+    var item=document.createElement('div');
+    item.style.cssText='text-align:center;border:1px solid var(--gris-claro);border-radius:9px;padding:10px;';
+    var nombreDiv=document.createElement('div');
+    nombreDiv.style.cssText='font-size:10px;font-weight:700;margin-bottom:6px;color:var(--negro);';
+    nombreDiv.textContent=s.full_name;
+    var qrDiv=document.createElement('div');
+    item.appendChild(nombreDiv);
+    item.appendChild(qrDiv);
+    grid.appendChild(item);
+    dibujarQREnContenedor(qrDiv,urlPerfilAlumno(s.id),3);
+  });
+  document.getElementById('modal-qr-grado').style.display='block';
+}
+
+function imprimirHojaQRGrado(){
+  var gradoEl=document.getElementById('qr-grado-grid');
+  var ventana=window.open('','_blank');
+  ventana.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR del grado</title>'
+    +'<style>body{font-family:sans-serif;padding:20px;}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}.item{text-align:center;border:1px solid #ddd;border-radius:8px;padding:10px;page-break-inside:avoid;}.item div:first-child{font-size:11px;font-weight:700;margin-bottom:6px;}</style></head><body>'
+    +'<div class="grid">'+gradoEl.innerHTML.replace(/<div style="text-align:center;border:1px solid var\(--gris-claro\);border-radius:9px;padding:10px;">/g,'<div class="item">')+'</div>'
+    +'</body></html>');
+  ventana.document.close();
+  setTimeout(function(){ventana.print();},300);
 }
 
 async function abrirPerfilAcademico(studentId){
