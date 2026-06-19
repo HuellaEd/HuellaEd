@@ -410,8 +410,7 @@
   </button>
   <div class="grupo-panel" id="panel-generar">
     <div class="subcard boton-generador" onclick="abrirGenerador()"><span class="subcard-icon">✨</span><span class="subcard-label">Material</span><span class="subcard-sub">Cuadernillos, fichas</span></div>
-    <div class="subcard" onclick="togglePrompts()"><span class="subcard-icon">🧩</span><span class="subcard-label">Prompts</span><span class="subcard-sub">Secuencias didácticas</span></div>
-    <div class="subcard" onclick="abrirGeneradorBoletin()" style="grid-column:span 2;"><span class="subcard-icon">📋</span><span class="subcard-label">Generar informes de boletín</span><span class="subcard-sub">Usando evidencias y observaciones del período</span></div>
+    <div class="subcard" onclick="abrirGeneradorBoletin()"><span class="subcard-icon">📋</span><span class="subcard-label">Generar informes de boletín</span><span class="subcard-sub">Usando evidencias y observaciones del período</span></div>
   </div>
 
   <!-- PANELES -->
@@ -431,13 +430,6 @@
     <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;font-size:10px;"><span style="background:#FDE8E8;padding:2px 7px;border-radius:5px;">🔴 +10</span><span style="background:#FDF0E8;padding:2px 7px;border-radius:5px;">🟠 7-9</span><span style="background:#FDFAE8;padding:2px 7px;border-radius:5px;">🟡 5-6</span><span style="background:var(--verde-bg);padding:2px 7px;border-radius:5px;">✅ OK</span></div></div>
   </div>
 
-  <div id="prompts-sec" style="display:none;margin-top:10px;">
-    <div class="prompt-card" id="p1"><div class="prompt-header" onclick="togglePrompt('p1')"><div class="prompt-num">1</div><div class="prompt-title">Bosquejo general</div><div class="prompt-tog" id="tog-p1">+</div></div><div class="prompt-body" id="body-p1" style="display:none;"><p class="prompt-txt" id="txt-p1">Actuá como asistente pedagógico experto en diseño de secuencias didácticas para nivel PRIMARIO de PBA. A partir del diseño curricular, elaborá un bosquejo general de una secuencia en [ÁREA], [AÑO], sobre [CONTENIDOS]. Objetivos: [COMPLETAR]. Contemplar inicio, desarrollo y cierre en [XX CLASES]. Incluí fundamentación breve. Presentar como esquema general, sin desarrollar actividades en detalle.</p><button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button></div></div>
-    <div class="prompt-card" id="p2"><div class="prompt-header" onclick="togglePrompt('p2')"><div class="prompt-num">2</div><div class="prompt-title">Desarrollo de actividades</div><div class="prompt-tog" id="tog-p2">+</div></div><div class="prompt-body" id="body-p2" style="display:none;"><p class="prompt-txt" id="txt-p2">A partir del bosquejo, desarrollá [CANTIDAD] actividades distribuidas en apertura, desarrollo y cierre. Para cada actividad: título, objetivo, procedimiento y producción esperada.</p><button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button></div></div>
-    <div class="prompt-card" id="p3"><div class="prompt-header" onclick="togglePrompt('p3')"><div class="prompt-num">3</div><div class="prompt-title">Formulación de consignas</div><div class="prompt-tog" id="tog-p3">+</div></div><div class="prompt-body" id="body-p3" style="display:none;"><p class="prompt-txt" id="txt-p3">Sobre las actividades definidas, diseñá las consignas. Lenguaje adecuado al nivel primario, verbos precisos, sin ambigüedades.</p><button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button></div></div>
-    <div class="prompt-card" id="p4"><div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-tog" id="tog-p4">+</div></div><div class="prompt-body" id="body-p4" style="display:none;"><p class="prompt-txt" id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div></div>
-  </div>
-
   <!-- PLANIFICACIONES -->
   <div class="section-label">Planificaciones</div>
   <div class="card" onclick="abrirPlanificaciones()" style="cursor:pointer;">
@@ -446,6 +438,22 @@
     <div class="card-arr">›</div>
   </div>
 
+  <!-- RECURSOS Y DOCUMENTOS (sección nueva, distinta del pie de página) -->
+  <div class="section-label">Material de consulta</div>
+  <div class="card" onclick="togglePrompts()" style="cursor:pointer;">
+    <div class="card-icon" style="background:#F5EEDC;font-size:22px;">🧩</div>
+    <div class="card-body"><strong>Prompts</strong><span>Secuencias didácticas</span></div>
+    <div class="card-arr">›</div>
+  </div>
+
+<div id="prompts-sec" style="display:none;margin-top:10px;">
+    <div class="prompt-card" id="p1"><div class="prompt-header" onclick="togglePrompt('p1')"><div class="prompt-num">1</div><div class="prompt-title">Bosquejo general</div><div class="prompt-tog" id="tog-p1">+</div></div><div class="prompt-body" id="body-p1" style="display:none;"><p class="prompt-txt" id="txt-p1">Actuá como asistente pedagógico experto en diseño de secuencias didácticas para nivel PRIMARIO de PBA. A partir del diseño curricular, elaborá un bosquejo general de una secuencia en [ÁREA], [AÑO], sobre [CONTENIDOS]. Objetivos: [COMPLETAR]. Contemplar inicio, desarrollo y cierre en [XX CLASES]. Incluí fundamentación breve. Presentar como esquema general, sin desarrollar actividades en detalle.</p><button class="copy-btn" onclick="copyText('txt-p1')">📋 Copiar</button></div></div>
+    <div class="prompt-card" id="p2"><div class="prompt-header" onclick="togglePrompt('p2')"><div class="prompt-num">2</div><div class="prompt-title">Desarrollo de actividades</div><div class="prompt-tog" id="tog-p2">+</div></div><div class="prompt-body" id="body-p2" style="display:none;"><p class="prompt-txt" id="txt-p2">A partir del bosquejo, desarrollá [CANTIDAD] actividades distribuidas en apertura, desarrollo y cierre. Para cada actividad: título, objetivo, procedimiento y producción esperada.</p><button class="copy-btn" onclick="copyText('txt-p2')">📋 Copiar</button></div></div>
+    <div class="prompt-card" id="p3"><div class="prompt-header" onclick="togglePrompt('p3')"><div class="prompt-num">3</div><div class="prompt-title">Formulación de consignas</div><div class="prompt-tog" id="tog-p3">+</div></div><div class="prompt-body" id="body-p3" style="display:none;"><p class="prompt-txt" id="txt-p3">Sobre las actividades definidas, diseñá las consignas. Lenguaje adecuado al nivel primario, verbos precisos, sin ambigüedades.</p><button class="copy-btn" onclick="copyText('txt-p3')">📋 Copiar</button></div></div>
+    <div class="prompt-card" id="p4"><div class="prompt-header" onclick="togglePrompt('p4')"><div class="prompt-num">4</div><div class="prompt-title">Documento final integrado</div><div class="prompt-tog" id="tog-p4">+</div></div><div class="prompt-body" id="body-p4" style="display:none;"><p class="prompt-txt" id="txt-p4">Elaborá el documento final integrado: encabezado institucional, fundamentación, objetivos, contenidos, desarrollo completo con actividades, consignas, tiempos, agrupamientos y recursos.</p><button class="copy-btn" onclick="copyText('txt-p4')">📋 Copiar</button></div></div>
+  </div>
+
+  
   <!-- NOTAS E INASISTENCIAS -->
   <div class="section-label">Notas e Inasistencias</div>
   <div class="grid grid-2">
