@@ -110,13 +110,10 @@
     .form-row{margin-bottom:11px;}
     .form-row label{display:block;font-size:11px;font-weight:700;color:var(--gris);margin-bottom:3px;text-transform:uppercase;letter-spacing:1px;}
     .form-row select,.form-row input[type=text],.form-row input[type=date]{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);color:var(--negro);}
-    .lb-mapa-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
-    .lb-mapa-tab{padding:6px 12px;border-radius:18px;font-size:11px;font-weight:700;cursor:pointer;background:#EEF2F6;color:#5B7FA6;}
-    .lb-mapa-tab.activa{background:#3B6E9E;color:#fff;}
-    #gen-mapa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-height:220px;overflow-y:auto;padding:2px;}
-    .lb-mapa-card{border:1.5px solid var(--gris-claro);border-radius:9px;padding:8px 5px;text-align:center;cursor:pointer;font-size:9.5px;font-weight:700;color:var(--negro);line-height:1.3;}
+    #gen-mapa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:2px;}
+    .lb-mapa-card{border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px 5px;text-align:center;cursor:pointer;font-size:9.5px;font-weight:700;color:var(--negro);line-height:1.3;}
     .lb-mapa-card:hover{border-color:#3B6E9E;background:#F5F9FC;}
-    .lb-mapa-card-fija{background:#EAF2F8;border-color:#5B7FA6;grid-column:span 4;font-size:11px;}
+    .lb-mapa-card-fija{background:#EAF2F8;border-color:#5B7FA6;font-size:11px;}
     .tipo-btn,.dest-btn{padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;text-align:center;font-size:12px;cursor:pointer;background:var(--crema);color:var(--negro);font-weight:500;}
     .tipo-btn.active,.dest-btn.active{background:var(--verde);color:#fff;border-color:var(--verde);}
     .alumno-check{padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;background:var(--crema);font-size:12px;transition:all 0.12s;}
@@ -6394,23 +6391,12 @@ var _mapasParaInicializar=[];
 // ── CATÁLOGO FIJO DE MAPAS (Ciencias Sociales) ──
 // Reemplaza el buscador libre anterior. Datos oficiales: IGN Argentina (georef-ar-api) para provincias,
 // Natural Earth (vía GeoJSON público) para continente/mundo. Sin claves de API.
-var CATALOGO_PROVINCIAS=[
-  {id:'02',nombre:'CABA'},{id:'06',nombre:'Buenos Aires'},{id:'10',nombre:'Catamarca'},
-  {id:'14',nombre:'Córdoba'},{id:'18',nombre:'Corrientes'},{id:'22',nombre:'Chaco'},
-  {id:'26',nombre:'Chubut'},{id:'30',nombre:'Entre Ríos'},{id:'34',nombre:'Formosa'},
-  {id:'38',nombre:'Jujuy'},{id:'42',nombre:'La Pampa'},{id:'46',nombre:'La Rioja'},
-  {id:'50',nombre:'Mendoza'},{id:'54',nombre:'Misiones'},{id:'58',nombre:'Neuquén'},
-  {id:'62',nombre:'Río Negro'},{id:'66',nombre:'Salta'},{id:'70',nombre:'San Juan'},
-  {id:'74',nombre:'San Luis'},{id:'78',nombre:'Santa Cruz'},{id:'82',nombre:'Santa Fe'},
-  {id:'86',nombre:'Santiago del Estero'},{id:'90',nombre:'Tucumán'},{id:'94',nombre:'Tierra del Fuego'}
-];
 var URL_PAISES_MUNDO='https://raw.githubusercontent.com/stefanocudini/leaflet-geojson-selector/master/examples/world-countries.json';
 var PAISES_AMERICA=['Argentina','Bolivia','Brazil','Canada','Chile','Colombia','Costa Rica','Cuba','Dominican Republic','Ecuador','El Salvador','Guatemala','Guyana','Haiti','Honduras','Jamaica','Mexico','Nicaragua','Panama','Paraguay','Peru','Suriname','United States of America','United States','Uruguay','Venezuela','Belize','French Guiana','Trinidad and Tobago','The Bahamas','Bahamas'];
 
 var _mapaSeleccionActual=null; // {tipo:'provincia'|'argentina'|'america'|'mundo', id, nombre, geojson}
 var _geojsonArgentinaCache=null;
 var _geojsonMundoCache=null;
-var _mapaTabActiva='provincias';
 
 function toggleBloqueMapas(){
   var area=document.getElementById('gen-area').value;
@@ -6425,18 +6411,8 @@ function toggleBloqueMapas(){
 function armarGaleriaMapas(){
   var galeria=document.getElementById('gen-mapa-galeria');
   galeria.dataset.armada='1';
-  var tabsHtml='<div class="lb-mapa-tabs">'
-    +'<div class="lb-mapa-tab '+(_mapaTabActiva==='provincias'?'activa':'')+'" data-tab="provincias" onclick="cambiarTabMapas(\'provincias\')">🇦🇷 Provincias</div>'
-    +'<div class="lb-mapa-tab '+(_mapaTabActiva==='continente'?'activa':'')+'" data-tab="continente" onclick="cambiarTabMapas(\'continente\')">🌎 Continente</div>'
-    +'<div class="lb-mapa-tab '+(_mapaTabActiva==='mundo'?'activa':'')+'" data-tab="mundo" onclick="cambiarTabMapas(\'mundo\')">🌍 Mundo</div>'
-    +'</div>';
-  galeria.innerHTML=tabsHtml+'<div id="gen-mapa-grid"></div>';
-  renderGridMapas();
-}
-
-function cambiarTabMapas(tab){
-  _mapaTabActiva=tab;
-  document.querySelectorAll('.lb-mapa-tab').forEach(function(t){t.classList.toggle('activa',t.dataset.tab===tab);});
+  // Catálogo reducido: solo Argentina, Continente americano y Mundo (sin provincias individuales)
+  galeria.innerHTML='<div id="gen-mapa-grid"></div>';
   renderGridMapas();
 }
 
@@ -6444,48 +6420,10 @@ function renderGridMapas(){
   var grid=document.getElementById('gen-mapa-grid');
   if(!grid)return;
   var html='';
-  if(_mapaTabActiva==='provincias'){
-    html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'argentina\',null,\'Argentina\')">🇦🇷<div>Argentina completa</div></div>';
-    CATALOGO_PROVINCIAS.forEach(function(p){
-      html+='<div class="lb-mapa-card" onclick="elegirMapaCatalogo(\'provincia\',\''+p.id+'\',\''+p.nombre.replace(/'/g,"\\\'")+'\')">📍<div>'+p.nombre+'</div></div>';
-    });
-  }else if(_mapaTabActiva==='continente'){
-    html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'america\',null,\'Continente americano\')">🌎<div>Continente americano</div></div>';
-  }else if(_mapaTabActiva==='mundo'){
-    html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'mundo\',null,\'Planisferio (mundo)\')">🌍<div>Planisferio (mundo)</div></div>';
-  }
+  html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'argentina\',null,\'Argentina\')">🇦🇷<div>Argentina completa</div></div>';
+  html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'america\',null,\'Continente americano\')">🌎<div>Continente americano</div></div>';
+  html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'mundo\',null,\'Planisferio (mundo)\')">🌍<div>Planisferio (mundo)</div></div>';
   grid.innerHTML=html;
-}
-
-async function _fetchProvinciaPorParametro(param,valor){
-  var url='https://apis.datos.gob.ar/georef/api/provincias?'+param+'='+encodeURIComponent(valor)+'&campos=geometria,nombre,id&formato=json&max=1';
-  var res=await fetch(url);
-  if(!res.ok)throw new Error('Error '+res.status+' ('+res.statusText+') con '+param+'='+valor);
-  var data=await res.json();
-  var prov=data.provincias&&data.provincias[0];
-  if(!prov||!prov.geometria)throw new Error('Sin geometría en la respuesta para '+param+'='+valor);
-  return prov;
-}
-
-async function obtenerGeoJsonProvincia(id,nombre){
-  var prov=null,ultimoError=null;
-  // Intento 1: por id. Intento 2 (si falla): por nombre. Da más chances de éxito ante cambios de la API.
-  try{
-    prov=await _fetchProvinciaPorParametro('id',id);
-  }catch(e1){
-    ultimoError=e1;
-    if(nombre){
-      try{
-        prov=await _fetchProvinciaPorParametro('nombre',nombre);
-      }catch(e2){
-        ultimoError=e2;
-      }
-    }
-  }
-  if(!prov){
-    throw new Error('No se pudo obtener el mapa de esta provincia tras 2 intentos. Último error: '+(ultimoError?ultimoError.message:'desconocido'));
-  }
-  return {type:'Feature',properties:{nombre:prov.nombre},geometry:prov.geometria};
 }
 
 async function obtenerGeoJsonArgentinaCompleta(){
@@ -6526,20 +6464,8 @@ async function elegirMapaCatalogo(tipo,id,nombre){
   var resultadoDiv=document.getElementById('gen-mapa-resultado');
   resultadoDiv.innerHTML='<div style="font-size:11px;color:var(--gris);">Cargando mapa de '+escHtml(nombre)+'...</div>';
   try{
-    var geojson=null,resaltarId=null;
-    if(tipo==='provincia'){
-      var featureProv=await obtenerGeoJsonProvincia(id,nombre);
-      geojson={type:'FeatureCollection',features:[featureProv]};
-      // También intentamos traer Argentina completa para dar contexto, PERO es opcional:
-      // si esto falla (archivo pesado, timeout), mostramos la provincia sola en vez de fallar todo.
-      var argentinaCompleta=null;
-      try{
-        argentinaCompleta=await obtenerGeoJsonArgentinaCompleta();
-      }catch(eContexto){
-        console.log('No se pudo cargar el contexto de Argentina completa, se muestra solo la provincia:',eContexto.message);
-      }
-      _mapaSeleccionActual={tipo:tipo,id:id,nombre:nombre,geojsonResaltado:geojson,geojsonContexto:argentinaCompleta};
-    }else if(tipo==='argentina'){
+    var geojson=null;
+    if(tipo==='argentina'){
       geojson=await obtenerGeoJsonArgentinaCompleta();
       _mapaSeleccionActual={tipo:tipo,id:null,nombre:nombre,geojsonResaltado:geojson,geojsonContexto:null};
     }else if(tipo==='america'){
