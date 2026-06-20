@@ -67,7 +67,7 @@
     .grupo-btn.abierto .card-arr{transform:rotate(90deg);}
     .grupo-panel{display:none;background:var(--blanco);border-radius:0 0 var(--radius) var(--radius);border:2px solid var(--gris-claro);border-top:none;overflow:hidden;margin-top:-4px;box-shadow:0 3px 10px rgba(0,0,0,0.05);}
     .grupo-panel.visible{display:grid;grid-template-columns:1fr 1fr;}
-    .subcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 12px;border-right:2px solid var(--gris-claro);border-bottom:2px solid var(--gris-claro);cursor:pointer;transition:background 0.12s,box-shadow 0.12s;background:#FAFAF8;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.02);}
+    .subcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 12px;border-right:2px solid var(--gris-claro);border-bottom:2px solid var(--gris-claro);cursor:pointer;transition:background 0.12s,box-shadow 0.12s;background:var(--crema);box-shadow:inset 0 0 0 1px rgba(0,0,0,0.02);}
     .subcard:hover{background:var(--blanco);box-shadow:0 2px 6px rgba(0,0,0,0.08);position:relative;z-index:1;}
     .subcard:active{background:var(--verde-bg);}
     .subcard:nth-child(even){border-right:none;}
@@ -108,7 +108,7 @@
     .panel-body{padding:14px;overflow-x:auto;}
     .form-row{margin-bottom:11px;}
     .form-row label{display:block;font-size:11px;font-weight:700;color:var(--gris);margin-bottom:3px;text-transform:uppercase;letter-spacing:1px;}
-    .form-row select,.form-row input[type=text],.form-row input[type=date]{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;color:var(--negro);}
+    .form-row select,.form-row input[type=text],.form-row input[type=date]{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);color:var(--negro);}
     .lb-mapa-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
     .lb-mapa-tab{padding:6px 12px;border-radius:18px;font-size:11px;font-weight:700;cursor:pointer;background:#EEF2F6;color:#5B7FA6;}
     .lb-mapa-tab.activa{background:#3B6E9E;color:#fff;}
@@ -116,9 +116,9 @@
     .lb-mapa-card{border:1.5px solid var(--gris-claro);border-radius:9px;padding:8px 5px;text-align:center;cursor:pointer;font-size:9.5px;font-weight:700;color:var(--negro);line-height:1.3;}
     .lb-mapa-card:hover{border-color:#3B6E9E;background:#F5F9FC;}
     .lb-mapa-card-fija{background:#EAF2F8;border-color:#5B7FA6;grid-column:span 4;font-size:11px;}
-    .tipo-btn,.dest-btn{padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;text-align:center;font-size:12px;cursor:pointer;background:#FAFAF8;color:var(--negro);font-weight:500;}
+    .tipo-btn,.dest-btn{padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;text-align:center;font-size:12px;cursor:pointer;background:var(--crema);color:var(--negro);font-weight:500;}
     .tipo-btn.active,.dest-btn.active{background:var(--verde);color:#fff;border-color:var(--verde);}
-    .alumno-check{padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;background:#FAFAF8;font-size:12px;transition:all 0.12s;}
+    .alumno-check{padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:9px;cursor:pointer;background:var(--crema);font-size:12px;transition:all 0.12s;}
     .alumno-check.selected{background:var(--verde-bg);border-color:var(--verde);}
     .save-btn{width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;}
     .sec-btn{background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;flex:1;}
@@ -139,16 +139,16 @@
     .ficha-preg{font-size:12px;font-weight:600;color:var(--negro);margin-bottom:6px;margin-top:10px;}
     .ficha-preg:first-of-type{margin-top:0;}
     .ficha-opciones{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;}
-    .ficha-chip{padding:6px 12px;border:1.5px solid var(--gris-claro);border-radius:18px;font-size:11px;cursor:pointer;background:#fff;color:var(--negro);transition:all 0.12s;user-select:none;-webkit-user-select:none;}
+    .ficha-chip{padding:6px 12px;border:1.5px solid var(--gris-claro);border-radius:18px;font-size:11px;cursor:pointer;background:var(--blanco);color:var(--negro);transition:all 0.12s;user-select:none;-webkit-user-select:none;}
     .ficha-chip.activo{background:var(--verde);color:#fff;border-color:var(--verde);}
-    .ficha-txt{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;background:#fff;resize:none;height:55px;box-sizing:border-box;margin-top:4px;font-family:inherit;}
+    .ficha-txt{width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;background:var(--blanco);resize:none;height:55px;box-sizing:border-box;margin-top:4px;font-family:inherit;}
 
     /* ASISTENCIA */
     .asist-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--gris-claro);}
     .asist-row:last-child{border-bottom:none;}
     .asist-nom{flex:1;font-size:12px;font-weight:600;color:var(--negro);}
     .asist-btns{display:flex;gap:4px;flex-shrink:0;}
-    .asist-btn{padding:5px 9px;border:1.5px solid var(--gris-claro);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;transition:all 0.12s;}
+    .asist-btn{padding:5px 9px;border:1.5px solid var(--gris-claro);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blanco);transition:all 0.12s;}
     .asist-btn.ap{background:var(--verde-bg);border-color:var(--verde);color:var(--verde);}
     .asist-btn.aa{background:#FDE8E8;border-color:#C0392B;color:#C0392B;}
     .asist-btn.aj{background:#E8EEF8;border-color:#5A7EB8;color:#5A7EB8;}
@@ -239,7 +239,7 @@
     /* ══ PICTOGRAMAS ARASAAC ══ */
     .lb-pictogramas-box{position:relative;z-index:1;margin:6px 0 10px 30px;}
     .lb-pictogramas-fila{display:flex;flex-wrap:wrap;gap:8px;}
-    .lb-pic-item{position:relative;background:#fff;border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:6px 7px 5px;text-align:center;width:72px;}
+    .lb-pic-item{position:relative;background:var(--blanco);border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:6px 7px 5px;text-align:center;width:72px;}
     .lb-pic-item img{width:54px;height:54px;object-fit:contain;display:block;margin:0 auto 3px;}
     .lb-pic-label{font-size:8.5px;color:#555;font-weight:600;text-transform:lowercase;}
     .lb-pic-cambiar,.lb-pic-quitar{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}
@@ -262,7 +262,7 @@
 
     /* ══ FOTOS REALES WIKIMEDIA COMMONS ══ */
     .lb-foto-real-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;max-width:320px;}
-    .lb-foto-real-box{background:#fff;border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:8px;}
+    .lb-foto-real-box{background:var(--blanco);border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:8px;}
     .lb-foto-real-box img{width:100%;max-height:200px;object-fit:cover;border-radius:7px;display:block;}
     .lb-foto-controles{display:flex;gap:6px;margin-top:5px;}
     .lb-foto-cambiar,.lb-foto-quitar{font-size:9.5px;font-weight:600;border:none;border-radius:14px;padding:3px 9px;cursor:pointer;}
@@ -517,7 +517,7 @@
 
 <!-- CLAUDE -->
 <div id="modal-claude" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:16px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🤖 Consultar a Claude</strong><button onclick="cerrarClaude()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <p style="font-size:12px;color:var(--gris);margin-bottom:10px;">Copiá este prompt y pegalo al inicio de una nueva conversación:</p>
     <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);">Soy docente de 6to Año de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
@@ -536,7 +536,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- GENERADOR -->
 <div id="modal-generador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">✨ Generar Material</strong><button onclick="cerrarGenerador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;">
       <div class="tipo-btn" onclick="selTipo(this,'cuadernillo')">📓 Cuadernillo</div>
@@ -573,7 +573,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Cuello, Thomas','adecuacion','Dificultad sostenida de concentración. Necesita consignas cortas y actividades de menor extensión.')"><span class="check-icon">☐</span> Cuello, Thomas<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>
       </div>
     </div>
-    <div class="form-row"><label style="display:flex;justify-content:space-between;align-items:center;">Detalles (opcional)<button type="button" id="btn-voz-detalles" onclick="toggleDictadoDetalles()" style="background:var(--crema);border:1.5px solid var(--gris-claro);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--negro);display:flex;align-items:center;gap:4px;">🎤 Dictar</button></label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, adjunto PDF del libro..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:65px;resize:none;box-sizing:border-box;"></textarea></div>
+    <div class="form-row"><label style="display:flex;justify-content:space-between;align-items:center;">Detalles (opcional)<button type="button" id="btn-voz-detalles" onclick="toggleDictadoDetalles()" style="background:var(--crema);border:1.5px solid var(--gris-claro);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--negro);display:flex;align-items:center;gap:4px;">🎤 Dictar</button></label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, adjunto PDF del libro..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:65px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row">
       <label>Archivo adjunto <span style="font-size:10px;color:var(--gris);font-weight:400;">(opcional — PDF o imagen)</span></label>
       <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:11px;cursor:pointer;">
@@ -604,7 +604,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- GRABADOR -->
 <div id="modal-grabador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:520px;margin:16px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:520px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">🎙️ Grabar Lectura</strong>
       <button onclick="cerrarGrabador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
@@ -625,8 +625,8 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <div class="form-row">
         <label>Texto a leer</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;">
-          <button onclick="document.getElementById('grab-foto-texto').click()" style="background:#fff;border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;color:var(--negro);">📷 Foto del texto</button>
-          <button onclick="toggleTextoManual()" id="btn-texto-manual" style="background:#fff;border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;color:var(--negro);">⌨️ Escribir texto</button>
+          <button onclick="document.getElementById('grab-foto-texto').click()" style="background:var(--blanco);border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;color:var(--negro);">📷 Foto del texto</button>
+          <button onclick="toggleTextoManual()" id="btn-texto-manual" style="background:var(--blanco);border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;color:var(--negro);">⌨️ Escribir texto</button>
         </div>
         <input type="file" id="grab-foto-texto" accept="image/*" capture="environment" style="display:none;" onchange="cargarFotoTexto(this)">
         <!-- Preview foto del texto -->
@@ -636,7 +636,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
         </div>
         <!-- Campo texto manual (opcional) -->
         <div id="grab-texto-manual-container" style="display:none;">
-          <textarea id="grab-texto" placeholder="Pegá o escribí el texto acá..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:90px;resize:none;box-sizing:border-box;"></textarea>
+          <textarea id="grab-texto" placeholder="Pegá o escribí el texto acá..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:90px;resize:none;box-sizing:border-box;"></textarea>
         </div>
       </div>
     </div>
@@ -693,7 +693,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- EVIDENCIA -->
 <div id="modal-evidencia" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:560px;margin:20px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:560px;margin:20px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">📷 Evidencia Pedagógica</strong><button onclick="cerrarEvidencia()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <!-- Modo sesión -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:var(--verde-bg);border-radius:9px;padding:10px 12px;cursor:pointer;" onclick="toggleSesion()">
@@ -713,7 +713,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
     <!-- Campo alumno individual -->
     <div id="ev-campo-alumno" class="form-row"><label>Alumno</label><select id="ev-alumno" onchange="actualizarNombreEv();if(evSesionActivo)renderSesionAlumnos();"><option value="">— Seleccionar —</option></select></div>
-    <div id="ev-campo-obs" class="form-row"><label>Observación (opcional)</label><textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:55px;resize:none;box-sizing:border-box;"></textarea></div>
+    <div id="ev-campo-obs" class="form-row"><label>Observación (opcional)</label><textarea id="ev-obs" placeholder="¿Qué muestra esta evidencia?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:55px;resize:none;box-sizing:border-box;"></textarea></div>
     <div id="ev-nombre-preview" style="background:var(--verde-bg);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);display:none;"><strong>Nombre:</strong> <span id="ev-nombre-txt"></span></div>
     <input type="file" id="ev-camara" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoMultiple(this)">
     <input type="file" id="ev-camara-multi" accept="image/*" multiple style="display:none;" onchange="procesarFotoMultiple(this)">
@@ -735,15 +735,15 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- REUNION -->
 <div id="modal-reunion" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">👨‍👩‍👧 Reunión Familiar</strong><button onclick="cerrarReunion()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn active" onclick="selTipoReunion(this,'individual')" id="tr-ind">👤 Individual</div><div class="tipo-btn" onclick="selTipoReunion(this,'grupal')" id="tr-grp">👥 Grupal</div></div></div>
     <div id="reunion-alumno-row" class="form-row"><label>Alumno</label><select id="reunion-alumno"><option value="">— Seleccionar —</option></select></div>
-    <div class="form-row"><label>Fecha</label><input type="date" id="reunion-fecha" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;"></div>
+    <div class="form-row"><label>Fecha</label><input type="date" id="reunion-fecha" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);"></div>
     <div class="form-row"><label>Motivo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn" onclick="selMotivo(this,'academico')">📊 Académico</div><div class="tipo-btn" onclick="selMotivo(this,'conductual')">⚠️ Conductual</div><div class="tipo-btn" onclick="selMotivo(this,'familiar')">🏠 Familiar</div><div class="tipo-btn" onclick="selMotivo(this,'pedido')">📞 A pedido</div><div class="tipo-btn" onclick="selMotivo(this,'inicio')">🗓️ Inicio de año</div><div class="tipo-btn" onclick="selMotivo(this,'fin')">🎓 Fin de año</div></div></div>
     <div class="form-row"><label>Asistentes</label><input type="text" id="reunion-asistentes" placeholder="Ej: madre, padre..."></div>
-    <div class="form-row"><label>Resumen</label><textarea id="reunion-resumen" placeholder="¿Qué se trató?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:75px;resize:none;box-sizing:border-box;"></textarea></div>
-    <div class="form-row"><label>Compromisos</label><textarea id="reunion-compromisos" placeholder="¿Qué se comprometió cada parte?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:60px;resize:none;box-sizing:border-box;"></textarea></div>
+    <div class="form-row"><label>Resumen</label><textarea id="reunion-resumen" placeholder="¿Qué se trató?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:75px;resize:none;box-sizing:border-box;"></textarea></div>
+    <div class="form-row"><label>Compromisos</label><textarea id="reunion-compromisos" placeholder="¿Qué se comprometió cada parte?" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:60px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row"><label>Seguimiento</label><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn" onclick="selSeguimiento(this,'pendiente')">⏳ Pendiente</div><div class="tipo-btn" onclick="selSeguimiento(this,'cumplido')">✅ Cumplido</div><div class="tipo-btn" onclick="selSeguimiento(this,'incumplido')">❌ No cumplido</div></div></div>
     <div class="form-row">
       <label>Foto del acta <span style="font-size:10px;color:var(--gris);font-weight:400;">(opcional — sacá foto al acta firmada)</span></label>
@@ -775,7 +775,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- ASISTENCIA -->
 <div id="modal-asistencia" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📅 Asistencia</strong>
       <div style="display:flex;gap:8px;align-items:center;">
@@ -786,7 +786,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <label style="font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;">Fecha</label>
-      <input type="date" id="asist-fecha" onchange="cargarAsistenciaFecha()" style="flex:1;padding:8px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
+      <input type="date" id="asist-fecha" onchange="cargarAsistenciaFecha()" style="flex:1;padding:8px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);">
     </div>
     <div id="asist-resumen" style="display:none;background:var(--verde-bg);border-radius:9px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);line-height:1.6;"></div>
     <div id="asist-lista" style="margin-bottom:16px;"></div>
@@ -797,7 +797,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- PERFIL INDIVIDUAL -->
 <div id="modal-perfil-academico" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:18px;display:flex;align-items:center;gap:14px;">
       <div id="perf-ini" class="alumno-ini" onclick="toggleQRenCirculo()" style="width:52px;height:52px;font-size:20px;background:rgba(255,255,255,0.18);color:#fff;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;overflow:hidden;" title="Tocar para ver el código QR"></div>
       <div style="flex:1;min-width:0;">
@@ -812,7 +812,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- QR INDIVIDUAL DEL ALUMNO -->
 <div id="modal-qr-alumno" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1100;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:360px;margin:40px auto;padding:20px;text-align:center;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:360px;margin:40px auto;padding:20px;text-align:center;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:14px;color:var(--verde);">📱 Código QR del alumno</strong>
       <button onclick="cerrarQRAlumno()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>
@@ -826,7 +826,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- HOJA DE QR DE TODO EL GRADO -->
 <div id="modal-qr-grado" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1100;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:680px;margin:20px auto;padding:20px;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:680px;margin:20px auto;padding:20px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:14px;color:var(--verde);">📱 Códigos QR de todo el grado</strong>
       <button onclick="document.getElementById('modal-qr-grado').style.display='none';" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>
@@ -838,7 +838,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- PLANIFICACIONES -->
 <div id="modal-planificaciones" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
       <strong style="font-size:15px;color:#fff;">📋 Planificaciones</strong>
       <div style="display:flex;gap:8px;align-items:center;">
@@ -854,7 +854,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- PERFIL ÁULICO -->
 <div id="modal-aula" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:16px;font-weight:700;color:#fff;">🏫 Perfil Áulico</div>
@@ -871,9 +871,9 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- ACTA -->
 <div id="modal-acta" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:620px;margin:16px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:620px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🖨️ Acta de Reunión</strong><button onclick="cerrarActa()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <div id="acta-preview" style="border:1px solid var(--gris-claro);border-radius:9px;padding:22px;font-family:Georgia,serif;font-size:13px;line-height:1.8;color:var(--negro);background:#fff;"></div>
+    <div id="acta-preview" style="border:1px solid var(--gris-claro);border-radius:9px;padding:22px;font-family:Georgia,serif;font-size:13px;line-height:1.8;color:var(--negro);background:var(--blanco);"></div>
     <div style="display:flex;gap:7px;margin-top:10px;">
       <button onclick="imprimirActa()" class="save-btn">🖨️ Imprimir / PDF</button>
       <button onclick="cerrarActa()" style="flex:1;background:var(--crema);color:var(--negro);border:none;border-radius:9px;padding:11px;font-size:13px;cursor:pointer;">Cerrar</button>
@@ -883,13 +883,13 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- NOTA RÁPIDA -->
 <div id="modal-nota" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🗒️ Nota Rápida</strong><button onclick="cerrarNota()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <div class="form-row"><label>Destino</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;"><div class="tipo-btn active" onclick="selDestinoNota(this,'agenda')" id="nd-agenda">📋 Agenda</div><div class="tipo-btn" onclick="selDestinoNota(this,'alumno')" id="nd-alumno">👤 Perfil alumno</div></div></div>
     <div class="form-row" id="nota-alumno-row" style="display:none;"><label>Alumno</label><select id="nota-alumno"><option value="">— Seleccionar —</option></select></div>
     <div class="form-row">
       <label>Nota</label>
-      <textarea id="nota-texto" placeholder="Escribí o dictá lo que querés registrar..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;"></textarea>
+      <textarea id="nota-texto" placeholder="Escribí o dictá lo que querés registrar..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:var(--crema);height:130px;resize:none;box-sizing:border-box;"></textarea>
       <!-- Botón dictado -->
       <button id="nota-mic-btn" onclick="toggleDictadoNota()" style="width:100%;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:9px;font-size:13px;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;">
         🎙️ <span id="nota-mic-label">Dictar nota</span>
@@ -911,7 +911,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- AGENDA -->
 <div id="modal-agenda" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:16px auto;max-height:88vh;overflow-y:auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:16px auto;max-height:88vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📋 Agenda</strong>
       <div style="display:flex;gap:6px;align-items:center;">
@@ -920,14 +920,14 @@ App: https://huellaed.github.io/HuellaEd/</div>
       </div>
     </div>
     <div style="display:flex;gap:7px;margin-bottom:12px;">
-      <input type="text" id="nueva-tarea" placeholder="Agregar tarea..." style="flex:1;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;" onkeydown="if(event.key==='Enter')agregarTarea()">
-      <select id="tarea-cat" style="padding:9px 7px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;background:#FAFAF8;"><option value="urgente">🔴</option><option value="importante" selected>🟡</option><option value="proceso">🔵</option><option value="idea">💡</option></select>
+      <input type="text" id="nueva-tarea" placeholder="Agregar tarea..." style="flex:1;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);" onkeydown="if(event.key==='Enter')agregarTarea()">
+      <select id="tarea-cat" style="padding:9px 7px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;background:var(--crema);"><option value="urgente">🔴</option><option value="importante" selected>🟡</option><option value="proceso">🔵</option><option value="idea">💡</option></select>
       <button onclick="agregarTarea()" style="background:var(--verde);color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:17px;cursor:pointer;">+</button>
     </div>
     <div style="display:flex;gap:5px;margin-bottom:10px;">
       <button onclick="filtrarAgenda('todas')" id="filtro-todas" style="padding:4px 11px;border-radius:18px;border:1.5px solid var(--verde);background:var(--verde);color:#fff;font-size:11px;cursor:pointer;">Todas</button>
-      <button onclick="filtrarAgenda('pendiente')" id="filtro-pendiente" style="padding:4px 11px;border-radius:18px;border:1.5px solid var(--gris-claro);background:#fff;color:var(--gris);font-size:11px;cursor:pointer;">Pendientes</button>
-      <button onclick="filtrarAgenda('hecha')" id="filtro-hecha" style="padding:4px 11px;border-radius:18px;border:1.5px solid var(--gris-claro);background:#fff;color:var(--gris);font-size:11px;cursor:pointer;">Hechas</button>
+      <button onclick="filtrarAgenda('pendiente')" id="filtro-pendiente" style="padding:4px 11px;border-radius:18px;border:1.5px solid var(--gris-claro);background:var(--blanco);color:var(--gris);font-size:11px;cursor:pointer;">Pendientes</button>
+      <button onclick="filtrarAgenda('hecha')" id="filtro-hecha" style="padding:4px 11px;border-radius:18px;border:1.5px solid var(--gris-claro);background:var(--blanco);color:var(--gris);font-size:11px;cursor:pointer;">Hechas</button>
     </div>
     <div id="agenda-lista"></div>
   </div>
@@ -936,7 +936,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL OBSERVACIÓN UNIFICADO -->
 <div id="modal-observacion" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📝 Registrar Observación</strong>
       <button onclick="cerrarObservacion()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
@@ -951,13 +951,13 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
     <div class="form-row" id="obs-alumno-row">
       <label>Alumno</label>
-      <select id="obs-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+      <select id="obs-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;">
         <option value="">— Seleccionar —</option>
       </select>
     </div>
     <div class="form-row">
       <label>Observación</label>
-      <textarea id="obs-texto-modal" placeholder="Escribí o dictá..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:#FAFAF8;height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
+      <textarea id="obs-texto-modal" placeholder="Escribí o dictá..." style="width:100%;padding:11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:14px;background:var(--crema);height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
       <button id="obs-mic-btn" onclick="toggleDictadoObs()" style="width:100%;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:9px;font-size:13px;cursor:pointer;margin-top:6px;font-family:inherit;text-align:center;">
         🎙️ <span id="obs-mic-label">Dictar observación</span>
       </button>
@@ -972,7 +972,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL INFORME -->
 <div id="modal-informe" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:520px;margin:40px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:520px;margin:40px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:#C8973A;">📄 Generar Informe</strong>
       <button onclick="cerrarModalInforme()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
@@ -980,7 +980,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:14px;">Alumno: <strong id="informe-nombre-label"></strong></div>
     <div class="form-row">
       <label>Tipo de informe</label>
-      <select id="informe-motivo" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+      <select id="informe-motivo" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;">
         <option value="fin_ano">📋 Fin de año — Pase al secundario</option>
         <option value="psicopedagoga">🧠 Para psicopedagoga</option>
         <option value="eoe">👥 Para EOE</option>
@@ -991,7 +991,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
     <div class="form-row">
       <label>Destinatario (opcional)</label>
-      <input type="text" id="informe-destinatario" placeholder="Ej: Lic. María García, psicopedagoga" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+      <input type="text" id="informe-destinatario" placeholder="Ej: Lic. María García, psicopedagoga" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
     </div>
     <button onclick="generarInforme()" style="width:100%;background:#C8973A;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Generar informe</button>
   </div>
@@ -999,7 +999,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL GESTIÓN ALUMNOS -->
 <div id="modal-gestion-alumnos" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:560px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:16px;font-weight:700;color:#fff;">⚙️ Gestionar Alumnos</div>
@@ -1013,19 +1013,19 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">➕ Alta de alumno</div>
         <div class="form-row">
           <label>Nombre completo</label>
-          <input type="text" id="alta-nombre" placeholder="Apellido, Nombre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#fff;font-family:inherit;box-sizing:border-box;">
+          <input type="text" id="alta-nombre" placeholder="Apellido, Nombre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--blanco);font-family:inherit;box-sizing:border-box;">
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
           <div class="form-row" style="margin:0;">
             <label>¿Tiene atención diferenciada?</label>
-            <select id="alta-diferencial" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#fff;font-family:inherit;">
+            <select id="alta-diferencial" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--blanco);font-family:inherit;">
               <option value="false">No</option>
               <option value="true">Sí</option>
             </select>
           </div>
           <div class="form-row" style="margin:0;">
             <label>Fecha de ingreso</label>
-            <input type="date" id="alta-fecha" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#fff;font-family:inherit;box-sizing:border-box;">
+            <input type="date" id="alta-fecha" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--blanco);font-family:inherit;box-sizing:border-box;">
           </div>
         </div>
         <button onclick="darAltaAlumno()" class="save-btn" style="margin-top:10px;">➕ Dar de alta</button>
@@ -1045,20 +1045,20 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL ADJUNTAR DOCUMENTO -->
 <div id="modal-adjuntar-doc" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:560px;margin:30px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:560px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📂 Adjuntar Documento</strong>
       <button onclick="cerrarAdjuntarDocumento()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
     </div>
     <div class="form-row">
       <label>Alumno</label>
-      <select id="adj-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+      <select id="adj-alumno-sel" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;">
         <option value="">— Seleccionar —</option>
       </select>
     </div>
     <div class="form-row">
       <label>Tipo de documento</label>
-      <select id="adj-tipo" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">
+      <select id="adj-tipo" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;">
         <option value="informe">📄 Informe anterior</option>
         <option value="diagnostico">🧠 Diagnóstico / evaluación psicopedagógica</option>
         <option value="eoe">👥 Informe EOE</option>
@@ -1069,7 +1069,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     </div>
     <div class="form-row">
       <label>Descripción breve</label>
-      <input type="text" id="adj-desc" placeholder="Ej: Informe psicopedagógico 2024" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+      <input type="text" id="adj-desc" placeholder="Ej: Informe psicopedagógico 2024" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
     </div>
     <div class="form-row">
       <label>Archivo <span style="font-size:10px;color:var(--gris);font-weight:400;">(PDF, imagen o Word)</span></label>
@@ -1086,7 +1086,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL CONFIGURAR API KEY -->
 <div id="modal-apikey" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;">
-  <div style="background:#fff;border-radius:16px;padding:20px;max-width:480px;margin:60px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:20px;max-width:480px;margin:60px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <strong id="apikey-titulo" style="font-size:15px;color:var(--verde);">🔑 Configurar API Key</strong>
       <button onclick="cerrarConfigApiKey()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
@@ -1094,7 +1094,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div id="apikey-instrucciones" style="background:var(--crema);border-radius:10px;padding:12px;font-size:12px;color:var(--negro);line-height:1.6;margin-bottom:14px;"></div>
     <div class="form-row">
       <label>Tu API Key</label>
-      <input type="password" id="apikey-input" placeholder="Pegá tu clave acá..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;box-sizing:border-box;font-family:monospace;">
+      <input type="password" id="apikey-input" placeholder="Pegá tu clave acá..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);box-sizing:border-box;font-family:monospace;">
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
       <button onclick="guardarApiKeyConfig()" class="save-btn">💾 Guardar</button>
@@ -1107,7 +1107,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL ASISTENTE DEI -->
 <div id="modal-dei" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
     <div style="background:linear-gradient(135deg,#C05A3A,#D4724A);padding:18px;display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:16px;font-weight:700;color:#fff;">📋 Asistente DEI</div>
@@ -1131,39 +1131,39 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div style="font-size:11px;font-weight:700;color:#C05A3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Perfil pedagógico funcional</div>
         <div class="form-row">
           <label>DNI del alumno</label>
-          <input type="text" id="dei-dni" placeholder="Ej: 55.024.273" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+          <input type="text" id="dei-dni" placeholder="Ej: 55.024.273" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
         </div>
         <div class="form-row">
           <label>Fecha de nacimiento</label>
-          <input type="text" id="dei-fnac" placeholder="Ej: 1/8/2015" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+          <input type="text" id="dei-fnac" placeholder="Ej: 1/8/2015" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
         </div>
         <div class="form-row">
           <label>Domicilio</label>
-          <input type="text" id="dei-domicilio" placeholder="Ej: Barrio Almirante Brown, Tigre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+          <input type="text" id="dei-domicilio" placeholder="Ej: Barrio Almirante Brown, Tigre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
         </div>
         <div class="form-row">
           <label>Fecha de inicio DEI</label>
-          <input type="text" id="dei-inicio" placeholder="Ej: Marzo 2025" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+          <input type="text" id="dei-inicio" placeholder="Ej: Marzo 2025" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
         </div>
         <div class="form-row">
           <label>Descripción del perfil pedagógico funcional</label>
-          <textarea id="dei-perfil" rows="5" placeholder="Describí el perfil actual del alumno: cómo llega al aula, qué puede hacer, qué no puede, cómo aprende..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-perfil" rows="5" placeholder="Describí el perfil actual del alumno: cómo llega al aula, qué puede hacer, qué no puede, cómo aprende..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Estilo de aprendizaje</label>
-          <textarea id="dei-estilo" rows="3" placeholder="Cómo aprende mejor este alumno..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-estilo" rows="3" placeholder="Cómo aprende mejor este alumno..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Habilidades adaptativas</label>
-          <textarea id="dei-adaptativas" rows="3" placeholder="Autonomía, organización, vínculos sociales..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-adaptativas" rows="3" placeholder="Autonomía, organización, vínculos sociales..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Facilitadores</label>
-          <textarea id="dei-facilitadores" rows="3" placeholder="Qué favorece su aprendizaje y participación..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-facilitadores" rows="3" placeholder="Qué favorece su aprendizaje y participación..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Barreras para el aprendizaje</label>
-          <textarea id="dei-barreras" rows="3" placeholder="Qué obstaculiza su aprendizaje y participación..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-barreras" rows="3" placeholder="Qué obstaculiza su aprendizaje y participación..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <button onclick="deiTab(2)" class="save-btn" style="background:#C05A3A;">Siguiente → Áreas</button>
       </div>
@@ -1219,23 +1219,23 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <div style="font-size:11px;font-weight:700;color:#C05A3A;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Apoyos e intervenciones</div>
         <div class="form-row">
           <label>Frecuencia y tipo de apoyo docente</label>
-          <textarea id="dei-apoyo-doc" rows="3" placeholder="Atención directa, monitoreo, frecuencia..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-apoyo-doc" rows="3" placeholder="Atención directa, monitoreo, frecuencia..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Intervención del EOE</label>
-          <textarea id="dei-eoe" rows="2" placeholder="Frecuencia, tipo de intervención, material adaptado..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-eoe" rows="2" placeholder="Frecuencia, tipo de intervención, material adaptado..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Intervención externa (psicopedagoga, fono, etc.)</label>
-          <textarea id="dei-externa" rows="2" placeholder="Si no tiene, indicarlo y explicar por qué..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-externa" rows="2" placeholder="Si no tiene, indicarlo y explicar por qué..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Trabajo interdisciplinario</label>
-          <textarea id="dei-interdisciplinario" rows="2" placeholder="Articulación con otros profesionales o equipos..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-interdisciplinario" rows="2" placeholder="Articulación con otros profesionales o equipos..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <label>Participación familiar</label>
-          <textarea id="dei-familia" rows="3" placeholder="Cómo participa la familia, reuniones, compromisos, limitaciones..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-familia" rows="3" placeholder="Cómo participa la familia, reuniones, compromisos, limitaciones..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <div style="display:flex;gap:8px;">
           <button onclick="deiTab(2)" style="flex:1;background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;">← Volver</button>
@@ -1252,7 +1252,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
         </div>
         <div class="form-row">
           <label>¿Algo más que quieras agregar? (opcional)</label>
-          <textarea id="dei-extra" rows="3" placeholder="Contexto adicional, situación familiar especial, historia del alumno..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
+          <textarea id="dei-extra" rows="3" placeholder="Contexto adicional, situación familiar especial, historia del alumno..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;resize:vertical;"></textarea>
         </div>
         <button onclick="generarDEI()" style="width:100%;background:linear-gradient(135deg,#C05A3A,#D4724A);color:#fff;border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Generar DEI completo</button>
         <div id="dei-msg" style="text-align:center;font-size:11px;margin-top:8px;"></div>
@@ -1264,7 +1264,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
 
 <!-- MODAL CUESTIONARIO ÁULICO -->
 <div id="modal-cuestionario-aulico" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:580px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:580px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
       <div><div style="font-size:16px;font-weight:700;color:#fff;">📝 Cuestionario Áulico</div><div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Completá las 5 dimensiones · después generá el perfil</div></div>
       <button onclick="cerrarCuestionarioAulico()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
@@ -1275,7 +1275,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <div class="ca-s"><div class="ca-t">3 · Dinámica de trabajo que mejor funciona</div><div id="ca-g-dinamica" class="ca-g"><div class="ca-o" onclick="caSelect('dinamica','cooperativo',this)"><div class="ca-d"></div><div><div class="ca-l">👥 Cooperativo</div><div class="ca-c">Trabajo en parejas o grupos pequeños con roles definidos.</div></div></div><div class="ca-o" onclick="caSelect('dinamica','individual',this)"><div class="ca-d"></div><div><div class="ca-l">👤 Individual autónomo</div><div class="ca-c">Trabajo individual con autonomía y silencio productivo.</div></div></div><div class="ca-o" onclick="caSelect('dinamica','plenaria',this)"><div class="ca-d"></div><div><div class="ca-l">🎓 Plenaria guiada</div><div class="ca-c">Estructura guiada por el docente en su totalidad.</div></div></div></div></div>
       <div class="ca-s"><div class="ca-t">4 · Nivel de autonomía frente a las consignas</div><div id="ca-g-autonomia" class="ca-g"><div class="ca-o" onclick="caSelect('autonomia','alto',this)"><div class="ca-d"></div><div><div class="ca-l">🟢 Alto</div><div class="ca-c">Comprenden e inician solos tras una breve explicación.</div></div></div><div class="ca-o" onclick="caSelect('autonomia','medio',this)"><div class="ca-d"></div><div><div class="ca-l">🟡 Medio</div><div class="ca-c">Requieren que se reformulen las consignas antes de arrancar.</div></div></div><div class="ca-o" onclick="caSelect('autonomia','bajo',this)"><div class="ca-d"></div><div><div class="ca-l">🔴 Bajo</div><div class="ca-c">Necesitan supervisión constante paso a paso.</div></div></div></div></div>
       <div class="ca-s" style="margin-bottom:14px;"><div class="ca-t">5 · Clima áulico y convivencia</div><div id="ca-g-clima" class="ca-g"><div class="ca-o" onclick="caSelect('clima','colaborativo',this)"><div class="ca-d"></div><div><div class="ca-l">😄 Colaborativo y activo</div><div class="ca-c">Se ayudan entre sí, buena energía aunque hay que regular el volumen.</div></div></div><div class="ca-o" onclick="caSelect('clima','pasivo',this)"><div class="ca-d"></div><div><div class="ca-l">😶 Pasivo / Silencioso</div><div class="ca-c">Falta participación espontánea, cuesta arrancar los debates.</div></div></div><div class="ca-o" onclick="caSelect('clima','disruptivo',this)"><div class="ca-d"></div><div><div class="ca-l">⚠️ Disruptivo frecuente</div><div class="ca-c">Conflictos recurrentes o dispersión que cortan el ritmo.</div></div></div></div></div>
-      <div style="margin-bottom:14px;"><div class="ca-t">Observaciones libres del docente</div><textarea id="ca-obs" rows="3" placeholder="Lo más importante que caracteriza a este grupo ahora: situaciones particulares, dinámicas, lo que te preocupa o sorprende..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;font-family:inherit;resize:none;box-sizing:border-box;background:#FAFAF8;"></textarea></div>
+      <div style="margin-bottom:14px;"><div class="ca-t">Observaciones libres del docente</div><textarea id="ca-obs" rows="3" placeholder="Lo más importante que caracteriza a este grupo ahora: situaciones particulares, dinámicas, lo que te preocupa o sorprende..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;font-family:inherit;resize:none;box-sizing:border-box;background:var(--crema);"></textarea></div>
       <div id="ca-resumen-box" style="display:none;background:var(--verde-bg);border-radius:10px;padding:12px 14px;margin-bottom:14px;border:1.5px solid var(--verde-claro);"><div style="font-size:10px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Resumen del perfil seleccionado</div><div id="ca-resumen-texto" style="font-size:12px;color:var(--negro);line-height:1.75;"></div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <button onclick="caVerResumen()" style="background:var(--crema);color:var(--verde);border:1.5px solid var(--verde-claro);border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">👁️ Ver resumen</button>
@@ -2040,7 +2040,7 @@ async function abrirAula(){
   html+='<div style="margin-top:16px;">';
   html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Observaciones grupales</div>';
   html+='<div id="obs-grupales-lista"><div style="font-size:12px;color:var(--gris);text-align:center;">Cargando...</div></div>';
-  html+='<textarea id="obs-grupal-nueva" rows="2" placeholder="Agregar observación del grupo..." style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:#fff;margin-top:8px;"></textarea>';
+  html+='<textarea id="obs-grupal-nueva" rows="2" placeholder="Agregar observación del grupo..." style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:var(--blanco);margin-top:8px;"></textarea>';
   html+='<button onclick="guardarObservacionGrupal()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;">Guardar observación grupal</button>';
   html+='</div>';
 
@@ -2334,11 +2334,11 @@ async function abrirPerfilAcademico(studentId){
     html+='<div id="perf-dif-section" style="background:var(--crema);border-radius:12px;padding:14px;">';
     html+='<div style="font-size:11px;font-weight:700;color:var(--terracota);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">⚡ Perfil diferencial</div>';
     html+='<div style="font-size:11px;font-weight:600;color:var(--negro);margin-bottom:5px;">Descripción / Diagnóstico</div>';
-    html+='<textarea id="dif-descripcion" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;"></textarea>';
+    html+='<textarea id="dif-descripcion" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:var(--blanco);"></textarea>';
     html+='<div style="font-size:11px;font-weight:600;color:var(--negro);margin:10px 0 5px;">Necesidades de aprendizaje</div>';
-    html+='<textarea id="dif-necesidades" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;"></textarea>';
+    html+='<textarea id="dif-necesidades" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:var(--blanco);"></textarea>';
     html+='<div style="font-size:11px;font-weight:600;color:var(--negro);margin:10px 0 5px;">Adaptaciones pedagógicas</div>';
-    html+='<textarea id="dif-adaptaciones" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#fff;"></textarea>';
+    html+='<textarea id="dif-adaptaciones" rows="2" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:vertical;background:var(--blanco);"></textarea>';
     html+='<div id="perf-dif-msg" style="font-size:11px;text-align:center;margin:8px 0;display:none;"></div>';
     html+='<button onclick="guardarPerfilDif(\''+studentId+'\')" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit;">Guardar perfil diferencial</button>';
     html+='</div>';
@@ -2348,7 +2348,7 @@ async function abrirPerfilAcademico(studentId){
   html+='<div style="margin-bottom:16px;">';
   html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Observaciones</div>';
   html+='<div id="obs-lista"><div style="font-size:12px;color:var(--gris);text-align:center;padding:8px;">Cargando…</div></div>';
-  html+='<textarea id="obs-nueva" rows="2" placeholder="Escribí una observación…" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:#fff;margin-top:10px;"></textarea>';
+  html+='<textarea id="obs-nueva" rows="2" placeholder="Escribí una observación…" style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;font-family:inherit;box-sizing:border-box;resize:none;background:var(--blanco);margin-top:10px;"></textarea>';
   html+='<div id="obs-msg" style="font-size:11px;text-align:center;display:none;margin:5px 0;"></div>';
   html+='<button onclick="guardarObservacionAlumno()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;">Guardar observación</button>';
   html+='</div>';
@@ -2413,7 +2413,7 @@ async function verTrazabilidadPAF(){
   // Mostrar en un modal simple reutilizando el estilo ya existente en la app
   var modal=document.createElement('div');
   modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;';
-  modal.innerHTML='<div style="background:white;border-radius:14px;padding:20px;max-width:680px;width:100%;margin:auto;">'
+  modal.innerHTML='<div style="background:var(--blanco);border-radius:14px;padding:20px;max-width:680px;width:100%;margin:auto;">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
     +'<strong style="font-size:14px;color:var(--verde);">🔍 Trazabilidad del PAF</strong>'
     +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>'
@@ -2612,12 +2612,12 @@ async function generarPerfilAcademico(){
       +'<div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:900;flex-shrink:0;">'+iniciales+'</div>'
       +'<div><div style="font-family:inherit;font-weight:800;font-size:15px;color:#fff;">'+nombre+'</div><div style="font-size:10.5px;color:rgba(255,255,255,.8);margin-top:2px;">6to Año · Escuela La Concepción · 2026</div></div>'
       +'</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px;background:#fff;">'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px;background:var(--blanco);">'
       +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+promReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Promedio</div></div>'
       +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+pctAsistReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Asistencia</div></div>'
       +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+alertasReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Atención</div></div>'
       +'</div>'
-      +'<div style="padding:4px 16px 16px;background:#fff;">'
+      +'<div style="padding:4px 16px 16px;background:var(--blanco);">'
       +'<div id="perfil-texto-'+_perfilStudentId+'" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:380px;overflow-y:auto;">'+htmlTexto+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;">'
       +'<button onclick="imprimirPerfilAcademicoDoc(\''+nombre.replace(/'/g,"\'")+'\',\''+iniciales+'\',\''+promReal+'\',\''+pctAsistReal+'\',\''+alertasReal+'\')" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
@@ -2824,7 +2824,7 @@ function imprimirPerfilAcademicoDoc(nombre,iniciales,promedio,asistencia,atencio
   var contenidoTexto=document.getElementById('perfil-texto-'+_perfilStudentId).innerHTML;
   var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Académico — '+nombre+'</title>'
     +'<style>@import url(\'https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap\');'
-    +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:#fff;color:#222;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:var(--blanco);color:#222;}'
     +'.doc-wrap{max-width:680px;margin:0 auto;}'
     +'.hero{background:linear-gradient(135deg,#2D5F4F,#3A7A65);padding:28px 30px;display:flex;align-items:center;gap:16px;}'
     +'.avatar{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:900;flex-shrink:0;}'
@@ -3109,7 +3109,7 @@ async function cargarListaPlanif(){
   var html='';
   // Filtro materia
   html+='<div style="margin-bottom:12px;">';
-  html+='<select onchange="_planifFiltroArea=this.value;cargarListaPlanif()" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;">';
+  html+='<select onchange="_planifFiltroArea=this.value;cargarListaPlanif()" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;">';
   html+='<option value="">Todas las materias</option>';
   AREAS.forEach(function(a){html+='<option value="'+a+'"'+(a===_planifFiltroArea?' selected':'')+'>'+AREA_ICONS[a]+' '+AREA_NAMES[a]+'</option>';});
   html+='</select></div>';
@@ -3166,26 +3166,26 @@ async function abrirEditorPlanif(planifId){
   html+='<div style="display:flex;flex-direction:column;gap:12px;">';
   // Título
   html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Título</label>'
-    +'<input type="text" id="planif-title" placeholder="Ej: Lectura comprensiva – semana 12" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>';
+    +'<input type="text" id="planif-title" placeholder="Ej: Lectura comprensiva – semana 12" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:var(--crema);"></div>';
   // Materia + Semana
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
   html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Materia</label>'
-    +'<select id="planif-area" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;background:#FAFAF8;font-family:inherit;">';
+    +'<select id="planif-area" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;background:var(--crema);font-family:inherit;">';
   AREAS.forEach(function(a){html+='<option value="'+a+'"'+(a===ac?' selected':'')+'>'+AREA_ICONS[a]+' '+AREA_NAMES[a]+'</option>';});
   html+='</select></div>';
   html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Semana #</label>'
-    +'<input type="number" id="planif-week" min="1" max="52" placeholder="Nro." style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>'
+    +'<input type="number" id="planif-week" min="1" max="52" placeholder="Nro." style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:var(--crema);"></div>'
     +'</div>';
   // Fechas
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
   html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Desde</label>'
-    +'<input type="date" id="planif-from" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>';
+    +'<input type="date" id="planif-from" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:var(--crema);"></div>';
   html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Hasta</label>'
-    +'<input type="date" id="planif-to" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:#FAFAF8;"></div>'
+    +'<input type="date" id="planif-to" style="width:100%;padding:10px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;box-sizing:border-box;font-family:inherit;background:var(--crema);"></div>'
     +'</div>';
   // Contenido
   html+='<div><label style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1.2px;display:block;margin-bottom:5px;">Contenido</label>'
-    +'<textarea id="planif-content" rows="10" placeholder="Objetivos, actividades, recursos y evaluación para esta semana…" style="width:100%;padding:11px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;background:#FAFAF8;line-height:1.6;"></textarea></div>';
+    +'<textarea id="planif-content" rows="10" placeholder="Objetivos, actividades, recursos y evaluación para esta semana…" style="width:100%;padding:11px 12px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;background:var(--crema);line-height:1.6;"></textarea></div>';
   html+='</div>';
   html+='<div id="planif-save-msg" style="font-size:11px;text-align:center;margin:10px 0;display:none;"></div>';
   html+='<button id="planif-save-btn" onclick="guardarPlanif()" style="width:100%;background:var(--verde);color:#fff;border:none;border-radius:11px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit;">Guardar planificación</button>';
@@ -4080,7 +4080,7 @@ function descargarCuadernillo(){
   var ahora=new Date();
   var marcaTiempo=ahora.getFullYear()+''+String(ahora.getMonth()+1).padStart(2,'0')+String(ahora.getDate()).padStart(2,'0')+'-'+String(ahora.getHours()).padStart(2,'0')+String(ahora.getMinutes()).padStart(2,'0')+String(ahora.getSeconds()).padStart(2,'0');
   var nombreArchivo=(tipos[tipoSel]||'material').toLowerCase()+'-'+tema.slice(0,30).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'-'+marcaTiempo+'.html';
-  var cssLibro='#libro-preview{font-family:\'Nunito Sans\',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}     .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}     .lb-logo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}     .lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:11px;cursor:pointer;}     .lb-pagina{width:100%;background:#FAFCFB;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.11);position:relative;overflow:hidden;padding:26px 36px 0 42px;min-height:400px;margin-bottom:16px;}     .lb-pagina::before{content:\'\';position:absolute;inset:0;background-image:linear-gradient(rgba(45,95,79,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(45,95,79,.09) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;}     .lb-banda{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#2D5F4F 0%,#3D7A65 60%,#C8973A 100%);}     .lb-seccion{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #D4EAE4;position:relative;z-index:1;}     .lb-sec-icono{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}     .lb-sec-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:17px;color:#2D5F4F;}.lb-sec-titulo em{font-style:normal;color:#C8973A;}     .lb-bloque{margin-bottom:12px;position:relative;z-index:1;}     .lb-consigna{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;}     .lb-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:11px;color:white;flex-shrink:0;margin-top:1px;}     .lb-n0{background:#2D5F4F}.lb-n1{background:#C8973A}.lb-n2{background:#3B6E9E}.lb-n3{background:#C05A3A}.lb-n4{background:#7B6FAF}     .lb-texto{font-size:12.5px;font-weight:600;color:#2a3830;line-height:1.55;flex:1;}     .lb-grilla{display:grid;gap:5px;margin-bottom:4px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}     .lb-celda{border-radius:7px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;display:flex;align-items:center;color:#3a4a42;}     .lb-c0{background:#D4EAE4}.lb-c1{background:#F7EDDB}.lb-c2{background:#F5E0D8}.lb-c3{background:#D6E5F3}.lb-c4{background:#DDF0F7}.lb-c5{background:#EAE7F5}     .lb-area{border-radius:7px;border:1.5px dashed rgba(45,95,79,.18);min-height:50px;background-image:repeating-linear-gradient(transparent,transparent 26px,rgba(45,95,79,.07) 26px,rgba(45,95,79,.07) 27px);background-position:0 27px;margin-bottom:5px;}     .lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:7px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;}     .lb-tabla-wrap th{background:#2D5F4F;color:white;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}     .lb-tabla-wrap td{border:1px solid rgba(45,95,79,.1);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;}     .lb-tabla-wrap tr:nth-child(even) td{background:#EBF5F1;}     .lb-caja{border-radius:8px;padding:11px 14px;border-left:4px solid;margin-bottom:7px;}     .lb-caja-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;}     .lb-caja-verde{background:#D4EAE4;border-color:#2D5F4F}.lb-caja-verde .lb-caja-titulo{color:#2D5F4F}     .lb-caja-dorada{background:#F7EDDB;border-color:#C8973A}.lb-caja-dorada .lb-caja-titulo{color:#C8973A}     .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;}     .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#3B6E9E;color:white;}     .lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}     .lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}     .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}      /* ══ PALETAS POR ÁREA ══ */     .lb-area-M .lb-sec-titulo,.lb-area-M .lb-caja-titulo{color:#3B6E9E;}     .lb-area-M .lb-banda{background:linear-gradient(180deg,#3B6E9E,#4A8AC0,#C8973A);}     .lb-area-M .lb-pagina::before{background-image:linear-gradient(rgba(59,110,158,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,110,158,.09) 1px,transparent 1px);}     .lb-area-M .lb-num{background:#3B6E9E!important;}     .lb-area-M .lb-tabla-wrap{border-color:#3B6E9E;}.lb-area-M .lb-tabla-wrap th{background:#3B6E9E;}      .lb-area-L .lb-sec-titulo,.lb-area-L .lb-caja-titulo{color:#C8845A;}     .lb-area-L .lb-banda{background:linear-gradient(180deg,#C8845A,#D4A06E,#8a5a3a);}     .lb-area-L .lb-pagina::before{display:none;background-image:repeating-linear-gradient(transparent,transparent 22px,rgba(200,132,90,.12) 22px,rgba(200,132,90,.12) 23px);}     .lb-area-L .lb-num{background:#C8845A!important;}     .lb-area-L .lb-texto{font-family:\'Nunito Sans\',sans-serif;}     .lb-area-L .lb-tabla-wrap{border-color:#C8845A;}.lb-area-L .lb-tabla-wrap th{background:#C8845A;}     .lb-area-L .lb-celda{font-family:Georgia,serif;}      .lb-area-CS .lb-sec-titulo,.lb-area-CS .lb-caja-titulo{color:#5B7FA6;}     .lb-area-CS .lb-banda{background:linear-gradient(180deg,#5B7FA6,#7BA0C4,#3B6E9E);}     .lb-area-CS .lb-pagina::before{background-image:none;}     .lb-area-CS .lb-num{background:#5B7FA6!important;}     .lb-area-CS .lb-tabla-wrap{border-color:#5B7FA6;}.lb-area-CS .lb-tabla-wrap th{background:#5B7FA6;}      .lb-area-CN .lb-sec-titulo,.lb-area-CN .lb-caja-titulo{color:#5A9B6F;}     .lb-area-CN .lb-banda{background:linear-gradient(180deg,#5A9B6F,#7BC090,#2D5F4F);}     .lb-area-CN .lb-pagina::before{background-image:none;}     .lb-area-CN .lb-num{background:#5A9B6F!important;border-radius:50%!important;}     .lb-area-CN .lb-sec-icono{border-radius:50%!important;}     .lb-area-CN .lb-tabla-wrap{border-color:#5A9B6F;}.lb-area-CN .lb-tabla-wrap th{background:#5A9B6F;}      /* ══ TONOS ══ */     .lb-tono-ludico .lb-pagina{background:linear-gradient(135deg,#FFF9F0,#FFF4E8);}     .lb-tono-ludico .lb-texto{font-size:13.5px!important;}     .lb-tono-ludico .lb-celda{border-radius:14px!important;}     .lb-tono-ludico .lb-sec-icono{border-radius:50%!important;}      .lb-tono-evaluacion .lb-pagina{background:white!important;}     .lb-tono-evaluacion .lb-pagina::before{display:none!important;}     .lb-tono-evaluacion .lb-celda{background:white!important;border:1px solid #ccc!important;}     .lb-tono-evaluacion .lb-tabla-wrap th{background:#444!important;}     .lb-tono-evaluacion .lb-num{background:#444!important;}     .lb-tono-evaluacion .lb-banda{background:#444!important;}     .lb-tono-evaluacion .lb-marca{display:none;}      /* ══ PICTOGRAMAS ARASAAC ══ */     .lb-pictogramas-box{position:relative;z-index:1;margin:6px 0 10px 30px;}     .lb-pictogramas-fila{display:flex;flex-wrap:wrap;gap:8px;}     .lb-pic-item{position:relative;background:#fff;border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:6px 7px 5px;text-align:center;width:72px;}     .lb-pic-item img{width:54px;height:54px;object-fit:contain;display:block;margin:0 auto 3px;}     .lb-pic-label{font-size:8.5px;color:#555;font-weight:600;text-transform:lowercase;}     .lb-pic-cambiar,.lb-pic-quitar{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}     .lb-pic-cambiar{right:16px;background:#5B7FA6;}     .lb-pic-quitar{right:-4px;background:#C0392B;}     .lb-tono-evaluacion .lb-pictogramas-box{display:none;}      /* ══ ÍCONOS SVG MATEMÁTICA ══ */     .lb-iconos-mate-fila{display:flex;gap:10px;align-items:center;margin:6px 0 10px 30px;flex-wrap:wrap;position:relative;z-index:1;}     .lb-icono-mate{display:inline-flex;width:30px;height:30px;}     .lb-icono-mate svg{width:100%;height:100%;}     .lb-tono-evaluacion .lb-iconos-mate-fila{filter:grayscale(1);opacity:.75;}      /* ══ MAPAS OPENSTREETMAP (Ciencias Sociales) ══ */     .lb-mapa-box{position:relative;z-index:1;margin-bottom:12px;}     .lb-mapa-titulo{font-size:11px;font-weight:700;color:#5B7FA6;margin-bottom:5px;}     .lb-mapa-leaflet-contenedor{width:100%;height:220px;border-radius:9px;border:1.5px solid var(--gris-claro,#ddd);background:#EEF2F6;}     .lb-mapa-atribucion{font-size:7.5px;color:#999;margin-top:2px;text-align:right;}     .lb-mapa-leaflet-blanco{background:#fff!important;}      /* ══ FOTOS REALES WIKIMEDIA COMMONS ══ */     .lb-foto-real-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;max-width:320px;}     .lb-foto-real-box{background:#fff;border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:8px;}     .lb-foto-real-box img{width:100%;max-height:200px;object-fit:cover;border-radius:7px;display:block;}     .lb-foto-controles{display:flex;gap:6px;margin-top:5px;}     .lb-foto-cambiar,.lb-foto-quitar{font-size:9.5px;font-weight:600;border:none;border-radius:14px;padding:3px 9px;cursor:pointer;}     .lb-foto-cambiar{background:#EAF2F8;color:#3B6E9E;}     .lb-foto-quitar{background:#FDE8E8;color:#C0392B;}     .lb-foto-atribucion{font-size:7.5px;color:#999;margin-top:4px;line-height:1.3;}      /* ══ CLIP-ART PROPIO (1ro/2do) ══ */     .lb-clipart-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;}     .lb-clipart-item{display:inline-flex;width:90px;height:90px;}     .lb-clipart-item svg{width:100%;height:100%;}     .lb-tono-evaluacion .lb-clipart-wrapper{filter:grayscale(1);opacity:.7;}      /* ══ FORMATOS DE HOJA RECORTABLE ══ */     .lb-hoja-recortable{position:relative;}     .lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;gap:0;position:relative;}     .lb-hoja-x2 .lb-pagina{min-height:140mm;font-size:0.78em;}     .lb-hoja-x2 .lb-tijera{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8973A;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.25);}     .lb-hoja-x2 .lb-pagina:first-child{border-right:2px dashed #C8973A;}     .lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;}     .lb-hoja-x4 .lb-pagina{min-height:90mm;font-size:0.62em;}     .lb-hoja-x4 .lb-pagina:nth-child(odd){border-right:2px dashed #C8973A;}     .lb-hoja-x4 .lb-pagina:nth-child(-n+2){border-bottom:2px dashed #C8973A;}      ';
+  var cssLibro='#libro-preview{font-family:\'Nunito Sans\',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}     .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}     .lb-logo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}     .lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:11px;cursor:pointer;}     .lb-pagina{width:100%;background:#FAFCFB;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.11);position:relative;overflow:hidden;padding:26px 36px 0 42px;min-height:400px;margin-bottom:16px;}     .lb-pagina::before{content:\'\';position:absolute;inset:0;background-image:linear-gradient(rgba(45,95,79,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(45,95,79,.09) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;}     .lb-banda{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#2D5F4F 0%,#3D7A65 60%,#C8973A 100%);}     .lb-seccion{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #D4EAE4;position:relative;z-index:1;}     .lb-sec-icono{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}     .lb-sec-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:17px;color:#2D5F4F;}.lb-sec-titulo em{font-style:normal;color:#C8973A;}     .lb-bloque{margin-bottom:12px;position:relative;z-index:1;}     .lb-consigna{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;}     .lb-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:11px;color:white;flex-shrink:0;margin-top:1px;}     .lb-n0{background:#2D5F4F}.lb-n1{background:#C8973A}.lb-n2{background:#3B6E9E}.lb-n3{background:#C05A3A}.lb-n4{background:#7B6FAF}     .lb-texto{font-size:12.5px;font-weight:600;color:#2a3830;line-height:1.55;flex:1;}     .lb-grilla{display:grid;gap:5px;margin-bottom:4px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}     .lb-celda{border-radius:7px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;display:flex;align-items:center;color:#3a4a42;}     .lb-c0{background:#D4EAE4}.lb-c1{background:#F7EDDB}.lb-c2{background:#F5E0D8}.lb-c3{background:#D6E5F3}.lb-c4{background:#DDF0F7}.lb-c5{background:#EAE7F5}     .lb-area{border-radius:7px;border:1.5px dashed rgba(45,95,79,.18);min-height:50px;background-image:repeating-linear-gradient(transparent,transparent 26px,rgba(45,95,79,.07) 26px,rgba(45,95,79,.07) 27px);background-position:0 27px;margin-bottom:5px;}     .lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:7px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;}     .lb-tabla-wrap th{background:#2D5F4F;color:white;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}     .lb-tabla-wrap td{border:1px solid rgba(45,95,79,.1);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;}     .lb-tabla-wrap tr:nth-child(even) td{background:#EBF5F1;}     .lb-caja{border-radius:8px;padding:11px 14px;border-left:4px solid;margin-bottom:7px;}     .lb-caja-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;}     .lb-caja-verde{background:#D4EAE4;border-color:#2D5F4F}.lb-caja-verde .lb-caja-titulo{color:#2D5F4F}     .lb-caja-dorada{background:#F7EDDB;border-color:#C8973A}.lb-caja-dorada .lb-caja-titulo{color:#C8973A}     .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;}     .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#3B6E9E;color:white;}     .lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}     .lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}     .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}      /* ══ PALETAS POR ÁREA ══ */     .lb-area-M .lb-sec-titulo,.lb-area-M .lb-caja-titulo{color:#3B6E9E;}     .lb-area-M .lb-banda{background:linear-gradient(180deg,#3B6E9E,#4A8AC0,#C8973A);}     .lb-area-M .lb-pagina::before{background-image:linear-gradient(rgba(59,110,158,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,110,158,.09) 1px,transparent 1px);}     .lb-area-M .lb-num{background:#3B6E9E!important;}     .lb-area-M .lb-tabla-wrap{border-color:#3B6E9E;}.lb-area-M .lb-tabla-wrap th{background:#3B6E9E;}      .lb-area-L .lb-sec-titulo,.lb-area-L .lb-caja-titulo{color:#C8845A;}     .lb-area-L .lb-banda{background:linear-gradient(180deg,#C8845A,#D4A06E,#8a5a3a);}     .lb-area-L .lb-pagina::before{display:none;background-image:repeating-linear-gradient(transparent,transparent 22px,rgba(200,132,90,.12) 22px,rgba(200,132,90,.12) 23px);}     .lb-area-L .lb-num{background:#C8845A!important;}     .lb-area-L .lb-texto{font-family:\'Nunito Sans\',sans-serif;}     .lb-area-L .lb-tabla-wrap{border-color:#C8845A;}.lb-area-L .lb-tabla-wrap th{background:#C8845A;}     .lb-area-L .lb-celda{font-family:Georgia,serif;}      .lb-area-CS .lb-sec-titulo,.lb-area-CS .lb-caja-titulo{color:#5B7FA6;}     .lb-area-CS .lb-banda{background:linear-gradient(180deg,#5B7FA6,#7BA0C4,#3B6E9E);}     .lb-area-CS .lb-pagina::before{background-image:none;}     .lb-area-CS .lb-num{background:#5B7FA6!important;}     .lb-area-CS .lb-tabla-wrap{border-color:#5B7FA6;}.lb-area-CS .lb-tabla-wrap th{background:#5B7FA6;}      .lb-area-CN .lb-sec-titulo,.lb-area-CN .lb-caja-titulo{color:#5A9B6F;}     .lb-area-CN .lb-banda{background:linear-gradient(180deg,#5A9B6F,#7BC090,#2D5F4F);}     .lb-area-CN .lb-pagina::before{background-image:none;}     .lb-area-CN .lb-num{background:#5A9B6F!important;border-radius:50%!important;}     .lb-area-CN .lb-sec-icono{border-radius:50%!important;}     .lb-area-CN .lb-tabla-wrap{border-color:#5A9B6F;}.lb-area-CN .lb-tabla-wrap th{background:#5A9B6F;}      /* ══ TONOS ══ */     .lb-tono-ludico .lb-pagina{background:linear-gradient(135deg,#FFF9F0,#FFF4E8);}     .lb-tono-ludico .lb-texto{font-size:13.5px!important;}     .lb-tono-ludico .lb-celda{border-radius:14px!important;}     .lb-tono-ludico .lb-sec-icono{border-radius:50%!important;}      .lb-tono-evaluacion .lb-pagina{background:white!important;}     .lb-tono-evaluacion .lb-pagina::before{display:none!important;}     .lb-tono-evaluacion .lb-celda{background:white!important;border:1px solid #ccc!important;}     .lb-tono-evaluacion .lb-tabla-wrap th{background:#444!important;}     .lb-tono-evaluacion .lb-num{background:#444!important;}     .lb-tono-evaluacion .lb-banda{background:#444!important;}     .lb-tono-evaluacion .lb-marca{display:none;}      /* ══ PICTOGRAMAS ARASAAC ══ */     .lb-pictogramas-box{position:relative;z-index:1;margin:6px 0 10px 30px;}     .lb-pictogramas-fila{display:flex;flex-wrap:wrap;gap:8px;}     .lb-pic-item{position:relative;background:var(--blanco);border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:6px 7px 5px;text-align:center;width:72px;}     .lb-pic-item img{width:54px;height:54px;object-fit:contain;display:block;margin:0 auto 3px;}     .lb-pic-label{font-size:8.5px;color:#555;font-weight:600;text-transform:lowercase;}     .lb-pic-cambiar,.lb-pic-quitar{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}     .lb-pic-cambiar{right:16px;background:#5B7FA6;}     .lb-pic-quitar{right:-4px;background:#C0392B;}     .lb-tono-evaluacion .lb-pictogramas-box{display:none;}      /* ══ ÍCONOS SVG MATEMÁTICA ══ */     .lb-iconos-mate-fila{display:flex;gap:10px;align-items:center;margin:6px 0 10px 30px;flex-wrap:wrap;position:relative;z-index:1;}     .lb-icono-mate{display:inline-flex;width:30px;height:30px;}     .lb-icono-mate svg{width:100%;height:100%;}     .lb-tono-evaluacion .lb-iconos-mate-fila{filter:grayscale(1);opacity:.75;}      /* ══ MAPAS OPENSTREETMAP (Ciencias Sociales) ══ */     .lb-mapa-box{position:relative;z-index:1;margin-bottom:12px;}     .lb-mapa-titulo{font-size:11px;font-weight:700;color:#5B7FA6;margin-bottom:5px;}     .lb-mapa-leaflet-contenedor{width:100%;height:220px;border-radius:9px;border:1.5px solid var(--gris-claro,#ddd);background:#EEF2F6;}     .lb-mapa-atribucion{font-size:7.5px;color:#999;margin-top:2px;text-align:right;}     .lb-mapa-leaflet-blanco{background:#fff!important;}      /* ══ FOTOS REALES WIKIMEDIA COMMONS ══ */     .lb-foto-real-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;max-width:320px;}     .lb-foto-real-box{background:var(--blanco);border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:8px;}     .lb-foto-real-box img{width:100%;max-height:200px;object-fit:cover;border-radius:7px;display:block;}     .lb-foto-controles{display:flex;gap:6px;margin-top:5px;}     .lb-foto-cambiar,.lb-foto-quitar{font-size:9.5px;font-weight:600;border:none;border-radius:14px;padding:3px 9px;cursor:pointer;}     .lb-foto-cambiar{background:#EAF2F8;color:#3B6E9E;}     .lb-foto-quitar{background:#FDE8E8;color:#C0392B;}     .lb-foto-atribucion{font-size:7.5px;color:#999;margin-top:4px;line-height:1.3;}      /* ══ CLIP-ART PROPIO (1ro/2do) ══ */     .lb-clipart-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;}     .lb-clipart-item{display:inline-flex;width:90px;height:90px;}     .lb-clipart-item svg{width:100%;height:100%;}     .lb-tono-evaluacion .lb-clipart-wrapper{filter:grayscale(1);opacity:.7;}      /* ══ FORMATOS DE HOJA RECORTABLE ══ */     .lb-hoja-recortable{position:relative;}     .lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;gap:0;position:relative;}     .lb-hoja-x2 .lb-pagina{min-height:140mm;font-size:0.78em;}     .lb-hoja-x2 .lb-tijera{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8973A;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.25);}     .lb-hoja-x2 .lb-pagina:first-child{border-right:2px dashed #C8973A;}     .lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;}     .lb-hoja-x4 .lb-pagina{min-height:90mm;font-size:0.62em;}     .lb-hoja-x4 .lb-pagina:nth-child(odd){border-right:2px dashed #C8973A;}     .lb-hoja-x4 .lb-pagina:nth-child(-n+2){border-bottom:2px dashed #C8973A;}      ';
   var cssImpresion='@page{size:A4;margin:0;}@media print{html,body{width:210mm;margin:0;padding:0;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{width:210mm;min-height:297mm;height:297mm;box-shadow:none;border-radius:0;margin:0;padding:16mm 14mm 10mm 18mm;box-sizing:border-box;page-break-after:always;overflow:visible;}.lb-pagina:last-child{page-break-after:auto;}.lb-pic-cambiar,.lb-pic-quitar,.lb-foto-controles{display:none!important;}.lb-hoja-recortable{width:210mm;height:297mm;page-break-after:always;}.lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;}.lb-hoja-x2 .lb-pagina{width:105mm!important;height:297mm!important;min-height:297mm!important;page-break-after:auto!important;padding:10mm 8mm 8mm 10mm!important;}.lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}.lb-hoja-x4 .lb-pagina{width:105mm!important;height:148.5mm!important;min-height:148.5mm!important;page-break-after:auto!important;padding:8mm 6mm 6mm 8mm!important;}}';
   var scriptsLeaflet=_mapasParaInicializar.length?('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></scr'+'ipt>'):'';
   var datosMapasParaScript=_mapasParaInicializar.map(function(m){return {id:m.id,geojsonResaltado:m.geojsonResaltado,geojsonContexto:m.geojsonContexto,modo:m.modo};});
@@ -5154,7 +5154,7 @@ async function generarLegajoEgreso(studentId,nombre){
   prompt+='Generá un legajo de egreso formal con encabezado institucional, resumen del trayecto escolar, síntesis académica, observaciones, fecha de egreso '+fecha+', firma Nicolás Radaelli. Legajo escolar argentino, 200-300 palabras.';
 
   var loadDiv=document.createElement('div');
-  loadDiv.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:16px;padding:28px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:3000;';
+  loadDiv.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--blanco);border-radius:16px;padding:28px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:3000;';
   loadDiv.innerHTML='<div style="font-size:24px;margin-bottom:10px;">📄</div><div style="font-size:13px;font-weight:600;color:var(--verde);">Generando legajo de egreso...</div>';
   document.body.appendChild(loadDiv);
 
@@ -5690,7 +5690,7 @@ function imprimirPerfilAulicoDoc(){
   }).join('');
   var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Áulico Grupal — 6to Año</title>'
     +'<style>@import url(\'https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap\');'
-    +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:#fff;color:#222;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:var(--blanco);color:#222;}'
     +'.doc-wrap{max-width:700px;margin:0 auto;}'
     +'.hero{background:#EAF2F8;border-bottom:2px solid #3B6E9E;padding:26px 30px;}'
     +'.hero-tit{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:18px;color:#3B6E9E;}'
@@ -5733,8 +5733,8 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
     +'<div style="font-family:inherit;font-weight:800;font-size:14px;color:#3B6E9E;">6to Año · Perfil del grupo</div>'
     +'<div style="font-size:10px;color:#5b7fa6;margin-top:2px;">19 alumnos · Escuela La Concepción · '+new Date().toLocaleDateString('es-AR')+'</div>'
     +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px 14px;background:#fff;">'+dimsHtml+'</div>'
-    +'<div style="padding:4px 16px 16px;background:#fff;">'
+    +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px 14px;background:var(--blanco);">'+dimsHtml+'</div>'
+    +'<div style="padding:4px 16px 16px;background:var(--blanco);">'
     +'<div id="perfil-aulico-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);max-height:300px;overflow-y:auto;">'+htmlTexto+'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
     +'<button onclick="imprimirPerfilAulicoDoc()" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
@@ -5742,7 +5742,7 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
     +'</div>'
     +'<div id="ajuste-aulico-box" style="display:none;margin-top:10px;background:#FDF0EC;border-radius:10px;padding:12px;border:1.5px solid var(--terracota);">'
     +'<div style="font-size:11px;font-weight:700;color:var(--terracota);margin-bottom:6px;">¿Qué querés cambiar o agregar?</div>'
-    +'<textarea id="ajuste-aulico-texto" rows="3" placeholder="Ej: el grupo mejoró mucho la autonomía esta semana, o agregar que ahora trabajan mejor en parejas..." style="width:100%;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;background:#fff;"></textarea>'
+    +'<textarea id="ajuste-aulico-texto" rows="3" placeholder="Ej: el grupo mejoró mucho la autonomía esta semana, o agregar que ahora trabajan mejor en parejas..." style="width:100%;padding:8px 10px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:12px;font-family:inherit;resize:none;box-sizing:border-box;background:var(--blanco);"></textarea>'
     +'<button onclick="ajustarPerfilAulico()" class="save-btn" style="margin-top:8px;width:100%;font-size:12px;">🤖 Regenerar con este cambio</button>'
     +'<div id="ajuste-aulico-msg" style="text-align:center;font-size:11px;margin-top:6px;"></div>'
     +'</div></div>';
@@ -6713,7 +6713,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL CONFIG GEMINI -->
 <div id="modal-gemini-config" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:3000;padding:16px;box-sizing:border-box;">
-  <div style="background:#fff;border-radius:16px;padding:20px;max-width:480px;margin:60px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:20px;max-width:480px;margin:60px auto;">
     <div style="text-align:center;margin-bottom:16px;">
       <div style="font-size:32px;margin-bottom:8px;">🔑</div>
       <strong style="font-size:16px;color:var(--verde);">Configurar análisis de lectura</strong>
@@ -6721,7 +6721,7 @@ if(document.readyState==='loading'){
     </div>
     <div class="form-row">
       <label>API Key de Gemini</label>
-      <input type="password" id="gemini-api-key-input" placeholder="AIza..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;box-sizing:border-box;">
+      <input type="password" id="gemini-api-key-input" placeholder="AIza..." style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);box-sizing:border-box;">
     </div>
     <p style="font-size:11px;color:var(--gris);margin-bottom:12px;">Obtenés tu clave gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#1a73e8;">aistudio.google.com/app/apikey</a></p>
     <div style="display:flex;gap:8px;">
@@ -6734,7 +6734,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL SYNC ANÁLISIS GEMINI -->
 <div id="modal-sync-analisis" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;padding:16px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:560px;margin:20px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:560px;margin:20px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:#1a73e8;">🤖 Análisis de lectura pendientes</strong>
       <button onclick="document.getElementById('modal-sync-analisis').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
@@ -6747,7 +6747,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL GENERADOR BOLETÍN -->
 <div id="modal-gen-boletin" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:580px;margin:20px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:20px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📋 Generar Informes de Boletín</strong>
       <button onclick="cerrarGeneradorBoletin()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
@@ -6764,7 +6764,7 @@ if(document.readyState==='loading'){
       Claude lee todas las observaciones y evidencias del período y genera los 19 informes narrativos manteniendo el formato y tono del modelo de boletín. Cada informe tiene el tamaño de recuadro estándar (11.5cm x 2.5cm).
     </div>
     <div class="form-row"><label>Información adicional (opcional)</label>
-      <textarea id="boletin-contexto" placeholder="Ej: El 2do trimestre tuvo mucho foco en divisiones y comprensión lectora inferencial..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;height:70px;resize:none;box-sizing:border-box;"></textarea>
+      <textarea id="boletin-contexto" placeholder="Ej: El 2do trimestre tuvo mucho foco en divisiones y comprensión lectora inferencial..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:70px;resize:none;box-sizing:border-box;"></textarea>
     </div>
     <button onclick="generarPromptBoletin()" class="save-btn">📋 Generar prompt para Claude</button>
     <div id="boletin-resultado" style="display:none;margin-top:10px;">
@@ -6782,7 +6782,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL FICHA DE CONOCIMIENTO -->
 <div id="modal-ficha" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;padding:18px;max-width:600px;margin:16px auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:600px;margin:16px auto;">
     
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <strong style="font-size:15px;color:var(--verde);">📋 Ficha de Conocimiento</strong>
@@ -6795,7 +6795,7 @@ if(document.readyState==='loading'){
     <!-- Selector de alumno -->
     <div class="form-row" style="margin-bottom:14px;">
       <label>Alumno</label>
-      <select id="ficha-alumno" onchange="cargarFicha()" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;">
+      <select id="ficha-alumno" onchange="cargarFicha()" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);">
         <option value="">— Seleccionar alumno —</option>
       </select>
     </div>
@@ -7054,7 +7054,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL CONFIRMAR LECTURA DE FOTO (asistencia) -->
 <div id="modal-confirmar-foto" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:3500;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:90vw;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:90vw;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:15px;font-weight:700;color:#fff;">📷 Revisá lo que leyó la IA</div>
@@ -7074,7 +7074,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL PERFIL DOCENTE / AJUSTES -->
 <div id="modal-perfil-docente" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:3800;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:480px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:18px;display:flex;justify-content:space-between;align-items:center;">
       <div style="font-size:16px;font-weight:700;color:#fff;">⚙️ Mi perfil y ajustes</div>
       <button onclick="document.getElementById('modal-perfil-docente').style.display='none'" style="background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:8px;padding:6px 11px;font-size:18px;cursor:pointer;">✕</button>
@@ -7084,11 +7084,11 @@ if(document.readyState==='loading'){
       <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Datos personales</div>
       <div class="form-row">
         <label>Nombre completo</label>
-        <input type="text" id="perfil-doc-nombre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+        <input type="text" id="perfil-doc-nombre" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
       </div>
       <div class="form-row">
         <label>Grado / sección a cargo</label>
-        <input type="text" id="perfil-doc-grado" placeholder="Ej: 6to Año" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:#FAFAF8;font-family:inherit;box-sizing:border-box;">
+        <input type="text" id="perfil-doc-grado" placeholder="Ej: 6to Año" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
       </div>
       <button onclick="guardarPerfilDocente()" class="save-btn" style="margin-bottom:6px;">💾 Guardar datos</button>
       <div id="perfil-doc-msg" style="text-align:center;font-size:11px;margin-bottom:18px;"></div>
@@ -7116,7 +7116,7 @@ if(document.readyState==='loading'){
 
 <!-- MODAL CONFIRMAR PLANIFICACIONES DESDE ARCHIVO -->
 <div id="modal-confirmar-planif" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:3600;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:#fff;border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:600px;margin:16px auto;overflow:hidden;">
     <div style="background:var(--verde);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:15px;font-weight:700;color:#fff;">📎 Revisá tu planificación</div>
