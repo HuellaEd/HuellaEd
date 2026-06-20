@@ -157,59 +157,82 @@
     #print-container{display:none;}
   </style>
   <style>
-    /* ESTILOS LIBRO — diseño simple para imprimir, un acento de color por área */
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap');
-    #libro-preview{font-family:'Nunito Sans',sans-serif;background:#EEF1EF;padding:16px;border-radius:12px;margin-top:8px;}
+    /* ESTILOS LIBRO */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap');
+    #libro-preview{font-family:'Nunito Sans',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}
     .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-    .lb-logo{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}
+    .lb-logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}
     .lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:11px;cursor:pointer;}
-    .lb-pagina{width:100%;background:#fff;border-radius:6px;border:1px solid #E2E6E4;position:relative;padding:24px 28px;min-height:400px;margin-bottom:16px;}
-    .lb-seccion{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #0F6E56;}
-    .lb-sec-icono{width:26px;height:26px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-    .lb-sec-titulo{font-family:'Nunito',sans-serif;font-weight:700;font-size:16px;color:#1a1a1a;}.lb-sec-titulo em{font-style:normal;font-weight:600;font-size:12px;color:#0F6E56;}
-    .lb-bloque{margin-bottom:13px;}
-    .lb-consigna{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
-    .lb-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;color:white;background:#0F6E56;flex-shrink:0;margin-top:1px;}
-    .lb-n0,.lb-n1,.lb-n2,.lb-n3,.lb-n4{background:#0F6E56;}
-    .lb-texto{font-size:12.5px;font-weight:600;color:#1a1a1a;line-height:1.55;flex:1;}
-    .lb-grilla{display:grid;gap:6px;margin-bottom:6px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}
-    .lb-celda{border-radius:6px;border:1px solid #D6DBD8;padding:8px 11px;min-height:36px;font-size:12px;font-weight:600;display:flex;align-items:center;color:#1a1a1a;background:#fff;}
-    .lb-c0,.lb-c1,.lb-c2,.lb-c3,.lb-c4,.lb-c5{background:#fff;}
-    .lb-area{border-radius:6px;border:1px solid #D6DBD8;min-height:90px;margin-bottom:6px;}
-    .lb-tabla-wrap{border-radius:6px;overflow:hidden;border:1px solid #1a1a1a;margin-bottom:8px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;}
-    .lb-tabla-wrap th{background:#F7FAF8;color:#1a1a1a;font-weight:700;font-size:11px;padding:7px 8px;text-align:center;border-bottom:1px solid #1a1a1a;}
-    .lb-tabla-wrap td{border:1px solid #D6DBD8;padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;color:#1a1a1a;}
-    .lb-caja{border-radius:6px;padding:11px 14px;border:1px solid #D6DBD8;border-left:3px solid #0F6E56;margin-bottom:8px;background:#fff;}
-    .lb-caja-titulo{font-family:'Nunito',sans-serif;font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;color:#0F6E56;}
-    .lb-caja-dorada{border-left-color:#C8973A;}.lb-caja-dorada .lb-caja-titulo{color:#A87B2A;}
-    .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;color:#1a1a1a;}
-    .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:'Nunito',sans-serif;font-weight:700;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#F7FAF8;border:1px solid #0F6E56;color:#0F6E56;}
-    .lb-pie{margin-top:14px;padding-top:8px;border-top:1px solid #E2E6E4;display:flex;justify-content:flex-end;}
-    .lb-pie-num{font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;color:#888;}
+    .lb-pagina{width:100%;background:#FAFCFB;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.11);position:relative;overflow:hidden;padding:26px 36px 0 42px;min-height:400px;margin-bottom:16px;}
+    .lb-pagina::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(45,95,79,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(45,95,79,.09) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;}
+    .lb-banda{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#2D5F4F 0%,#3D7A65 60%,#C8973A 100%);}
+    .lb-seccion{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #D4EAE4;position:relative;z-index:1;}
+    .lb-sec-icono{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .lb-sec-titulo{font-family:'Nunito',sans-serif;font-weight:900;font-size:17px;color:#2D5F4F;}.lb-sec-titulo em{font-style:normal;color:#C8973A;}
+    .lb-bloque{margin-bottom:12px;position:relative;z-index:1;}
+    .lb-consigna{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;}
+    .lb-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:11px;color:white;flex-shrink:0;margin-top:1px;}
+    .lb-n0{background:#2D5F4F}.lb-n1{background:#C8973A}.lb-n2{background:#3B6E9E}.lb-n3{background:#C05A3A}.lb-n4{background:#7B6FAF}
+    .lb-texto{font-size:12.5px;font-weight:600;color:#2a3830;line-height:1.55;flex:1;}
+    .lb-grilla{display:grid;gap:5px;margin-bottom:4px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}
+    .lb-celda{border-radius:7px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;display:flex;align-items:center;color:#3a4a42;}
+    .lb-c0{background:#D4EAE4}.lb-c1{background:#F7EDDB}.lb-c2{background:#F5E0D8}.lb-c3{background:#D6E5F3}.lb-c4{background:#DDF0F7}.lb-c5{background:#EAE7F5}
+    .lb-area{border-radius:7px;border:1.5px dashed rgba(45,95,79,.18);min-height:50px;background-image:repeating-linear-gradient(transparent,transparent 26px,rgba(45,95,79,.07) 26px,rgba(45,95,79,.07) 27px);background-position:0 27px;margin-bottom:5px;}
+    .lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:7px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;}
+    .lb-tabla-wrap th{background:#2D5F4F;color:white;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}
+    .lb-tabla-wrap td{border:1px solid rgba(45,95,79,.1);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;}
+    .lb-tabla-wrap tr:nth-child(even) td{background:#EBF5F1;}
+    .lb-caja{border-radius:8px;padding:11px 14px;border-left:4px solid;margin-bottom:7px;}
+    .lb-caja-titulo{font-family:'Nunito',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;}
+    .lb-caja-verde{background:#D4EAE4;border-color:#2D5F4F}.lb-caja-verde .lb-caja-titulo{color:#2D5F4F}
+    .lb-caja-dorada{background:#F7EDDB;border-color:#C8973A}.lb-caja-dorada .lb-caja-titulo{color:#C8973A}
+    .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;}
+    .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:'Nunito',sans-serif;font-weight:800;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#3B6E9E;color:white;}
+    .lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}
+    .lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:'Nunito',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}
+    .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}
 
-    /* ══ ACENTO POR ÁREA (un solo color, no paleta completa) ══ */
-    .lb-area-M .lb-seccion{border-bottom-color:#3B6E9E;}.lb-area-M .lb-sec-icono{background:#E6F1FB;}.lb-area-M em{color:#3B6E9E;}.lb-area-M .lb-num{background:#3B6E9E;}.lb-area-M .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo,.lb-area-M .lb-caja:not(.lb-caja-dorada){border-left-color:#3B6E9E;}.lb-area-M .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#3B6E9E;}.lb-area-M .lb-badge{border-color:#3B6E9E;color:#3B6E9E;}
-    .lb-area-L .lb-seccion{border-bottom-color:#C8845A;}.lb-area-L .lb-sec-icono{background:#FAECE7;}.lb-area-L em{color:#C8845A;}.lb-area-L .lb-num{background:#C8845A;}.lb-area-L .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo,.lb-area-L .lb-caja:not(.lb-caja-dorada){border-left-color:#C8845A;}.lb-area-L .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#C8845A;}.lb-area-L .lb-badge{border-color:#C8845A;color:#C8845A;}
-    .lb-area-CS .lb-seccion{border-bottom-color:#5B7FA6;}.lb-area-CS .lb-sec-icono{background:#E6F1FB;}.lb-area-CS em{color:#5B7FA6;}.lb-area-CS .lb-num{background:#5B7FA6;}.lb-area-CS .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo,.lb-area-CS .lb-caja:not(.lb-caja-dorada){border-left-color:#5B7FA6;}.lb-area-CS .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#5B7FA6;}.lb-area-CS .lb-badge{border-color:#5B7FA6;color:#5B7FA6;}
-    .lb-area-CN .lb-seccion{border-bottom-color:#5A9B6F;}.lb-area-CN .lb-sec-icono{background:#EAF3DE;}.lb-area-CN em{color:#5A9B6F;}.lb-area-CN .lb-num{background:#5A9B6F;}.lb-area-CN .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo,.lb-area-CN .lb-caja:not(.lb-caja-dorada){border-left-color:#5A9B6F;}.lb-area-CN .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#5A9B6F;}.lb-area-CN .lb-badge{border-color:#5A9B6F;color:#5A9B6F;}
+    /* ══ PALETAS POR ÁREA ══ */
+    .lb-area-M .lb-sec-titulo,.lb-area-M .lb-caja-titulo{color:#3B6E9E;}
+    .lb-area-M .lb-banda{background:linear-gradient(180deg,#3B6E9E,#4A8AC0,#C8973A);}
+    .lb-area-M .lb-pagina::before{background-image:linear-gradient(rgba(59,110,158,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,110,158,.09) 1px,transparent 1px);}
+    .lb-area-M .lb-num{background:#3B6E9E!important;}
+    .lb-area-M .lb-tabla-wrap{border-color:#3B6E9E;}.lb-area-M .lb-tabla-wrap th{background:#3B6E9E;}
 
-    /* ══ DENSIDAD POR BLOQUE DE AÑOS ══ */
-    .lb-bloque-12 .lb-sec-titulo{font-size:18px;}
-    .lb-bloque-12 .lb-texto{font-size:14.5px;}
-    .lb-bloque-12 .lb-num{width:24px;height:24px;font-size:13px;}
-    .lb-bloque-12 .lb-celda{min-height:46px;font-size:15px;padding:12px 14px;border-radius:9px;}
-    .lb-bloque-12 .lb-area{min-height:110px;border-radius:9px;}
-    .lb-bloque-12 .lb-bloque{margin-bottom:18px;}
+    .lb-area-L .lb-sec-titulo,.lb-area-L .lb-caja-titulo{color:#C8845A;}
+    .lb-area-L .lb-banda{background:linear-gradient(180deg,#C8845A,#D4A06E,#8a5a3a);}
+    .lb-area-L .lb-pagina::before{display:none;background-image:repeating-linear-gradient(transparent,transparent 22px,rgba(200,132,90,.12) 22px,rgba(200,132,90,.12) 23px);}
+    .lb-area-L .lb-num{background:#C8845A!important;}
+    .lb-area-L .lb-texto{font-family:'Nunito Sans',sans-serif;}
+    .lb-area-L .lb-tabla-wrap{border-color:#C8845A;}.lb-area-L .lb-tabla-wrap th{background:#C8845A;}
+    .lb-area-L .lb-celda{font-family:Georgia,serif;}
 
-    .lb-bloque-34 .lb-sec-titulo{font-size:16px;}
-    .lb-bloque-34 .lb-texto{font-size:12.5px;}
+    .lb-area-CS .lb-sec-titulo,.lb-area-CS .lb-caja-titulo{color:#5B7FA6;}
+    .lb-area-CS .lb-banda{background:linear-gradient(180deg,#5B7FA6,#7BA0C4,#3B6E9E);}
+    .lb-area-CS .lb-pagina::before{background-image:none;}
+    .lb-area-CS .lb-num{background:#5B7FA6!important;}
+    .lb-area-CS .lb-tabla-wrap{border-color:#5B7FA6;}.lb-area-CS .lb-tabla-wrap th{background:#5B7FA6;}
 
-    .lb-bloque-56 .lb-sec-titulo{font-size:15px;}
-    .lb-bloque-56 .lb-texto{font-size:11.5px;}
-    .lb-bloque-56 .lb-num{width:18px;height:18px;font-size:10px;}
-    .lb-bloque-56 .lb-celda{min-height:30px;font-size:11px;padding:6px 9px;}
-    .lb-bloque-56 .lb-bloque{margin-bottom:10px;}
-    .lb-bloque-56 .lb-tabla-wrap th,.lb-bloque-56 .lb-tabla-wrap td{font-size:10.5px;padding:5px 7px;}
+    .lb-area-CN .lb-sec-titulo,.lb-area-CN .lb-caja-titulo{color:#5A9B6F;}
+    .lb-area-CN .lb-banda{background:linear-gradient(180deg,#5A9B6F,#7BC090,#2D5F4F);}
+    .lb-area-CN .lb-pagina::before{background-image:none;}
+    .lb-area-CN .lb-num{background:#5A9B6F!important;border-radius:50%!important;}
+    .lb-area-CN .lb-sec-icono{border-radius:50%!important;}
+    .lb-area-CN .lb-tabla-wrap{border-color:#5A9B6F;}.lb-area-CN .lb-tabla-wrap th{background:#5A9B6F;}
+
+    /* ══ TONOS ══ */
+    .lb-tono-ludico .lb-pagina{background:linear-gradient(135deg,#FFF9F0,#FFF4E8);}
+    .lb-tono-ludico .lb-texto{font-size:13.5px!important;}
+    .lb-tono-ludico .lb-celda{border-radius:14px!important;}
+    .lb-tono-ludico .lb-sec-icono{border-radius:50%!important;}
+
+    .lb-tono-evaluacion .lb-pagina{background:white!important;}
+    .lb-tono-evaluacion .lb-pagina::before{display:none!important;}
+    .lb-tono-evaluacion .lb-celda{background:white!important;border:1px solid #ccc!important;}
+    .lb-tono-evaluacion .lb-tabla-wrap th{background:#444!important;}
+    .lb-tono-evaluacion .lb-num{background:#444!important;}
+    .lb-tono-evaluacion .lb-banda{background:#444!important;}
+    .lb-tono-evaluacion .lb-marca{display:none;}
 
     /* ══ PICTOGRAMAS ARASAAC ══ */
     .lb-pictogramas-box{position:relative;z-index:1;margin:6px 0 10px 30px;}
@@ -220,17 +243,20 @@
     .lb-pic-cambiar,.lb-pic-quitar{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}
     .lb-pic-cambiar{right:16px;background:#5B7FA6;}
     .lb-pic-quitar{right:-4px;background:#C0392B;}
+    .lb-tono-evaluacion .lb-pictogramas-box{display:none;}
 
     /* ══ ÍCONOS SVG MATEMÁTICA ══ */
     .lb-iconos-mate-fila{display:flex;gap:10px;align-items:center;margin:6px 0 10px 30px;flex-wrap:wrap;position:relative;z-index:1;}
     .lb-icono-mate{display:inline-flex;width:30px;height:30px;}
     .lb-icono-mate svg{width:100%;height:100%;}
+    .lb-tono-evaluacion .lb-iconos-mate-fila{filter:grayscale(1);opacity:.75;}
 
-    /* ══ MAPAS (Ciencias Sociales) ══ */
+    /* ══ MAPAS OPENSTREETMAP (Ciencias Sociales) ══ */
     .lb-mapa-box{position:relative;z-index:1;margin-bottom:12px;}
     .lb-mapa-titulo{font-size:11px;font-weight:700;color:#5B7FA6;margin-bottom:5px;}
-    .lb-mapa-img{width:100%;max-height:280px;object-fit:contain;border-radius:9px;border:1.5px solid var(--gris-claro,#ddd);background:#EEF2F6;display:block;}
+    .lb-mapa-leaflet-contenedor{width:100%;height:220px;border-radius:9px;border:1.5px solid var(--gris-claro,#ddd);background:#EEF2F6;}
     .lb-mapa-atribucion{font-size:7.5px;color:#999;margin-top:2px;text-align:right;}
+    .lb-mapa-leaflet-blanco{background:#fff!important;}
 
     /* ══ FOTOS REALES WIKIMEDIA COMMONS ══ */
     .lb-foto-real-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;max-width:320px;}
@@ -244,22 +270,9 @@
 
     /* ══ CLIP-ART PROPIO (1ro/2do) ══ */
     .lb-clipart-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;}
-
-    /* ══ GRÁFICOS DE APOYO (filas/columnas, paquetes) ══ */
-    .lb-grilla-visual-wrap{margin:8px 0 12px;position:relative;z-index:1;}
-    .lb-grilla-visual{display:inline-grid;gap:2px;background:#0F6E56;padding:2px;border-radius:6px;}
-    .lb-grilla-visual-celda{background:#9FE1CB;width:20px;height:20px;}
-    .lb-grilla-visual-hueco{background:#fff;}
-    .lb-paquete-contar-wrap{margin:8px 0 12px;position:relative;z-index:1;}
-    .lb-paquete-contar{display:inline-flex;flex-wrap:wrap;gap:3px;background:#FAECE7;border:2px solid #D85A30;border-radius:10px;padding:10px;max-width:280px;}
-    .lb-paquete-unidad{width:14px;height:14px;border-radius:3px;background:#D85A30;}
-    .lb-paquete-dato-wrap{margin:8px 0 12px;position:relative;z-index:1;}
-    .lb-paquete-dato{display:inline-flex;align-items:center;gap:10px;background:#FAECE7;border:2px solid #D85A30;border-radius:10px;padding:12px 18px;}
-    .lb-paquete-dato-icono{font-size:24px;}
-    .lb-paquete-dato-cantidad{font-size:15px;font-weight:800;color:#993C1D;}
-    .lb-paquete-dato-label{font-size:9px;color:#993C1D;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
     .lb-clipart-item{display:inline-flex;width:90px;height:90px;}
     .lb-clipart-item svg{width:100%;height:100%;}
+    .lb-tono-evaluacion .lb-clipart-wrapper{filter:grayscale(1);opacity:.7;}
 
     /* ══ FORMATOS DE HOJA RECORTABLE ══ */
     .lb-hoja-recortable{position:relative;}
@@ -267,6 +280,10 @@
     .lb-hoja-x2 .lb-pagina{min-height:140mm;font-size:0.78em;}
     .lb-hoja-x2 .lb-tijera{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8973A;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.25);}
     .lb-hoja-x2 .lb-pagina:first-child{border-right:2px dashed #C8973A;}
+    .lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;}
+    .lb-hoja-x4 .lb-pagina{min-height:90mm;font-size:0.62em;}
+    .lb-hoja-x4 .lb-pagina:nth-child(odd){border-right:2px dashed #C8973A;}
+    .lb-hoja-x4 .lb-pagina:nth-child(-n+2){border-bottom:2px dashed #C8973A;}
 
     @page{size:A4;margin:0;}
 @media print{
@@ -288,6 +305,8 @@
   .lb-hoja-recortable{width:210mm;height:297mm;page-break-after:always;}
   .lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;}
   .lb-hoja-x2 .lb-pagina{width:105mm!important;height:297mm!important;min-height:297mm!important;page-break-after:auto!important;padding:10mm 8mm 8mm 10mm!important;}
+  .lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+  .lb-hoja-x4 .lb-pagina{width:105mm!important;height:148.5mm!important;min-height:148.5mm!important;page-break-after:auto!important;padding:8mm 6mm 6mm 8mm!important;}
   .lb-sec-titulo{font-size:4.8mm!important;}
   .lb-texto{font-size:3.5mm!important;line-height:1.5!important;}
   .lb-num{font-size:3mm!important;width:6mm!important;height:6mm!important;}
@@ -304,6 +323,8 @@
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -414,7 +435,6 @@
   </button>
   <div class="grupo-panel" id="panel-generar">
     <div class="subcard boton-generador" onclick="abrirGenerador()"><span class="subcard-icon" data-icon="sparkles"></span><span class="subcard-label">Material</span><span class="subcard-sub">Cuadernillos, fichas</span></div>
-    <div class="subcard" onclick="abrirMisMateriales()"><span class="subcard-icon" data-icon="folder-open"></span><span class="subcard-label">Mis materiales guardados</span><span class="subcard-sub">Ver y volver a abrir lo guardado</span></div>
     <div class="subcard" onclick="abrirGeneradorBoletin()"><span class="subcard-icon" data-icon="file-text"></span><span class="subcard-label">Generar informes de boletín</span><span class="subcard-sub">Usando evidencias y observaciones del período</span></div>
   </div>
 
@@ -517,20 +537,26 @@ App: https://huellaed.github.io/HuellaEd/</div>
 <div id="modal-generador" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
   <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">✨ Generar Material</strong><button onclick="cerrarGenerador()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:5px;">
+    <div class="form-row"><label>Tipo</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;">
       <div class="tipo-btn" onclick="selTipo(this,'cuadernillo')">📓 Cuadernillo</div>
       <div class="tipo-btn" onclick="selTipo(this,'ficha')">📄 Ficha</div>
+      <div class="tipo-btn" onclick="selTipo(this,'planificacion')">📋 Planificación</div>
       <div class="tipo-btn" onclick="selTipo(this,'evaluacion')">📝 Evaluación</div>
+      <div class="tipo-btn" onclick="selTipo(this,'repaso')">🔁 Repaso</div>
+      <div class="tipo-btn" onclick="selTipo(this,'problemas')">🔢 Sec. problemas</div>
+      <div class="tipo-btn" onclick="selTipo(this,'proyecto')" style="grid-column:span 2;">🌐 Proyecto integrador</div>
     </div></div>
     <div class="form-row"><label>Bloque de años (define el formato de la plantilla)</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"><div class="bloque-btn active" onclick="selBloque(this,'12')" data-bloque="12" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--verde);border:1.5px solid var(--verde);color:#fff;font-size:11px;font-weight:600;cursor:pointer;">1° y 2°</div><div class="bloque-btn" onclick="selBloque(this,'34')" data-bloque="34" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">3° y 4°</div><div class="bloque-btn" onclick="selBloque(this,'56')" data-bloque="56" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">5° y 6°</div></div><div style="font-size:9.5px;color:var(--gris);margin-top:5px;">Elegí el bloque según lo que necesite el alumno o el grupo, sin importar tu grado real.</div></div>
     <div class="form-row" id="gen-area-row"><label>Área</label><select id="gen-area" onchange="toggleBloqueMapas()"><option value="">— Seleccionar —</option><option>Matemática</option><option>Prácticas del Lenguaje</option><option>Ciencias Naturales</option><option>Ciencias Sociales</option><option>Inglés</option><option>Ed. Física</option><option>Ed. Artística</option></select></div>
-    <div class="form-row"><label>Formato de hoja</label><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;"><div class="formato-btn active" onclick="selFormatoHoja(this,'entera')" data-formato="entera" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--verde);border:1.5px solid var(--verde);font-size:11px;font-weight:600;cursor:pointer;color:#fff;">📄 Hoja entera</div><div class="formato-btn" onclick="selFormatoHoja(this,'media')" data-formato="media" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">📃 Media hoja</div></div><div style="font-size:10px;color:var(--gris);margin-top:5px;">Media hoja genera menos cantidad de ejercicios para que entren cómodos</div></div>
+    <div class="form-row"><label>Tono visual</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"><div class="tono-btn active" onclick="selTono(this,'normal')" data-tono="normal" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">📋 Estándar</div><div class="tono-btn" onclick="selTono(this,'ludico')" data-tono="ludico" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">🎈 Lúdico</div><div class="tono-btn" onclick="selTono(this,'evaluacion')" data-tono="evaluacion" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">📝 Evaluación</div></div></div>
+    <div class="form-row"><label>Formato de hoja</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"><div class="formato-btn active" onclick="selFormatoHoja(this,'entera')" data-formato="entera" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--verde);border:1.5px solid var(--verde);font-size:11px;font-weight:600;cursor:pointer;color:#fff;">📄 Hoja entera</div><div class="formato-btn" onclick="selFormatoHoja(this,'media')" data-formato="media" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">📃 Media hoja</div><div class="formato-btn" onclick="selFormatoHoja(this,'cuarto')" data-formato="cuarto" style="text-align:center;padding:9px 6px;border-radius:9px;background:var(--crema);border:1.5px solid var(--gris-claro);font-size:11px;font-weight:600;cursor:pointer;">🎫 Cuarto de hoja</div></div><div style="font-size:10px;color:var(--gris);margin-top:5px;">Media y cuarto de hoja generan menos cantidad de ejercicios para que entren cómodos</div></div>
     <div class="form-row"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><input type="checkbox" id="gen-pictogramas" style="width:16px;height:16px;cursor:pointer;"> 🖼️ Sugerir pictogramas Arasaac para las consignas</label></div>
     <div class="form-row" id="gen-mapas-row" style="display:none;">
       <label>🗺️ Mapa para incluir (opcional)</label>
       <div id="gen-mapa-galeria"></div>
       <div id="gen-mapa-resultado" style="margin-top:8px;"></div>
     </div>
+    <div class="form-row" id="gen-areas-multi-row" style="display:none;"><label>Áreas que integra</label><input type="text" id="gen-areas-multi" placeholder="Ej: Matemática y Ciencias Naturales"></div>
     <div class="form-row"><label>Tema</label><input type="text" id="gen-tema" placeholder="Ej: divisiones con resto, texto narrativo..."></div>
     <div class="form-row">
       <label>Versiones diferenciadas</label>
@@ -572,24 +598,6 @@ App: https://huellaed.github.io/HuellaEd/</div>
         <button onclick="descargarCuadernillo()" class="sec-btn">⬇️ Descargar</button>
       </div>
       <div id="gen-ai-copy-msg" style="text-align:center;font-size:11px;margin-top:2px;"></div>
-    </div>
-  </div>
-</div>
-
-<div id="modal-mis-materiales" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:16px auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">📂 Mis materiales guardados</strong><button onclick="cerrarMisMateriales()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <div id="mis-materiales-lista" style="display:flex;flex-direction:column;gap:8px;"><div style="text-align:center;color:var(--gris);font-size:12px;padding:20px;">Cargando…</div></div>
-  </div>
-</div>
-
-<div id="modal-ver-material" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1001;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:680px;margin:16px auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong id="ver-material-titulo" style="font-size:14px;color:var(--verde);"></strong><button onclick="document.getElementById('modal-ver-material').style.display='none';" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
-    <div id="ver-material-contenido"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;">
-      <button onclick="descargarMaterialGuardado()" class="sec-btn">⬇️ Descargar</button>
-      <button onclick="eliminarMaterialGuardado()" class="sec-btn" style="color:#C0392B;">🗑️ Eliminar</button>
     </div>
   </div>
 </div>
@@ -3710,8 +3718,9 @@ var _genAiRawText='';
 var _genHtmlRenderizado='';
 function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
 function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';document.getElementById('gen-ai-resultado').style.display='none';quitarAdjuntoGen();quitarMapaSeleccionado();}
-function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;}
-
+function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;var esP=t==='proyecto';document.getElementById('gen-area-row').style.display=esP?'none':'block';document.getElementById('gen-areas-multi-row').style.display=esP?'block':'none';if(t==='problemas')document.getElementById('gen-area').value='Matemática';if(t==='evaluacion'){var evBtn=document.querySelector('.tono-btn[data-tono="evaluacion"]');if(evBtn)selTono(evBtn,'evaluacion');}}
+var tonoSel='normal';
+function selTono(el,t){document.querySelectorAll('.tono-btn').forEach(function(b){b.classList.remove('active');b.style.background='var(--crema)';b.style.borderColor='var(--gris-claro)';b.style.color='var(--negro)';});el.classList.add('active');el.style.background='var(--verde)';el.style.borderColor='var(--verde)';el.style.color='#fff';tonoSel=t;}
 var bloqueAñosSel='12';
 function selBloque(el,b){document.querySelectorAll('.bloque-btn').forEach(function(btn){btn.classList.remove('active');btn.style.background='var(--crema)';btn.style.borderColor='var(--gris-claro)';btn.style.color='var(--negro)';});el.classList.add('active');el.style.background='var(--verde)';el.style.borderColor='var(--verde)';el.style.color='#fff';bloqueAñosSel=b;}
 var formatoHojaSel='entera';
@@ -3722,8 +3731,10 @@ async function generarPrompt(){
   var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
   if(!tipoSel){alert('Seleccioná el tipo');return;}
   if(!tema){alert('Escribí el tema');return;}
-  var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',evaluacion:'una evaluación'};
-  var p='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+area;
+  var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
+  var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
+  var p='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
+  if(tipoSel==='proyecto')p+=' que integre: '+areaT;else p+=' para '+areaT;
   p+=', sobre: '+tema+'.\n\n';
   var formatosBloque={
     '12':'FORMATO PARA 1° y 2° GRADO: tipografía y consignas MUY simples, una sola consigna por bloque, oraciones cortas, mucho espacio para escribir o dibujar, vocabulario básico.',
@@ -3732,7 +3743,10 @@ async function generarPrompt(){
   };
   p+=(formatosBloque[bloqueAñosSel]||formatosBloque['56'])+'\n\n';
   if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
-  p+='\nListo para imprimir en A4.';
+  if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';
+  if(tipoSel==='repaso')p+='\nConsolidar contenido ya trabajado, dificultad progresiva.';
+  if(tipoSel==='problemas')p+='\nEntre 4 y 6 problemas articulados, contextos cotidianos.';
+  if(tipoSel==='proyecto')p+='\n2-3 semanas, producto final, momentos grupales e individuales.';
   if(alumnosEsp.length>0){
     p+='\n\nVERSIONES DIFERENCIADAS:\n';
     alumnosEsp.forEach(function(a){
@@ -3757,15 +3771,18 @@ async function generarConIA(){
     var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
     if(!tipoSel){alert('Seleccioná el tipo');resolve(null);return;}
     if(!tema){alert('Escribí el tema');resolve(null);return;}
-    var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',evaluacion:'una evaluación'};
-    var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+area;
+    var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',planificacion:'una planificación de clase',evaluacion:'una evaluación',repaso:'una actividad de repaso',problemas:'una secuencia de problemas matemáticos articulados',proyecto:'un proyecto integrador'};
+    var areaT=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value||'múltiples áreas':area;
+    var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel];
+    if(tipoSel==='proyecto')p2+=' que integre: '+areaT;else p2+=' para '+areaT;
     p2+=', sobre: '+tema+'.\n\n';
     if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
     if(alumnosEsp.length>0){p2+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(function(a){var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos)':'ADECUACIÓN (mantiene objetivos)';p2+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p2+='\nCada versión con nota pedagógica breve.';}
     if(det)p2+='\n\nDetalles: '+det;
     var formatoInstr={
       entera:'',
-      media:'\n\nFORMATO DE HOJA: esto va a ocupar MEDIA hoja A4 (se imprimen 2 fichas por hoja, cortadas al medio). Generá MENOS cantidad de contenido: aproximadamente la MITAD de ejercicios/ítems que en una hoja entera, consignas más breves, máximo 1 página, para que entre cómodo en el espacio reducido sin verse apretado.'
+      media:'\n\nFORMATO DE HOJA: esto va a ocupar MEDIA hoja A4 (se imprimen 2 fichas por hoja, cortadas al medio). Generá MENOS cantidad de contenido: aproximadamente la MITAD de ejercicios/ítems que en una hoja entera, consignas más breves, máximo 1 página, para que entre cómodo en el espacio reducido sin verse apretado.',
+      cuarto:'\n\nFORMATO DE HOJA: esto va a ocupar UN CUARTO de hoja A4 (se imprimen 4 fichas por hoja). Generá MUY POCO contenido: 1 sola consigna corta y simple, o como máximo 2-3 ítems breves, sin tablas grandes ni texto largo. Tiene que entrar en un espacio chico.'
     };
     p2+=formatoInstr[formatoHojaSel]||'';
     resolve(p2);
@@ -3779,19 +3796,17 @@ async function generarConIA(){
   btn.disabled=true;btn.textContent='Generando...';
   contenedor.style.display='block';
   document.getElementById('gen-ai-text').innerHTML='<div style="text-align:center;padding:32px;color:#2D5F4F"><div style="font-size:32px;margin-bottom:10px">📖</div><div style="font-weight:700;font-size:14px">Generando material...</div></div>';
-  var LIMITES_FORMATO_POR_BLOQUE={
-    '12':{entera:'Generá EXACTAMENTE entre 4 y 5 secciones para llenar 1 pagina completa A4 (no menos de 4). Como es para 1ro/2do grado, usá pocas palabras por consigna pero varias secciones cortas: por ejemplo 2 secciones de "grilla" con 4-6 items cada una, 1 de "escritura" para dibujar, y 1 "caja" de cierre.',media:'Generá EXACTAMENTE entre 2 y 3 secciones (no menos de 2), breves, para que entren en media hoja A4 sin verse apretado.'},
-    '34':{entera:'Generá EXACTAMENTE entre 5 y 7 secciones (no menos de 5) para llenar 1 a 2 paginas A4 completas. Combiná tipos: grillas de ejercicios, alguna tabla, y al menos 1 caja de cierre o reflexion.',media:'Generá EXACTAMENTE entre 3 y 4 secciones (no menos de 3) para llenar media hoja A4 sin quedar corto.'},
-    '56':{entera:'Generá EXACTAMENTE entre 6 y 8 secciones (no menos de 6) para llenar 1 a 2 paginas A4 completas, sin dejar espacio vacio. Variá tipos: grillas con varios items, tablas, consignas de desarrollo/escritura, y cierre con caja de reflexion o verdadero-falso.',media:'Generá EXACTAMENTE entre 4 y 5 secciones (no menos de 4) para llenar media hoja A4 completa, sin quedar corto.'}
+  var LIMITES_FORMATO={
+    entera:'Maximo 2 paginas, 4-6 secciones por pagina.',
+    media:'Maximo 1 pagina, 2-3 secciones en total. Contenido breve, va a ocupar la mitad de una hoja A4.',
+    cuarto:'Maximo 1 pagina, 1 sola seccion simple (o 2 como mucho). Contenido muy breve, va a ocupar un cuarto de hoja A4, espacio muy reducido.'
   };
-  var LIMITES_FORMATO=LIMITES_FORMATO_POR_BLOQUE[bloqueAñosSel]||LIMITES_FORMATO_POR_BLOQUE['56'];
   var pedirPictogramas=document.getElementById('gen-pictogramas')&&document.getElementById('gen-pictogramas').checked;
   var estructuraJSON=pedirPictogramas
-    ?'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":90,"titulo":"...","color":"verde|dorado","grupal":false,"pictogramas":["palabra1","palabra2"]}]}]}'
-    :'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":90,"titulo":"...","color":"verde|dorado","grupal":false}]}]}';
-  var instrAltoEscritura=' IMPORTANTE sobre el campo "alto" en secciones de tipo "escritura": el alumno necesita lugar de sobra para desplegar su estrategia (cuentas, dibujos, pasos intermedios), no solo para poner el resultado final. Nunca pongas menos de 80. Para una pregunta simple de una sola línea de respuesta usá 80-100. Para un problema que requiere una cuenta o desarrollo corto usá 110-140. Para un problema complejo de varios pasos, donde el alumno tiene que mostrar el procedimiento completo, usá 160-200 o más. Es mejor dejar de más que de menos.';
+    ?'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false,"pictogramas":["palabra1","palabra2"]}]}]}'
+    :'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}';
   var instrPictogramas=pedirPictogramas?' En cada seccion, agrega "pictogramas": un array de 1 a 3 palabras clave en español (sustantivos simples y concretos) de la consigna que convendria ilustrar con un pictograma de apoyo visual. Si la consigna no tiene palabras concretas para ilustrar, dejá el array vacio [].':'';
-  var areaParaIconos=document.getElementById('gen-area').value;
+  var areaParaIconos=tipoSel==='proyecto'?document.getElementById('gen-areas-multi').value:document.getElementById('gen-area').value;
   var esAreaMate=(areaParaIconos||'').toLowerCase().indexOf('matem')>-1;
   var instrIconosMate=esAreaMate?' Esto es de Matematica: en cada seccion donde tenga sentido, agrega "iconosMate": un array de 1 a 4 nombres de iconos a usar como apoyo visual, elegidos de esta lista exacta: circulo, cuadrado, triangulo, rectangulo, pentagono, hexagono, rombo, suma, resta, multiplicacion, division, igual, reloj, balanza, regla, monedas, o grupo_N donde N es un numero del 1 al 10 (representa esa cantidad en puntos, util para conteo). Elegi segun el tema: geometria=formas, operaciones=suma/resta/etc, cantidades chicas=grupo_N, dinero=monedas, tiempo=reloj, medidas=regla/balanza. Si no aplica, dejalo vacio [].':'';
   var areaLower=(areaParaIconos||'').toLowerCase();
@@ -3799,7 +3814,7 @@ async function generarConIA(){
   var esAreaClipart=true;
   var instrFotos=esAreaFotos?' Ademas, en 1 o 2 secciones clave (las mas importantes del tema), agrega "fotoReal": una palabra o frase corta en ingles (2-4 palabras maximo) que describa concretamente que foto real buscar para ilustrar (ej: "Andes mountains Argentina", "frog life cycle", "Eiffel Tower"). Usa ingles porque la busqueda de fotos funciona mejor asi. Si la seccion no necesita foto, no agregues el campo.':'';
   var instrClipart=esAreaClipart?' Ademas, en secciones donde la actividad sea de tipo "dibuja y escribi" o similar para primer ciclo, agrega "clipart": el nombre de UN dibujo simple a mostrar, elegido de esta lista exacta: sol, casa, arbol, perro, gato, pelota, manzana, flor, pajaro, pez, estrella, globo, nube, libro, lapiz, vaca, caballo, pollo, rana, mariposa, auto, bicicleta, avion, barco, pan, torta, leche, reloj_pared, mochila, cara_nino, familia, corazon, arcoiris. Elegi el que mejor se relacione con el tema o consigna. Si ninguno aplica bien, no agregues el campo.':'';
-  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion. IMPORTANTE: la hoja A4 tiene que quedar COMPLETA, sin espacio en blanco grande al final. No generes de menos — generá la cantidad indicada o más si hace falta para llenar la hoja entera. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrAltoEscritura+instrPictogramas+instrIconosMate+instrFotos+instrClipart+' Lenguaje directo al alumno.';
+  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+' Lenguaje directo al alumno.';
   var contentParts=[];
   if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
   var textoConAdjunto=_genAdjuntoTexto?(p+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):p;
@@ -3823,19 +3838,16 @@ async function generarConIA(){
 function renderLibro(respuestaIA,contenedor){
   var LC=['lb-c0','lb-c1','lb-c2','lb-c3','lb-c4','lb-c5'];
   var LN=['lb-n0','lb-n1','lb-n2','lb-n3','lb-n4'];
-  var LI=['📖','✏️','✦','💡','🌿','▦'];
-  var LB=['#E1F5EE','#E1F5EE','#E1F5EE','#E1F5EE','#E1F5EE','#E1F5EE'];
-  function pie(n){return '<div class="lb-pie"><div class="lb-pie-num">'+n+'</div></div>';}
+  var LI=['📚','✏️','🔢','💡','🌿','📊'];
+  var LB=['#D4EAE4','#F7EDDB','#F5E0D8','#D6E5F3','#DDF0F7','#EAE7F5'];
+  function pie(n){return '<div class="lb-pie"><svg viewBox="0 0 750 42" preserveAspectRatio="none" style="width:100%;height:42px"><path d="M0 28 Q150 10 300 26 Q450 44 600 24 Q680 10 750 22 L750 42 L0 42Z" fill="#2D5F4F"/><path d="M0 34 Q200 18 400 32 Q580 48 750 30 L750 42 L0 42Z" fill="#C8973A" opacity=".6"/></svg><div class="lb-pie-num">'+n+'</div></div>';}
   var _picsParaBuscar=[];
   var _fotosParaBuscar=[];
   function sec(s,idx){
     var tipo=(s.tipo||'').toLowerCase(),h='<div class="lb-bloque">';
     if(s.grupal)h+='<div class="lb-badge">👥 De a dos</div>';
-    var esCaja=(tipo==='caja'||tipo==='reflexion'||tipo==='conclusion'||tipo==='cierre');
-    if(!esCaja){
-      var txt=s.consigna||s.texto||s.enunciado;
-      if(txt)h+='<div class="lb-consigna"><div class="lb-num '+LN[idx%5]+'">'+(idx+1)+'</div><div class="lb-texto">'+txt+'</div></div>';
-    }
+    var txt=s.consigna||s.texto||s.enunciado;
+    if(txt)h+='<div class="lb-consigna"><div class="lb-num '+LN[idx%5]+'">'+(idx+1)+'</div><div class="lb-texto">'+txt+'</div></div>';
     if(s.fotoReal){
       var fotoId='foto-box-'+_fotosParaBuscar.length;
       _fotosParaBuscar.push({id:fotoId,query:s.fotoReal});
@@ -3854,43 +3866,47 @@ function renderLibro(respuestaIA,contenedor){
       var clipartHtml=renderClipart(s.clipart);
       if(clipartHtml)h+='<div class="lb-clipart-wrapper">'+clipartHtml+'</div>';
     }
-    if(s.grafico&&s.grafico.tipo){
-      var gt=s.grafico.tipo;
-      if(gt==='grilla')h+=renderGrillaVisual(s.grafico);
-      else if(gt==='paqueteContar')h+=renderPaqueteContar(s.grafico);
-      else if(gt==='paqueteDato')h+=renderPaqueteDato(s.grafico);
-    }
     if(tipo==='grilla'||tipo==='celdas'||s.items){var items=s.items||[];var cols=s.cols||(items.length<=4?items.length:items.length<=6?3:4);var gc=cols<=2?'lb-g2':cols===3?'lb-g3':'lb-g4';h+='<div class="lb-grilla '+gc+'">'+items.map(function(it,i){return '<div class="lb-celda '+LC[i%6]+'">'+(typeof it==='string'?it:it.texto||it)+'</div>';}).join('')+'</div>';}
     else if(tipo==='tabla'||s.columnas){var c2=s.columnas||[];var f=s.filas||[];h+='<div class="lb-tabla-wrap"><table><thead><tr>'+c2.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+f.map(function(r){var cs=Array.isArray(r)?r:Object.values(r);return '<tr>'+cs.map(function(c){return '<td>'+(c!=null?c:'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
     else if(tipo==='caja'||tipo==='reflexion'||tipo==='conclusion'||tipo==='cierre'){var cl=s.color==='dorado'?'lb-caja-dorada':'lb-caja-verde';var ti2=s.titulo||'Para reflexionar';var ic=s.color==='dorado'?'👥':'✍️';var pi=s.items||s.puntos||[];h+='<div class="lb-caja '+cl+'"><div class="lb-caja-titulo">'+ic+' '+ti2+'</div>'+(s.texto?'<p style="font-size:11.5px">'+s.texto+'</p>':'')+(pi.length?'<ul>'+pi.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>':'')+'</div>';}
-    else{h+='<div class="lb-area" style="min-height:'+(s.alto||90)+'px"></div>';}
+    else{h+='<div class="lb-area" style="min-height:'+(s.alto||52)+'px"></div>';}
     return h+'</div>';
   }
   var data;
   try{var t=respuestaIA.trim();var m=t.match(/```(?:json)?\s*([\s\S]*?)```/)||t.match(/(\{[\s\S]*\})/);data=JSON.parse(m?m[1]:t);}
-  catch(e){contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">PDF</button></div><div class="lb-pagina"><div style="font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div>'+pie(1)+'</div></div>';return;}
+  catch(e){contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">PDF</button></div><div class="lb-pagina"><div class="lb-banda"></div><div style="position:relative;z-index:1;font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div>'+pie(1)+'</div></div>';return;}
+  _mapasParaInicializar=[];
   _fotosParaBuscar=[];
   var pags=data.paginas||[{titulo:data.titulo,secciones:data.secciones||[]}];
+  var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+LB[pi2%6]+'">'+LI[pi2%6]+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';if(pi2===0&&_mapaSeleccionActual)cp+=construirHtmlMapaParaMaterial();(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina"><div class="lb-banda"></div><div class="lb-marca">HuellaED</div>'+cp+pie(pi2+1)+'</div>';}).join('');
   var MAP_AREA_GENERADOR={'Matemática':'M','Prácticas del Lenguaje':'L','Ciencias Sociales':'CS','Ciencias Naturales':'CN'};
-  var ICONO_POR_AREA={'M':'✦','L':'📖','CS':'🌎','CN':'🌿'};
-  var areaActual=document.getElementById('gen-area').value;
+  var areaActual=tipoSel==='proyecto'?(document.getElementById('gen-areas-multi').value||''):document.getElementById('gen-area').value;
   var areaClaseLB=MAP_AREA_GENERADOR[areaActual]||'';
-  var iconoSeccion=ICONO_POR_AREA[areaClaseLB]||'📖';
-  var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono">'+iconoSeccion+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';if(pi2===0&&_mapaSeleccionActual)cp+=construirHtmlMapaParaMaterial();(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina lb-bloque-'+bloqueAñosSel+'">'+cp+pie(pi2+1)+'</div>';}).join('');
-  var clasesExtra=(areaClaseLB?' lb-area-'+areaClaseLB:'');
+  var tonoClaseLB=tonoSel!=='normal'?('lb-tono-'+tonoSel):'';
+  var clasesExtra=(areaClaseLB?' lb-area-'+areaClaseLB:'')+(tonoClaseLB?' '+tonoClaseLB:'');
   var formatoClaseLB=formatoHojaSel!=='entera'?(' lb-formato-'+formatoHojaSel):'';
   function copiaConIdsUnicos(html,copiaNum){
-    // Evita IDs duplicados (mapas, fotos, pictogramas) cuando se repite la ficha en formato media
+    // Evita IDs duplicados (mapas, fotos, pictogramas) cuando se repite la ficha en formato media/cuarto
     return html.replace(/id="([\w-]+)"/g,function(m,id){return 'id="'+id+'-c'+copiaNum+'"';});
   }
   if(formatoHojaSel==='media'){
+    var mapasOriginales=_mapasParaInicializar.slice();
     var phCopia2=copiaConIdsUnicos(ph,2);
+    if(mapasOriginales.length)mapasOriginales.forEach(function(m){_mapasParaInicializar.push({id:m.id+'-c2',lat:m.lat,lon:m.lon});});
     ph='<div class="lb-hoja-recortable lb-hoja-x2">'+ph+'<div class="lb-tijera">✂️</div>'+phCopia2+'</div>';
+  }else if(formatoHojaSel==='cuarto'){
+    var mapasOriginalesC=_mapasParaInicializar.slice();
+    var phC2=copiaConIdsUnicos(ph,2),phC3=copiaConIdsUnicos(ph,3),phC4=copiaConIdsUnicos(ph,4);
+    if(mapasOriginalesC.length){
+      [2,3,4].forEach(function(n){mapasOriginalesC.forEach(function(m){_mapasParaInicializar.push({id:m.id+'-c'+n,lat:m.lat,lon:m.lon});});});
+    }
+    ph='<div class="lb-hoja-recortable lb-hoja-x4">'+ph+phC2+phC3+phC4+'</div>';
   }
   _genHtmlRenderizado='<div id="libro-preview" class="'+clasesExtra.trim()+formatoClaseLB+'"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">Exportar PDF</button></div>'+ph+'</div>';
   contenedor.innerHTML=_genHtmlRenderizado;
   if(_picsParaBuscar.length)cargarPictogramasGenerados(_picsParaBuscar);
   if(_fotosParaBuscar.length)cargarFotosGeneradas(_fotosParaBuscar);
+  if(_mapasParaInicializar.length)setTimeout(inicializarMapasEnDocumento,150);
 }
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
@@ -4044,110 +4060,47 @@ async function guardarCuadernilloSupabase(){
   if(!window.__sb){alert('Sin conexión a Supabase');return;}
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var area=document.getElementById('gen-area').value;
+  var area=tipoSel==='proyecto'
+    ?document.getElementById('gen-areas-multi').value||'múltiples áreas'
+    :document.getElementById('gen-area').value;
   var tema=document.getElementById('gen-tema').value;
-  var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',evaluacion:'Evaluación'};
+  var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',planificacion:'Planificación',evaluacion:'Evaluación',repaso:'Repaso',problemas:'Sec. Problemas',proyecto:'Proyecto'};
   var title=(tipos[tipoSel]||tipoSel)+(area?' · '+area:'')+(tema?' · '+tema:'');
   var msg=document.getElementById('gen-ai-copy-msg');
   msg.style.color='var(--gris)';msg.textContent='Guardando…';
   var {error}=await window.__sb.from('cuadernillos').insert({
     teacher_id:user.id,
     title:title,
-    content:_genAiRawText,
-    tipo:tipoSel,
-    area:area,
-    tema:tema,
-    bloque_anos:bloqueAñosSel,
-    formato_hoja:formatoHojaSel,
-    html_renderizado:_genHtmlRenderizado||null
+    content:_genAiRawText
   });
   if(error){msg.style.color='#C0392B';msg.textContent='❌ '+error.message;}
   else{msg.style.color='var(--verde)';msg.textContent='✅ Guardado';setTimeout(function(){msg.textContent='';},3000);}
 }
 
-var _materialesGuardados=[];
-var _materialAbiertoId=null;
-
-function abrirMisMateriales(){
-  document.getElementById('modal-mis-materiales').style.display='block';
-  cargarMisMateriales();
-}
-function cerrarMisMateriales(){document.getElementById('modal-mis-materiales').style.display='none';}
-
-async function cargarMisMateriales(){
-  var lista=document.getElementById('mis-materiales-lista');
-  lista.innerHTML='<div style="text-align:center;color:var(--gris);font-size:12px;padding:20px;">Cargando…</div>';
-  if(!window.__sb){lista.innerHTML='<div style="text-align:center;color:#C0392B;font-size:12px;padding:20px;">Sin conexión a Supabase</div>';return;}
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user){lista.innerHTML='<div style="text-align:center;color:#C0392B;font-size:12px;padding:20px;">Iniciá sesión para ver tus materiales</div>';return;}
-  var {data,error}=await window.__sb.from('cuadernillos').select('*').eq('teacher_id',user.id).order('created_at',{ascending:false});
-  if(error){lista.innerHTML='<div style="text-align:center;color:#C0392B;font-size:12px;padding:20px;">Error al cargar: '+escHtml(error.message)+'</div>';return;}
-  _materialesGuardados=data||[];
-  if(!_materialesGuardados.length){lista.innerHTML='<div style="text-align:center;color:var(--gris);font-size:12px;padding:20px;">Todavía no guardaste ningún material. Generá uno y tocá "Guardar".</div>';return;}
-  lista.innerHTML=_materialesGuardados.map(function(m){
-    var fecha=m.created_at?new Date(m.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-    return '<div onclick="verMaterialGuardado(\''+m.id+'\')" style="background:var(--crema);border:1px solid var(--gris-claro);border-radius:10px;padding:10px 12px;cursor:pointer;">'
-      +'<div style="font-size:12.5px;font-weight:700;color:var(--negro);">'+escHtml(m.title||'Material sin título')+'</div>'
-      +'<div style="font-size:10.5px;color:var(--gris);margin-top:2px;">'+fecha+'</div>'
-      +'</div>';
-  }).join('');
-}
-
-function verMaterialGuardado(id){
-  var m=_materialesGuardados.find(function(x){return String(x.id)===String(id);});
-  if(!m)return;
-  _materialAbiertoId=id;
-  document.getElementById('ver-material-titulo').textContent=m.title||'Material';
-  var contenedor=document.getElementById('ver-material-contenido');
-  if(m.html_renderizado){
-    contenedor.innerHTML='<div style="max-height:60vh;overflow-y:auto;border:1px solid var(--gris-claro);border-radius:10px;">'+m.html_renderizado+'</div>';
-  }else{
-    // Materiales guardados antes de este cambio: no tienen el diseño armado, mostramos el texto crudo
-    contenedor.innerHTML='<div style="max-height:60vh;overflow-y:auto;background:var(--crema);border-radius:9px;padding:14px;font-size:12px;white-space:pre-wrap;">'+escHtml(m.content||'')+'</div>';
-  }
-  document.getElementById('modal-ver-material').style.display='block';
-}
-
-function descargarMaterialGuardado(){
-  var m=_materialesGuardados.find(function(x){return String(x.id)===String(_materialAbiertoId);});
-  if(!m)return;
-  if(!m.html_renderizado){alert('Este material se guardó antes de que existiera la descarga con diseño. Generalo de nuevo para poder descargarlo con el diseño completo.');return;}
-  var blob=new Blob([m.html_renderizado],{type:'text/html'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  var nombreBase=(m.title||'material').toLowerCase().replace(/[^a-z0-9\-]+/gi,'-').slice(0,40);
-  a.href=url;a.download=nombreBase+'-'+Date.now()+'.html';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-async function eliminarMaterialGuardado(){
-  if(!_materialAbiertoId)return;
-  if(!confirm('¿Eliminar este material guardado? No se puede deshacer.'))return;
-  var {error}=await window.__sb.from('cuadernillos').delete().eq('id',_materialAbiertoId);
-  if(error){alert('Error al eliminar: '+error.message);return;}
-  document.getElementById('modal-ver-material').style.display='none';
-  cargarMisMateriales();
-}
-
 function descargarCuadernillo(){
   if(!_genHtmlRenderizado){alert('Generá el material primero');return;}
-  var area=document.getElementById('gen-area').value;
+  var area=tipoSel==='proyecto'
+    ?document.getElementById('gen-areas-multi').value||'múltiples áreas'
+    :document.getElementById('gen-area').value;
   var tema=document.getElementById('gen-tema').value||'material';
-  var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',evaluacion:'Evaluacion'};
+  var tipos={cuadernillo:'Cuadernillo',ficha:'Ficha',planificacion:'Planificacion',evaluacion:'Evaluacion',repaso:'Repaso',problemas:'Problemas',proyecto:'Proyecto'};
   var tituloLabel=(tipos[tipoSel]||'Material')+(area?' · '+area:'')+(tema?' · '+tema:'');
   var ahora=new Date();
-  var marcaTiempo=ahora.getFullYear()+''+String(ahora.getMonth()+1).padStart(2,'0')+String(ahora.getDate()).padStart(2,'0')+'-'+String(ahora.getHours()).padStart(2,'0')+String(ahora.getMinutes()).padStart(2,'0')+String(ahora.getSeconds()).padStart(2,'0')+String(ahora.getMilliseconds()).padStart(3,'0');
-  var sufijoUnico=Math.random().toString(36).slice(2,6);
-  var nombreArchivo=(tipos[tipoSel]||'material').toLowerCase()+'-'+tema.slice(0,30).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'-'+marcaTiempo+'-'+sufijoUnico+'.html';
-  var cssLibro="#libro-preview{font-family:'Nunito Sans',sans-serif;background:#EEF1EF;padding:16px;border-radius:12px;margin-top:8px;} .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;} .lb-logo{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;} .lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:11px;cursor:pointer;} .lb-pagina{width:100%;background:#fff;border-radius:6px;border:1px solid #E2E6E4;position:relative;padding:24px 28px;min-height:400px;margin-bottom:16px;} .lb-seccion{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #0F6E56;} .lb-sec-icono{width:26px;height:26px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;} .lb-sec-titulo{font-family:'Nunito',sans-serif;font-weight:700;font-size:16px;color:#1a1a1a;}.lb-sec-titulo em{font-style:normal;font-weight:600;font-size:12px;color:#0F6E56;} .lb-bloque{margin-bottom:13px;} .lb-consigna{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;} .lb-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;color:white;background:#0F6E56;flex-shrink:0;margin-top:1px;} .lb-n0,.lb-n1,.lb-n2,.lb-n3,.lb-n4{background:#0F6E56;} .lb-texto{font-size:12.5px;font-weight:600;color:#1a1a1a;line-height:1.55;flex:1;} .lb-grilla{display:grid;gap:6px;margin-bottom:6px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)} .lb-celda{border-radius:6px;border:1px solid #D6DBD8;padding:8px 11px;min-height:36px;font-size:12px;font-weight:600;display:flex;align-items:center;color:#1a1a1a;background:#fff;} .lb-c0,.lb-c1,.lb-c2,.lb-c3,.lb-c4,.lb-c5{background:#fff;} .lb-area{border-radius:6px;border:1px solid #D6DBD8;min-height:90px;margin-bottom:6px;} .lb-tabla-wrap{border-radius:6px;overflow:hidden;border:1px solid #1a1a1a;margin-bottom:8px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;} .lb-tabla-wrap th{background:#F7FAF8;color:#1a1a1a;font-weight:700;font-size:11px;padding:7px 8px;text-align:center;border-bottom:1px solid #1a1a1a;} .lb-tabla-wrap td{border:1px solid #D6DBD8;padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;color:#1a1a1a;} .lb-caja{border-radius:6px;padding:11px 14px;border:1px solid #D6DBD8;border-left:3px solid #0F6E56;margin-bottom:8px;background:#fff;} .lb-caja-titulo{font-family:'Nunito',sans-serif;font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;color:#0F6E56;} .lb-caja-dorada{border-left-color:#C8973A;}.lb-caja-dorada .lb-caja-titulo{color:#A87B2A;} .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;color:#1a1a1a;} .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:'Nunito',sans-serif;font-weight:700;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#F7FAF8;border:1px solid #0F6E56;color:#0F6E56;} .lb-pie{margin-top:14px;padding-top:8px;border-top:1px solid #E2E6E4;display:flex;justify-content:flex-end;} .lb-pie-num{font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;color:#888;} .lb-area-M .lb-seccion{border-bottom-color:#3B6E9E;}.lb-area-M .lb-sec-icono{background:#E6F1FB;}.lb-area-M em{color:#3B6E9E;}.lb-area-M .lb-num{background:#3B6E9E;}.lb-area-M .lb-caja:not(.lb-caja-dorada){border-left-color:#3B6E9E;}.lb-area-M .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#3B6E9E;}.lb-area-M .lb-badge{border-color:#3B6E9E;color:#3B6E9E;} .lb-area-L .lb-seccion{border-bottom-color:#C8845A;}.lb-area-L .lb-sec-icono{background:#FAECE7;}.lb-area-L em{color:#C8845A;}.lb-area-L .lb-num{background:#C8845A;}.lb-area-L .lb-caja:not(.lb-caja-dorada){border-left-color:#C8845A;}.lb-area-L .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#C8845A;}.lb-area-L .lb-badge{border-color:#C8845A;color:#C8845A;} .lb-area-CS .lb-seccion{border-bottom-color:#5B7FA6;}.lb-area-CS .lb-sec-icono{background:#E6F1FB;}.lb-area-CS em{color:#5B7FA6;}.lb-area-CS .lb-num{background:#5B7FA6;}.lb-area-CS .lb-caja:not(.lb-caja-dorada){border-left-color:#5B7FA6;}.lb-area-CS .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#5B7FA6;}.lb-area-CS .lb-badge{border-color:#5B7FA6;color:#5B7FA6;} .lb-area-CN .lb-seccion{border-bottom-color:#5A9B6F;}.lb-area-CN .lb-sec-icono{background:#EAF3DE;}.lb-area-CN em{color:#5A9B6F;}.lb-area-CN .lb-num{background:#5A9B6F;}.lb-area-CN .lb-caja:not(.lb-caja-dorada){border-left-color:#5A9B6F;}.lb-area-CN .lb-caja:not(.lb-caja-dorada) .lb-caja-titulo{color:#5A9B6F;}.lb-area-CN .lb-badge{border-color:#5A9B6F;color:#5A9B6F;} .lb-bloque-12 .lb-sec-titulo{font-size:18px;} .lb-bloque-12 .lb-texto{font-size:14.5px;} .lb-bloque-12 .lb-num{width:24px;height:24px;font-size:13px;} .lb-bloque-12 .lb-celda{min-height:46px;font-size:15px;padding:12px 14px;border-radius:9px;} .lb-bloque-12 .lb-area{min-height:110px;border-radius:9px;} .lb-bloque-12 .lb-bloque{margin-bottom:18px;} .lb-bloque-34 .lb-sec-titulo{font-size:16px;} .lb-bloque-34 .lb-texto{font-size:12.5px;} .lb-bloque-56 .lb-sec-titulo{font-size:15px;} .lb-bloque-56 .lb-texto{font-size:11.5px;} .lb-bloque-56 .lb-num{width:18px;height:18px;font-size:10px;} .lb-bloque-56 .lb-celda{min-height:30px;font-size:11px;padding:6px 9px;} .lb-bloque-56 .lb-bloque{margin-bottom:10px;} .lb-bloque-56 .lb-tabla-wrap th,.lb-bloque-56 .lb-tabla-wrap td{font-size:10.5px;padding:5px 7px;} .lb-pictogramas-box{position:relative;z-index:1;margin:6px 0 10px 30px;} .lb-pictogramas-fila{display:flex;flex-wrap:wrap;gap:8px;} .lb-pic-item{position:relative;background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:6px 7px 5px;text-align:center;width:72px;} .lb-pic-item img{width:54px;height:54px;object-fit:contain;display:block;margin:0 auto 3px;} .lb-pic-label{font-size:8.5px;color:#555;font-weight:600;text-transform:lowercase;} .lb-pic-cambiar,.lb-pic-quitar{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;} .lb-pic-cambiar{right:16px;background:#5B7FA6;} .lb-pic-quitar{right:-4px;background:#C0392B;} .lb-iconos-mate-fila{display:flex;gap:10px;align-items:center;margin:6px 0 10px 30px;flex-wrap:wrap;position:relative;z-index:1;} .lb-icono-mate{display:inline-flex;width:30px;height:30px;} .lb-icono-mate svg{width:100%;height:100%;} .lb-mapa-box{position:relative;z-index:1;margin-bottom:12px;} .lb-mapa-titulo{font-size:11px;font-weight:700;color:#5B7FA6;margin-bottom:5px;} .lb-mapa-img{width:100%;max-height:280px;object-fit:contain;border-radius:9px;border:1.5px solid #ddd;background:#EEF2F6;display:block;} .lb-mapa-atribucion{font-size:7.5px;color:#999;margin-top:2px;text-align:right;} .lb-foto-real-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;max-width:320px;} .lb-foto-real-box{background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:8px;} .lb-foto-real-box img{width:100%;max-height:200px;object-fit:cover;border-radius:7px;display:block;} .lb-foto-controles{display:flex;gap:6px;margin-top:5px;} .lb-foto-cambiar,.lb-foto-quitar{font-size:9.5px;font-weight:600;border:none;border-radius:14px;padding:3px 9px;cursor:pointer;} .lb-foto-cambiar{background:#EAF2F8;color:#3B6E9E;} .lb-foto-quitar{background:#FDE8E8;color:#C0392B;} .lb-foto-atribucion{font-size:7.5px;color:#999;margin-top:4px;line-height:1.3;} .lb-clipart-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;} .lb-clipart-item{display:inline-flex;width:90px;height:90px;} .lb-clipart-item svg{width:100%;height:100%;} .lb-grilla-visual-wrap{margin:8px 0 12px;position:relative;z-index:1;} .lb-grilla-visual{display:inline-grid;gap:2px;background:#0F6E56;padding:2px;border-radius:6px;} .lb-grilla-visual-celda{background:#9FE1CB;width:20px;height:20px;} .lb-grilla-visual-hueco{background:#fff;} .lb-paquete-contar-wrap{margin:8px 0 12px;position:relative;z-index:1;} .lb-paquete-contar{display:inline-flex;flex-wrap:wrap;gap:3px;background:#FAECE7;border:2px solid #D85A30;border-radius:10px;padding:10px;max-width:280px;} .lb-paquete-unidad{width:14px;height:14px;border-radius:3px;background:#D85A30;} .lb-paquete-dato-wrap{margin:8px 0 12px;position:relative;z-index:1;} .lb-paquete-dato{display:inline-flex;align-items:center;gap:10px;background:#FAECE7;border:2px solid #D85A30;border-radius:10px;padding:12px 18px;} .lb-paquete-dato-icono{font-size:24px;} .lb-paquete-dato-cantidad{font-size:15px;font-weight:800;color:#993C1D;} .lb-paquete-dato-label{font-size:9px;color:#993C1D;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;} .lb-hoja-recortable{position:relative;} .lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;gap:0;position:relative;} .lb-hoja-x2 .lb-pagina{min-height:140mm;font-size:0.78em;} .lb-hoja-x2 .lb-tijera{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8973A;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.25);} .lb-hoja-x2 .lb-pagina:first-child{border-right:2px dashed #C8973A;}";
-  var cssImpresion='@page{size:A4;margin:0;}@media print{html,body{width:210mm;margin:0;padding:0;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{width:210mm;min-height:auto;box-shadow:none;border-radius:0;margin:0;padding:16mm 14mm 10mm 18mm;box-sizing:border-box;page-break-after:always;page-break-inside:avoid;overflow:visible;}.lb-pagina:last-child{page-break-after:auto;}.lb-pic-cambiar,.lb-pic-quitar,.lb-foto-controles{display:none!important;}.lb-hoja-recortable{width:210mm;min-height:auto;page-break-after:always;}.lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;}.lb-hoja-x2 .lb-pagina{width:105mm!important;min-height:auto!important;page-break-after:auto!important;padding:10mm 8mm 8mm 10mm!important;}}';
+  var marcaTiempo=ahora.getFullYear()+''+String(ahora.getMonth()+1).padStart(2,'0')+String(ahora.getDate()).padStart(2,'0')+'-'+String(ahora.getHours()).padStart(2,'0')+String(ahora.getMinutes()).padStart(2,'0')+String(ahora.getSeconds()).padStart(2,'0');
+  var nombreArchivo=(tipos[tipoSel]||'material').toLowerCase()+'-'+tema.slice(0,30).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'-'+marcaTiempo+'.html';
+  var cssLibro='#libro-preview{font-family:\'Nunito Sans\',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}     .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}     .lb-logo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}     .lb-btn-print{background:#C8973A;color:white;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:11px;cursor:pointer;}     .lb-pagina{width:100%;background:#FAFCFB;border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.11);position:relative;overflow:hidden;padding:26px 36px 0 42px;min-height:400px;margin-bottom:16px;}     .lb-pagina::before{content:\'\';position:absolute;inset:0;background-image:linear-gradient(rgba(45,95,79,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(45,95,79,.09) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;}     .lb-banda{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#2D5F4F 0%,#3D7A65 60%,#C8973A 100%);}     .lb-seccion{display:flex;align-items:center;gap:11px;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #D4EAE4;position:relative;z-index:1;}     .lb-sec-icono{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}     .lb-sec-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:17px;color:#2D5F4F;}.lb-sec-titulo em{font-style:normal;color:#C8973A;}     .lb-bloque{margin-bottom:12px;position:relative;z-index:1;}     .lb-consigna{display:flex;align-items:flex-start;gap:9px;margin-bottom:7px;}     .lb-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:11px;color:white;flex-shrink:0;margin-top:1px;}     .lb-n0{background:#2D5F4F}.lb-n1{background:#C8973A}.lb-n2{background:#3B6E9E}.lb-n3{background:#C05A3A}.lb-n4{background:#7B6FAF}     .lb-texto{font-size:12.5px;font-weight:600;color:#2a3830;line-height:1.55;flex:1;}     .lb-grilla{display:grid;gap:5px;margin-bottom:4px;}.lb-g2{grid-template-columns:repeat(2,1fr)}.lb-g3{grid-template-columns:repeat(3,1fr)}.lb-g4{grid-template-columns:repeat(4,1fr)}     .lb-celda{border-radius:7px;padding:8px 11px;min-height:36px;font-size:12px;font-weight:700;display:flex;align-items:center;color:#3a4a42;}     .lb-c0{background:#D4EAE4}.lb-c1{background:#F7EDDB}.lb-c2{background:#F5E0D8}.lb-c3{background:#D6E5F3}.lb-c4{background:#DDF0F7}.lb-c5{background:#EAE7F5}     .lb-area{border-radius:7px;border:1.5px dashed rgba(45,95,79,.18);min-height:50px;background-image:repeating-linear-gradient(transparent,transparent 26px,rgba(45,95,79,.07) 26px,rgba(45,95,79,.07) 27px);background-position:0 27px;margin-bottom:5px;}     .lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:7px;}.lb-tabla-wrap table{width:100%;border-collapse:collapse;}     .lb-tabla-wrap th{background:#2D5F4F;color:white;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}     .lb-tabla-wrap td{border:1px solid rgba(45,95,79,.1);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:36px;}     .lb-tabla-wrap tr:nth-child(even) td{background:#EBF5F1;}     .lb-caja{border-radius:8px;padding:11px 14px;border-left:4px solid;margin-bottom:7px;}     .lb-caja-titulo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;}     .lb-caja-verde{background:#D4EAE4;border-color:#2D5F4F}.lb-caja-verde .lb-caja-titulo{color:#2D5F4F}     .lb-caja-dorada{background:#F7EDDB;border-color:#C8973A}.lb-caja-dorada .lb-caja-titulo{color:#C8973A}     .lb-caja li{font-size:11.5px;margin-bottom:4px;line-height:1.5;margin-left:12px;}     .lb-badge{display:inline-flex;align-items:center;gap:3px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:8px;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-bottom:3px;background:#3B6E9E;color:white;}     .lb-pie{height:42px;position:relative;overflow:hidden;margin-top:10px;}.lb-pie svg{position:absolute;bottom:0;left:0;right:0;}     .lb-pie-num{position:absolute;bottom:7px;right:12px;width:26px;height:26px;border-radius:6px;background:#C8973A;color:white;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2;}     .lb-marca{position:absolute;bottom:48px;right:6px;font-weight:900;font-size:6.5px;color:rgba(45,95,79,.1);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;z-index:1;}      /* ══ PALETAS POR ÁREA ══ */     .lb-area-M .lb-sec-titulo,.lb-area-M .lb-caja-titulo{color:#3B6E9E;}     .lb-area-M .lb-banda{background:linear-gradient(180deg,#3B6E9E,#4A8AC0,#C8973A);}     .lb-area-M .lb-pagina::before{background-image:linear-gradient(rgba(59,110,158,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,110,158,.09) 1px,transparent 1px);}     .lb-area-M .lb-num{background:#3B6E9E!important;}     .lb-area-M .lb-tabla-wrap{border-color:#3B6E9E;}.lb-area-M .lb-tabla-wrap th{background:#3B6E9E;}      .lb-area-L .lb-sec-titulo,.lb-area-L .lb-caja-titulo{color:#C8845A;}     .lb-area-L .lb-banda{background:linear-gradient(180deg,#C8845A,#D4A06E,#8a5a3a);}     .lb-area-L .lb-pagina::before{display:none;background-image:repeating-linear-gradient(transparent,transparent 22px,rgba(200,132,90,.12) 22px,rgba(200,132,90,.12) 23px);}     .lb-area-L .lb-num{background:#C8845A!important;}     .lb-area-L .lb-texto{font-family:\'Nunito Sans\',sans-serif;}     .lb-area-L .lb-tabla-wrap{border-color:#C8845A;}.lb-area-L .lb-tabla-wrap th{background:#C8845A;}     .lb-area-L .lb-celda{font-family:Georgia,serif;}      .lb-area-CS .lb-sec-titulo,.lb-area-CS .lb-caja-titulo{color:#5B7FA6;}     .lb-area-CS .lb-banda{background:linear-gradient(180deg,#5B7FA6,#7BA0C4,#3B6E9E);}     .lb-area-CS .lb-pagina::before{background-image:none;}     .lb-area-CS .lb-num{background:#5B7FA6!important;}     .lb-area-CS .lb-tabla-wrap{border-color:#5B7FA6;}.lb-area-CS .lb-tabla-wrap th{background:#5B7FA6;}      .lb-area-CN .lb-sec-titulo,.lb-area-CN .lb-caja-titulo{color:#5A9B6F;}     .lb-area-CN .lb-banda{background:linear-gradient(180deg,#5A9B6F,#7BC090,#2D5F4F);}     .lb-area-CN .lb-pagina::before{background-image:none;}     .lb-area-CN .lb-num{background:#5A9B6F!important;border-radius:50%!important;}     .lb-area-CN .lb-sec-icono{border-radius:50%!important;}     .lb-area-CN .lb-tabla-wrap{border-color:#5A9B6F;}.lb-area-CN .lb-tabla-wrap th{background:#5A9B6F;}      /* ══ TONOS ══ */     .lb-tono-ludico .lb-pagina{background:linear-gradient(135deg,#FFF9F0,#FFF4E8);}     .lb-tono-ludico .lb-texto{font-size:13.5px!important;}     .lb-tono-ludico .lb-celda{border-radius:14px!important;}     .lb-tono-ludico .lb-sec-icono{border-radius:50%!important;}      .lb-tono-evaluacion .lb-pagina{background:white!important;}     .lb-tono-evaluacion .lb-pagina::before{display:none!important;}     .lb-tono-evaluacion .lb-celda{background:white!important;border:1px solid #ccc!important;}     .lb-tono-evaluacion .lb-tabla-wrap th{background:#444!important;}     .lb-tono-evaluacion .lb-num{background:#444!important;}     .lb-tono-evaluacion .lb-banda{background:#444!important;}     .lb-tono-evaluacion .lb-marca{display:none;}      /* ══ PICTOGRAMAS ARASAAC ══ */     .lb-pictogramas-box{position:relative;z-index:1;margin:6px 0 10px 30px;}     .lb-pictogramas-fila{display:flex;flex-wrap:wrap;gap:8px;}     .lb-pic-item{position:relative;background:var(--blanco);border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:6px 7px 5px;text-align:center;width:72px;}     .lb-pic-item img{width:54px;height:54px;object-fit:contain;display:block;margin:0 auto 3px;}     .lb-pic-label{font-size:8.5px;color:#555;font-weight:600;text-transform:lowercase;}     .lb-pic-cambiar,.lb-pic-quitar{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}     .lb-pic-cambiar{right:16px;background:#5B7FA6;}     .lb-pic-quitar{right:-4px;background:#C0392B;}     .lb-tono-evaluacion .lb-pictogramas-box{display:none;}      /* ══ ÍCONOS SVG MATEMÁTICA ══ */     .lb-iconos-mate-fila{display:flex;gap:10px;align-items:center;margin:6px 0 10px 30px;flex-wrap:wrap;position:relative;z-index:1;}     .lb-icono-mate{display:inline-flex;width:30px;height:30px;}     .lb-icono-mate svg{width:100%;height:100%;}     .lb-tono-evaluacion .lb-iconos-mate-fila{filter:grayscale(1);opacity:.75;}      /* ══ MAPAS OPENSTREETMAP (Ciencias Sociales) ══ */     .lb-mapa-box{position:relative;z-index:1;margin-bottom:12px;}     .lb-mapa-titulo{font-size:11px;font-weight:700;color:#5B7FA6;margin-bottom:5px;}     .lb-mapa-leaflet-contenedor{width:100%;height:220px;border-radius:9px;border:1.5px solid var(--gris-claro,#ddd);background:#EEF2F6;}     .lb-mapa-atribucion{font-size:7.5px;color:#999;margin-top:2px;text-align:right;}     .lb-mapa-leaflet-blanco{background:#fff!important;}      /* ══ FOTOS REALES WIKIMEDIA COMMONS ══ */     .lb-foto-real-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;max-width:320px;}     .lb-foto-real-box{background:var(--blanco);border:1.5px solid var(--gris-claro,#ddd);border-radius:10px;padding:8px;}     .lb-foto-real-box img{width:100%;max-height:200px;object-fit:cover;border-radius:7px;display:block;}     .lb-foto-controles{display:flex;gap:6px;margin-top:5px;}     .lb-foto-cambiar,.lb-foto-quitar{font-size:9.5px;font-weight:600;border:none;border-radius:14px;padding:3px 9px;cursor:pointer;}     .lb-foto-cambiar{background:#EAF2F8;color:#3B6E9E;}     .lb-foto-quitar{background:#FDE8E8;color:#C0392B;}     .lb-foto-atribucion{font-size:7.5px;color:#999;margin-top:4px;line-height:1.3;}      /* ══ CLIP-ART PROPIO (1ro/2do) ══ */     .lb-clipart-wrapper{position:relative;z-index:1;margin:8px 0 12px 30px;}     .lb-clipart-item{display:inline-flex;width:90px;height:90px;}     .lb-clipart-item svg{width:100%;height:100%;}     .lb-tono-evaluacion .lb-clipart-wrapper{filter:grayscale(1);opacity:.7;}      /* ══ FORMATOS DE HOJA RECORTABLE ══ */     .lb-hoja-recortable{position:relative;}     .lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;gap:0;position:relative;}     .lb-hoja-x2 .lb-pagina{min-height:140mm;font-size:0.78em;}     .lb-hoja-x2 .lb-tijera{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#C8973A;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.25);}     .lb-hoja-x2 .lb-pagina:first-child{border-right:2px dashed #C8973A;}     .lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;}     .lb-hoja-x4 .lb-pagina{min-height:90mm;font-size:0.62em;}     .lb-hoja-x4 .lb-pagina:nth-child(odd){border-right:2px dashed #C8973A;}     .lb-hoja-x4 .lb-pagina:nth-child(-n+2){border-bottom:2px dashed #C8973A;}      ';
+  var cssImpresion='@page{size:A4;margin:0;}@media print{html,body{width:210mm;margin:0;padding:0;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.lb-topbar,.lb-btn-print{display:none!important;}.lb-pagina{width:210mm;min-height:297mm;height:297mm;box-shadow:none;border-radius:0;margin:0;padding:16mm 14mm 10mm 18mm;box-sizing:border-box;page-break-after:always;overflow:visible;}.lb-pagina:last-child{page-break-after:auto;}.lb-pic-cambiar,.lb-pic-quitar,.lb-foto-controles{display:none!important;}.lb-hoja-recortable{width:210mm;height:297mm;page-break-after:always;}.lb-hoja-x2{display:grid;grid-template-columns:1fr 1fr;}.lb-hoja-x2 .lb-pagina{width:105mm!important;height:297mm!important;min-height:297mm!important;page-break-after:auto!important;padding:10mm 8mm 8mm 10mm!important;}.lb-hoja-x4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}.lb-hoja-x4 .lb-pagina{width:105mm!important;height:148.5mm!important;min-height:148.5mm!important;page-break-after:auto!important;padding:8mm 6mm 6mm 8mm!important;}}';
+  var scriptsLeaflet=_mapasParaInicializar.length?('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></scr'+'ipt>'):'';
+  var datosMapasParaScript=_mapasParaInicializar.map(function(m){return {id:m.id,geojsonResaltado:m.geojsonResaltado,geojsonContexto:m.geojsonContexto,modo:m.modo};});
+  var scriptInitMapas=_mapasParaInicializar.length?('<scr'+'ipt>window.addEventListener("load",function(){'+JSON.stringify(datosMapasParaScript)+'.forEach(function(m){var mp=L.map(m.id,{zoomControl:true,attributionControl:false,dragging:false,scrollWheelZoom:false});var estR,estC;if(m.modo==="blanco"){estR={color:"#888",weight:2,fillColor:"#fff",fillOpacity:1};estC={color:"#ccc",weight:1,fillColor:"#fff",fillOpacity:1};}else{estR={color:"#3B6E9E",weight:2,fillColor:"#5B7FA6",fillOpacity:.55};estC={color:"#aaa",weight:1,fillColor:"#EEF2F6",fillOpacity:.5};}if(m.geojsonContexto){L.geoJSON(m.geojsonContexto,{style:estC}).addTo(mp);}var capa=L.geoJSON(m.geojsonResaltado,{style:estR}).addTo(mp);var b=m.geojsonContexto?L.geoJSON(m.geojsonContexto).getBounds():capa.getBounds();mp.fitBounds(b,{padding:[6,6]});});});</scr'+'ipt>'):'';
   var nombreArchivoPdf=nombreArchivo.replace(/\.html$/,'.pdf');
   var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title>'
+    +scriptsLeaflet
     +'<style>'+cssLibro+'</style>'
     +'<style>'+cssImpresion+'</style>'
     +'</head><body>'
     +_genHtmlRenderizado
+    +scriptInitMapas
     +'</body></html>';
 
   // Generar PDF real (en vez de descargar el HTML crudo) usando un iframe oculto
@@ -6423,41 +6376,6 @@ function renderClipart(nombre,colorClase){
   return '<span class="lb-clipart-item '+(colorClase||'')+'">'+svg+'</span>';
 }
 
-// ── GRÁFICOS DE APOYO PARA PROBLEMAS (filas/columnas, paquetes a contar o con dato) ──
-// Estos NO son decorativos: el alumno los necesita para resolver la consigna (contar, multiplicar).
-function renderGrillaVisual(g){
-  // g = {filas, columnas, huecos: [[fila,col],...]}
-  var filas=g.filas||1, columnas=g.columnas||1;
-  var huecosSet={};
-  (g.huecos||[]).forEach(function(h){huecosSet[h[0]+'-'+h[1]]=true;});
-  var celdas='';
-  for(var f=0;f<filas;f++){
-    for(var c=0;c<columnas;c++){
-      var esHueco=huecosSet[f+'-'+c];
-      celdas+='<div class="lb-grilla-visual-celda'+(esHueco?' lb-grilla-visual-hueco':'')+'"></div>';
-    }
-  }
-  return '<div class="lb-grilla-visual-wrap"><div class="lb-grilla-visual" style="grid-template-columns:repeat('+columnas+',1fr);grid-template-rows:repeat('+filas+',1fr);">'+celdas+'</div></div>';
-}
-
-function renderPaqueteContar(p){
-  // p = {cantidad, forma: 'fila'|'caja'} — para 1ro/2do/3ro: el alumno cuenta las unidades dibujadas
-  var n=Math.min(p.cantidad||1,40);
-  var celdas='';
-  for(var i=0;i<n;i++){celdas+='<div class="lb-paquete-unidad"></div>';}
-  return '<div class="lb-paquete-contar-wrap"><div class="lb-paquete-contar">'+celdas+'</div></div>';
-}
-
-function renderPaqueteDato(p){
-  // p = {cantidad, etiqueta} — para 5to/6to: el dato se da, no se cuenta de a uno
-  var cantidad=p.cantidad||0;
-  var etiqueta=p.etiqueta||'por paquete';
-  return '<div class="lb-paquete-dato-wrap"><div class="lb-paquete-dato">'
-    +'<div class="lb-paquete-dato-icono">📦</div>'
-    +'<div class="lb-paquete-dato-info"><div class="lb-paquete-dato-cantidad">'+escHtml(String(cantidad))+'</div><div class="lb-paquete-dato-label">'+escHtml(etiqueta)+'</div></div>'
-    +'</div></div>';
-}
-
 // ── ÍCONOS SVG PROPIOS PARA MATEMÁTICA (sin depender de imágenes externas) ──
 var ICONOS_MATE_SVG={
   circulo:'<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" stroke-width="3"/></svg>',
@@ -6507,15 +6425,19 @@ function renderIconoMate(nombre,colorClase){
 }
 
 
-// ── CATÁLOGO FIJO DE MAPAS (Ciencias Sociales) ──
-// Mapas mudos oficiales IGN, guardados como imágenes fijas en el repo (sin servicios externos ni mapas interactivos).
-var CATALOGO_MAPAS=[
-  {id:'argentina',nombre:'Argentina (mapa mudo)',emoji:'🇦🇷',archivo:'mapas/mapa_argentina.jpg'},
-  {id:'america',nombre:'Continente americano (mapa mudo)',emoji:'🌎',archivo:'mapas/mapa_america.jpg'},
-  {id:'planisferio',nombre:'Planisferio (mapa mudo)',emoji:'🌍',archivo:'mapas/mapa_planisferio.jpg'}
-];
+// ── CATÁLOGO FIJO DE MAPAS (Ciencias Sociales) — reemplaza el buscador libre anterior ──
+var _mapaLeafletInstancia=null;
+var _mapasParaInicializar=[];
 
-var _mapaSeleccionActual=null; // {id,nombre,archivo}
+// ── CATÁLOGO FIJO DE MAPAS (Ciencias Sociales) ──
+// Reemplaza el buscador libre anterior. Datos oficiales: IGN Argentina (georef-ar-api) para provincias,
+// Natural Earth (vía GeoJSON público) para continente/mundo. Sin claves de API.
+var URL_PAISES_MUNDO='https://raw.githubusercontent.com/stefanocudini/leaflet-geojson-selector/master/examples/world-countries.json';
+var PAISES_AMERICA=['Argentina','Bolivia','Brazil','Canada','Chile','Colombia','Costa Rica','Cuba','Dominican Republic','Ecuador','El Salvador','Guatemala','Guyana','Haiti','Honduras','Jamaica','Mexico','Nicaragua','Panama','Paraguay','Peru','Suriname','United States of America','United States','Uruguay','Venezuela','Belize','French Guiana','Trinidad and Tobago','The Bahamas','Bahamas'];
+
+var _mapaSeleccionActual=null; // {tipo:'provincia'|'argentina'|'america'|'mundo', id, nombre, geojson}
+var _geojsonArgentinaCache=null;
+var _geojsonMundoCache=null;
 
 function toggleBloqueMapas(){
   var area=document.getElementById('gen-area').value;
@@ -6530,6 +6452,7 @@ function toggleBloqueMapas(){
 function armarGaleriaMapas(){
   var galeria=document.getElementById('gen-mapa-galeria');
   galeria.dataset.armada='1';
+  // Catálogo reducido: solo Argentina, Continente americano y Mundo (sin provincias individuales)
   galeria.innerHTML='<div id="gen-mapa-grid"></div>';
   renderGridMapas();
 }
@@ -6537,16 +6460,68 @@ function armarGaleriaMapas(){
 function renderGridMapas(){
   var grid=document.getElementById('gen-mapa-grid');
   if(!grid)return;
-  grid.innerHTML=CATALOGO_MAPAS.map(function(m){
-    return '<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\''+m.id+'\')">'+m.emoji+'<div>'+escHtml(m.nombre.replace(' (mapa mudo)',''))+'</div></div>';
-  }).join('');
+  var html='';
+  html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'argentina\',null,\'Argentina\')">🇦🇷<div>Argentina completa</div></div>';
+  html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'america\',null,\'Continente americano\')">🌎<div>Continente americano</div></div>';
+  html+='<div class="lb-mapa-card lb-mapa-card-fija" onclick="elegirMapaCatalogo(\'mundo\',null,\'Planisferio (mundo)\')">🌍<div>Planisferio (mundo)</div></div>';
+  grid.innerHTML=html;
 }
 
-function elegirMapaCatalogo(id){
-  var mapa=CATALOGO_MAPAS.find(function(m){return m.id===id;});
-  if(!mapa)return;
-  _mapaSeleccionActual=mapa;
-  mostrarPreviewMapaCatalogo();
+async function obtenerGeoJsonArgentinaCompleta(){
+  if(_geojsonArgentinaCache)return _geojsonArgentinaCache;
+  var url='https://apis.datos.gob.ar/georef/api/provincias.geojson';
+  var res;
+  try{
+    res=await fetch(url);
+  }catch(e){
+    throw new Error('No se pudo conectar con el servicio de mapas. Detalle: '+e.message);
+  }
+  if(!res.ok)throw new Error('El servicio de mapas respondió con error '+res.status+' ('+res.statusText+').');
+  var data;
+  try{
+    data=await res.json();
+  }catch(e){
+    throw new Error('La respuesta no es JSON válido. Puede que la URL del servicio haya cambiado.');
+  }
+  _geojsonArgentinaCache=data;
+  return data;
+}
+
+async function obtenerGeoJsonMundo(){
+  if(_geojsonMundoCache)return _geojsonMundoCache;
+  var res=await fetch(URL_PAISES_MUNDO);
+  if(!res.ok)throw new Error('No se pudo obtener el mapa del mundo');
+  var data=await res.json();
+  _geojsonMundoCache=data;
+  return data;
+}
+
+function nombrePaisFeature(feature){
+  var p=feature.properties||{};
+  return p.name||p.NAME||p.ADMIN||p.admin||'';
+}
+
+async function elegirMapaCatalogo(tipo,id,nombre){
+  var resultadoDiv=document.getElementById('gen-mapa-resultado');
+  resultadoDiv.innerHTML='<div style="font-size:11px;color:var(--gris);">Cargando mapa de '+escHtml(nombre)+'...</div>';
+  try{
+    var geojson=null;
+    if(tipo==='argentina'){
+      geojson=await obtenerGeoJsonArgentinaCompleta();
+      _mapaSeleccionActual={tipo:tipo,id:null,nombre:nombre,geojsonResaltado:geojson,geojsonContexto:null};
+    }else if(tipo==='america'){
+      var mundo=await obtenerGeoJsonMundo();
+      var featuresAmerica=mundo.features.filter(function(f){return PAISES_AMERICA.indexOf(nombrePaisFeature(f))>-1;});
+      geojson={type:'FeatureCollection',features:featuresAmerica};
+      _mapaSeleccionActual={tipo:tipo,id:null,nombre:nombre,geojsonResaltado:geojson,geojsonContexto:null};
+    }else if(tipo==='mundo'){
+      geojson=await obtenerGeoJsonMundo();
+      _mapaSeleccionActual={tipo:tipo,id:null,nombre:nombre,geojsonResaltado:geojson,geojsonContexto:null};
+    }
+    mostrarPreviewMapaCatalogo();
+  }catch(e){
+    resultadoDiv.innerHTML='<div style="font-size:11px;color:#C0392B;">No se pudo cargar el mapa: '+escHtml(e.message)+'. Probá de nuevo.</div>';
+  }
 }
 
 function mostrarPreviewMapaCatalogo(){
@@ -6554,23 +6529,71 @@ function mostrarPreviewMapaCatalogo(){
   var resultadoDiv=document.getElementById('gen-mapa-resultado');
   resultadoDiv.innerHTML=''
     +'<div style="font-size:11px;font-weight:700;color:var(--verde);margin-bottom:6px;">📍 '+escHtml(_mapaSeleccionActual.nombre)+'</div>'
-    +'<img src="'+_mapaSeleccionActual.archivo+'" style="width:100%;max-height:220px;object-fit:contain;border-radius:9px;border:1.5px solid var(--gris-claro);background:#EEF2F6;display:block;">'
-    +'<div style="font-size:8.5px;color:#999;margin-top:3px;">Mapa mudo oficial — Instituto Geográfico Nacional</div>'
+    +'<div id="mapa-preview-leaflet" style="width:100%;height:200px;border-radius:9px;border:1.5px solid var(--gris-claro);background:#EEF2F6;"></div>'
+    +'<div style="font-size:8.5px;color:#999;margin-top:3px;">Datos: IGN / Natural Earth</div>'
+    +'<label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;cursor:pointer;"><input type="checkbox" id="gen-mapa-incluir-blanco" checked style="width:14px;height:14px;cursor:pointer;"> Incluir también versión en blanco para completar</label>'
     +'<button type="button" onclick="quitarMapaSeleccionado()" style="margin-top:6px;background:none;border:none;color:#C0392B;font-size:11px;cursor:pointer;text-decoration:underline;">Quitar mapa elegido</button>';
+  setTimeout(function(){
+    if(_mapaLeafletInstancia){_mapaLeafletInstancia.remove();_mapaLeafletInstancia=null;}
+    var mapEl=document.getElementById('mapa-preview-leaflet');
+    if(!mapEl||!window.L)return;
+    _mapaLeafletInstancia=L.map(mapEl,{attributionControl:false});
+    if(_mapaSeleccionActual.geojsonContexto){
+      L.geoJSON(_mapaSeleccionActual.geojsonContexto,{style:{color:'#aaa',weight:1,fillColor:'#EEF2F6',fillOpacity:.5}}).addTo(_mapaLeafletInstancia);
+    }
+    var capaResaltada=L.geoJSON(_mapaSeleccionActual.geojsonResaltado,{style:{color:'#3B6E9E',weight:2,fillColor:'#5B7FA6',fillOpacity:.55}}).addTo(_mapaLeafletInstancia);
+    var bounds=_mapaSeleccionActual.geojsonContexto?L.geoJSON(_mapaSeleccionActual.geojsonContexto).getBounds():capaResaltada.getBounds();
+    _mapaLeafletInstancia.fitBounds(bounds,{padding:[8,8]});
+  },100);
 }
 
 function quitarMapaSeleccionado(){
   _mapaSeleccionActual=null;
+  if(_mapaLeafletInstancia){_mapaLeafletInstancia.remove();_mapaLeafletInstancia=null;}
   document.getElementById('gen-mapa-resultado').innerHTML='';
 }
 
 function construirHtmlMapaParaMaterial(){
   if(!_mapaSeleccionActual)return '';
-  return '<div class="lb-mapa-box">'
+  var incluirBlanco=document.getElementById('gen-mapa-incluir-blanco')&&document.getElementById('gen-mapa-incluir-blanco').checked;
+  var mapaId='lb-mapa-leaflet-'+Date.now();
+  var html='<div class="lb-mapa-box">'
     +'<div class="lb-mapa-titulo">🗺️ '+escHtml(_mapaSeleccionActual.nombre)+'</div>'
-    +'<img src="'+_mapaSeleccionActual.archivo+'" class="lb-mapa-img" alt="'+escHtml(_mapaSeleccionActual.nombre)+'">'
-    +'<div class="lb-mapa-atribucion">Mapa mudo oficial — Instituto Geográfico Nacional</div>'
+    +'<div id="'+mapaId+'" class="lb-mapa-leaflet-contenedor"></div>'
+    +'<div class="lb-mapa-atribucion">Datos: IGN / Natural Earth</div>'
     +'</div>';
+  _mapasParaInicializar.push({id:mapaId,geojsonResaltado:_mapaSeleccionActual.geojsonResaltado,geojsonContexto:_mapaSeleccionActual.geojsonContexto,modo:'color'});
+  if(incluirBlanco){
+    var mapaIdBlanco='lb-mapa-blanco-'+Date.now();
+    html+='<div class="lb-mapa-box lb-mapa-blanco">'
+      +'<div class="lb-mapa-titulo">✏️ Para completar</div>'
+      +'<div id="'+mapaIdBlanco+'" class="lb-mapa-leaflet-contenedor lb-mapa-leaflet-blanco"></div>'
+      +'</div>';
+    _mapasParaInicializar.push({id:mapaIdBlanco,geojsonResaltado:_mapaSeleccionActual.geojsonResaltado,geojsonContexto:_mapaSeleccionActual.geojsonContexto,modo:'blanco'});
+  }
+  return html;
+}
+
+function inicializarMapasEnDocumento(){
+  _mapasParaInicializar.forEach(function(m){
+    var el=document.getElementById(m.id);
+    if(!el||!window.L)return;
+    var mp=L.map(m.id,{zoomControl:true,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false});
+    var estiloResaltado,estiloContexto;
+    if(m.modo==='blanco'){
+      estiloResaltado={color:'#888',weight:2,fillColor:'#fff',fillOpacity:1};
+      estiloContexto={color:'#ccc',weight:1,fillColor:'#fff',fillOpacity:1};
+    }else{
+      estiloResaltado={color:'#3B6E9E',weight:2,fillColor:'#5B7FA6',fillOpacity:.55};
+      estiloContexto={color:'#aaa',weight:1,fillColor:'#EEF2F6',fillOpacity:.5};
+    }
+    if(m.geojsonContexto){
+      L.geoJSON(m.geojsonContexto,{style:estiloContexto}).addTo(mp);
+    }
+    var capaResaltada=L.geoJSON(m.geojsonResaltado,{style:estiloResaltado}).addTo(mp);
+    var bounds=m.geojsonContexto?L.geoJSON(m.geojsonContexto).getBounds():capaResaltada.getBounds();
+    mp.fitBounds(bounds,{padding:[6,6]});
+  });
 }
 
 
