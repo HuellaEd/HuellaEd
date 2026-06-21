@@ -4212,6 +4212,14 @@ async function enviarAClaudeConArchivo(promptText){
   }
   var promptTextConAdjunto=_genAdjuntoTexto?(promptText+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):promptText;
   contentParts.push({type:'text',text:promptTextConAdjunto});
+  var LIMITES_FORMATO_ADJ={
+    entera:'Maximo 2 paginas, 4-6 secciones por pagina.',
+    media:'Maximo 1 pagina, 2-3 secciones en total. Contenido breve, va a ocupar la mitad de una hoja A4.'
+  };
+  var areaParaIconosAdj=document.getElementById('gen-area').value;
+  var esAreaMateAdj=(areaParaIconosAdj||'').toLowerCase().indexOf('matem')>-1;
+  var instrIconosMateAdj=esAreaMateAdj?' Esto es de Matematica: en cada seccion donde tenga sentido, agrega "iconosMate": un array de 1 a 4 nombres de iconos a usar como apoyo visual, elegidos de esta lista exacta: circulo, cuadrado, triangulo, rectangulo, pentagono, hexagono, rombo, suma, resta, multiplicacion, division, igual, reloj, balanza, regla, monedas, o grupo_N donde N es un numero del 1 al 10. Si no aplica, dejalo vacio [].':'';
+  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion o texto de lectura. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+' Lenguaje directo al alumno.';
   var headers={
     'x-api-key':apiKey,
     'anthropic-version':'2023-06-01',
@@ -4226,6 +4234,7 @@ async function enviarAClaudeConArchivo(promptText){
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens:4096,
+        system:SISTEMA_ADJ,
         messages:[{role:'user',content:contentParts}]
       })
     });
@@ -4236,7 +4245,7 @@ async function enviarAClaudeConArchivo(promptText){
     var data=await res.json();
     var text=(data.content&&data.content[0]&&data.content[0].text)||'';
     _genAiRawText=text;
-    document.getElementById('gen-ai-text').innerHTML=markdownToHtml(text);
+    renderLibro(text,document.getElementById('gen-ai-text'));
     document.getElementById('gen-ai-resultado').style.display='block';
     document.getElementById('gen-resultado').style.display='none';
     document.getElementById('gen-ai-resultado').scrollIntoView({behavior:'smooth'});
