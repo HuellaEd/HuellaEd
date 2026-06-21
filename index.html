@@ -359,6 +359,9 @@
     </div>
   </div>
 
+  <!-- AVISOS AUTOMÁTICOS (inasistencias, sin observaciones, PAF desactualizado) -->
+  <div id="panel-avisos" style="display:none;margin-bottom:14px;"></div>
+
   <!-- EL GRUPO -->
   <div class="grid grid-2" style="margin-bottom:4px;">
     <div class="card" onclick="abrirAula()" style="flex-direction:column;align-items:center;text-align:center;padding:18px 12px;gap:8px;border:1.5px solid var(--verde-claro);cursor:pointer;">
@@ -1645,6 +1648,101 @@ async function initStudents() {
       if(existeAlumnoQR)abrirPerfilAcademico(alumnoQR);
     }
   }catch(eQR){console.log('No se pudo abrir el perfil desde el QR:',eQR);}
+
+  cargarAvisosAutomaticos(students,user.id);
+}
+
+// ── AVISOS AUTOMÁTICOS: inasistencias, sin observaciones, PAF desactualizado ──
+var DIAS_INASISTENCIA_AVISO=3;
+var DIAS_SIN_OBSERVACION_AVISO=14;
+var MESES_PAF_DESACTUALIZADO=3;
+
+async function cargarAvisosAutomaticos(students,teacherId){
+  if(!window.__sb||!students||!students.length)return;
+  try{
+    var avisos=[];
+    var ahora=new Date();
+
+    // 1) Inasistencias consecutivas: traer asistencia reciente de todos los alumnos de una sola vez
+    var hace30=new Date(ahora);hace30.setDate(hace30.getDate()-30);
+    var {data:asistencias}=await window.__sb.from('attendance')
+      .select('student_id,date,status')
+      .eq('teacher_id',teacherId)
+      .gte('date',hace30.toISOString().slice(0,10))
+      .order('date',{ascending:false});
+    if(asistencias&&asistencias.length){
+      students.forEach(function(s){
+        var registrosAlumno=asistencias.filter(function(a){return a.student_id===s.id;})
+          .sort(function(a,b){return b.date.localeCompare(a.date);});
+        var consecutivas=0;
+        for(var i=0;i<registrosAlumno.length;i++){
+          if(registrosAlumno[i].status==='ausente')consecutivas++;
+          else break;
+        }
+        if(consecutivas>=DIAS_INASISTENCIA_AVISO){
+          avisos.push({tipo:'inasistencia',studentId:s.id,nombre:s.full_name,detalle:consecutivas+' días de ausencia seguidos'});
+        }
+      });
+    }
+
+    // 2) Sin observaciones (notas_rapidas) en mucho tiempo
+    var {data:notas}=await window.__sb.from('notas_rapidas')
+      .select('student_id,created_at')
+      .eq('teacher_id',teacherId)
+      .order('created_at',{ascending:false});
+    students.forEach(function(s){
+      var ultimaNota=notas?notas.find(function(n){return n.student_id===s.id;}):null;
+      var diasSinObs;
+      if(!ultimaNota){
+        diasSinObs=Infinity; // nunca se cargó ninguna
+      }else{
+        diasSinObs=Math.floor((ahora-new Date(ultimaNota.created_at))/(1000*60*60*24));
+      }
+      if(diasSinObs>=DIAS_SIN_OBSERVACION_AVISO){
+        avisos.push({tipo:'sin_observacion',studentId:s.id,nombre:s.full_name,
+          detalle:ultimaNota?('sin observaciones hace '+diasSinObs+' días'):'sin ninguna observación cargada'});
+      }
+    });
+
+    // 3) PAF desactualizado: último PAF de cada alumno vs. info nueva cargada después
+    var {data:pafs}=await window.__sb.from('perfiles_generados')
+      .select('student_id,created_at')
+      .eq('teacher_id',teacherId).eq('tipo','academico')
+      .order('created_at',{ascending:false});
+    var hace3meses=new Date(ahora);hace3meses.setMonth(hace3meses.getMonth()-MESES_PAF_DESACTUALIZADO);
+    students.forEach(function(s){
+      var ultimoPaf=pafs?pafs.find(function(p){return p.student_id===s.id;}):null;
+      if(!ultimoPaf)return; // si nunca se generó, no es "desactualizado", es "nunca generado" — no avisamos acá
+      var fechaPaf=new Date(ultimoPaf.created_at);
+      if(fechaPaf>hace3meses)return; // todavía no pasaron los 3 meses
+      var notaPosterior=notas?notas.find(function(n){return n.student_id===s.id&&new Date(n.created_at)>fechaPaf;}):null;
+      if(notaPosterior){
+        avisos.push({tipo:'paf_desactualizado',studentId:s.id,nombre:s.full_name,
+          detalle:'PAF generado el '+fechaPaf.toLocaleDateString('es-AR')+', hay información más nueva'});
+      }
+    });
+
+    renderizarAvisosAutomaticos(avisos);
+  }catch(e){console.log('Error al calcular avisos automáticos:',e);}
+}
+
+function renderizarAvisosAutomaticos(avisos){
+  var panel=document.getElementById('panel-avisos');
+  if(!panel)return;
+  if(!avisos||!avisos.length){panel.style.display='none';panel.innerHTML='';return;}
+  var iconos={inasistencia:'📅',sin_observacion:'📝',paf_desactualizado:'🔄'};
+  var titulos={inasistencia:'Inasistencias seguidas',sin_observacion:'Sin observaciones recientes',paf_desactualizado:'PAF desactualizado'};
+  panel.innerHTML='<div style="background:var(--terracota-bg);border:1.5px solid var(--terracota);border-radius:14px;padding:14px 16px;">'
+    +'<div style="font-size:11px;font-weight:800;color:var(--terracota);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">⚠️ '+avisos.length+' alumno'+(avisos.length>1?'s':'')+' necesitan atención</div>'
+    +avisos.map(function(a){
+      return '<div onclick="abrirPerfilAcademico(\''+a.studentId+'\')" style="display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid rgba(0,0,0,.06);cursor:pointer;">'
+        +'<span style="font-size:16px;">'+iconos[a.tipo]+'</span>'
+        +'<div><div style="font-size:12.5px;font-weight:700;color:var(--negro);">'+a.nombre+'</div>'
+        +'<div style="font-size:11px;color:var(--gris);">'+titulos[a.tipo]+' — '+a.detalle+'</div></div>'
+        +'</div>';
+    }).join('')
+    +'</div>';
+  panel.style.display='block';
 }
 
 async function initNotas() {
@@ -2500,7 +2598,7 @@ async function cargarUltimoPerfilAcademico(studentId){
     var {data}=await window.__sb.from('perfiles_generados')
       .select('contenido,created_at')
       .eq('teacher_id',userL.id).eq('student_id',studentId).eq('tipo','academico')
-      .order('created_at',{ascending:false}).limit(1);
+      .order('created_at',{ascending:false}).limit(2);
     if(!data||!data.length)return;
     var s=(window.__students||[]).find(function(st){return st.id===studentId;});
     var nombre=s?s.full_name:'';
@@ -2511,12 +2609,61 @@ async function cargarUltimoPerfilAcademico(studentId){
     var div=document.createElement('div');
     div.id='perfil-academico-guardado';
     div.style.cssText='margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-claro);';
-    div.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🤖 Último perfil académico generado · '+fecha+'</div>'
+
+    // Chequear si hay observaciones más nuevas que este PAF, para el aviso de "desactualizado"
+    var avisoDesactualizado='';
+    try{
+      var fechaPaf=new Date(data[0].created_at);
+      var hace3meses=new Date();hace3meses.setMonth(hace3meses.getMonth()-MESES_PAF_DESACTUALIZADO);
+      if(fechaPaf<=hace3meses){
+        var {data:notaNueva}=await window.__sb.from('notas_rapidas')
+          .select('created_at').eq('teacher_id',userL.id).eq('student_id',studentId)
+          .gt('created_at',data[0].created_at).limit(1);
+        if(notaNueva&&notaNueva.length){
+          avisoDesactualizado='<div style="background:var(--terracota-bg);border:1.5px solid var(--terracota);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11.5px;color:var(--terracota);font-weight:600;">🔄 Hay información nueva desde la última vez que generaste el PAF (hace más de '+MESES_PAF_DESACTUALIZADO+' meses). Puede valer la pena regenerarlo.</div>';
+        }
+      }
+    }catch(eDesact){console.log('No se pudo chequear desactualización del PAF:',eDesact);}
+
+    var botonComparar=data.length>1
+      ?'<button onclick="compararPAF(\''+studentId+'\')" class="save-btn" style="margin-top:7px;font-size:12px;width:100%;background:var(--crema);color:var(--verde);border:1.5px solid var(--verde-claro);">📊 Comparar con el PAF anterior</button>'
+      :'';
+
+    div.innerHTML=avisoDesactualizado
+      +'<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🤖 Último perfil académico generado · '+fecha+'</div>'
       +'<div id="perfil-guardado-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:300px;overflow-y:auto;">'+data[0].contenido+'</div>'
-      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\\'")+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-guardado-texto\').innerHTML)" class="save-btn" style="margin-top:7px;font-size:12px;width:100%;">⬇️ Descargar PDF</button>';
+      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\\'")+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-guardado-texto\').innerHTML)" class="save-btn" style="margin-top:7px;font-size:12px;width:100%;">⬇️ Descargar PDF</button>'
+      +botonComparar;
     body.appendChild(div);
+    window.__pafsComparacion=window.__pafsComparacion||{};
+    window.__pafsComparacion[studentId]=data;
   }catch(e){console.log('Sin perfil previo guardado');}
 }
+
+function compararPAF(studentId){
+  var pafs=(window.__pafsComparacion||{})[studentId];
+  if(!pafs||pafs.length<2)return;
+  var s=(window.__students||[]).find(function(st){return st.id===studentId;});
+  var nombre=s?s.full_name:'';
+  var fechaActual=new Date(pafs[0].created_at).toLocaleDateString('es-AR');
+  var fechaAnterior=new Date(pafs[1].created_at).toLocaleDateString('es-AR');
+  var modal=document.createElement('div');
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;';
+  modal.innerHTML='<div style="background:var(--blanco);border-radius:14px;padding:20px;max-width:900px;width:100%;margin:auto;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+    +'<strong style="font-size:14px;color:var(--verde);">📊 Comparar PAF — '+nombre+'</strong>'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gris);">✕</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
+    +'<div><div style="font-size:10.5px;font-weight:700;color:var(--gris);text-transform:uppercase;margin-bottom:6px;">Anterior · '+fechaAnterior+'</div>'
+    +'<div style="background:var(--crema);border-radius:10px;padding:12px;font-size:11.5px;color:var(--negro);line-height:1.7;border:1px solid var(--gris-claro);max-height:60vh;overflow-y:auto;">'+pafs[1].contenido+'</div></div>'
+    +'<div><div style="font-size:10.5px;font-weight:700;color:var(--verde);text-transform:uppercase;margin-bottom:6px;">Actual · '+fechaActual+'</div>'
+    +'<div style="background:var(--verde-bg);border-radius:10px;padding:12px;font-size:11.5px;color:var(--negro);line-height:1.7;border:1px solid var(--verde-claro);max-height:60vh;overflow-y:auto;">'+pafs[0].contenido+'</div></div>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+}
+
 
 
 async function generarPerfilAcademico(){
