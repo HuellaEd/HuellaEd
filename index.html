@@ -607,7 +607,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
       </label>
     </div>
     <button id="gen-btn" onclick="generarPrompt()" class="save-btn" style="margin-bottom:10px;">✨ Armar prompt</button>
-    <button id="gen-btn-ia" onclick="generarConIA()" class="save-btn" style="margin-bottom:10px;background:#2D5F4F;">📖 Generar con diseño libro</button>
+    <button id="gen-btn-ia" onclick="generarConIA()" class="save-btn" style="margin-bottom:10px;background:#2D5F4F;">📖 Generar cuadernillo</button>
     <div id="gen-resultado" style="display:none;">
       <div id="gen-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);"></div>
       <div style="display:flex;gap:7px;"><button onclick="copiarPromptGen()" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:10px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude →</a></div>
@@ -4069,13 +4069,9 @@ async function generarConIA(){
   }catch(e){
     document.getElementById('gen-ai-text').innerHTML='<div style="padding:16px;color:#C05A3A;font-size:13px;background:#F5E0D8;border-radius:10px">Error: '+e.message+'</div>';
     contenedor.style.display='block';
-  }finally{btn.disabled=false;btn.textContent='📖 Generar con diseño libro';}
+  }finally{btn.disabled=false;btn.textContent='📖 Generar cuadernillo';}
 }
 function renderLibro(respuestaIA,contenedor){
-  var LC=['lb-c0','lb-c1','lb-c2','lb-c3','lb-c4','lb-c5'];
-  var LN=['lb-n0','lb-n1','lb-n2','lb-n3','lb-n4'];
-  var LI=['📚','✏️','🔢','💡','🌿','📊'];
-  var LB=['#D4EAE4','#F7EDDB','#F5E0D8','#D6E5F3','#DDF0F7','#EAE7F5'];
   function pie(n){return '<div class="lb-pie"><svg viewBox="0 0 750 42" preserveAspectRatio="none" style="width:100%;height:42px"><path d="M0 28 Q150 10 300 26 Q450 44 600 24 Q680 10 750 22 L750 42 L0 42Z" fill="#2D5F4F"/><path d="M0 34 Q200 18 400 32 Q580 48 750 30 L750 42 L0 42Z" fill="#C8973A" opacity=".6"/></svg><div class="lb-pie-num">'+n+'</div></div>';}
   var _picsParaBuscar=[];
   var _fotosParaBuscar=[];
@@ -4083,7 +4079,7 @@ function renderLibro(respuestaIA,contenedor){
     var tipo=(s.tipo||'').toLowerCase(),h='<div class="lb-bloque">';
     if(s.grupal)h+='<div class="lb-badge">👥 De a dos</div>';
     var txt=s.consigna||s.texto||s.enunciado;
-    if(txt)h+='<div class="lb-consigna"><div class="lb-num '+LN[idx%5]+'">'+(idx+1)+'</div><div class="lb-texto">'+txt+'</div></div>';
+    if(txt)h+='<div class="lb-consigna"><div class="lb-num lb-n0">'+(idx+1)+'</div><div class="lb-texto">'+txt+'</div></div>';
     if(s.fotoReal){
       var fotoId='foto-box-'+_fotosParaBuscar.length;
       _fotosParaBuscar.push({id:fotoId,query:s.fotoReal});
@@ -4095,14 +4091,14 @@ function renderLibro(respuestaIA,contenedor){
       h+='<div id="'+picId+'" class="lb-pictogramas-box"></div>';
     }
     if(s.iconosMate&&s.iconosMate.length){
-      var iconosHtml=s.iconosMate.map(function(nombreIcono,ii){return renderIconoMate(nombreIcono,LC[ii%6]);}).filter(Boolean).join('');
+      var iconosHtml=s.iconosMate.map(function(nombreIcono,ii){return renderIconoMate(nombreIcono,'#3B6E9E');}).filter(Boolean).join('');
       if(iconosHtml)h+='<div class="lb-iconos-mate-fila">'+iconosHtml+'</div>';
     }
     if(s.clipart){
       var clipartHtml=renderClipart(s.clipart);
       if(clipartHtml)h+='<div class="lb-clipart-wrapper">'+clipartHtml+'</div>';
     }
-    if(tipo==='grilla'||tipo==='celdas'||s.items){var items=s.items||[];var cols=s.cols||(items.length<=4?items.length:items.length<=6?3:4);var gc=cols<=2?'lb-g2':cols===3?'lb-g3':'lb-g4';h+='<div class="lb-grilla '+gc+'">'+items.map(function(it,i){return '<div class="lb-celda '+LC[i%6]+'">'+(typeof it==='string'?it:it.texto||it)+'</div>';}).join('')+'</div>';}
+    if(tipo==='grilla'||tipo==='celdas'||s.items){var items=s.items||[];var cols=s.cols||(items.length<=4?items.length:items.length<=6?3:4);var gc=cols<=2?'lb-g2':cols===3?'lb-g3':'lb-g4';h+='<div class="lb-grilla '+gc+'">'+items.map(function(it,i){return '<div class="lb-celda">'+(typeof it==='string'?it:it.texto||it)+'</div>';}).join('')+'</div>';}
     else if(tipo==='tabla'||s.columnas){var c2=s.columnas||[];var f=s.filas||[];h+='<div class="lb-tabla-wrap"><table><thead><tr>'+c2.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+f.map(function(r){var cs=Array.isArray(r)?r:Object.values(r);return '<tr>'+cs.map(function(c){return '<td>'+(c!=null?c:'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
     else if(tipo==='caja'||tipo==='reflexion'||tipo==='conclusion'||tipo==='cierre'){var cl=s.color==='dorado'?'lb-caja-dorada':'lb-caja-verde';var ti2=s.titulo||'Para reflexionar';var ic=s.color==='dorado'?'👥':'✍️';var pi=s.items||s.puntos||[];h+='<div class="lb-caja '+cl+'"><div class="lb-caja-titulo">'+ic+' '+ti2+'</div>'+(s.texto?'<p style="font-size:11.5px">'+s.texto+'</p>':'')+(pi.length?'<ul>'+pi.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>':'')+'</div>';}
     else{h+='<div class="lb-area" style="min-height:'+(s.alto||52)+'px"></div>';}
@@ -4113,11 +4109,15 @@ function renderLibro(respuestaIA,contenedor){
   catch(e){contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">PDF</button></div><div class="lb-pagina"><div style="font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div>'+pie(1)+'</div></div>';return;}
   _mapasParaInicializar=[];
   _fotosParaBuscar=[];
-  var pags=data.paginas||[{titulo:data.titulo,secciones:data.secciones||[]}];
-  var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+LB[pi2%6]+'">'+LI[pi2%6]+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';if(pi2===0&&_mapaSeleccionActual)cp+=construirHtmlMapaParaMaterial();(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina">'+cp+pie(pi2+1)+'</div>';}).join('');
   var MAP_AREA_GENERADOR={'Matemática':'M','Prácticas del Lenguaje':'L','Ciencias Sociales':'CS','Ciencias Naturales':'CN'};
+  var MAP_AREA_EMOJI={'M':'🔢','L':'📖','CS':'🗺️','CN':'🌿'};
+  var MAP_AREA_COLOR={'M':'#3B6E9E','L':'#C8845A','CS':'#5B7FA6','CN':'#5A9B6F'};
   var areaActual=document.getElementById('gen-area').value;
   var areaClaseLB=MAP_AREA_GENERADOR[areaActual]||'';
+  var iconoSeccion=MAP_AREA_EMOJI[areaClaseLB]||'📚';
+  var colorSeccion=MAP_AREA_COLOR[areaClaseLB]||'#2D5F4F';
+  var pags=data.paginas||[{titulo:data.titulo,secciones:data.secciones||[]}];
+  var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+colorSeccion+'">'+iconoSeccion+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';if(pi2===0&&_mapaSeleccionActual)cp+=construirHtmlMapaParaMaterial();(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina">'+cp+pie(pi2+1)+'</div>';}).join('');
   var clasesExtra=(areaClaseLB?' lb-area-'+areaClaseLB:'')+' lb-bloque-'+bloqueAñosSel;
   var formatoClaseLB=formatoHojaSel!=='entera'?(' lb-formato-'+formatoHojaSel):'';
   function copiaConIdsUnicos(html,copiaNum){
