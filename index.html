@@ -1854,10 +1854,11 @@ async function transcribirDictado() {
 
 
 var trimBoletin = '1';
-function abrirGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='block'; document.getElementById('boletin-resultado').style.display='none'; }
+function abrirGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='block'; document.getElementById('boletin-resultado').style.display='none'; document.getElementById('boletin-resultado-app').style.display='none'; }
 function cerrarGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='none'; }
 function selTrimBoletin(el,t){ document.querySelectorAll('#tb-1,#tb-2,#tb-3').forEach(b=>b.classList.remove('active')); el.classList.add('active'); trimBoletin=t; }
-function generarPromptBoletin(){
+
+function armarPromptBoletin(){
   var ctx=document.getElementById('boletin-contexto').value;
   var trims={'1':'1er Trimestre (Marzo-Junio 2026)','2':'2do Trimestre (Julio-Septiembre 2026)','3':'3er Trimestre (Octubre-Diciembre 2026)'};
   var alumnos='Aguirre Ziomara, Barrera Felipe, Barrera Joaquin, Bravo Alvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofia, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Maximo, Nievas Nicolas, Santa Cruz Alma, Sosa Muñoz Benjamin, Tabares Andres, Tablada Santino, Tagliabue Delfina, Villalba Benjamin';
@@ -1874,10 +1875,84 @@ function generarPromptBoletin(){
   p+='Aguirre 7.3 - Barrera F 8.1 - Barrera J 7.4 - Bravo 7.6 - Carbonel 7.1 - Cuello 7.0 - Diaz 7.7 - Espindola 8.1 - Gamon 7.6 - Garcia 8.3 - Godoy 7.0 - Monteros 8.1 - Nievas 6.9 - Santa Cruz 8.1 - Sosa Muñoz 8.7 - Tabares 7.7 - Tablada 7.6 - Tagliabue 7.6 - Villalba 7.4\n\n';
   if(ctx)p+='CONTEXTO ADICIONAL:\n'+ctx+'\n\n';
   p+='Genera un informe por alumno en el orden de la lista.';
-  document.getElementById('boletin-prompt-text').textContent=p;
+  return p;
+}
+
+function generarPromptBoletin(){
+  document.getElementById('boletin-prompt-text').textContent=armarPromptBoletin();
   document.getElementById('boletin-resultado').style.display='block';
 }
 function copiarPromptBoletin(){ navigator.clipboard.writeText(document.getElementById('boletin-prompt-text').textContent).then(()=>{ document.getElementById('boletin-copy-msg').textContent='✅ Copiado'; setTimeout(()=>{ document.getElementById('boletin-copy-msg').textContent=''; },3000); }); }
+
+async function generarBoletinEnApp(){
+  var btn=document.getElementById('btn-boletin-app');
+  var statusEl=document.getElementById('boletin-app-status');
+  var resBox=document.getElementById('boletin-resultado-app');
+  var resTxt=document.getElementById('boletin-app-resultado');
+  btn.disabled=true;
+  btn.textContent='Generando…';
+  statusEl.textContent='Esto puede tardar uno o dos minutos para los 19 informes.';
+  statusEl.style.color='var(--gris)';
+  resBox.style.display='none';
+  try{
+    var prompt=armarPromptBoletin();
+    var resp=await window.__sb.functions.invoke('generar-perfil',{body:{prompt:prompt,max_tokens:8192}});
+    if(resp.error)throw resp.error;
+    var texto=(resp.data&&(resp.data.text||resp.data.result||resp.data.content))||JSON.stringify(resp.data);
+    resTxt.textContent=texto;
+    resBox.style.display='block';
+    statusEl.textContent='';
+  }catch(e){
+    console.log('Error al generar boletín en la app:',e);
+    statusEl.textContent='No se pudo generar. Probá con "Generar prompt para Claude" como alternativa.';
+    statusEl.style.color='#c0392b';
+  }finally{
+    btn.disabled=false;
+    btn.textContent='✨ Generar en la app (Claude)';
+  }
+}
+
+function copiarBoletinApp(){
+  navigator.clipboard.writeText(document.getElementById('boletin-app-resultado').textContent).then(function(){
+    var m=document.getElementById('boletin-app-copy-msg');
+    m.textContent='✅ Copiado';
+    setTimeout(function(){ m.textContent=''; },3000);
+  });
+}
+
+function descargarBoletinPDF(){
+  var texto=document.getElementById('boletin-app-resultado').textContent;
+  var trims={'1':'1er Trimestre','2':'2do Trimestre','3':'3er Trimestre'};
+  var wrapper=document.createElement('div');
+  wrapper.style.padding='28px';
+  wrapper.style.fontFamily='Georgia, serif';
+  wrapper.style.color='#222';
+
+  var titulo=document.createElement('h2');
+  titulo.textContent='Informes de Boletín — '+(trims[trimBoletin]||'')+' — 6to Año, Escuela La Concepción';
+  titulo.style.fontSize='15px';
+  titulo.style.marginBottom='16px';
+  titulo.style.borderBottom='2px solid #2D5F4F';
+  titulo.style.paddingBottom='8px';
+  wrapper.appendChild(titulo);
+
+  var pre=document.createElement('pre');
+  pre.textContent=texto;
+  pre.style.whiteSpace='pre-wrap';
+  pre.style.fontFamily='Georgia, serif';
+  pre.style.fontSize='11.5px';
+  pre.style.lineHeight='1.6';
+  wrapper.appendChild(pre);
+
+  var opt={
+    margin:10,
+    filename:'informes_boletin_trim'+trimBoletin+'.pdf',
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  };
+  html2pdf().set(opt).from(wrapper).save();
+}
 
 
 function cerrarPerfilAcademico(){ document.getElementById('modal-perfil-academico').style.display='none'; }
@@ -6600,6 +6675,17 @@ if(document.readyState==='loading'){
     <div class="form-row"><label>Información adicional (opcional)</label>
       <textarea id="boletin-contexto" placeholder="Ej: El 2do trimestre tuvo mucho foco en divisiones y comprensión lectora inferencial..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:70px;resize:none;box-sizing:border-box;"></textarea>
     </div>
+    <button onclick="generarBoletinEnApp()" id="btn-boletin-app" class="save-btn" style="background:var(--verde);margin-bottom:8px;">✨ Generar en la app (Claude)</button>
+    <div id="boletin-app-status" style="text-align:center;font-size:11px;margin-bottom:8px;"></div>
+    <div id="boletin-resultado-app" style="display:none;margin-bottom:12px;">
+      <div id="boletin-app-resultado" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);max-height:260px;overflow-y:auto;white-space:pre-wrap;"></div>
+      <div style="display:flex;gap:7px;">
+        <button onclick="copiarBoletinApp()" class="save-btn">📋 Copiar texto</button>
+        <button onclick="descargarBoletinPDF()" class="save-btn" style="background:var(--terracota);">⬇️ Descargar PDF</button>
+      </div>
+      <div id="boletin-app-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:5px;"></div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:var(--gris);margin:4px 0 10px;">— o, como alternativa manual —</div>
     <button onclick="generarPromptBoletin()" class="save-btn">📋 Generar prompt para Claude</button>
     <div id="boletin-resultado" style="display:none;margin-top:10px;">
       <div id="boletin-prompt-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:8px;border:1px solid var(--gris-claro);max-height:200px;overflow-y:auto;"></div>
