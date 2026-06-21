@@ -317,9 +317,9 @@
     @page{size:A4;margin:0;}
 @media print{
   html,body{width:210mm;height:auto;margin:0;padding:0;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  body *{visibility:hidden;}
-  #libro-preview,#libro-preview *{visibility:visible;}
-  #libro-preview{position:absolute;left:0;top:0;width:210mm;background:white;padding:0;margin:0;font-size:2.85mm;}
+  body>*:not(#libro-preview){display:none!important;}
+  body>#libro-preview{display:block!important;}
+  #libro-preview{width:210mm;background:white;padding:0;margin:0;font-size:2.85mm;}
   .lb-topbar,.lb-btn-print{display:none!important;}
   .lb-pagina{
     width:210mm;min-height:297mm;
@@ -3984,14 +3984,13 @@ async function generarPrompt(){
   p+=(formatosBloque[bloqueAñosSel]||formatosBloque['56'])+'\n\n';
   if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
   if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';
-  p+='\n\nIMPORTANTE — TEXTOS DE LECTURA: si la actividad requiere que el alumno lea un cuento, texto, fábula o relato (por ejemplo en Prácticas del Lenguaje), el bloque que presenta ese texto NUNCA puede limitarse a mencionar el título o un resumen. Debé escribir el TEXTO COMPLETO, palabra por palabra (cuento entero con su desarrollo y final), dentro del campo "texto" de ese bloque tipo "caja", y SOLO ahí. El "consigna" de ese mismo bloque tipo "caja" debe ser una instrucción breve como "Leé el siguiente cuento" — NUNCA repitas el cuento completo dentro de "consigna" ni en ningún otro bloque. El cuento aparece UNA SOLA VEZ en todo el documento, exclusivamente en el campo "texto" de la caja de lectura. Un bloque con solo el título y sin el cuento completo en "texto" es un error grave: el alumno se queda sin poder leer la actividad. Repetir el cuento dos veces es igual de grave: hace perder espacio y confunde al alumno. Si el texto es muy largo, podés acortarlo o adaptarlo en extensión, pero siempre debe ser un relato completo y autocontenido, nunca un placeholder ni una referencia vacía.';
   if(alumnosEsp.length>0){
     p+='\n\nVERSIONES DIFERENCIADAS:\n';
     alumnosEsp.forEach(function(a){
       var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos — NEE con diagnóstico)':'ADECUACIÓN (mantiene objetivos, cambia forma/apoyo)';
       p+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';
     });
-    p+='\nIMPORTANTE: en la hoja de cada alumno NO debe aparecer ninguna palabra como "adaptado", "adaptación", "adecuación", ni ningún texto que indique que es una versión diferenciada. La hoja debe verse igual a la del resto del grupo en su formato, solo cambia la dificultad/apoyo del contenido. Lo único que identifica a quién pertenece es el nombre del alumno en el encabezado.';
+    p+='\nIMPORTANTE: en la hoja de cada alumno NO debe aparecer ninguna palabra como "adaptado", "adaptación", "adecuación", ni ningún texto que indique que es una versión diferenciada, ni ninguna nota dirigida a la docente. La hoja debe verse igual a la del resto del grupo en su formato, solo cambia la dificultad/apoyo del contenido. Lo único que identifica a quién pertenece es el nombre del alumno en el encabezado.';
   }
   if(det)p+='\n\nDetalles: '+det;
   document.getElementById('gen-ai-resultado').style.display='none';
@@ -4014,14 +4013,14 @@ async function generarConIA(){
     var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
     p2+=', sobre: '+tema+'.\n\n';
     if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
-    if(alumnosEsp.length>0){p2+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(function(a){var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos)':'ADECUACIÓN (mantiene objetivos)';p2+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p2+='\nCada versión con nota pedagógica breve.';}
+    if(alumnosEsp.length>0){p2+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(function(a){var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos)':'ADECUACIÓN (mantiene objetivos)';p2+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p2+='\nNINGUNA nota, aclaración o sección dirigida a la docente debe aparecer en el documento final — es exclusivamente para el alumno.';}
     if(det)p2+='\n\nDetalles: '+det;
     var formatoInstr={
       entera:'',
       media:'\n\nFORMATO DE HOJA: esto va a ocupar MEDIA hoja A4 (se imprimen 2 fichas por hoja, cortadas al medio). Generá MENOS cantidad de contenido: aproximadamente la MITAD de ejercicios/ítems que en una hoja entera, consignas más breves, máximo 1 página, para que entre cómodo en el espacio reducido sin verse apretado.'
     };
     p2+=formatoInstr[formatoHojaSel]||'';
-    p2+='\n\nIMPORTANTE — TEXTOS DE LECTURA: si la actividad requiere que el alumno lea un cuento, texto, fábula o relato (por ejemplo en Prácticas del Lenguaje), el bloque que presenta ese texto NUNCA puede limitarse a mencionar el título o un resumen. Debé escribir el TEXTO COMPLETO, palabra por palabra (cuento entero con su desarrollo y final), dentro del campo "texto" de ese bloque tipo "caja", y SOLO ahí. El "consigna" de ese mismo bloque tipo "caja" debe ser una instrucción breve como "Leé el siguiente cuento" — NUNCA repitas el cuento completo dentro de "consigna" ni en ningún otro bloque. El cuento aparece UNA SOLA VEZ en todo el documento, exclusivamente en el campo "texto" de la caja de lectura. Un bloque con solo el título y sin el cuento completo en "texto" es un error grave: el alumno se queda sin poder leer la actividad. Repetir el cuento dos veces es igual de grave: hace perder espacio y confunde al alumno. Si el texto es muy largo, podés acortarlo o adaptarlo en extensión, pero siempre debe ser un relato completo y autocontenido, nunca un placeholder ni una referencia vacía.';
+    p2+='';
     resolve(p2);
   });
   if(!p)return;
@@ -4040,8 +4039,8 @@ async function generarConIA(){
   };
   var pedirPictogramas=document.getElementById('gen-pictogramas')&&document.getElementById('gen-pictogramas').checked;
   var estructuraJSON=pedirPictogramas
-    ?'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false,"pictogramas":["palabra1","palabra2"]}]}]}'
-    :'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}';
+    ?'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","texto":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false,"pictogramas":["palabra1","palabra2"]}]}]}'
+    :'{"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","texto":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}';
   var instrPictogramas=pedirPictogramas?' En cada seccion, agrega "pictogramas": un array de 1 a 3 palabras clave en español (sustantivos simples y concretos) de la consigna que convendria ilustrar con un pictograma de apoyo visual. Si la consigna no tiene palabras concretas para ilustrar, dejá el array vacio [].':'';
   var areaParaIconos=document.getElementById('gen-area').value;
   var esAreaMate=(areaParaIconos||'').toLowerCase().indexOf('matem')>-1;
@@ -4051,7 +4050,7 @@ async function generarConIA(){
   var esAreaClipart=true;
   var instrFotos=esAreaFotos?' Ademas, en 1 o 2 secciones clave (las mas importantes del tema), agrega "fotoReal": una palabra o frase corta en ingles (2-4 palabras maximo) que describa concretamente que foto real buscar para ilustrar (ej: "Andes mountains Argentina", "frog life cycle", "Eiffel Tower"). Usa ingles porque la busqueda de fotos funciona mejor asi. Si la seccion no necesita foto, no agregues el campo.':'';
   var instrClipart=esAreaClipart?' Ademas, en secciones donde la actividad sea de tipo "dibuja y escribi" o similar para primer ciclo, agrega "clipart": el nombre de UN dibujo simple a mostrar, elegido de esta lista exacta: sol, casa, arbol, perro, gato, pelota, manzana, flor, pajaro, pez, estrella, globo, nube, libro, lapiz, vaca, caballo, pollo, rana, mariposa, auto, bicicleta, avion, barco, pan, torta, leche, reloj_pared, mochila, cara_nino, familia, corazon, arcoiris. Elegi el que mejor se relacione con el tema o consigna. Si ninguno aplica bien, no agregues el campo.':'';
-  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+' Lenguaje directo al alumno.';
+  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada. IMPORTANTE: NUNCA incluyas el texto completo de un cuento, fabula o relato literario en ningun campo — la docente entrega esos textos por separado, en papel. El material que generes es solo actividades (preguntas, ejercicios, espacios para responder), nunca el texto fuente. Tampoco incluyas ninguna nota, aclaracion o seccion dirigida a la docente (como "nota pedagogica" o similar) — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+' Lenguaje directo al alumno.';
   var contentParts=[];
   if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
   var textoConAdjunto=_genAdjuntoTexto?(p+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):p;
@@ -4219,7 +4218,7 @@ async function enviarAClaudeConArchivo(promptText){
   var areaParaIconosAdj=document.getElementById('gen-area').value;
   var esAreaMateAdj=(areaParaIconosAdj||'').toLowerCase().indexOf('matem')>-1;
   var instrIconosMateAdj=esAreaMateAdj?' Esto es de Matematica: en cada seccion donde tenga sentido, agrega "iconosMate": un array de 1 a 4 nombres de iconos a usar como apoyo visual, elegidos de esta lista exacta: circulo, cuadrado, triangulo, rectangulo, pentagono, hexagono, rombo, suma, resta, multiplicacion, division, igual, reloj, balanza, regla, monedas, o grupo_N donde N es un numero del 1 al 10. Si no aplica, dejalo vacio [].':'';
-  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Responde UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro reflexion o texto de lectura. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+' Lenguaje directo al alumno.';
+  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada. Si el usuario adjunto un archivo (cuento, texto, imagen, documento), usalo solo como REFERENCIA para entender el tema y generar actividades coherentes con su contenido — pero NUNCA reproduzcas el texto completo del archivo adjunto en el material generado. El alumno ya tiene ese material aparte, en papel. Generá unicamente actividades (preguntas, ejercicios, tablas, espacios para responder) sobre el contenido, no el contenido en si. Tampoco incluyas ninguna nota dirigida a la docente — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+' Lenguaje directo al alumno.';
   var headers={
     'x-api-key':apiKey,
     'anthropic-version':'2023-06-01',
