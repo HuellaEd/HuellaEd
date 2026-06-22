@@ -463,7 +463,7 @@
   </div>
 
   <!-- PANELES --><div id="tabla-inasistencias" class="panel" style="display:none;margin-top:10px;">
-    <div class="panel-head"><strong>Inasistencias — 55 días hábiles</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('tabla-inasistencias')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
+    <div class="panel-head"><strong id="inasist-titulo">Inasistencias</strong><div style="display:flex;gap:6px;align-items:center;"><button onclick="imprimirPanel('tabla-inasistencias')" style="background:var(--terracota);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;">🖨️</button><button class="close-btn" onclick="showSection(null)">✕</button></div></div>
     <div class="panel-body"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:380px;"><thead><tr style="background:var(--verde);color:#fff;"><th style="padding:7px 5px;text-align:left;">Alumno</th><th style="padding:7px 3px;text-align:center;">Mar</th><th style="padding:7px 3px;text-align:center;">Abr</th><th style="padding:7px 3px;text-align:center;">May</th><th style="padding:7px 3px;text-align:center;">Total</th><th style="padding:7px 3px;text-align:center;">%</th><th style="padding:7px 5px;text-align:left;">Estado</th></tr></thead><tbody id="inasist-tbody"></tbody></table>
     <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;font-size:10px;"><span style="background:#FDE8E8;padding:2px 7px;border-radius:5px;">🔴 +10</span><span style="background:#FDF0E8;padding:2px 7px;border-radius:5px;">🟠 7-9</span><span style="background:#FDFAE8;padding:2px 7px;border-radius:5px;">🟡 5-6</span><span style="background:var(--verde-bg);padding:2px 7px;border-radius:5px;">✅ OK</span></div></div>
   </div>
@@ -1975,33 +1975,105 @@ async function transcribirDictado() {
 
 
 var trimBoletin = '1';
-function abrirGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='block'; document.getElementById('boletin-resultado').style.display='none'; document.getElementById('boletin-resultado-app').style.display='none'; }
+function abrirGeneradorBoletin(){
+  document.getElementById('modal-gen-boletin').style.display='block';
+  document.getElementById('boletin-resultado').style.display='none';
+  document.getElementById('boletin-resultado-app').style.display='none';
+  poblarListaAlumnosBoletin();
+}
+function poblarListaAlumnosBoletin(){
+  var cont=document.getElementById('boletin-lista-alumnos');
+  var countEl=document.getElementById('boletin-alumnos-count');
+  if(!cont)return;
+  var students=window.__students||[];
+  if(!students.length){
+    cont.innerHTML='<div style="font-size:11px;color:var(--gris);text-align:center;padding:10px;">No se encontraron alumnos cargados.</div>';
+    if(countEl)countEl.textContent='';
+    return;
+  }
+  cont.innerHTML=students.map(function(s){
+    var dif=s.has_differential?' <span style="color:var(--terracota);">⚡</span>':'';
+    return '<label style="display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12.5px;color:var(--negro);cursor:pointer;">'
+      +'<input type="checkbox" class="boletin-alumno-check" value="'+s.id+'" data-nombre="'+s.full_name+'" checked onchange="actualizarContadorAlumnosBoletin()">'
+      +s.full_name+dif+'</label>';
+  }).join('');
+  actualizarContadorAlumnosBoletin();
+}
+function actualizarContadorAlumnosBoletin(){
+  var checks=document.querySelectorAll('.boletin-alumno-check');
+  var marcados=document.querySelectorAll('.boletin-alumno-check:checked');
+  var countEl=document.getElementById('boletin-alumnos-count');
+  if(countEl)countEl.textContent=marcados.length+' de '+checks.length;
+  var todosEl=document.getElementById('boletin-check-todos');
+  if(todosEl)todosEl.checked=(marcados.length===checks.length&&checks.length>0);
+}
+function toggleTodosAlumnosBoletin(el){
+  document.querySelectorAll('.boletin-alumno-check').forEach(function(c){c.checked=el.checked;});
+  actualizarContadorAlumnosBoletin();
+}
 function cerrarGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='none'; }
 function selTrimBoletin(el,t){ document.querySelectorAll('#tb-1,#tb-2,#tb-3').forEach(b=>b.classList.remove('active')); el.classList.add('active'); trimBoletin=t; }
 
-function armarPromptBoletin(){
+async function obtenerAlumnosSeleccionadosBoletin(){
+  var checks=document.querySelectorAll('.boletin-alumno-check:checked');
+  return Array.prototype.map.call(checks,function(c){return {id:c.value,full_name:c.getAttribute('data-nombre')};});
+}
+
+async function armarPromptBoletin(){
   var ctx=document.getElementById('boletin-contexto').value;
-  var trims={'1':'1er Trimestre (Marzo-Junio 2026)','2':'2do Trimestre (Julio-Septiembre 2026)','3':'3er Trimestre (Octubre-Diciembre 2026)'};
-  var alumnos='Aguirre Ziomara, Barrera Felipe, Barrera Joaquin, Bravo Alvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofia, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Maximo, Nievas Nicolas, Santa Cruz Alma, Sosa Muñoz Benjamin, Tabares Andres, Tablada Santino, Tagliabue Delfina, Villalba Benjamin';
-  var p='Soy docente de 6to Año de la Escuela La Concepcion. Genera los informes de boletin del '+trims[trimBoletin]+' para mis 19 alumnos.\n\n';
+  var trims={'1':'1er Trimestre (Marzo-Mayo 2026)','2':'2do Trimestre (Junio-Agosto 2026)','3':'3er Trimestre (Septiembre-Diciembre 2026)'};
+  var seleccionados=await obtenerAlumnosSeleccionadosBoletin();
+  if(!seleccionados.length)return null;
+
+  var user=(await window.__sb.auth.getUser()).data.user;
+  var ids=seleccionados.map(function(s){return s.id;});
+
+  var difIds=(window.__students||[]).filter(function(s){return s.has_differential&&ids.indexOf(s.id)>-1;}).map(function(s){return s.id;});
+  var difTexto='';
+  if(difIds.length){
+    var difResultados=await Promise.all(difIds.map(function(id){
+      return window.__sb.from('differential_profiles').select('como_aprende,comprension_consignas,matematica,lectura_escritura').eq('student_id',id).maybeSingle();
+    }));
+    difIds.forEach(function(id,i){
+      var nombre=seleccionados.find(function(s){return s.id===id;}).full_name;
+      var d=difResultados[i].data;
+      if(d){
+        var partes=[d.como_aprende,d.comprension_consignas,d.lectura_escritura,d.matematica].filter(Boolean);
+        if(partes.length)difTexto+=nombre+': '+partes.join(' | ')+'\n';
+      }
+    });
+  }
+
+  var {data:notas}=await window.__sb.from('grades').select('student_id,score').eq('teacher_id',user.id).eq('period',trimBoletin).in('student_id',ids);
+  var promediosTexto='';
+  if(notas&&notas.length){
+    seleccionados.forEach(function(s){
+      var notasAlumno=notas.filter(function(n){return n.student_id===s.id&&n.score!=null;});
+      if(notasAlumno.length){
+        var prom=notasAlumno.reduce(function(a,n){return a+Number(n.score);},0)/notasAlumno.length;
+        promediosTexto+=s.full_name+' '+prom.toFixed(1)+' - ';
+      }
+    });
+    promediosTexto=promediosTexto.replace(/ - $/,'');
+  }
+
+  var nombresLista=seleccionados.map(function(s){return s.full_name;}).join(', ');
+  var p='Soy docente de 6to Año de la Escuela La Concepcion. Genera los informes de boletin del '+trims[trimBoletin]+' para los siguientes '+seleccionados.length+' alumnos.\n\n';
   p+='FORMATO: recuadro 11.5cm x 2.5cm. Texto narrativo de 3-4 oraciones. Mencionar Matematica, Practicas del Lenguaje, conducta y asistencia si corresponde. Tono profesional y constructivo.\n\n';
-  p+='ALUMNOS (19):\n'+alumnos+'\n\n';
-  p+='ATENCION DIFERENCIADA:\n';
-  p+='Gamon Ciro: TDL + IDN Bajo — adecuacion y adaptacion segun contenido\n';
-  p+='Nievas Nicolas: dificultades en lectoescritura\n';
-  p+='Godoy Katia: dificultades en lectoescritura y matematica\n';
-  p+='Carbonel Tiziano: dificultades en lectoescritura, timidez\n';
-  p+='Cuello Thomas: dificultad de concentracion\n\n';
-  p+='PROMEDIOS 1ER TRIMESTRE:\n';
-  p+='Aguirre 7.3 - Barrera F 8.1 - Barrera J 7.4 - Bravo 7.6 - Carbonel 7.1 - Cuello 7.0 - Diaz 7.7 - Espindola 8.1 - Gamon 7.6 - Garcia 8.3 - Godoy 7.0 - Monteros 8.1 - Nievas 6.9 - Santa Cruz 8.1 - Sosa Muñoz 8.7 - Tabares 7.7 - Tablada 7.6 - Tagliabue 7.6 - Villalba 7.4\n\n';
+  p+='ALUMNOS ('+seleccionados.length+'):\n'+nombresLista+'\n\n';
+  if(difTexto)p+='ATENCION DIFERENCIADA:\n'+difTexto+'\n';
+  if(promediosTexto)p+='PROMEDIOS DEL TRIMESTRE:\n'+promediosTexto+'\n\n';
   if(ctx)p+='CONTEXTO ADICIONAL:\n'+ctx+'\n\n';
   p+='Genera un informe por alumno en el orden de la lista.';
   return p;
 }
 
 function generarPromptBoletin(){
-  document.getElementById('boletin-prompt-text').textContent=armarPromptBoletin();
-  document.getElementById('boletin-resultado').style.display='block';
+  armarPromptBoletin().then(function(prompt){
+    if(!prompt){alert('Seleccioná al menos un alumno antes de generar.');return;}
+    document.getElementById('boletin-prompt-text').textContent=prompt;
+    document.getElementById('boletin-resultado').style.display='block';
+  });
 }
 function copiarPromptBoletin(){ navigator.clipboard.writeText(document.getElementById('boletin-prompt-text').textContent).then(()=>{ document.getElementById('boletin-copy-msg').textContent='✅ Copiado'; setTimeout(()=>{ document.getElementById('boletin-copy-msg').textContent=''; },3000); }); }
 
@@ -2010,13 +2082,14 @@ async function generarBoletinEnApp(){
   var statusEl=document.getElementById('boletin-app-status');
   var resBox=document.getElementById('boletin-resultado-app');
   var resTxt=document.getElementById('boletin-app-resultado');
+  var prompt=await armarPromptBoletin();
+  if(!prompt){alert('Seleccioná al menos un alumno antes de generar.');return;}
   btn.disabled=true;
   btn.textContent='Generando…';
-  statusEl.textContent='Esto puede tardar uno o dos minutos para los 19 informes.';
+  statusEl.textContent='Esto puede tardar uno o dos minutos según la cantidad de alumnos.';
   statusEl.style.color='var(--gris)';
   resBox.style.display='none';
   try{
-    var prompt=armarPromptBoletin();
     var resp=await window.__sb.functions.invoke('generar-perfil',{body:{prompt:prompt,max_tokens:8192}});
     if(resp.error)throw resp.error;
     var texto=(resp.data&&(resp.data.text||resp.data.result||resp.data.content))||JSON.stringify(resp.data);
@@ -3631,8 +3704,8 @@ function imprimirFicha(){
 
 // ── DATOS ──
 const NOTAS_DATA=[];
-const INASIST_DATA=[];
-const APROBADO=7,DIAS=55;
+var INASIST_DATA=[];
+const APROBADO=7;
 var AREAS=['L','M','CS','CN','I','EA','EF'];
 var AREA_NAMES={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
 var AREA_ICONS={L:'📖',M:'🔢',CS:'🌍',CN:'🔬',I:'🇬🇧',EA:'🎨',EF:'⚽'};
@@ -3661,7 +3734,7 @@ function toggleForm(){var c=document.getElementById('form-container'),a=document
 function showSection(id){document.querySelectorAll('.panel').forEach(p=>p.style.display='none');if(id){document.getElementById(id).style.display='block';if(id==='tabla-notas')initGrades();if(id==='tabla-inasistencias')renderInasistencias();if(id==='panel-boletin-1'){if(Object.keys(gradesData).length===0)initGrades().then(renderBoletin1);else renderBoletin1();}if(id==='panel-boletin-2')renderBoletin2();}}
 
 // ── NOTAS ──
-function renderBoletin1(){
+async function renderBoletin1(){
   var areas=AREAS;
   var rowList=window.__students&&Object.keys(gradesData).length>0
     ?window.__students.map(function(s){return {a:s.full_name,n:areas.map(function(area){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;})};})
@@ -3703,14 +3776,17 @@ function renderBoletin1(){
   html+='<div style="margin-top:7px;font-size:10px;color:var(--gris);">L=Lengua · M=Matemática · CS=Cs.Sociales · CN=Cs.Naturales · I=Inglés · EA=Ed.Artística · EF=Ed.Física · Faltas: 🔴+10 · 🟠7-9 · 🟡5-6</div>';
 
   // Sección resumen inasistencias
-  html+='<div style="margin-top:16px;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--negro);">Inasistencias — 1er Trimestre</div>';
+  await cargarInasistDataReal();
+  var mesesB1=MESES_POR_TRIMESTRE[gradesPeriodo]||MESES_POR_TRIMESTRE['1'];
+  var trimNombre=gradesPeriodo==='1'?'1er':gradesPeriodo==='2'?'2do':'3er';
+  html+='<div style="margin-top:16px;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--negro);">Inasistencias — '+trimNombre+' Trimestre</div>';
   html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">';
-  html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--verde);">55</div><div style="font-size:10px;color:var(--gris);">Días hábiles</div><div style="font-size:9px;color:var(--gris);">Mar:20 · Abr:16 · May:19</div></div>';
+  html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--verde);">'+DIAS+'</div><div style="font-size:10px;color:var(--gris);">Días hábiles</div><div style="font-size:9px;color:var(--gris);">'+mesesB1.map(m=>m.n).join(' · ')+'</div></div>';
   
-  var criticos=INASIST_DATA.filter(r=>r.m+r.ab+r.my>=10);
-  var acumulacion=INASIST_DATA.filter(r=>{var t=r.m+r.ab+r.my;return t>=7&&t<10;});
-  var intermitente=INASIST_DATA.filter(r=>{var t=r.m+r.ab+r.my;return t>=5&&t<7;});
-  var promFaltas=(INASIST_DATA.reduce((s,r)=>s+r.m+r.ab+r.my,0)/INASIST_DATA.length).toFixed(1);
+  var criticos=INASIST_DATA.filter(r=>r.total>=10);
+  var acumulacion=INASIST_DATA.filter(r=>r.total>=7&&r.total<10);
+  var intermitente=INASIST_DATA.filter(r=>r.total>=5&&r.total<7);
+  var promFaltas=INASIST_DATA.length?(INASIST_DATA.reduce((s,r)=>s+r.total,0)/INASIST_DATA.length).toFixed(1):'—';
   
   html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--verde);">'+promFaltas+'</div><div style="font-size:10px;color:var(--gris);">Promedio faltas</div><div style="font-size:9px;color:var(--gris);">por alumno</div></div>';
   html+='<div style="background:var(--crema);border-radius:9px;padding:10px;text-align:center;"><div style="font-size:18px;font-weight:700;color:'+(criticos.length>0?'#C0392B':'var(--verde)')+'">'+criticos.length+'</div><div style="font-size:10px;color:var(--gris);">Alertas críticas</div><div style="font-size:9px;color:var(--gris);">+10 faltas</div></div>';
@@ -3718,16 +3794,17 @@ function renderBoletin1(){
 
   // Tabla inasistencias compacta
   html+='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:360px;">';
-  html+='<thead><tr style="background:var(--verde);color:#fff;"><th style="padding:6px 5px;text-align:left;">Alumno</th><th style="padding:6px 3px;text-align:center;">Mar</th><th style="padding:6px 3px;text-align:center;">Abr</th><th style="padding:6px 3px;text-align:center;">May</th><th style="padding:6px 3px;text-align:center;">Total</th><th style="padding:6px 3px;text-align:center;">%</th><th style="padding:6px 5px;text-align:left;">Estado</th></tr></thead><tbody>';
+  html+='<thead><tr style="background:var(--verde);color:#fff;"><th style="padding:6px 5px;text-align:left;">Alumno</th>'+mesesB1.map(m=>'<th style="padding:6px 3px;text-align:center;">'+m.n+'</th>').join('')+'<th style="padding:6px 3px;text-align:center;">Total</th><th style="padding:6px 3px;text-align:center;">%</th><th style="padding:6px 5px;text-align:left;">Estado</th></tr></thead><tbody>';
   INASIST_DATA.forEach((r,i)=>{
-    var t=r.m+r.ab+r.my;
-    var pct=Math.round((55-t)/55*100);
+    var t=r.total;
+    var pct=DIAS>0?Math.round((DIAS-t)/DIAS*100):0;
     var est,bg;
     if(t>=10){est='🔴 Crítico';bg='#FDE8E8';}
     else if(t>=7){est='🟠 Acum.';bg='#FDF0E8';}
     else if(t>=5){est='🟡 Interm.';bg='#FDFAE8';}
     else{est='✅';bg=i%2===0?'#fff':'#F5F2EE';}
-    html+=`<tr style="background:${bg};"><td style="padding:5px;font-size:10px;">${r.a}</td><td style="padding:5px 3px;text-align:center;">${r.m}</td><td style="padding:5px 3px;text-align:center;">${r.ab}</td><td style="padding:5px 3px;text-align:center;">${r.my}</td><td style="padding:5px 3px;text-align:center;font-weight:bold;">${t}</td><td style="padding:5px 3px;text-align:center;">${pct}%</td><td style="padding:5px;font-size:10px;">${est}</td></tr>`;
+    var celdasMes=r.porMes.map(function(n){return '<td style="padding:5px 3px;text-align:center;">'+n+'</td>';}).join('');
+    html+='<tr style="background:'+bg+';"><td style="padding:5px;font-size:10px;">'+r.a+'</td>'+celdasMes+'<td style="padding:5px 3px;text-align:center;font-weight:bold;">'+t+'</td><td style="padding:5px 3px;text-align:center;">'+pct+'%</td><td style="padding:5px;font-size:10px;">'+est+'</td></tr>';
   });
   html+='</tbody></table>';
   
@@ -3936,7 +4013,84 @@ async function guardarNotas(){
 }
 
 // ── INASISTENCIAS ──
-function renderInasistencias(){var tb=document.getElementById('inasist-tbody');if(!tb)return;tb.innerHTML=INASIST_DATA.map((r,i)=>{var t=r.m+r.ab+r.my;var pct=Math.round((DIAS-t)/DIAS*100);var est,bg;if(t>=10){est='🔴 Crítico';bg='#FDE8E8';}else if(t>=7){est='🟠 Acum.';bg='#FDF0E8';}else if(t>=5){est='🟡 Interm.';bg='#FDFAE8';}else{est='✅';bg=i%2===0?'#fff':'#F5F2EE';}return `<tr style="background:${bg};"><td style="padding:5px;font-size:10px;">${r.a}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${r.m}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${r.ab}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${r.my}</td><td style="padding:5px 3px;text-align:center;font-size:11px;font-weight:bold;">${t}</td><td style="padding:5px 3px;text-align:center;font-size:11px;">${pct}%</td><td style="padding:5px;font-size:10px;">${est}</td></tr>`;}).join('');}
+var MESES_POR_TRIMESTRE={
+  '1':[{n:'Mar',m:3},{n:'Abr',m:4},{n:'May',m:5}],
+  '2':[{n:'Jun',m:6},{n:'Jul',m:7},{n:'Ago',m:8}],
+  '3':[{n:'Sep',m:9},{n:'Oct',m:10},{n:'Nov',m:11},{n:'Dic',m:12}]
+};
+var _inasistCargada=false;
+var DIAS=0; // se recalcula siempre con cargarInasistDataReal(), contando fechas reales con asistencia tomada
+async function cargarInasistDataReal(){
+  if(!window.__sb||!window.__students||!window.__students.length){INASIST_DATA=[];DIAS=0;return INASIST_DATA;}
+  var meses=MESES_POR_TRIMESTRE[gradesPeriodo]||MESES_POR_TRIMESTRE['1'];
+  var mesesNums=meses.map(function(mes){return mes.m;});
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    // Traemos TODOS los registros (presente y ausente), porque DIAS se calcula
+    // contando fechas distintas en las que se tomó asistencia, sin importar el resultado.
+    var {data:registros}=await window.__sb.from('attendance')
+      .select('student_id,date,status')
+      .eq('teacher_id',user.id);
+    registros=registros||[];
+    // Filtrar solo registros dentro de los meses del trimestre activo
+    var registrosTrim=registros.filter(function(r){
+      var d=new Date(r.date+'T12:00:00');
+      return mesesNums.indexOf(d.getMonth()+1)>-1;
+    });
+    // DIAS = cantidad de fechas distintas en que se tomó asistencia en este trimestre
+    var fechasDistintas=Array.from(new Set(registrosTrim.map(function(r){return r.date;})));
+    DIAS=fechasDistintas.length;
+
+    var ausentesTrim=registrosTrim.filter(function(r){return r.status==='ausente';});
+    INASIST_DATA=window.__students.map(function(s){
+      var faltasAlumno=ausentesTrim.filter(function(a){return a.student_id===s.id;});
+      var porMes=meses.map(function(mes){
+        return faltasAlumno.filter(function(a){
+          var d=new Date(a.date+'T12:00:00');
+          return d.getMonth()+1===mes.m;
+        }).length;
+      });
+      return {a:s.full_name,porMes:porMes,total:porMes.reduce(function(s,n){return s+n;},0)};
+    });
+    _inasistCargada=true;
+  }catch(e){
+    console.log('Error al cargar inasistencias reales:',e);
+    INASIST_DATA=[];
+    DIAS=0;
+  }
+  return INASIST_DATA;
+}
+async function renderInasistencias(){
+  var tb=document.getElementById('inasist-tbody');
+  if(!tb)return;
+  var meses=MESES_POR_TRIMESTRE[gradesPeriodo]||MESES_POR_TRIMESTRE['1'];
+
+  // Reconstruir encabezado completo (cantidad de columnas de mes varía: 3 en trim 1 y 2, 4 en trim 3)
+  var theadTr=document.querySelector('#tabla-inasistencias thead tr');
+  if(theadTr){
+    theadTr.innerHTML='<th style="padding:7px 5px;text-align:left;">Alumno</th>'
+      +meses.map(function(mes){return '<th style="padding:7px 3px;text-align:center;">'+mes.n+'</th>';}).join('')
+      +'<th style="padding:7px 3px;text-align:center;">Total</th><th style="padding:7px 3px;text-align:center;">%</th><th style="padding:7px 5px;text-align:left;">Estado</th>';
+  }
+  var tabla=document.querySelector('#tabla-inasistencias table');
+  if(tabla)tabla.setAttribute('data-cols',meses.length+3);
+
+  var tituloEl=document.getElementById('inasist-titulo');
+  if(tituloEl)tituloEl.textContent='Inasistencias — '+DIAS+' días hábiles';
+
+  var colspanTotal=meses.length+3;
+  tb.innerHTML='<tr><td colspan="'+colspanTotal+'" style="text-align:center;padding:14px;color:var(--gris);font-size:11px;">Cargando…</td></tr>';
+  await cargarInasistDataReal();
+  if(!INASIST_DATA.length){tb.innerHTML='<tr><td colspan="'+colspanTotal+'" style="text-align:center;padding:14px;color:var(--gris);font-size:11px;">No hay alumnos o datos de asistencia cargados.</td></tr>';return;}
+  tb.innerHTML=INASIST_DATA.map((r,i)=>{
+    var t=r.total;
+    var pct=DIAS>0?Math.round((DIAS-t)/DIAS*100):0;
+    var est,bg;
+    if(t>=10){est='🔴 Crítico';bg='#FDE8E8';}else if(t>=7){est='🟠 Acum.';bg='#FDF0E8';}else if(t>=5){est='🟡 Interm.';bg='#FDFAE8';}else{est='✅';bg=i%2===0?'#fff':'#F5F2EE';}
+    var celdasMes=r.porMes.map(function(n){return '<td style="padding:5px 3px;text-align:center;font-size:11px;">'+n+'</td>';}).join('');
+    return '<tr style="background:'+bg+';"><td style="padding:5px;font-size:10px;">'+r.a+'</td>'+celdasMes+'<td style="padding:5px 3px;text-align:center;font-size:11px;font-weight:bold;">'+t+'</td><td style="padding:5px 3px;text-align:center;font-size:11px;">'+pct+'%</td><td style="padding:5px;font-size:10px;">'+est+'</td></tr>';
+  }).join('');
+}
 
 // ── PROMPTS ──
 function togglePrompts(){var s=document.getElementById('prompts-sec');s.style.display=s.style.display==='none'?'block':'none';}
@@ -6843,9 +6997,20 @@ if(document.readyState==='loading'){
         <div class="tipo-btn" onclick="selTrimBoletin(this,'3')" id="tb-3">3er Trimestre</div>
       </div>
     </div>
+    <div class="form-row"><label>Alumnos</label>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:5px 0 7px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--verde);cursor:pointer;">
+          <input type="checkbox" id="boletin-check-todos" checked onchange="toggleTodosAlumnosBoletin(this)"> Seleccionar todos
+        </label>
+        <span id="boletin-alumnos-count" style="font-size:11px;color:var(--gris);"></span>
+      </div>
+      <div id="boletin-lista-alumnos" style="max-height:180px;overflow-y:auto;border:1.5px solid var(--gris-claro);border-radius:9px;padding:8px 10px;background:var(--crema);">
+        <div style="font-size:11px;color:var(--gris);text-align:center;padding:10px;">Cargando alumnos…</div>
+      </div>
+    </div>
     <div style="background:var(--verde-bg);border-radius:9px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--negro);">
       <div style="font-weight:600;margin-bottom:5px;">¿Cómo funciona?</div>
-      Claude lee todas las observaciones y evidencias del período y genera los 19 informes narrativos manteniendo el formato y tono del modelo de boletín. Cada informe tiene el tamaño de recuadro estándar (11.5cm x 2.5cm).
+      Claude lee todas las observaciones y evidencias del período y genera los informes narrativos de los alumnos seleccionados, manteniendo el formato y tono del modelo de boletín. Cada informe tiene el tamaño de recuadro estándar (11.5cm x 2.5cm).
     </div>
     <div class="form-row"><label>Información adicional (opcional)</label>
       <textarea id="boletin-contexto" placeholder="Ej: El 2do trimestre tuvo mucho foco en divisiones y comprensión lectora inferencial..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:70px;resize:none;box-sizing:border-box;"></textarea>
@@ -7227,5 +7392,6 @@ if(document.readyState==='loading'){
     </div>
   </div>
 </div>
+<div id="print-container"></div>
 </body>
 </html>
