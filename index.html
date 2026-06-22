@@ -2869,7 +2869,7 @@ async function generarPerfilAcademico(){
   }
   var asistTextoPrompt='ASISTENCIA: '+(pctAsistNumero!==null?pctAsistTexto:'Sin registros de asistencia cargados en el sistema.')+'\n';
 
-  var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026. Docente: Nicolás Radaelli.\n\n';
+  var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026. Docente: '+(window.__teacherName||'Docente')+'.\n\n';
   prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, NO agregues datos que no estén aquí. Si hay campos vacíos o sin datos, indicalo explícitamente en el informe.\n\n';
   prompt+='DATOS REALES DEL ALUMNO EN EL SISTEMA:\n\n';
   prompt+='NOTAS 1er TRIMESTRE (aprobado: 7):\n'+notasTexto+'\n\n';
@@ -3080,7 +3080,7 @@ async function generarInforme(){
     });
   }
 
-  var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: Nicolás Radaelli. Fecha: '+fecha+'.\n\n';
+  var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: '+(window.__teacherName||'Docente')+'. Fecha: '+fecha+'.\n\n';
   prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, actitudes ni situaciones que no estén registradas. Si hay campos sin datos, indicalo con "sin datos registrados". El informe debe ser honesto sobre la información disponible.\n\n';
   prompt+='DATOS REALES EN EL SISTEMA:\n';
   prompt+='- Notas 1er Trimestre: '+notasTexto2+'\n';
@@ -3156,7 +3156,7 @@ function imprimirPerfilAcademicoDoc(nombre,iniciales,promedio,asistencia,atencio
     +'<div class="stat"><div class="stat-num">'+atencion+'</div><div class="stat-label">Atención</div></div>'
     +'</div>'
     +'<div class="cuerpo">'+contenidoTexto+'</div>'
-    +'<div class="firma" style="margin:0 30px 30px;"><strong>Nicolás Radaelli</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
+    +'<div class="firma" style="margin:0 30px 30px;"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
     +'</div></body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
@@ -3180,7 +3180,7 @@ function imprimirInforme(nombre,tipo,htmlContent){
     +'<div class="tipo">'+tipo+'</div>'
     +'<div class="meta">'+nombre+' · 6to Año · 2026 · '+fecha+'</div></div>'
     +htmlContent
-    +'<div class="firma"><div><strong>Nicolás Radaelli</strong></div><div>Docente de 6to Año</div><div>Escuela La Concepción · Tigre</div></div>'
+    +'<div class="firma"><div><strong>'+(window.__teacherName||'Docente')+'</strong></div><div>Docente de 6to Año</div><div>Escuela La Concepción · Tigre</div></div>'
     +'</body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
@@ -5036,7 +5036,7 @@ async function cargarHistorialReuniones(){
       +'</div>';
   }).join('');
 }
-function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Año · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>Nicolás Radaelli</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Año 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
+function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Año · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>'+(window.__teacherName||'Docente')+'</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Año 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
 
@@ -5565,7 +5565,7 @@ async function generarLegajoEgreso(studentId,nombre){
   prompt+='NOTAS: '+notasTexto+'\n';
   prompt+='ASISTENCIA: Presentes: '+att.presente+' / Ausentes: '+att.ausente+' / Tardanzas: '+att.tardanza+' / Justificados: '+att.justificado+'\n';
   prompt+='OBSERVACIONES:\n'+obsTexto+'\n\n';
-  prompt+='Generá un legajo de egreso formal con encabezado institucional, resumen del trayecto escolar, síntesis académica, observaciones, fecha de egreso '+fecha+', firma Nicolás Radaelli. Legajo escolar argentino, 200-300 palabras.';
+  prompt+='Generá un legajo de egreso formal con encabezado institucional, resumen del trayecto escolar, síntesis académica, observaciones, fecha de egreso '+fecha+', firma '+(window.__teacherName||'Docente')+'. Legajo escolar argentino, 200-300 palabras.';
 
   var loadDiv=document.createElement('div');
   loadDiv.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--blanco);border-radius:16px;padding:28px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:3000;';
@@ -5803,8 +5803,8 @@ async function borrarApiKeyConfig(){
 function actualizarEstadoApiKeys(){
   var ant=_sget('huellaed_anthropic_key');
   var gem=_sget('huellaed_gemini_key');
-  var elAnt=document.getElementById('estado-anthropic');
-  var elGem=document.getElementById('estado-gemini');
+  var elAnt=document.getElementById('estado-anthropic-perfil');
+  var elGem=document.getElementById('estado-gemini-perfil');
   if(elAnt)elAnt.innerHTML=ant?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
   if(elGem)elGem.innerHTML=gem?'<span style="color:var(--verde);">✅ Configurada</span>':'<span style="color:#C0392B;">⚠️ No configurada</span>';
 }
@@ -5869,7 +5869,7 @@ async function generarDEI(){
   prompt+='Domicilio: '+(g('dei-domicilio')||'No informado')+'\n';
   prompt+='Escuela: Escuela La Concepción, Tigre\n';
   prompt+='Año que cursa: 6to Año\n';
-  prompt+='Docente de referencia 2026: Nicolás Radaelli\n';
+  prompt+='Docente de referencia 2026: '+(window.__teacherName||'Docente')+'\n';
   prompt+='Fecha de inicio DEI: '+(g('dei-inicio')||'No informada')+'\n\n';
   
   prompt+='NOTAS REGISTRADAS EN EL SISTEMA: '+notasTexto+'\n\n';
@@ -6049,7 +6049,7 @@ async function caGenerarPerfil(){
       }
     }catch(e4){}
   }
-  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: Nicolás Radaelli. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
+  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
@@ -6121,7 +6121,7 @@ function imprimirPerfilAulicoDoc(){
     +'<div class="hero"><div class="hero-tit">6to Año · Perfil del grupo</div><div class="hero-sub">19 alumnos · Escuela La Concepción · Tigre · '+fecha+'</div></div>'
     +'<div class="dims">'+dimsHtml+'</div>'
     +'<div class="cuerpo">'+contenidoTexto+'</div>'
-    +'<div class="firma"><strong>Nicolás Radaelli</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
+    +'<div class="firma"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
     +'</div></body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
