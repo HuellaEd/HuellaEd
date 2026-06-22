@@ -805,7 +805,9 @@ App: https://huellaed.github.io/HuellaEd/</div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
       <label style="font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;">Fecha</label>
       <input type="date" id="asist-fecha" onchange="cargarAsistenciaFecha()" style="flex:1;padding:8px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);">
+      <button onclick="abrirCancelarDia()" style="background:var(--terracota-bg);color:var(--terracota);border:1.5px solid var(--terracota);border-radius:9px;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;" title="Marcar este día como sin clase (suspendido por marea, bajante, u otro motivo)">🌊 Cancelar día</button>
     </div>
+    <div id="asist-dia-cancelado-aviso" style="display:none;background:var(--terracota-bg);border-radius:9px;padding:8px 12px;margin-bottom:10px;font-size:11.5px;color:var(--terracota);"></div>
     <div id="asist-resumen" style="display:none;background:var(--verde-bg);border-radius:9px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--verde);line-height:1.6;"></div>
     <div id="asist-lista" style="margin-bottom:16px;"></div>
     <div id="asist-msg" style="font-size:12px;text-align:center;margin-bottom:10px;display:none;"></div>
@@ -1680,6 +1682,48 @@ var DIAS_INASISTENCIA_AVISO=3;
 var DIAS_SIN_OBSERVACION_AVISO=14;
 var MESES_PAF_DESACTUALIZADO=3;
 
+// ── CALENDARIO ESCOLAR 2026 ──
+// Escuela de islas (Tigre) — sujeta a suspensión de clases por mareas/bajantes, que no se
+// puede predecir con un algoritmo. La fuente de verdad real es la tabla 'dias_cancelados'
+// (cargada a mano por el docente con el botón "Cancelar día"), no un cálculo automático.
+var CICLO_LECTIVO_INICIO='2026-03-02';
+var CICLO_LECTIVO_FIN='2026-12-22';
+var RECESO_INVIERNO_INICIO='2026-07-20';
+var RECESO_INVIERNO_FIN='2026-07-31';
+var _diasCanceladosCache=null; // se carga una vez por sesión desde Supabase, ver cargarDiasCancelados()
+
+function esFinDeSemana(fechaStr){
+  var d=new Date(fechaStr+'T12:00:00');
+  var dia=d.getDay(); // 0=domingo, 6=sábado
+  return dia===0||dia===6;
+}
+function esRecesoInvierno(fechaStr){
+  return fechaStr>=RECESO_INVIERNO_INICIO&&fechaStr<=RECESO_INVIERNO_FIN;
+}
+function esFueraDeCicloLectivo(fechaStr){
+  return fechaStr<CICLO_LECTIVO_INICIO||fechaStr>CICLO_LECTIVO_FIN;
+}
+async function cargarDiasCancelados(teacherId){
+  if(_diasCanceladosCache)return _diasCanceladosCache;
+  if(!window.__sb)return [];
+  try{
+    var {data}=await window.__sb.from('dias_cancelados').select('date,motivo').eq('teacher_id',teacherId);
+    _diasCanceladosCache=(data||[]).map(function(d){return d.date;});
+    return _diasCanceladosCache;
+  }catch(e){
+    console.log('Error al cargar días cancelados:',e);
+    return [];
+  }
+}
+async function esDiaDeClase(fechaStr,teacherId){
+  if(esFinDeSemana(fechaStr))return false;
+  if(esRecesoInvierno(fechaStr))return false;
+  if(esFueraDeCicloLectivo(fechaStr))return false;
+  var cancelados=await cargarDiasCancelados(teacherId);
+  if(cancelados.indexOf(fechaStr)>-1)return false;
+  return true;
+}
+
 async function cargarAvisosAutomaticos(students,teacherId){
   if(!window.__sb||!students||!students.length)return;
   try{
@@ -1745,6 +1789,17 @@ async function cargarAvisosAutomaticos(students,teacherId){
       }
     });
 
+    // 4) Asistencia no tomada hoy (solo si hoy es día de clase real, según calendario + días cancelados)
+    var hoyStr=ahora.toISOString().slice(0,10);
+    var hoyEsDeClase=await esDiaDeClase(hoyStr,teacherId);
+    if(hoyEsDeClase){
+      var seTomoHoy=asistencias?asistencias.some(function(a){return a.date===hoyStr;}):false;
+      if(!seTomoHoy){
+        avisos.push({tipo:'asistencia_pendiente',studentId:null,nombre:null,
+          detalle:'Todavía no se tomó asistencia hoy ('+ahora.toLocaleDateString('es-AR')+')'});
+      }
+    }
+
     renderizarAvisosAutomaticos(avisos);
   }catch(e){console.log('Error al calcular avisos automáticos:',e);}
 }
@@ -1753,15 +1808,21 @@ function renderizarAvisosAutomaticos(avisos){
   var panel=document.getElementById('panel-avisos');
   if(!panel)return;
   if(!avisos||!avisos.length){panel.style.display='none';panel.innerHTML='';return;}
-  var iconos={inasistencia:'📅',sin_observacion:'📝',paf_desactualizado:'🔄'};
-  var titulos={inasistencia:'Inasistencias seguidas',sin_observacion:'Sin observaciones recientes',paf_desactualizado:'PAF desactualizado'};
+  var iconos={inasistencia:'📅',sin_observacion:'📝',paf_desactualizado:'🔄',asistencia_pendiente:'🗒️'};
+  var titulos={inasistencia:'Inasistencias seguidas',sin_observacion:'Sin observaciones recientes',paf_desactualizado:'PAF desactualizado',asistencia_pendiente:'Asistencia pendiente'};
+  var avisosAlumno=avisos.filter(function(a){return a.studentId;}).length;
+  var tituloGeneral=avisosAlumno>0
+    ?'⚠️ '+avisosAlumno+' alumno'+(avisosAlumno>1?'s':'')+' necesitan atención'
+    :'⚠️ Atención';
   panel.innerHTML='<div style="background:var(--terracota-bg);border:1.5px solid var(--terracota);border-radius:14px;padding:14px 16px;">'
-    +'<div style="font-size:11px;font-weight:800;color:var(--terracota);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">⚠️ '+avisos.length+' alumno'+(avisos.length>1?'s':'')+' necesitan atención</div>'
+    +'<div style="font-size:11px;font-weight:800;color:var(--terracota);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">'+tituloGeneral+'</div>'
     +avisos.map(function(a){
-      return '<div onclick="abrirPerfilAcademico(\''+a.studentId+'\')" style="display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid rgba(0,0,0,.06);cursor:pointer;">'
+      var clickAttr=a.studentId?(' onclick="abrirPerfilAcademico(\''+a.studentId+'\')" style="cursor:pointer;"'):' style="cursor:default;"';
+      var nombreMostrar=a.nombre||titulos[a.tipo];
+      return '<div'+clickAttr+' style="display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid rgba(0,0,0,.06);">'
         +'<span style="font-size:16px;">'+iconos[a.tipo]+'</span>'
-        +'<div><div style="font-size:12.5px;font-weight:700;color:var(--negro);">'+a.nombre+'</div>'
-        +'<div style="font-size:11px;color:var(--gris);">'+titulos[a.tipo]+' — '+a.detalle+'</div></div>'
+        +'<div><div style="font-size:12.5px;font-weight:700;color:var(--negro);">'+nombreMostrar+'</div>'
+        +'<div style="font-size:11px;color:var(--gris);">'+(a.nombre?titulos[a.tipo]+' — ':'')+a.detalle+'</div></div>'
         +'</div>';
     }).join('')
     +'</div>';
@@ -5103,9 +5164,46 @@ function cerrarAsistencia() {
   document.getElementById('modal-asistencia').style.display = 'none';
 }
 
+async function abrirCancelarDia(){
+  var fecha=document.getElementById('asist-fecha').value;
+  if(!fecha){alert('Elegí primero una fecha.');return;}
+  var fechaLegible=new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  var motivo=window.prompt('¿Por qué motivo se cancela el '+fechaLegible+'? (ej: "Bajante", "Marea alta", "Paro")');
+  if(motivo===null)return; // canceló el prompt
+  await confirmarCancelarDia(fecha,motivo.trim()||'Sin motivo especificado');
+}
+async function confirmarCancelarDia(fecha,motivo){
+  if(!window.__sb)return;
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    var {error}=await window.__sb.from('dias_cancelados').upsert({
+      teacher_id:user.id,date:fecha,motivo:motivo
+    },{onConflict:'teacher_id,date'});
+    if(error)throw error;
+    _diasCanceladosCache=null; // invalidar cache para que se recargue con el dato nuevo
+    alert('✅ Día '+fecha+' marcado como cancelado ('+motivo+').');
+    cargarAsistenciaFecha();
+  }catch(e){
+    console.log('Error al cancelar día:',e);
+    alert('⚠️ No se pudo guardar la cancelación. Probá de nuevo.');
+  }
+}
+
 async function cargarAsistenciaFecha() {
   var fecha = document.getElementById('asist-fecha').value;
   if (!fecha || !window.__students || !window.__students.length) return;
+
+  var avisoCancelado=document.getElementById('asist-dia-cancelado-aviso');
+  if(avisoCancelado){
+    var user0=(await window.__sb.auth.getUser()).data.user;
+    var cancelados0=await cargarDiasCancelados(user0.id);
+    if(cancelados0.indexOf(fecha)>-1){
+      avisoCancelado.style.display='block';
+      avisoCancelado.textContent='🌊 Este día está marcado como SIN CLASE (cancelado). Si tomás asistencia igual, se va a guardar, pero no va a contar para la alerta de "asistencia pendiente".';
+    }else{
+      avisoCancelado.style.display='none';
+    }
+  }
 
   var nuevaAsistencia = {};
   window.__students.forEach(function(s) {
