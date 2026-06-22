@@ -1092,7 +1092,7 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <input type="text" id="adj-desc" placeholder="Ej: Informe psicopedagógico 2024" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
     </div>
     <div class="form-row">
-      <label>Archivo <span style="font-size:10px;color:var(--gris);font-weight:400;">(PDF o imagen — Word todavía no se puede analizar automáticamente, solo queda archivado)</span></label>
+      <label>Archivo <span style="font-size:10px;color:var(--gris);font-weight:400;">(PDF, imagen o Word — todos se analizan automáticamente)</span></label>
       <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:12px;cursor:pointer;">
         <span style="font-size:22px;">📎</span>
         <span id="adj-archivo-label" style="font-size:12px;color:var(--gris);">Seleccionar archivo</span>
@@ -3138,6 +3138,18 @@ function cerrarModalInforme(){
   document.getElementById('modal-informe').style.display='none';
 }
 
+// Instrucciones específicas por tipo de informe — usadas dentro de generarInforme().
+// Antes de esto, la variable 'instrucciones' nunca se definía como objeto en ningún lado
+// accesible, y la función rompía en silencio (ReferenceError) apenas se tocaba el botón
+// "Generar informe", sin mostrar ningún mensaje de error visible al docente.
+var instrucciones={
+  fin_ano:'Redactá un informe de cierre de trayectoria escolar primaria, orientado a facilitar la transición al nivel secundario. Incluí: síntesis del desempeño académico del año, fortalezas a sostener, aspectos a reforzar, y cualquier adaptación o apoyo que convenga continuar en el nivel siguiente. Tono institucional, dirigido a quien recibirá al alumno en la nueva escuela o sección.',
+  psicopedagoga:'Redactá un informe técnico-pedagógico orientado a un profesional de psicopedagogía externo a la escuela. Priorizá la descripción objetiva de comportamientos observables, dificultades de aprendizaje detectadas, y estrategias ya probadas por el docente (qué funcionó, qué no). Evitá diagnósticos o etiquetas clínicas — el docente no es quien diagnostica, solo describe lo observado en el aula.',
+  eoe:'Redactá un informe dirigido al Equipo de Orientación Escolar, siguiendo el formato habitual de solicitud de intervención: motivo de la consulta, antecedentes pedagógicos relevantes, estrategias áulicas ya implementadas, y qué tipo de apoyo o intervención se está solicitando del equipo. Tono formal, orientado a fundamentar la necesidad de intervención.',
+  familia:'Redactá un informe pensado para compartir y conversar con la familia del alumno. Usá un tono cercano y claro, evitando jerga técnica o pedagógica que la familia no entendería. Priorizá comunicar avances concretos, áreas que necesitan acompañamiento desde el hogar, y sugerencias prácticas que la familia pueda aplicar.',
+  trimestral:'Redactá un informe de seguimiento del trimestre, organizado por área (notas, conducta, asistencia) y por observaciones cualitativas del período. Es un informe de uso interno/institucional, no para entregar directamente a la familia. Tono profesional y descriptivo, sin necesidad de simplificar el lenguaje técnico.',
+  otro:'Redactá un informe académico general del alumno, con la información disponible. Si no se especificó un destinatario, asumí que es de uso institucional interno. Mantené un tono profesional y objetivo, basado exclusivamente en los datos reales provistos.'
+};
 async function generarInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
@@ -5816,7 +5828,8 @@ async function subirDocumentoAlumno(){
   // Analizar el contenido del documento y mostrar el resultado ANTES de cerrar el modal,
   // para que el docente vea qué se extrajo realmente (trazabilidad inmediata).
   var mimeType=archivoParaAnalizar.type||'';
-  var esAnalizable=mimeType==='application/pdf'||mimeType.indexOf('image/')===0;
+  var extArchivo=(archivoParaAnalizar.name||'').split('.').pop().toLowerCase();
+  var esAnalizable=mimeType==='application/pdf'||mimeType.indexOf('image/')===0||extArchivo==='doc'||extArchivo==='docx';
   if(esAnalizable&&_sget('huellaed_anthropic_key')){
     preview.style.display='block';
     preview.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:var(--verde);"><span>⏳</span> Analizando el contenido del documento…</div>';
@@ -5839,23 +5852,46 @@ async function analizarDocumentoAdjunto(archivo,studentId,teacherId,tipo,desc){
   var apiKey=_sget('huellaed_anthropic_key');
   if(!apiKey){console.log('Sin clave de API: no se analizó el contenido del documento adjunto.');return null;}
   var mimeType=archivo.type||'';
+  var ext=(archivo.name||'').split('.').pop().toLowerCase();
   var esPdf=mimeType==='application/pdf';
   var esImagen=mimeType.indexOf('image/')===0;
-  if(!esPdf&&!esImagen){
-    // Word, Excel y otros formatos no tienen soporte directo de lectura en la API hoy.
+  var esWord=ext==='doc'||ext==='docx';
+  if(!esPdf&&!esImagen&&!esWord){
+    // Excel y otros formatos todavía no tienen soporte de lectura automática.
     console.log('Tipo de archivo no analizable automáticamente todavía:',mimeType);
     return null;
   }
   try{
-    var base64=await new Promise(function(resolve,reject){
-      var reader=new FileReader();
-      reader.onload=function(){resolve(reader.result.split(',')[1]);};
-      reader.onerror=reject;
-      reader.readAsDataURL(archivo);
-    });
-    var contenidoMsg=esPdf
-      ?{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}}
-      :{type:'image',source:{type:'base64',media_type:mimeType,data:base64}};
+    var contenidoMsg;
+    if(esWord){
+      // La API de Anthropic no acepta .docx como documento binario — hay que extraer el
+      // texto plano en el navegador (mammoth.js, ya cargado en este proyecto) y mandarlo
+      // como texto, en vez del archivo. Ver: docs de Anthropic, Files API, manejo de .docx.
+      var arrayBuffer=await archivo.arrayBuffer();
+      var resultadoMammoth=await mammoth.extractRawText({arrayBuffer:arrayBuffer});
+      var textoWord=(resultadoMammoth.value||'').trim();
+      if(!textoWord){
+        console.log('No se pudo extraer texto del Word (puede estar vacío o ser un formato no soportado).');
+        return null;
+      }
+      contenidoMsg={type:'text',text:'Contenido del documento Word:\n\n'+textoWord};
+    }else if(esPdf){
+      var base64=await new Promise(function(resolve,reject){
+        var reader=new FileReader();
+        reader.onload=function(){resolve(reader.result.split(',')[1]);};
+        reader.onerror=reject;
+        reader.readAsDataURL(archivo);
+      });
+      contenidoMsg={type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}};
+    }else{
+      var base64Img=await new Promise(function(resolve,reject){
+        var reader=new FileReader();
+        reader.onload=function(){resolve(reader.result.split(',')[1]);};
+        reader.onerror=reject;
+        reader.readAsDataURL(archivo);
+      });
+      contenidoMsg={type:'image',source:{type:'base64',media_type:mimeType,data:base64Img}};
+    }
     var instruccion='Este es un documento de tipo "'+tipo+'"'+(desc?' ("'+desc+'")':'')+' adjuntado al perfil de un alumno de escuela primaria en Argentina. Resumí en un párrafo breve (máximo 5 líneas) qué información relevante contiene para el seguimiento pedagógico del alumno (diagnósticos, recomendaciones, observaciones de especialistas, etc.). Si el documento no es legible o no tiene contenido relevante para seguimiento escolar, decilo explícitamente. No inventes información que no esté en el documento.';
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
