@@ -1092,15 +1092,16 @@ App: https://huellaed.github.io/HuellaEd/</div>
       <input type="text" id="adj-desc" placeholder="Ej: Informe psicopedagógico 2024" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);font-family:inherit;box-sizing:border-box;">
     </div>
     <div class="form-row">
-      <label>Archivo <span style="font-size:10px;color:var(--gris);font-weight:400;">(PDF, imagen o Word)</span></label>
+      <label>Archivo <span style="font-size:10px;color:var(--gris);font-weight:400;">(PDF o imagen — Word todavía no se puede analizar automáticamente, solo queda archivado)</span></label>
       <label style="display:flex;align-items:center;gap:10px;background:var(--crema);border:1.5px dashed var(--gris-claro);border-radius:10px;padding:12px;cursor:pointer;">
         <span style="font-size:22px;">📎</span>
         <span id="adj-archivo-label" style="font-size:12px;color:var(--gris);">Seleccionar archivo</span>
         <input type="file" id="adj-archivo" accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="seleccionarArchivoAdj(this)">
       </label>
     </div>
-    <button onclick="subirDocumentoAlumno()" class="save-btn">💾 Guardar en perfil del alumno</button>
+    <button id="adj-guardar-btn" onclick="subirDocumentoAlumno()" class="save-btn">💾 Guardar en perfil del alumno</button>
     <div id="adj-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
+    <div id="adj-analisis-preview" style="display:none;margin-top:12px;background:var(--verde-bg);border-radius:9px;padding:12px;font-size:12px;color:var(--negro);line-height:1.5;"></div>
   </div>
 </div>
 
@@ -5785,9 +5786,13 @@ async function subirDocumentoAlumno(){
   var tipo=document.getElementById('adj-tipo').value;
   var desc=document.getElementById('adj-desc').value.trim();
   var msg=document.getElementById('adj-msg');
+  var preview=document.getElementById('adj-analisis-preview');
+  var btnGuardar=document.getElementById('adj-guardar-btn');
+  preview.style.display='none';preview.innerHTML='';
   if(!studentId){msg.style.color='#C0392B';msg.textContent='Seleccioná un alumno';return;}
   if(!window._adjFile){msg.style.color='#C0392B';msg.textContent='Seleccioná un archivo';return;}
   if(!window.__sb){msg.style.color='#C0392B';msg.textContent='Sin conexión';return;}
+  if(btnGuardar){btnGuardar.disabled=true;btnGuardar.textContent='Subiendo...';}
   msg.style.color='var(--gris)';msg.textContent='Subiendo...';
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
@@ -5796,31 +5801,50 @@ async function subirDocumentoAlumno(){
   var nombre=(desc||tipo).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').replace(/ /g,'_').substring(0,40)+'_'+new Date().toISOString().slice(0,10)+'.'+ext;
   var path=user.id+'/'+studentId+'/docs/'+nombre;
   var {error}=await window.__sb.storage.from('evidencias').upload(path,archivoAdj);
-  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;return;}
+  if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;if(btnGuardar){btnGuardar.disabled=false;btnGuardar.textContent='💾 Guardar en perfil del alumno';}return;}
   // Registrar como observación en el perfil (aviso genérico inmediato; el análisis del
   // CONTENIDO del documento, si es posible, se agrega después como una segunda observación)
   var textoObs='[Documento: '+tipo+(desc?' · '+desc:'')+' · '+new Date().toLocaleDateString('es-AR')+'] Archivado en el perfil del alumno.';
   await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:user.id,content:textoObs});
   msg.style.color='var(--verde)';msg.textContent='✅ Documento guardado en el perfil';
+  var archivoParaAnalizar=archivoAdj;
   window._adjFile=null;
   document.getElementById('adj-archivo').value='';
   document.getElementById('adj-archivo-label').textContent='Seleccionar archivo';
   document.getElementById('adj-desc').value='';
-  setTimeout(cerrarAdjuntarDocumento,1500);
-  // Analizar el contenido del documento en segundo plano (no bloquea el cierre del modal)
-  analizarDocumentoAdjunto(archivoAdj,studentId,user.id,tipo,desc);
+
+  // Analizar el contenido del documento y mostrar el resultado ANTES de cerrar el modal,
+  // para que el docente vea qué se extrajo realmente (trazabilidad inmediata).
+  var mimeType=archivoParaAnalizar.type||'';
+  var esAnalizable=mimeType==='application/pdf'||mimeType.indexOf('image/')===0;
+  if(esAnalizable&&_sget('huellaed_anthropic_key')){
+    preview.style.display='block';
+    preview.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:var(--verde);"><span>⏳</span> Analizando el contenido del documento…</div>';
+    if(btnGuardar)btnGuardar.textContent='Analizando…';
+    var resumen=await analizarDocumentoAdjunto(archivoParaAnalizar,studentId,user.id,tipo,desc);
+    if(resumen){
+      preview.innerHTML='<div style="font-weight:700;color:var(--verde);margin-bottom:5px;">📋 Esto se extrajo del documento (ya guardado en el perfil del alumno):</div>'
+        +'<div style="white-space:pre-wrap;">'+resumen+'</div>';
+    }else{
+      preview.innerHTML='<div style="color:var(--terracota);">⚠️ No se pudo extraer un resumen del documento (puede no ser legible, o hubo un error de conexión). El archivo de todas formas quedó guardado en el perfil.</div>';
+    }
+  }else if(!esAnalizable){
+    preview.style.display='block';
+    preview.innerHTML='<div style="color:var(--gris);">ℹ️ Este tipo de archivo (Word u otro) todavía no se puede analizar automáticamente — quedó archivado en el perfil, pero sin resumen de contenido.</div>';
+  }
+  if(btnGuardar){btnGuardar.disabled=false;btnGuardar.textContent='💾 Guardar en perfil del alumno';}
 }
 
 async function analizarDocumentoAdjunto(archivo,studentId,teacherId,tipo,desc){
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){console.log('Sin clave de API: no se analizó el contenido del documento adjunto.');return;}
+  if(!apiKey){console.log('Sin clave de API: no se analizó el contenido del documento adjunto.');return null;}
   var mimeType=archivo.type||'';
   var esPdf=mimeType==='application/pdf';
   var esImagen=mimeType.indexOf('image/')===0;
   if(!esPdf&&!esImagen){
     // Word, Excel y otros formatos no tienen soporte directo de lectura en la API hoy.
     console.log('Tipo de archivo no analizable automáticamente todavía:',mimeType);
-    return;
+    return null;
   }
   try{
     var base64=await new Promise(function(resolve,reject){
@@ -5851,8 +5875,10 @@ async function analizarDocumentoAdjunto(archivo,studentId,teacherId,tipo,desc){
       var textoObsAnalisis='[Análisis de documento: '+tipo+(desc?' · '+desc:'')+' · '+new Date().toLocaleDateString('es-AR')+']\n'+resumen;
       await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:teacherId,content:textoObsAnalisis});
     }
+    return resumen||null;
   }catch(eAnalisis){
     console.log('No se pudo analizar el contenido del documento adjunto:',eAnalisis);
+    return null;
   }
 }
 
