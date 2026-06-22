@@ -4492,6 +4492,28 @@ async function enviarAClaudeConArchivo(promptText){
   var btn=document.getElementById('gen-btn');
   btn.disabled=true;btn.textContent='⏳ Consultando a Claude…';
   var contentParts=[];
+  // Si hay un mapa del IGN seleccionado (Ciencias Sociales), incluirlo como imagen real —
+  // antes se ignoraba en este flujo, y las consignas que pedían comparar/leer mapas quedaban
+  // sin soporte en el material generado (ver Regla 13, protocolo HuellaED 22/6).
+  var mapaIncluido=false;
+  if(_mapaSeleccionActual&&_mapaSeleccionActual.archivo){
+    try{
+      var respMapa=await fetch(_mapaSeleccionActual.archivo);
+      if(respMapa.ok){
+        var blobMapa=await respMapa.blob();
+        var base64Mapa=await new Promise(function(resolve,reject){
+          var readerMapa=new FileReader();
+          readerMapa.onload=function(){resolve(readerMapa.result.split(',')[1]);};
+          readerMapa.onerror=reject;
+          readerMapa.readAsDataURL(blobMapa);
+        });
+        contentParts.push({type:'image',source:{type:'base64',media_type:blobMapa.type||'image/jpeg',data:base64Mapa}});
+        mapaIncluido=true;
+      }
+    }catch(eMapa){
+      console.log('No se pudo incluir el mapa seleccionado en el adjunto:',eMapa);
+    }
+  }
   if(_genAdjuntoBase64){
     if(_genAdjuntoIsPDF){
       contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});
@@ -4500,6 +4522,7 @@ async function enviarAClaudeConArchivo(promptText){
     }
   }
   var promptTextConAdjunto=_genAdjuntoTexto?(promptText+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):promptText;
+  if(mapaIncluido)promptTextConAdjunto+='\n\nNOTA: te adjunté también el mapa "'+_mapaSeleccionActual.nombre+'" como imagen. Si alguna consigna requiere mirar, leer o comparar ese mapa, mencionalo y aprovechalo en la consigna — el mapa va a estar incluido en el cuadernillo final, así que es seguro pedirle al alumno que lo use.';
   contentParts.push({type:'text',text:promptTextConAdjunto});
   var LIMITES_FORMATO_ADJ={
     entera:'Maximo 2 paginas, 4-6 secciones por pagina.',
@@ -4508,7 +4531,24 @@ async function enviarAClaudeConArchivo(promptText){
   var areaParaIconosAdj=document.getElementById('gen-area').value;
   var esAreaMateAdj=(areaParaIconosAdj||'').toLowerCase().indexOf('matem')>-1;
   var instrIconosMateAdj=esAreaMateAdj?' Esto es de Matematica: en cada seccion donde tenga sentido, agrega "iconosMate": un array de 1 a 4 nombres de iconos a usar como apoyo visual, elegidos de esta lista exacta: circulo, cuadrado, triangulo, rectangulo, pentagono, hexagono, rombo, suma, resta, multiplicacion, division, igual, reloj, balanza, regla, monedas, o grupo_N donde N es un numero del 1 al 10. Si no aplica, dejalo vacio [].':'';
-  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada. Si el usuario adjunto un archivo (cuento, texto, imagen, documento), usalo solo como REFERENCIA para entender el tema y generar actividades coherentes con su contenido — pero NUNCA reproduzcas el texto completo del archivo adjunto en el material generado. El alumno ya tiene ese material aparte, en papel. Generá unicamente actividades (preguntas, ejercicios, tablas, espacios para responder) sobre el contenido, no el contenido en si. Tampoco incluyas ninguna nota dirigida a la docente — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+' Lenguaje directo al alumno.';
+  // Regla de inclusión de soporte por defecto, invertida según el área (confirmada 22/6):
+  // - Prácticas del Lenguaje: el texto/cuento NO se reproduce — el alumno lo recibe aparte, en papel.
+  // - Ciencias Sociales y Ciencias Naturales: el soporte SÍ se incluye — mapas, textos informativos,
+  //   tablas, etc. Si no se incluye, las consignas que dependen de ese soporte quedan irresolubles
+  //   (esto pasó realmente el 21/6: un cuadernillo de Sociales pidió comparar dos mapas que nunca
+  //   se incluyeron en el material, dejando al alumno sin forma de responder).
+  var areaLowerAdj=(areaParaIconosAdj||'').toLowerCase();
+  var esLenguaAdj=areaLowerAdj.indexOf('lenguaje')>-1||areaLowerAdj.indexOf('lengua')>-1;
+  var esCienciasAdj=areaLowerAdj.indexOf('social')>-1||areaLowerAdj.indexOf('natural')>-1;
+  var instrSoporteAdj;
+  if(esLenguaAdj){
+    instrSoporteAdj=' Si el usuario adjuntó un cuento, fábula o relato literario, usalo solo como REFERENCIA para entender el tema y generar actividades coherentes con su contenido — pero NUNCA reproduzcas el texto completo del cuento/relato en el material generado. El alumno ya tiene ese texto aparte, en papel. Generá únicamente actividades (preguntas, ejercicios, tablas, espacios para responder) sobre el contenido, no el contenido en sí.';
+  }else if(esCienciasAdj){
+    instrSoporteAdj=' Si el usuario adjuntó un documento con mapas, textos informativos, tablas de datos o imágenes (por ejemplo una secuencia didáctica), y alguna consigna que generes requiere ese soporte para poder resolverse (comparar mapas, leer un texto, interpretar una tabla), INCLUÍ ese soporte directamente en el cuadernillo generado — no asumas que el alumno ya lo tiene por separado. Si el soporte es un mapa o imagen, describilo en un campo "imagenReferencia" con una descripción clara de qué imagen mostrar; si es texto informativo breve, incluilo en un campo "textoApoyo" dentro de la sección correspondiente. Nunca generes una consigna que dependa de un soporte que no esté presente en el material.';
+  }else{
+    instrSoporteAdj=' Si el usuario adjuntó un archivo, usalo como referencia para entender el tema. Si alguna consigna requiere que el alumno vea o lea algo del adjunto para poder resolverla, incluí ese contenido necesario en el material — no generes consignas irresolubles por falta de soporte.';
+  }
+  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada.'+instrSoporteAdj+' Tampoco incluyas ninguna nota dirigida a la docente — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+' Lenguaje directo al alumno.';
   var headers={
     'x-api-key':apiKey,
     'anthropic-version':'2023-06-01',
@@ -5739,12 +5779,12 @@ async function generarLegajoEgreso(studentId,nombre){
   }
   
   var fecha=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
-  var prompt='Generá el LEGAJO DE EGRESO de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026.\n\n';
-  prompt+='INSTRUCCIÓN: Solo usá los datos reales. No inventés información.\n\n';
-  prompt+='NOTAS: '+notasTexto+'\n';
-  prompt+='ASISTENCIA: Presentes: '+att.presente+' / Ausentes: '+att.ausente+' / Tardanzas: '+att.tardanza+' / Justificados: '+att.justificado+'\n';
-  prompt+='OBSERVACIONES:\n'+obsTexto+'\n\n';
-  prompt+='Generá un legajo de egreso formal con encabezado institucional, resumen del trayecto escolar, síntesis académica, observaciones, fecha de egreso '+fecha+', firma '+(window.__teacherName||'Docente')+'. Legajo escolar argentino, 200-300 palabras.';
+  var promptIA='Generá el LEGAJO DE EGRESO de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026.\n\n';
+  promptIA+='INSTRUCCIÓN: Solo usá los datos reales. No inventés información.\n\n';
+  promptIA+='NOTAS: '+notasTexto+'\n';
+  promptIA+='ASISTENCIA: Presentes: '+att.presente+' / Ausentes: '+att.ausente+' / Tardanzas: '+att.tardanza+' / Justificados: '+att.justificado+'\n';
+  promptIA+='OBSERVACIONES:\n'+obsTexto+'\n\n';
+  promptIA+='Generá un legajo de egreso formal con encabezado institucional, resumen del trayecto escolar, síntesis académica, observaciones, fecha de egreso '+fecha+', firma '+(window.__teacherName||'Docente')+'. Legajo escolar argentino, 200-300 palabras.';
 
   var loadDiv=document.createElement('div');
   loadDiv.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--blanco);border-radius:16px;padding:28px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:3000;';
@@ -5755,7 +5795,7 @@ async function generarLegajoEgreso(studentId,nombre){
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:promptIA}]})
     });
     var data=await res.json();
     var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
@@ -6088,47 +6128,47 @@ async function generarDEI(){
   var areaNames={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
   var notasTexto=Object.keys(notas).filter(function(a){return notas[a]!=null;}).map(function(a){return areaNames[a]+': '+notas[a];}).join(', ')||'Sin notas cargadas';
 
-  var prompt='Generá un DEI (Documento de Evaluación Individual / Trayectorias Educativas y Propuesta Pedagógica para la Inclusión) completo para la Provincia de Buenos Aires, en el formato oficial.\n\n';
-  prompt+='INSTRUCCIÓN: Usá EXACTAMENTE los datos proporcionados. No inventés información. Respetá el formato oficial del DEI de PBA.\n\n';
-  prompt+='DATOS DEL ESTUDIANTE:\n';
-  prompt+='Nombre: '+s.full_name+'\n';
-  prompt+='DNI: '+(g('dei-dni')||'No informado')+'\n';
-  prompt+='Fecha de nacimiento: '+(g('dei-fnac')||'No informada')+'\n';
-  prompt+='Domicilio: '+(g('dei-domicilio')||'No informado')+'\n';
-  prompt+='Escuela: Escuela La Concepción, Tigre\n';
-  prompt+='Año que cursa: 6to Año\n';
-  prompt+='Docente de referencia 2026: '+(window.__teacherName||'Docente')+'\n';
-  prompt+='Fecha de inicio DEI: '+(g('dei-inicio')||'No informada')+'\n\n';
+  var promptIA='Generá un DEI (Documento de Evaluación Individual / Trayectorias Educativas y Propuesta Pedagógica para la Inclusión) completo para la Provincia de Buenos Aires, en el formato oficial.\n\n';
+  promptIA+='INSTRUCCIÓN: Usá EXACTAMENTE los datos proporcionados. No inventés información. Respetá el formato oficial del DEI de PBA.\n\n';
+  promptIA+='DATOS DEL ESTUDIANTE:\n';
+  promptIA+='Nombre: '+s.full_name+'\n';
+  promptIA+='DNI: '+(g('dei-dni')||'No informado')+'\n';
+  promptIA+='Fecha de nacimiento: '+(g('dei-fnac')||'No informada')+'\n';
+  promptIA+='Domicilio: '+(g('dei-domicilio')||'No informado')+'\n';
+  promptIA+='Escuela: Escuela La Concepción, Tigre\n';
+  promptIA+='Año que cursa: 6to Año\n';
+  promptIA+='Docente de referencia 2026: '+(window.__teacherName||'Docente')+'\n';
+  promptIA+='Fecha de inicio DEI: '+(g('dei-inicio')||'No informada')+'\n\n';
   
-  prompt+='NOTAS REGISTRADAS EN EL SISTEMA: '+notasTexto+'\n\n';
+  promptIA+='NOTAS REGISTRADAS EN EL SISTEMA: '+notasTexto+'\n\n';
   
-  prompt+='PERFIL PEDAGÓGICO FUNCIONAL:\n'+(g('dei-perfil')||'No completado')+'\n\n';
-  prompt+='ESTILO DE APRENDIZAJE:\n'+(g('dei-estilo')||'No completado')+'\n\n';
-  prompt+='HABILIDADES ADAPTATIVAS:\n'+(g('dei-adaptativas')||'No completado')+'\n\n';
-  prompt+='FACILITADORES:\n'+(g('dei-facilitadores')||'No completado')+'\n\n';
-  prompt+='BARRERAS PARA EL APRENDIZAJE:\n'+(g('dei-barreras')||'No completado')+'\n\n';
+  promptIA+='PERFIL PEDAGÓGICO FUNCIONAL:\n'+(g('dei-perfil')||'No completado')+'\n\n';
+  promptIA+='ESTILO DE APRENDIZAJE:\n'+(g('dei-estilo')||'No completado')+'\n\n';
+  promptIA+='HABILIDADES ADAPTATIVAS:\n'+(g('dei-adaptativas')||'No completado')+'\n\n';
+  promptIA+='FACILITADORES:\n'+(g('dei-facilitadores')||'No completado')+'\n\n';
+  promptIA+='BARRERAS PARA EL APRENDIZAJE:\n'+(g('dei-barreras')||'No completado')+'\n\n';
   
-  prompt+='MATEMÁTICA - PERFIL FUNCIONAL:\n'+(g('dei-mat-perfil')||'No completado')+'\n';
-  prompt+='MATEMÁTICA - PROPUESTA DIDÁCTICA:\n'+(g('dei-mat-prop')||'No completado')+'\n\n';
-  prompt+='PRÁCTICAS DEL LENGUAJE - PERFIL FUNCIONAL:\n'+(g('dei-len-perfil')||'No completado')+'\n';
-  prompt+='PRÁCTICAS DEL LENGUAJE - PROPUESTA DIDÁCTICA:\n'+(g('dei-len-prop')||'No completado')+'\n\n';
-  prompt+='CIENCIAS - PERFIL FUNCIONAL:\n'+(g('dei-cs-perfil')||'No completado')+'\n';
-  prompt+='CIENCIAS - PROPUESTA DIDÁCTICA:\n'+(g('dei-cs-prop')||'No completado')+'\n\n';
+  promptIA+='MATEMÁTICA - PERFIL FUNCIONAL:\n'+(g('dei-mat-perfil')||'No completado')+'\n';
+  promptIA+='MATEMÁTICA - PROPUESTA DIDÁCTICA:\n'+(g('dei-mat-prop')||'No completado')+'\n\n';
+  promptIA+='PRÁCTICAS DEL LENGUAJE - PERFIL FUNCIONAL:\n'+(g('dei-len-perfil')||'No completado')+'\n';
+  promptIA+='PRÁCTICAS DEL LENGUAJE - PROPUESTA DIDÁCTICA:\n'+(g('dei-len-prop')||'No completado')+'\n\n';
+  promptIA+='CIENCIAS - PERFIL FUNCIONAL:\n'+(g('dei-cs-perfil')||'No completado')+'\n';
+  promptIA+='CIENCIAS - PROPUESTA DIDÁCTICA:\n'+(g('dei-cs-prop')||'No completado')+'\n\n';
   
-  prompt+='FRECUENCIA Y TIPO DE APOYO DOCENTE:\n'+(g('dei-apoyo-doc')||'No completado')+'\n\n';
-  prompt+='INTERVENCIÓN EOE:\n'+(g('dei-eoe')||'No completado')+'\n\n';
-  prompt+='INTERVENCIÓN EXTERNA:\n'+(g('dei-externa')||'No completado')+'\n\n';
-  prompt+='TRABAJO INTERDISCIPLINARIO:\n'+(g('dei-interdisciplinario')||'No completado')+'\n\n';
-  prompt+='PARTICIPACIÓN FAMILIAR:\n'+(g('dei-familia')||'No completado')+'\n\n';
-  if(g('dei-extra'))prompt+='INFORMACIÓN ADICIONAL:\n'+g('dei-extra')+'\n\n';
+  promptIA+='FRECUENCIA Y TIPO DE APOYO DOCENTE:\n'+(g('dei-apoyo-doc')||'No completado')+'\n\n';
+  promptIA+='INTERVENCIÓN EOE:\n'+(g('dei-eoe')||'No completado')+'\n\n';
+  promptIA+='INTERVENCIÓN EXTERNA:\n'+(g('dei-externa')||'No completado')+'\n\n';
+  promptIA+='TRABAJO INTERDISCIPLINARIO:\n'+(g('dei-interdisciplinario')||'No completado')+'\n\n';
+  promptIA+='PARTICIPACIÓN FAMILIAR:\n'+(g('dei-familia')||'No completado')+'\n\n';
+  if(g('dei-extra'))promptIA+='INFORMACIÓN ADICIONAL:\n'+g('dei-extra')+'\n\n';
   
-  prompt+='Generá el DEI completo con todas sus secciones en el formato oficial de PBA. Incluí encabezado institucional. Dejá espacios para las firmas al final (Docente de referencia, EOE, Dirección, Familia). Tono profesional y pedagógico. Usar terminología de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.';
+  promptIA+='Generá el DEI completo con todas sus secciones en el formato oficial de PBA. Incluí encabezado institucional. Dejá espacios para las firmas al final (Docente de referencia, EOE, Dirección, Familia). Tono profesional y pedagógico. Usar terminología de la Dirección General de Cultura y Educación de la Provincia de Buenos Aires.';
 
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:promptIA}]})
     });
     if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
     var data=await res.json();
@@ -6277,11 +6317,11 @@ async function caGenerarPerfil(){
       }
     }catch(e4){}
   }
-  var prompt='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
+  var promptIA='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3500,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3500,messages:[{role:'user',content:promptIA}]})
     });
     if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
     var data=await res.json();
@@ -6768,15 +6808,15 @@ async function ajustarPerfilAulico(){
   temp.innerHTML=_perfilAulicoActual;
   var textoPlano=temp.textContent||temp.innerText||'';
 
-  var prompt='Este es el perfil áulico grupal vigente de un curso de 6to Año, Escuela La Concepción, Tigre, PBA:\n\n'+textoPlano+'\n\n';
-  prompt+='El docente quiere actualizar o ajustar este perfil con la siguiente observación nueva:\n"'+cambio+'"\n\n';
-  prompt+='Generá una VERSIÓN ACTUALIZADA del perfil áulico completo, incorporando este cambio de forma coherente con el resto. Mantené la misma estructura de secciones (Caracterización general del grupo, Fortalezas colectivas, Desafíos pedagógicos, Recomendaciones para la planificación, Estrategias prioritarias). No repitas literalmente el perfil anterior: actualizalo de verdad reflejando el cambio indicado.';
+  var promptIA='Este es el perfil áulico grupal vigente de un curso de 6to Año, Escuela La Concepción, Tigre, PBA:\n\n'+textoPlano+'\n\n';
+  promptIA+='El docente quiere actualizar o ajustar este perfil con la siguiente observación nueva:\n"'+cambio+'"\n\n';
+  promptIA+='Generá una VERSIÓN ACTUALIZADA del perfil áulico completo, incorporando este cambio de forma coherente con el resto. Mantené la misma estructura de secciones (Caracterización general del grupo, Fortalezas colectivas, Desafíos pedagógicos, Recomendaciones para la planificación, Estrategias prioritarias). No repitas literalmente el perfil anterior: actualizalo de verdad reflejando el cambio indicado.';
 
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3500,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3500,messages:[{role:'user',content:promptIA}]})
     });
     if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
     var data=await res.json();
