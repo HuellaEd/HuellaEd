@@ -2895,21 +2895,38 @@ async function generarPerfilAcademico(){
     }
   }
 
-  // Observaciones visibles en pantalla (cargadas desde Supabase)
-  // NOTA: estas observaciones ya incluyen, automáticamente, varias fuentes que se copian
-  // a notas_rapidas en el momento de cargarse: reunión familiar (acta), documentos adjuntos
-  // (aviso + análisis de contenido si es PDF/imagen), y grabaciones de lectura (transcripción).
+  // Observaciones del docente (consultadas DIRECTO de Supabase, no desde el DOM —
+  // leer del DOM generaba una condición de carrera: si se generaba el perfil antes de que
+  // cargarObservacionesAlumno() terminara de pintar la lista, el prompt quedaba vacío aunque
+  // el alumno SÍ tuviera observaciones reales guardadas. Esto ya incluye, automáticamente,
+  // varias fuentes que se copian a notas_rapidas en el momento de cargarse: reunión familiar
+  // (acta), documentos adjuntos (aviso + análisis de contenido si es PDF/imagen), y
+  // grabaciones de lectura (transcripción).
   var obsTexto='';
-  var obsEls=document.querySelectorAll('#obs-lista > div');
-  if(obsEls.length>0&&obsEls[0].textContent.indexOf('Sin observaciones')===-1){
-    obsTexto='OBSERVACIONES REGISTRADAS POR EL DOCENTE (incluye notas sueltas, reuniones familiares, documentos adjuntados con su análisis, y transcripciones de lecturas grabadas):\n';
-    obsEls.forEach(function(el){
-      var fecha=el.querySelector('div:first-child');
-      var texto=el.querySelector('div:last-child');
-      if(fecha&&texto)obsTexto+='['+fecha.textContent.trim()+'] '+texto.textContent.trim()+'\n';
-    });
-  }else{
-    obsTexto='Observaciones: sin observaciones cargadas en el sistema aún.\n';
+  try{
+    if(window.__sb){
+      var userObs=(await window.__sb.auth.getUser()).data.user;
+      if(userObs){
+        var {data:dataObs,error:errObs}=await window.__sb.from('notas_rapidas')
+          .select('content,created_at')
+          .eq('teacher_id',userObs.id)
+          .eq('student_id',_perfilStudentId)
+          .order('created_at',{ascending:false})
+          .limit(20);
+        if(!errObs&&dataObs&&dataObs.length>0){
+          obsTexto='OBSERVACIONES REGISTRADAS POR EL DOCENTE (incluye notas sueltas, reuniones familiares, documentos adjuntados con su análisis, y transcripciones de lecturas grabadas):\n';
+          dataObs.forEach(function(n){
+            var fecha=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+            obsTexto+='['+fecha+'] '+n.content+'\n';
+          });
+        }else{
+          obsTexto='Observaciones: sin observaciones cargadas en el sistema aún.\n';
+        }
+      }
+    }
+  }catch(eObs){
+    console.log('No se pudo cargar observaciones para el PAF:',eObs);
+    obsTexto='Observaciones: no se pudieron cargar (error de conexión).\n';
   }
 
   // Ficha de conocimiento (perfil inicial del alumno, tabla differential_profiles)
@@ -3168,14 +3185,28 @@ async function generarInforme(){
   }
 
   var obsTexto2='Sin observaciones cargadas en el sistema.';
-  var obsEls2=document.querySelectorAll('#obs-lista > div');
-  if(obsEls2.length>0&&obsEls2[0].textContent.indexOf('Sin observaciones')===-1){
-    obsTexto2='';
-    obsEls2.forEach(function(el){
-      var fecha=el.querySelector('div:first-child');
-      var texto=el.querySelector('div:last-child');
-      if(fecha&&texto)obsTexto2+='['+fecha.textContent.trim()+'] '+texto.textContent.trim()+'. ';
-    });
+  try{
+    if(window.__sb){
+      var userObs2=(await window.__sb.auth.getUser()).data.user;
+      if(userObs2){
+        var {data:dataObs2,error:errObs2}=await window.__sb.from('notas_rapidas')
+          .select('content,created_at')
+          .eq('teacher_id',userObs2.id)
+          .eq('student_id',_perfilStudentId)
+          .order('created_at',{ascending:false})
+          .limit(20);
+        if(!errObs2&&dataObs2&&dataObs2.length>0){
+          obsTexto2='';
+          dataObs2.forEach(function(n){
+            var fechaN=new Date(n.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+            obsTexto2+='['+fechaN+'] '+n.content+'. ';
+          });
+        }
+      }
+    }
+  }catch(eObs2){
+    console.log('No se pudieron cargar observaciones para el informe:',eObs2);
+    obsTexto2='No se pudieron cargar las observaciones (error de conexión).';
   }
 
   var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: '+(window.__teacherName||'Docente')+'. Fecha: '+fecha+'.\n\n';
