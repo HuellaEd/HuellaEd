@@ -2057,14 +2057,51 @@ async function armarPromptBoletin(){
     promediosTexto=promediosTexto.replace(/ - $/,'');
   }
 
+  // Observaciones reales del trimestre: incluye notas manuales, análisis de fotos de
+  // evidencia, transcripciones/evaluaciones de lectura oral, y resúmenes de documentos
+  // adjuntos — todo lo que el docente fue registrando realmente, no solo nombre+promedio.
+  var mesesTrim=MESES_POR_TRIMESTRE[trimBoletin]||MESES_POR_TRIMESTRE['1'];
+  var primerMes=mesesTrim[0].m;
+  var ultimoMes=mesesTrim[mesesTrim.length-1].m;
+  var anioActual=new Date().getFullYear();
+  var fechaInicioTrim=anioActual+'-'+String(primerMes).padStart(2,'0')+'-01';
+  var ultimoDiaMes=new Date(anioActual,ultimoMes,0).getDate(); // día 0 del mes siguiente = último día del mes actual
+  var fechaFinTrim=anioActual+'-'+String(ultimoMes).padStart(2,'0')+'-'+String(ultimoDiaMes).padStart(2,'0');
+  var {data:notasObs}=await window.__sb.from('notas_rapidas')
+    .select('student_id,content,created_at')
+    .eq('teacher_id',user.id)
+    .in('student_id',ids)
+    .gte('created_at',fechaInicioTrim+'T00:00:00')
+    .lte('created_at',fechaFinTrim+'T23:59:59')
+    .order('created_at',{ascending:true});
+  var obsTexto='';
+  if(notasObs&&notasObs.length){
+    seleccionados.forEach(function(s){
+      var obsAlumno=notasObs.filter(function(n){return n.student_id===s.id;});
+      if(obsAlumno.length){
+        obsTexto+='--- '+s.full_name+' ('+obsAlumno.length+' registros) ---\n';
+        obsAlumno.forEach(function(n){
+          var fecha=n.created_at?n.created_at.slice(0,10):'';
+          obsTexto+='['+fecha+'] '+n.content+'\n';
+        });
+        obsTexto+='\n';
+      }
+    });
+  }
+
   var nombresLista=seleccionados.map(function(s){return s.full_name;}).join(', ');
   var p='Soy docente de 6to Año de la Escuela La Concepcion. Genera los informes de boletin del '+trims[trimBoletin]+' para los siguientes '+seleccionados.length+' alumnos.\n\n';
   p+='FORMATO: recuadro 11.5cm x 2.5cm. Texto narrativo de 3-4 oraciones. Mencionar Matematica, Practicas del Lenguaje, conducta y asistencia si corresponde. Tono profesional y constructivo.\n\n';
   p+='ALUMNOS ('+seleccionados.length+'):\n'+nombresLista+'\n\n';
   if(difTexto)p+='ATENCION DIFERENCIADA:\n'+difTexto+'\n';
   if(promediosTexto)p+='PROMEDIOS DEL TRIMESTRE:\n'+promediosTexto+'\n\n';
+  if(obsTexto){
+    p+='REGISTROS REALES DEL TRIMESTRE (observaciones del docente, evidencias fotográficas analizadas, evaluaciones de lectura oral, y resúmenes de documentos adjuntos — basate en esto para el contenido del informe, no en supuestos genéricos):\n\n'+obsTexto;
+  }else{
+    p+='ADVERTENCIA: no hay registros (observaciones, evidencias, lecturas o documentos) cargados para estos alumnos en este trimestre. Indicalo en el informe en vez de inventar contenido genérico.\n\n';
+  }
   if(ctx)p+='CONTEXTO ADICIONAL:\n'+ctx+'\n\n';
-  p+='Genera un informe por alumno en el orden de la lista.';
+  p+='Genera un informe por alumno en el orden de la lista, basándote en los registros reales de arriba. Si un alumno no tiene registros suficientes, indicalo explícitamente en su informe en vez de generar contenido genérico o inventado.';
   return p;
 }
 
