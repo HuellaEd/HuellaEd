@@ -543,15 +543,7 @@
   <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:30px auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">🤖 Consultar a Claude</strong><button onclick="cerrarClaude()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
     <p style="font-size:12px;color:var(--gris);margin-bottom:10px;">Copiá este prompt y pegalo al inicio de una nueva conversación:</p>
-    <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);">Soy docente de 6to Año de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.
-
-19 alumnos: Aguirre Ziomara, Barrera Felipe, Barrera Joaquín, Bravo Álvaro, Carbonel Tiziano, Cuello Thomas, Diaz Monserrat, Espindola Sofía, Gamon Ciro, Garcia Milton, Godoy Katia, Monteros Cruz Máximo, Nievas Nicolás, Santa Cruz Alma, Sosa Muñoz Benjamín, Tabares Andrés, Tablada Santino, Tagliabue Delfina, Villalba Benjamín.
-
-Atención diferenciada: Gamon Ciro (TDL + IDN 74 Bajo), Nievas Nicolás (lectoescritura y estimación), Godoy Katia (lectoescritura y matemática), Cuello Thomas (concentración).
-
-DC PBA. Áreas: Matemática, Prácticas del Lenguaje, Cs. Naturales, Cs. Sociales, Inglés, Ed. Física, Ed. Artística. Aprobado con 7.
-
-App: https://huellaed.github.io/HuellaEd/</div>
+    <div id="prompt-claude-text" style="background:var(--crema);border-radius:9px;padding:12px;font-size:11px;color:var(--negro);line-height:1.6;margin-bottom:10px;border:1px solid var(--gris-claro);white-space:pre-wrap;">Cargando…</div>
     <div style="display:flex;gap:8px;"><button onclick="copiarPromptClaude()" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;">📋 Copiar</button><a href="https://claude.ai" target="_blank" style="flex:1;background:var(--terracota);color:#fff;border-radius:9px;padding:11px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;">Abrir Claude.ai →</a></div>
     <div id="claude-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:6px;"></div>
   </div>
@@ -4252,7 +4244,40 @@ function togglePrompt(id){var b=document.getElementById('body-'+id),t=document.g
 function copyText(id){navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>alert('Copiado'));}
 
 // ── CLAUDE ──
-function abrirClaude(){document.getElementById('modal-claude').style.display='block';}
+async function abrirClaude(){
+  document.getElementById('modal-claude').style.display='block';
+  var contEl=document.getElementById('prompt-claude-text');
+  if(!contEl)return;
+  var students=window.__students||[];
+  var nombresLista=students.length?students.map(function(s){return s.full_name;}).join(', '):'(sin alumnos cargados todavía)';
+  var difTextoClaude='Sin atención diferenciada cargada.';
+  try{
+    if(window.__sb&&students.length){
+      var userClaude=(await window.__sb.auth.getUser()).data.user;
+      var idsConDif=students.filter(function(s){return s.has_differential;}).map(function(s){return s.id;});
+      if(idsConDif.length&&userClaude){
+        var resultadosDif=await Promise.all(idsConDif.map(function(id){
+          return window.__sb.from('differential_profiles').select('descripcion,necesidades').eq('student_id',id).eq('teacher_id',userClaude.id).maybeSingle();
+        }));
+        var partesDif=[];
+        idsConDif.forEach(function(id,i){
+          var nombreAl=students.find(function(s){return s.id===id;}).full_name;
+          var d=resultadosDif[i].data;
+          var detalle=d&&(d.necesidades||d.descripcion)?(d.necesidades||d.descripcion):'';
+          partesDif.push(nombreAl+(detalle?' ('+detalle+')':''));
+        });
+        if(partesDif.length)difTextoClaude='Atención diferenciada: '+partesDif.join(', ')+'.';
+      }
+    }
+  }catch(eDifClaude){
+    console.log('No se pudo cargar atención diferenciada para el prompt de Claude:',eDifClaude);
+  }
+  contEl.textContent='Soy docente de 6to Año de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.\n\n'
+    +students.length+' alumnos: '+nombresLista+'.\n\n'
+    +difTextoClaude+'\n\n'
+    +'DC PBA. Áreas: Matemática, Prácticas del Lenguaje, Cs. Naturales, Cs. Sociales, Inglés, Ed. Física, Ed. Artística. Aprobado con 7.\n\n'
+    +'App: https://huellaed.github.io/HuellaEd/';
+}
 function cerrarClaude(){document.getElementById('modal-claude').style.display='none';}
 function copiarPromptClaude(){navigator.clipboard.writeText(document.getElementById('prompt-claude-text').innerText).then(()=>{document.getElementById('claude-copy-msg').textContent='✅ Copiado';setTimeout(()=>{document.getElementById('claude-copy-msg').textContent='';},3000);});}
 
@@ -4276,7 +4301,7 @@ async function generarPrompt(){
   if(!tema){alert('Escribí el tema');return;}
   var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',evaluacion:'una evaluación'};
   var areaT=area;
-  var p='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
+  var p='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. '+(window.__students&&window.__students.length||19)+' alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
   p+=', sobre: '+tema+'.\n\n';
   var formatosBloque={
     '12':'FORMATO PARA 1° y 2° GRADO: tipografía y consignas MUY simples, una sola consigna por bloque, oraciones cortas, mucho espacio para escribir o dibujar, vocabulario básico.',
@@ -4312,7 +4337,7 @@ async function generarConIA(){
     if(!tema){alert('Escribí el tema');resolve(null);return;}
     var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',evaluacion:'una evaluación'};
     var areaT=area;
-    var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. 19 alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
+    var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. '+(window.__students&&window.__students.length||19)+' alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
     p2+=', sobre: '+tema+'.\n\n';
     if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
     if(alumnosEsp.length>0){p2+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(function(a){var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos)':'ADECUACIÓN (mantiene objetivos)';p2+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p2+='\nNINGUNA nota, aclaración o sección dirigida a la docente debe aparecer en el documento final — es exclusivamente para el alumno.';}
@@ -6329,7 +6354,7 @@ async function caGenerarPerfil(){
       }
     }catch(e4){}
   }
-  var promptIA='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, 19 alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
+  var promptIA='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, '+(window.__students&&window.__students.length||19)+' alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
@@ -6398,7 +6423,7 @@ function imprimirPerfilAulicoDoc(){
     +'.firma{margin:0 30px 30px;text-align:right;font-size:11px;color:#666;border-top:1px solid #ddd;padding-top:12px;}'
     +'@media print{@page{size:A4;margin:18mm 16mm;}}</style></head><body>'
     +'<div class="doc-wrap">'
-    +'<div class="hero"><div class="hero-tit">6to Año · Perfil del grupo</div><div class="hero-sub">19 alumnos · Escuela La Concepción · Tigre · '+fecha+'</div></div>'
+    +'<div class="hero"><div class="hero-tit">6to Año · Perfil del grupo</div><div class="hero-sub">'+(window.__students&&window.__students.length||19)+' alumnos · Escuela La Concepción · Tigre · '+fecha+'</div></div>'
     +'<div class="dims">'+dimsHtml+'</div>'
     +'<div class="cuerpo">'+contenidoTexto+'</div>'
     +'<div class="firma"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
@@ -6425,7 +6450,7 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
   div.innerHTML=''
     +'<div style="background:#EAF2F8;border-bottom:2px solid #3B6E9E;padding:16px 18px;">'
     +'<div style="font-family:inherit;font-weight:800;font-size:14px;color:#3B6E9E;">6to Año · Perfil del grupo</div>'
-    +'<div style="font-size:10px;color:#5b7fa6;margin-top:2px;">19 alumnos · Escuela La Concepción · '+new Date().toLocaleDateString('es-AR')+'</div>'
+    +'<div style="font-size:10px;color:#5b7fa6;margin-top:2px;">'+(window.__students&&window.__students.length||19)+' alumnos · Escuela La Concepción · '+new Date().toLocaleDateString('es-AR')+'</div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px 14px;background:var(--blanco);">'+dimsHtml+'</div>'
     +'<div style="padding:4px 16px 16px;background:var(--blanco);">'
