@@ -460,6 +460,7 @@
   <div class="grupo-panel" id="panel-generar">
     <div class="subcard boton-generador" onclick="abrirGenerador()"><span class="subcard-icon" data-icon="sparkles"></span><span class="subcard-label">Material</span><span class="subcard-sub">Cuadernillos, fichas</span></div>
     <div class="subcard" onclick="abrirGeneradorBoletin()"><span class="subcard-icon" data-icon="file-text"></span><span class="subcard-label">Generar informes de boletín</span><span class="subcard-sub">Usando evidencias y observaciones del período</span></div>
+    <div class="subcard" onclick="abrirAdecuaciones()" style="grid-column:span 2;"><span class="subcard-icon" data-icon="puzzle"></span><span class="subcard-label">Adecuaciones</span><span class="subcard-sub">Versión inclusiva de actividades para un alumno</span></div>
   </div>
 
   <!-- PANELES --><div id="tabla-inasistencias" class="panel" style="display:none;margin-top:10px;">
@@ -2079,6 +2080,169 @@ function toggleTodosAlumnosBoletin(el){
   actualizarContadorAlumnosBoletin();
 }
 function cerrarGeneradorBoletin(){ document.getElementById('modal-gen-boletin').style.display='none'; }
+
+// ===== ADECUACIONES =====
+var _adec={modo:'materiales',materialSelId:null,materialSelContent:'',dificultades:[],cicloDerived:null,materiales:{},lastSavedId:null};
+async function abrirAdecuaciones(){
+  document.getElementById('modal-adecuaciones').style.display='block';
+  document.getElementById('adec-resultado').style.display='none';
+  var aprBtn=document.getElementById('adec-btn-aprobar');
+  if(aprBtn){aprBtn.textContent='✅ Aprobar';aprBtn.style.background='var(--terracota)';aprBtn.disabled=false;}
+  _adec.lastSavedId=null;_adec.materialSelId=null;_adec.materialSelContent='';
+  var grade=window.__teacherGrade||'';
+  _adec.cicloDerived=_adecDeriveCiclo(grade);
+  var infoEl=document.getElementById('adec-ciclo-info');
+  if(infoEl){
+    var lbls={primer_ciclo:'1er ciclo (1°, 2°, 3°)',segundo_ciclo:'2do ciclo (4°, 5°, 6°)'};
+    infoEl.textContent=_adec.cicloDerived?'Mostrando dificultades de '+lbls[_adec.cicloDerived]+' + transversales.':'';
+  }
+  poblarAlumnosAdecuacion();
+  await cargarDificultadesAdecuacion();
+  cargarMaterialesAdecuacion();
+}
+function cerrarAdecuaciones(){document.getElementById('modal-adecuaciones').style.display='none';}
+function _adecDeriveCiclo(grade){
+  if(!grade)return null;
+  var m=(grade.match(/\d+/)||[])[0];
+  if(!m)return null;
+  var n=parseInt(m);
+  if(n>=1&&n<=3)return'primer_ciclo';
+  if(n>=4&&n<=7)return'segundo_ciclo';
+  return null;
+}
+function toggleModoAdecuacion(modo){
+  _adec.modo=modo;
+  document.getElementById('adec-tab-materiales').classList.toggle('active',modo==='materiales');
+  document.getElementById('adec-tab-texto').classList.toggle('active',modo==='texto');
+  document.getElementById('adec-panel-materiales').style.display=modo==='materiales'?'block':'none';
+  document.getElementById('adec-panel-texto').style.display=modo==='texto'?'block':'none';
+}
+function poblarAlumnosAdecuacion(){
+  var sel=document.getElementById('adec-alumno');
+  if(!sel)return;
+  var students=(window.__students||[]).filter(function(s){return s.active!==false;});
+  sel.innerHTML='<option value="">— Seleccionar alumno —</option>'+students.map(function(s){return'<option value="'+s.id+'">'+s.full_name+'</option>';}).join('');
+}
+async function cargarDificultadesAdecuacion(){
+  try{
+    var{data}=await window.__sb.from('dificultades').select('id,nombre,ciclo,descripcion_indicadores,adecuaciones_base,senales_alerta_adaptacion').order('ciclo').order('nombre');
+    _adec.dificultades=data||[];
+    var sel=document.getElementById('adec-dificultad');
+    if(!sel)return;
+    var ciclo=_adec.cicloDerived;
+    var lista=_adec.dificultades.filter(function(d){return!ciclo||d.ciclo===ciclo||d.ciclo==='transversal';});
+    var lbls={primer_ciclo:'1er ciclo',segundo_ciclo:'2do ciclo',transversal:'Transversal'};
+    sel.innerHTML='<option value="">— Seleccionar —</option>'+lista.map(function(d){return'<option value="'+d.id+'">['+( lbls[d.ciclo]||d.ciclo)+'] '+d.nombre+'</option>';}).join('');
+  }catch(e){console.error('Error cargando dificultades:',e);}
+}
+async function cargarMaterialesAdecuacion(){
+  _adec.materiales={};
+  var cont=document.getElementById('adec-lista-materiales');
+  if(!cont)return;
+  cont.innerHTML='<div style="text-align:center;padding:12px;font-size:11px;color:var(--gris);">Cargando…</div>';
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    var{data}=await window.__sb.from('cuadernillos').select('id,title,area,tema,content').eq('teacher_id',user.id).not('content','is',null).order('created_at',{ascending:false});
+    var mats=data||[];
+    if(!mats.length){cont.innerHTML='<div style="text-align:center;padding:12px;font-size:11px;color:var(--gris);">No tenés materiales con texto guardados. Usá la pestaña "Pegar texto".</div>';return;}
+    mats.forEach(function(m){_adec.materiales[m.id]={titulo:m.title,content:m.content||''};});
+    cont.innerHTML=mats.map(function(m){
+      var sub=[m.area,m.tema].filter(Boolean).join(' · ');
+      return'<div class="adec-mat-item" data-id="'+m.id+'" onclick="seleccionarMaterialAdecuacion(this)" style="padding:9px 11px;border-radius:8px;cursor:pointer;margin-bottom:5px;border:1.5px solid var(--gris-claro);background:var(--crema);">'
+        +'<div style="font-size:12.5px;font-weight:600;color:var(--negro);">'+m.title+'</div>'
+        +(sub?'<div style="font-size:10px;color:var(--gris);margin-top:1px;">'+sub+'</div>':'')+'</div>';
+    }).join('');
+  }catch(e){cont.innerHTML='<div style="text-align:center;padding:12px;font-size:11px;color:var(--terracota);">Error al cargar materiales.</div>';}
+}
+function seleccionarMaterialAdecuacion(el){
+  document.querySelectorAll('.adec-mat-item').forEach(function(x){x.style.background='var(--crema)';x.style.borderColor='var(--gris-claro)';});
+  el.style.background='var(--verde-bg)';el.style.borderColor='var(--verde)';
+  var id=el.getAttribute('data-id');
+  _adec.materialSelId=id;
+  var mat=_adec.materiales[id]||{};
+  _adec.materialSelContent=mat.content||'';
+}
+async function generarAdecuacion(){
+  var alumnoSel=document.getElementById('adec-alumno');
+  var alumnoId=alumnoSel.value;
+  if(!alumnoId){alert('Seleccioná un alumno');return;}
+  var dificultadId=document.getElementById('adec-dificultad').value;
+  if(!dificultadId){alert('Seleccioná una dificultad');return;}
+  var textoActividad='';
+  if(_adec.modo==='materiales'){
+    if(!_adec.materialSelId){alert('Seleccioná un material de la lista, o cambiá a la pestaña "Pegar texto"');return;}
+    textoActividad=_adec.materialSelContent;
+    if(!textoActividad){alert('El material seleccionado no tiene contenido de texto. Usá la pestaña "Pegar texto"');return;}
+  }else{
+    textoActividad=document.getElementById('adec-texto-libre').value.trim();
+    if(!textoActividad){alert('Pegá el texto de la actividad');return;}
+  }
+  var dif=_adec.dificultades.find(function(d){return d.id===dificultadId;});
+  if(!dif){alert('Dificultad no encontrada');return;}
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  var btn=document.getElementById('adec-btn-generar');
+  btn.disabled=true;btn.textContent='Generando…';
+  document.getElementById('adec-resultado').style.display='none';
+  var promptTxt='Eres un asistente pedagógico especializado en educación inclusiva, basado en normativa de la Provincia de Buenos Aires (Res. 1664/17 DGCyE) y principios de Diseño Universal para el Aprendizaje (DUA).\n\n'
+    +'Tarea: Adaptar la siguiente ACTIVIDAD GENERAL para un alumno con la dificultad: '+dif.nombre+'.\n\n'
+    +'Descripción de la dificultad: '+(dif.descripcion_indicadores||'')+'\n'
+    +'Adecuaciones de referencia ya validadas:\n'+(dif.adecuaciones_base||'')+'\n\n'
+    +'ACTIVIDAD ORIGINAL:\n'+textoActividad+'\n\n'
+    +'Instrucciones:\n'
+    +'1. Generá una versión adecuada de la actividad. Mantené el MISMO objetivo de aprendizaje que la actividad original — solo ajustá presentación, formato, consigna, tiempos o apoyos.\n'
+    +'2. Usá como base las adecuaciones de referencia provistas; podés sumar otras coherentes con DUA si es pertinente.\n'
+    +'3. Si considerás que una adecuación NO es suficiente y la situación requeriría modificar objetivos o contenidos (una Adaptación Curricular), indicalo explícitamente al final con la etiqueta [ALERTA_ADAPTACION: sí] seguida de una breve justificación. Si no es el caso, usá [ALERTA_ADAPTACION: no].\n'
+    +'4. No tomes la decisión de adaptar por tu cuenta — solo señalá la alerta. La decisión de adaptar es siempre institucional y del docente.';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2048,messages:[{role:'user',content:promptTxt}]})});
+    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+    var resData=await res.json();
+    var texto=(resData.content&&resData.content[0]&&resData.content[0].text)||'';
+    var requierePPI=/\[ALERTA_ADAPTACION:\s*s[íi]\]/i.test(texto);
+    var textoLimpio=texto.replace(/\[ALERTA_ADAPTACION:[^\]]*\]/gi,'').trim();
+    document.getElementById('adec-texto-resultado').value=textoLimpio;
+    document.getElementById('adec-alerta-ppi').style.display=requierePPI?'block':'none';
+    var aprBtn=document.getElementById('adec-btn-aprobar');
+    aprBtn.textContent='✅ Aprobar';aprBtn.style.background='var(--terracota)';aprBtn.disabled=false;
+    document.getElementById('adec-resultado').style.display='block';
+    document.getElementById('adec-resultado').scrollIntoView({behavior:'smooth'});
+    await _adecGuardarBorrador(alumnoId,dificultadId,textoLimpio,requierePPI);
+  }catch(e){
+    alert('Error al generar: '+e.message);
+  }finally{
+    btn.disabled=false;btn.textContent='✨ Generar adecuación';
+  }
+}
+async function _adecGuardarBorrador(alumnoId,dificultadId,contenido,requierePPI){
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    var reg={teacher_id:user.id,alumno_id:alumnoId,dificultad_id:dificultadId,contenido_generado:contenido,requiere_ppi:requierePPI,tipo_resultado:requierePPI?'sugerencia_adaptacion':'adecuacion',estado:'borrador'};
+    if(_adec.modo==='materiales'&&_adec.materialSelId){reg.actividad_original_id=_adec.materialSelId;}
+    else{reg.actividad_texto_original=document.getElementById('adec-texto-libre').value.trim();}
+    var{data,error}=await window.__sb.from('adecuaciones_generadas').insert(reg).select().single();
+    if(error)throw error;
+    _adec.lastSavedId=data.id;
+  }catch(e){console.warn('Error guardando borrador:',e);}
+}
+async function aprobarAdecuacion(){
+  if(!_adec.lastSavedId){alert('Primero generá una adecuación');return;}
+  var contenidoEditado=document.getElementById('adec-texto-resultado').value.trim();
+  try{
+    await window.__sb.from('adecuaciones_generadas').update({estado:'aprobada',contenido_generado:contenidoEditado}).eq('id',_adec.lastSavedId);
+    var btn=document.getElementById('adec-btn-aprobar');
+    btn.textContent='✅ Aprobada';btn.style.background='var(--verde)';btn.disabled=true;
+  }catch(e){alert('Error al aprobar: '+e.message);}
+}
+async function copiarAdecuacion(){
+  var texto=document.getElementById('adec-texto-resultado').value;
+  try{
+    await navigator.clipboard.writeText(texto);
+    var msg=document.getElementById('adec-copy-msg');
+    msg.textContent='✓ Copiado';setTimeout(function(){msg.textContent='';},2000);
+  }catch(e){alert('Error al copiar');}
+}
+
 function selTrimBoletin(el,t){ document.querySelectorAll('#tb-1,#tb-2,#tb-3').forEach(b=>b.classList.remove('active')); el.classList.add('active'); trimBoletin=t; }
 
 async function obtenerAlumnosSeleccionadosBoletin(){
@@ -2732,6 +2896,14 @@ async function abrirPerfilAcademico(studentId){
   html+='<div id="archivos-lista"><div style="text-align:center;font-size:12px;color:var(--gris);padding:8px;">Cargando archivos…</div></div>';
   html+='</div>';
 
+  // ── Adecuaciones ──
+  html+='<div style="margin-top:16px;margin-bottom:16px;">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1.5px;">🧩 Adecuaciones</div>';
+  html+='<button onclick="abrirNuevaAdecuacionParaAlumno(\''+studentId+'\')" style="background:var(--verde-bg);border:1.5px solid var(--verde);color:var(--verde);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">+ Nueva</button>';
+  html+='</div>';
+  html+='<div id="perf-adecuaciones-lista"><div style="text-align:center;font-size:12px;color:var(--gris);padding:8px;">Cargando…</div></div>';
+  html+='</div>';
 
   // Botón generar perfil académico funcional
   html+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-claro);">';
@@ -2755,9 +2927,70 @@ async function abrirPerfilAcademico(studentId){
 
   cargarObservacionesAlumno();
   cargarArchivosAlumno();
+  cargarAdecuacionesAlumno();
   cargarUltimoPerfilAcademico(studentId);
 }
 
+async function cargarAdecuacionesAlumno(){
+  var cont=document.getElementById('perf-adecuaciones-lista');
+  if(!cont||!_perfilStudentId)return;
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    var{data}=await window.__sb.from('adecuaciones_generadas')
+      .select('id,created_at,tipo_resultado,requiere_ppi,estado,contenido_generado,actividad_original_id,dificultades(nombre)')
+      .eq('teacher_id',user.id)
+      .eq('alumno_id',_perfilStudentId)
+      .order('created_at',{ascending:false});
+    var items=data||[];
+    if(!items.length){
+      cont.innerHTML='<div style="font-size:11px;color:var(--gris);text-align:center;padding:8px;">Sin adecuaciones generadas todavía.</div>';
+      return;
+    }
+    cont.innerHTML=items.map(function(a){
+      var fecha=new Date(a.created_at).toLocaleDateString('es-AR');
+      var ppiTag=a.requiere_ppi?'<span style="background:#FDF0E8;color:#C05A3A;border:1px solid #D4815A;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:6px;">⚠️ PPI</span>':'';
+      var estadoTag=a.estado==='aprobada'
+        ?'<span style="background:var(--verde-bg);color:var(--verde);border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;">✅ Aprobada</span>'
+        :'<span style="background:var(--crema);color:var(--gris);border-radius:5px;padding:1px 6px;font-size:9px;margin-left:4px;">Borrador</span>';
+      var dif=a.dificultades?a.dificultades.nombre:'Dificultad desconocida';
+      var origen=a.actividad_original_id?'Material guardado':'Texto libre';
+      return'<div style="border:1px solid var(--gris-claro);border-radius:9px;padding:10px;margin-bottom:7px;background:var(--blanco);">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">'
+        +'<div style="font-size:12px;font-weight:600;color:var(--negro);flex:1;">'+dif+ppiTag+estadoTag+'</div>'
+        +'<div style="font-size:10px;color:var(--gris);flex-shrink:0;margin-left:8px;">'+fecha+'</div></div>'
+        +'<div style="font-size:10px;color:var(--gris);margin-bottom:6px;">Origen: '+origen+'</div>'
+        +'<div onclick="toggleAdecuacionDetalle(this)" style="font-size:11px;color:var(--verde);cursor:pointer;font-weight:600;">▶ Ver contenido</div>'
+        +'<div style="display:none;margin-top:8px;">'
+        +'<textarea style="width:100%;padding:9px;border:1.5px solid var(--gris-claro);border-radius:8px;font-size:11px;font-family:inherit;box-sizing:border-box;resize:vertical;min-height:100px;background:var(--crema);" data-adec-id="'+a.id+'">'+a.contenido_generado.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</textarea>'
+        +(a.estado!=='aprobada'?'<button onclick="aprobarAdecuacionEnPerfil(\''+a.id+'\',this)" style="margin-top:5px;background:var(--verde);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">✅ Aprobar</button>':'')
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){
+    if(cont)cont.innerHTML='<div style="font-size:11px;color:var(--terracota);text-align:center;padding:8px;">Error al cargar adecuaciones.</div>';
+    console.error('cargarAdecuacionesAlumno:',e);
+  }
+}
+function toggleAdecuacionDetalle(el){
+  var det=el.nextElementSibling;
+  var open=det.style.display==='block';
+  det.style.display=open?'none':'block';
+  el.textContent=open?'▶ Ver contenido':'▼ Ocultar contenido';
+}
+async function aprobarAdecuacionEnPerfil(id,btn){
+  var ta=btn.previousElementSibling;
+  var contenido=ta?ta.value.trim():'';
+  try{
+    await window.__sb.from('adecuaciones_generadas').update({estado:'aprobada',contenido_generado:contenido}).eq('id',id);
+    btn.textContent='✅ Aprobada';btn.style.background='#888';btn.disabled=true;
+  }catch(e){alert('Error al aprobar: '+e.message);}
+}
+async function abrirNuevaAdecuacionParaAlumno(studentId){
+  document.getElementById('modal-perfil-academico').style.display='none';
+  await abrirAdecuaciones();
+  var sel=document.getElementById('adec-alumno');
+  if(sel)sel.value=studentId;
+}
 async function verTrazabilidadPAF(){
   if(!window.__sb||!_perfilStudentId)return;
   var user=(await window.__sb.auth.getUser()).data.user;
@@ -7459,6 +7692,78 @@ if(document.readyState==='loading'){
       </div>
       <div id="boletin-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);margin-top:5px;"></div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL ADECUACIONES -->
+<div id="modal-adecuaciones" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:580px;margin:20px auto;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <strong style="font-size:15px;color:var(--verde);">🧩 Adecuaciones</strong>
+      <button onclick="cerrarAdecuaciones()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Tabs: Mis materiales / Pegar texto -->
+    <div class="form-row">
+      <label>Actividad a adecuar</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;">
+        <div class="tipo-btn active" id="adec-tab-materiales" onclick="toggleModoAdecuacion('materiales')">📚 Mis materiales</div>
+        <div class="tipo-btn" id="adec-tab-texto" onclick="toggleModoAdecuacion('texto')">📝 Pegar texto</div>
+      </div>
+    </div>
+
+    <!-- Panel: materiales guardados -->
+    <div id="adec-panel-materiales" style="margin-bottom:11px;">
+      <div id="adec-lista-materiales" style="max-height:180px;overflow-y:auto;border:1.5px solid var(--gris-claro);border-radius:9px;padding:8px;background:var(--crema);">
+        <div style="text-align:center;padding:12px;font-size:11px;color:var(--gris);">Cargando materiales…</div>
+      </div>
+    </div>
+
+    <!-- Panel: texto libre -->
+    <div id="adec-panel-texto" style="display:none;margin-bottom:11px;">
+      <textarea id="adec-texto-libre" placeholder="Pegá aquí el texto de la actividad (consignas, preguntas, ejercicios)…" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:130px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
+    </div>
+
+    <!-- Alumno -->
+    <div class="form-row">
+      <label>Alumno</label>
+      <select id="adec-alumno" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);">
+        <option value="">— Seleccionar alumno —</option>
+      </select>
+    </div>
+
+    <!-- Dificultad -->
+    <div class="form-row">
+      <label>Dificultad de aprendizaje</label>
+      <select id="adec-dificultad" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);">
+        <option value="">— Seleccionar —</option>
+      </select>
+      <div id="adec-ciclo-info" style="font-size:9.5px;color:var(--gris);margin-top:4px;"></div>
+    </div>
+
+    <button id="adec-btn-generar" onclick="generarAdecuacion()" class="save-btn" style="margin-bottom:10px;">✨ Generar adecuación</button>
+
+    <!-- Resultado -->
+    <div id="adec-resultado" style="display:none;margin-top:4px;">
+
+      <!-- Alerta PPI -->
+      <div id="adec-alerta-ppi" style="display:none;background:#FDF0E8;border:1.5px solid #D4815A;border-radius:9px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:12.5px;font-weight:700;color:#C05A3A;margin-bottom:4px;">⚠️ Posible Adaptación Curricular</div>
+        <div style="font-size:11px;color:#8B3A20;line-height:1.55;">Esto podría requerir una <strong>Adaptación Curricular formal</strong>. Según normativa debe documentarse en un <strong>PPI (Proyecto Pedagógico para la Inclusión)</strong>. La decisión es siempre institucional y del docente.</div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Adecuación generada</div>
+      <textarea id="adec-texto-resultado" style="width:100%;padding:12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;color:var(--negro);line-height:1.75;background:var(--crema);min-height:200px;resize:vertical;box-sizing:border-box;font-family:inherit;"></textarea>
+      <div style="font-size:9.5px;color:var(--gris);margin-bottom:8px;margin-top:3px;">Podés editar el texto antes de aprobar. Se guardó automáticamente como borrador.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;">
+        <button onclick="copiarAdecuacion()" class="save-btn">📋 Copiar</button>
+        <button id="adec-btn-aprobar" onclick="aprobarAdecuacion()" class="sec-btn">✅ Aprobar</button>
+      </div>
+      <div id="adec-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);"></div>
+    </div>
+
   </div>
 </div>
 
