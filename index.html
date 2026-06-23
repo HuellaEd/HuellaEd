@@ -655,6 +655,7 @@
     <div id="grab-sesion-panel" style="display:none;background:var(--crema);border-radius:9px;padding:12px;margin-bottom:10px;">
       <div style="font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Tocá el alumno para grabar su lectura</div>
       <div id="grab-sesion-alumnos" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;"></div>
+      <button id="grab-analizar-todas-btn" style="display:none;width:100%;background:#1a73e8;color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;" onclick="analizarTodasLasLecturasPendientes()">🔍 Analizar todas</button>
     </div>
 
     <!-- Campo alumno individual (se oculta en sesión) -->
@@ -1404,7 +1405,7 @@ async function analizarConGemini() {
     const base64Data = base64Audio.split(',')[1];
 
     const promptPedagogico = `Sos un especialista en evaluación de lectura oral para nivel primario.
-Analizá este audio de lectura de un alumno de 6to año de primaria (11-12 años).${tituloTexto ? ' El texto leído es: "' + tituloTexto + '".' : ''}
+Analizá este audio de lectura de un alumno de ${window.__teacherGrade||'6to año'} de primaria.${tituloTexto ? ' El texto leído es: "' + tituloTexto + '".' : ''}
 
 Respondé en este formato exacto:
 
@@ -1903,9 +1904,8 @@ async function initTeacher(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
- var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar,onboarding_completed').eq('id',user.id).maybeSingle();
+  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar').eq('id',user.id).maybeSingle();
   if(!data)return;
-  if(data.onboarding_completed===false)abrirOnboarding(data.full_name||'');
   window.__teacherGrade=data.grade||'';
   window.__teacherName=data.full_name||'';
   // puede_generar default true si la columna todavía no existiera o viniera null (no afecta a nadie por accidente)
@@ -1920,42 +1920,7 @@ async function initTeacher(){
   actualizarEstadoApiKeys();
   aplicarVisibilidadGenerador();
 }
-// ── ONBOARDING ──
-function abrirOnboarding(nombre){
-  var primerNombre=(nombre||'').split(',')[0].split(' ')[0]||'';
-  var spanNombre=document.getElementById('onb-nombre');
-  if(spanNombre)spanNombre.textContent=primerNombre;
-  document.getElementById('onb-screen-1').style.display='block';
-  document.getElementById('onb-screen-2').style.display='none';
-  document.getElementById('onb-screen-3').style.display='none';
-  document.getElementById('modal-onboarding').style.display='block';
-}
 
-function onbSiguiente(pantalla){
-  document.getElementById('onb-screen-1').style.display=pantalla===1?'block':'none';
-  document.getElementById('onb-screen-2').style.display=pantalla===2?'block':'none';
-  document.getElementById('onb-screen-3').style.display=pantalla===3?'block':'none';
-}
-
-async function onbMarcarCompleto(){
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  await window.__sb.from('teachers').update({onboarding_completed:true}).eq('id',user.id);
-}
-
-async function onbSaltar(){
-  await onbMarcarCompleto();
-  document.getElementById('modal-onboarding').style.display='none';
-}
-
-async function onbFinalizar(){
-  await onbMarcarCompleto();
-  document.getElementById('modal-onboarding').style.display='none';
-  if(window.__students&&window.__students.length){
-    abrirPerfilAcademico(window.__students[0].id);
-  }
-}
 function aplicarVisibilidadGenerador(){
   var oculto=(window.__puedeGenerar===false);
   document.querySelectorAll('.boton-generador').forEach(function(el){
@@ -2192,7 +2157,7 @@ async function armarPromptBoletin(){
   }
 
   var nombresLista=seleccionados.map(function(s){return s.full_name;}).join(', ');
-  var p='Soy docente de 6to Año de la Escuela La Concepcion. Genera los informes de boletin del '+trims[trimBoletin]+' para los siguientes '+seleccionados.length+' alumnos.\n\n';
+  var p='Soy docente de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepcion. Genera los informes de boletin del '+trims[trimBoletin]+' para los siguientes '+seleccionados.length+' alumnos.\n\n';
   p+='FORMATO: recuadro 11.5cm x 2.5cm. Texto narrativo de 3-4 oraciones. Mencionar Matematica, Practicas del Lenguaje, conducta y asistencia si corresponde. Tono profesional y constructivo.\n\n';
   p+='ALUMNOS ('+seleccionados.length+'):\n'+nombresLista+'\n\n';
   if(difTexto)p+='ATENCION DIFERENCIADA:\n'+difTexto+'\n';
@@ -2262,7 +2227,7 @@ function descargarBoletinPDF(){
   wrapper.style.color='#222';
 
   var titulo=document.createElement('h2');
-  titulo.textContent='Informes de Boletín — '+(trims[trimBoletin]||'')+' — 6to Año, Escuela La Concepción';
+  titulo.textContent='Informes de Boletín — '+(trims[trimBoletin]||'')+' — '+(window.__teacherGrade||'6to Año')+', Escuela La Concepción';
   titulo.style.fontSize='15px';
   titulo.style.marginBottom='16px';
   titulo.style.borderBottom='2px solid #2D5F4F';
@@ -3025,7 +2990,7 @@ async function generarPerfilAcademico(){
   }
   var asistTextoPrompt='ASISTENCIA: '+(pctAsistNumero!==null?pctAsistTexto:'Sin registros de asistencia cargados en el sistema.')+'\n';
 
-  var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026. Docente: '+(window.__teacherName||'Docente')+'.\n\n';
+  var prompt='Generá el Perfil Académico Funcional de '+nombre+', alumno de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, Tigre, 2026. Docente: '+(window.__teacherName||'Docente')+'.\n\n';
   prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, NO agregues datos que no estén aquí. Si hay campos vacíos o sin datos, indicalo explícitamente en el informe.\n\n';
   prompt+='DATOS REALES DEL ALUMNO EN EL SISTEMA:\n\n';
   prompt+='NOTAS 1er TRIMESTRE (aprobado: 7):\n'+notasTexto+'\n\n';
@@ -3076,7 +3041,7 @@ async function generarPerfilAcademico(){
     resultDiv.innerHTML=''
       +'<div style="background:linear-gradient(135deg,#2D5F4F,#3A7A65);padding:18px 20px;display:flex;align-items:center;gap:14px;">'
       +'<div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:900;flex-shrink:0;">'+iniciales+'</div>'
-      +'<div><div style="font-family:inherit;font-weight:800;font-size:15px;color:#fff;">'+nombre+'</div><div style="font-size:10.5px;color:rgba(255,255,255,.8);margin-top:2px;">6to Año · Escuela La Concepción · 2026</div></div>'
+      +'<div><div style="font-family:inherit;font-weight:800;font-size:15px;color:#fff;">'+nombre+'</div><div style="font-size:10.5px;color:rgba(255,255,255,.8);margin-top:2px;">'+(window.__teacherGrade||'6to Año')+' · Escuela La Concepción · 2026</div></div>'
       +'</div>'
       +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px;background:var(--blanco);">'
       +'<div style="background:#EEF5F1;border-radius:10px;padding:9px;text-align:center;"><div style="font-weight:900;font-size:16px;color:#2D5F4F;">'+promReal+'</div><div style="font-size:8px;color:#6a8a78;text-transform:uppercase;letter-spacing:.3px;margin-top:1px;">Promedio</div></div>'
@@ -3262,7 +3227,7 @@ async function generarInforme(){
     obsTexto2='No se pudieron cargar las observaciones (error de conexión).';
   }
 
-  var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: '+(window.__teacherName||'Docente')+'. Fecha: '+fecha+'.\n\n';
+  var prompt='Generá un '+tipoInforme+' de '+nombre+', alumno de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, Tigre, Provincia de Buenos Aires. Docente: '+(window.__teacherName||'Docente')+'. Fecha: '+fecha+'.\n\n';
   prompt+='INSTRUCCIÓN CRÍTICA: Usá ÚNICAMENTE los datos que aparecen abajo. NO inventes información, NO supongas conductas, actitudes ni situaciones que no estén registradas. Si hay campos sin datos, indicalo con "sin datos registrados". El informe debe ser honesto sobre la información disponible.\n\n';
   prompt+='DATOS REALES EN EL SISTEMA:\n';
   prompt+='- Notas 1er Trimestre: '+notasTexto2+'\n';
@@ -3331,14 +3296,14 @@ function imprimirPerfilAcademicoDoc(nombre,iniciales,promedio,asistencia,atencio
     +'.firma{margin-top:36px;text-align:right;font-size:11px;color:#666;border-top:1px solid #ddd;padding-top:12px;}'
     +'@media print{@page{size:A4;margin:18mm 16mm;}}</style></head><body>'
     +'<div class="doc-wrap">'
-    +'<div class="hero"><div class="avatar">'+iniciales+'</div><div><div class="hero-nombre">'+nombre+'</div><div class="hero-meta">6to Año · Escuela La Concepción · Tigre · '+fecha+'</div></div></div>'
+    +'<div class="hero"><div class="avatar">'+iniciales+'</div><div><div class="hero-nombre">'+nombre+'</div><div class="hero-meta">'+(window.__teacherGrade||'6to Año')+' · Escuela La Concepción · Tigre · '+fecha+'</div></div></div>'
     +'<div class="stats">'
     +'<div class="stat"><div class="stat-num">'+promedio+'</div><div class="stat-label">Promedio</div></div>'
     +'<div class="stat"><div class="stat-num">'+asistencia+'</div><div class="stat-label">Asistencia</div></div>'
     +'<div class="stat"><div class="stat-num">'+atencion+'</div><div class="stat-label">Atención</div></div>'
     +'</div>'
     +'<div class="cuerpo">'+contenidoTexto+'</div>'
-    +'<div class="firma" style="margin:0 30px 30px;"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
+    +'<div class="firma" style="margin:0 30px 30px;"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de '+(window.__teacherGrade||'6to Año')+' · Escuela La Concepción</div>'
     +'</div></body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
@@ -3360,9 +3325,9 @@ function imprimirInforme(nombre,tipo,htmlContent){
     +'@media print{body{margin:15mm 20mm;}}</style></head><body>'
     +'<div class="header"><div class="escuela">Escuela La Concepción · Tigre · Provincia de Buenos Aires</div>'
     +'<div class="tipo">'+tipo+'</div>'
-    +'<div class="meta">'+nombre+' · 6to Año · 2026 · '+fecha+'</div></div>'
+    +'<div class="meta">'+nombre+' · '+(window.__teacherGrade||'6to Año')+' · 2026 · '+fecha+'</div></div>'
     +htmlContent
-    +'<div class="firma"><div><strong>'+(window.__teacherName||'Docente')+'</strong></div><div>Docente de 6to Año</div><div>Escuela La Concepción · Tigre</div></div>'
+    +'<div class="firma"><div><strong>'+(window.__teacherName||'Docente')+'</strong></div><div>Docente de '+(window.__teacherGrade||'6to Año')+'</div><div>Escuela La Concepción · Tigre</div></div>'
     +'</body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
@@ -3868,7 +3833,7 @@ function imprimirFicha(){
   document.querySelectorAll('.ficha-chip.activo').forEach(c=>chips.push(c.textContent.trim()));
   var html = '<div style="font-family:Arial,sans-serif;padding:20px;max-width:600px;">';
   html += '<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:8px;margin-bottom:14px;">';
-  html += '<div style="font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;">Escuela La Concepción · 6to Año · HuellaED</div>';
+  html += '<div style="font-size:10px;color:#2D5F4F;letter-spacing:2px;text-transform:uppercase;">Escuela La Concepción · '+(window.__teacherGrade||'6to Año')+' · HuellaED</div>';
   html += '<div style="font-size:16px;font-weight:bold;">FICHA DE CONOCIMIENTO DEL ALUMNO</div>';
   html += '<div style="font-size:11px;color:#888;margin-top:3px;">Alumno: '+alumno+' · Fecha: '+fecha+'</div>';
   html += '</div>';
@@ -4308,7 +4273,7 @@ async function abrirClaude(){
   }catch(eDifClaude){
     console.log('No se pudo cargar atención diferenciada para el prompt de Claude:',eDifClaude);
   }
-  contEl.textContent='Soy docente de 6to Año de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.\n\n'
+  contEl.textContent='Soy docente de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepción (Buenos Aires). Trabajo con HuellaED, un sistema pedagógico creado con Claude para gestionar perfiles de alumnos, planificaciones, cuadernillos, asistencia y notas.\n\n'
     +students.length+' alumnos: '+nombresLista+'.\n\n'
     +difTextoClaude+'\n\n'
     +'DC PBA. Áreas: Matemática, Prácticas del Lenguaje, Cs. Naturales, Cs. Sociales, Inglés, Ed. Física, Ed. Artística. Aprobado con 7.\n\n'
@@ -4337,7 +4302,7 @@ async function generarPrompt(){
   if(!tema){alert('Escribí el tema');return;}
   var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',evaluacion:'una evaluación'};
   var areaT=area;
-  var p='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. '+(window.__students&&window.__students.length||19)+' alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
+  var p='Soy docente de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, PBA. DC PBA. '+(window.__students&&window.__students.length||19)+' alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
   p+=', sobre: '+tema+'.\n\n';
   var formatosBloque={
     '12':'FORMATO PARA 1° y 2° GRADO: tipografía y consignas MUY simples, una sola consigna por bloque, oraciones cortas, mucho espacio para escribir o dibujar, vocabulario básico.',
@@ -4345,7 +4310,7 @@ async function generarPrompt(){
     '56':'FORMATO PARA 5° y 6° GRADO: consignas más densas, puede incluir tablas o cuadros comparativos, espacio de escritura más acotado.'
   };
   p+=(formatosBloque[bloqueAñosSel]||formatosBloque['56'])+'\n\n';
-  if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
+  if(!soloDif)p+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para '+(window.__teacherGrade||'6to')+'.';else p+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
   if(tipoSel==='cuadernillo'||tipoSel==='ficha')p+='\nListo para imprimir en A4.';
   if(alumnosEsp.length>0){
     p+='\n\nVERSIONES DIFERENCIADAS:\n';
@@ -4373,9 +4338,9 @@ async function generarConIA(){
     if(!tema){alert('Escribí el tema');resolve(null);return;}
     var tipos={cuadernillo:'un cuadernillo imprimible',ficha:'una ficha de trabajo imprimible',evaluacion:'una evaluación'};
     var areaT=area;
-    var p2='Soy docente de 6to Año de la Escuela La Concepción, PBA. DC PBA. '+(window.__students&&window.__students.length||19)+' alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
+    var p2='Soy docente de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, PBA. DC PBA. '+(window.__students&&window.__students.length||19)+' alumnos.\n\nNecesito generar '+tipos[tipoSel]+' para '+areaT;
     p2+=', sobre: '+tema+'.\n\n';
-    if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para 6to primaria.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
+    if(!soloDif)p2+='VERSIÓN GENERAL: para todo el grupo. Consignas claras para '+(window.__teacherGrade||'6to')+'.';else p2+='Generá ÚNICAMENTE las versiones diferenciadas indicadas.';
     if(alumnosEsp.length>0){p2+='\n\nVERSIONES DIFERENCIADAS:\n';alumnosEsp.forEach(function(a){var tl=a.tipo==='adaptacion'?'ADAPTACIÓN (modifica objetivos)':'ADECUACIÓN (mantiene objetivos)';p2+='• '+a.nombre+' — '+tl+'\n  '+a.perfil+'\n';});p2+='\nNINGUNA nota, aclaración o sección dirigida a la docente debe aparecer en el documento final — es exclusivamente para el alumno.';}
     if(det)p2+='\n\nDetalles: '+det;
     var formatoInstr={
@@ -4860,9 +4825,16 @@ function siguienteAlumnoLectura(){
 }
 
 var mr=null,ac=[],grab=false,ti=null,seg=0,ab=null;
+var grabPendientesAnalisis=[]; // {alumno,titulo,nombreArchivo,blob} — en modo sesión, se acumulan
+                                // y se analizan todas juntas con el botón "Analizar todas",
+                                // en vez de transcribirse una por una apenas se grava cada una.
 function abrirGrabador(){document.getElementById('modal-grabador').style.display='block';document.getElementById('grab-resultado').style.display='none';document.getElementById('grab-timer').style.display='none';document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-status').textContent='Seleccioná el alumno y tocá Grabar';seg=0;}
 function cerrarGrabador(){
   if(grab)toggleGrabacion();
+  if(grabPendientesAnalisis.length>0){
+    var continuar=confirm('Quedan '+grabPendientesAnalisis.length+' lectura(s) grabada(s) sin analizar todavía. Los audios ya están guardados, pero si cerrás ahora vas a tener que analizarlos manualmente más tarde (no se pierden, pero no se procesan solos). ¿Cerrar igual?');
+    if(!continuar)return;
+  }
   document.getElementById('modal-grabador').style.display='none';
   // Resetear el modo sesión al cerrar, para que no quede desincronizado la próxima vez que se abra
   grabSesionActivo=false;
@@ -4886,9 +4858,111 @@ async function descargarAudio(){
     document.getElementById('grab-siguiente-btn').style.display='block';
     renderSesionLectura();
   }
-  // Subir el audio a Supabase y transcribirlo, para que la lectura grabada quede
-  // disponible en el perfil del alumno y pueda usarse en el Perfil Académico Funcional.
-  subirYTranscribirAudioLectura(al,titulo,nombre);
+  if(grabSesionActivo){
+    // Modo sesión: subir el audio ahora (para no perderlo), pero POSPONER la transcripción —
+    // se analizan todas juntas, en secuencia, con el botón "Analizar todas" al final de la sesión.
+    await subirAudioLecturaSinTranscribir(al,titulo,nombre,ab);
+    actualizarBotonAnalizarTodas();
+  }else{
+    // Modo individual (sin sesión): comportamiento de siempre, transcribe apenas se sube.
+    subirYTranscribirAudioLectura(al,titulo,nombre);
+  }
+}
+
+async function subirAudioLecturaSinTranscribir(nombreAlumno,titulo,nombreArchivoBase,blob){
+  if(!window.__sb||!nombreAlumno)return;
+  var st=(window.__students||[]).find(function(s){return s.full_name===nombreAlumno;});
+  if(!st)return;
+  var statusEl=document.getElementById('grab-status');
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    if(!user)return;
+    var path=user.id+'/'+st.id+'/lecturas/'+nombreArchivoBase+'.webm';
+    var {error:errUpload}=await window.__sb.storage.from('evidencias').upload(path,blob);
+    if(errUpload){
+      console.log('No se pudo guardar el audio en la base:',errUpload.message);
+      if(statusEl)statusEl.textContent='Audio descargado (no se pudo guardar en la base: '+errUpload.message+')';
+      return;
+    }
+    grabPendientesAnalisis.push({alumno:nombreAlumno,studentId:st.id,titulo:titulo,nombreArchivo:nombreArchivoBase,blob:blob,teacherId:user.id});
+    if(statusEl)statusEl.textContent='Audio guardado. Pendiente de análisis (se analiza junto con el resto al final).';
+  }catch(eUpload){
+    console.log('Error al guardar el audio de lectura:',eUpload);
+    if(statusEl)statusEl.textContent='Audio descargado (no se pudo guardar en la base: '+eUpload.message+')';
+  }
+}
+
+function actualizarBotonAnalizarTodas(){
+  var btn=document.getElementById('grab-analizar-todas-btn');
+  if(!btn)return;
+  if(grabPendientesAnalisis.length>0){
+    btn.style.display='block';
+    btn.textContent='🔍 Analizar todas ('+grabPendientesAnalisis.length+')';
+    btn.disabled=false;
+  }else{
+    btn.style.display='none';
+  }
+}
+
+async function analizarTodasLasLecturasPendientes(){
+  if(!grabPendientesAnalisis.length)return;
+  var btn=document.getElementById('grab-analizar-todas-btn');
+  var statusEl=document.getElementById('grab-status');
+  var pendientes=grabPendientesAnalisis.slice(); // copia, para no mutar mientras se procesa
+  grabPendientesAnalisis=[];
+  if(btn){btn.disabled=true;}
+  var total=pendientes.length;
+  for(var i=0;i<pendientes.length;i++){
+    var item=pendientes[i];
+    if(statusEl)statusEl.textContent='Analizando '+(i+1)+' de '+total+': '+item.alumno+'…';
+    if(btn)btn.textContent='Analizando '+(i+1)+'/'+total+'…';
+    try{
+      await transcribirYGuardarLecturaPendiente(item);
+    }catch(eItem){
+      console.log('Error al analizar la lectura de '+item.alumno+':',eItem);
+      // Si falla una, se sigue con las demás — no se pierde toda la sesión por un error puntual.
+      grabPendientesAnalisis.push(item); // la devolvemos a la cola para reintentar después
+    }
+  }
+  actualizarBotonAnalizarTodas();
+  if(statusEl)statusEl.textContent=grabPendientesAnalisis.length
+    ?'✅ Análisis terminado. '+grabPendientesAnalisis.length+' quedaron pendientes por error — podés reintentar.'
+    :'✅ Análisis completo: '+total+' lectura(s) transcripta(s) y guardada(s) en cada perfil.';
+}
+
+async function transcribirYGuardarLecturaPendiente(item){
+  // Usa el MISMO análisis pedagógico rico que analizarConGemini() (fluidez, errores,
+  // entonación, nivel lector, observación pedagógica) — no una simple transcripción —
+  // para que el resultado del lote sea igual de útil que el análisis individual.
+  var apiKey=getApiKey();
+  if(!apiKey){
+    document.getElementById('modal-gemini-config').style.display='block';
+    throw new Error('Sin clave de Gemini configurada');
+  }
+  var base64Audio=await blobToBase64(item.blob);
+  var base64Data=base64Audio.split(',')[1];
+  var promptPedagogico='Sos un especialista en evaluación de lectura oral para nivel primario.\nAnalizá este audio de lectura de un alumno de '+(window.__teacherGrade||'6to año')+' de primaria.'+(item.titulo?' El texto leído es: "'+item.titulo+'".':'')+'\n\nRespondé en este formato exacto:\n\nFLUIDEZ: [Fluida / Con pausas leves / Con pausas frecuentes / Lenta / Muy lenta]\n\nERRORES:\n- Omisiones: [palabras omitidas o "ninguna"]\n- Sustituciones: [palabras cambiadas o "ninguna"]\n- Repeticiones: [palabras repetidas o "ninguna"]\n- Autocorrecciones: [sí / no]\n\nENTONACIÓN: [Adecuada / Monótona / Inadecuada]\nRITMO: [Adecuado / Apresurado / Lento]\nNIVEL LECTOR: [Avanzado / Esperado / En proceso / Con dificultades]\n\nOBSERVACIÓN PEDAGÓGICA: [2-3 oraciones concretas para el docente]\n\nSi el audio es muy corto o hay ruido ambiental, indicalo brevemente.';
+  var response=await fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+apiKey,
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      contents:[{parts:[{text:promptPedagogico},{inline_data:{mime_type:item.blob.type||'audio/webm',data:base64Data}}]}]
+    })}
+  );
+  var data=await response.json();
+  if(data.error)throw new Error(data.error.message);
+  var analisis=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text)||'';
+  if(!analisis)throw new Error('No se obtuvo análisis del audio');
+  var fecha=new Date().toLocaleDateString('es-AR');
+  var textoObs='[📖 Lectura'+(item.titulo?': '+item.titulo:'')+' · '+fecha+']\n'+analisis;
+  var {error:errObs}=await window.__sb.from('notas_rapidas').insert({student_id:item.studentId,teacher_id:item.teacherId,content:textoObs});
+  if(errObs)throw new Error('Se analizó pero no se pudo guardar: '+errObs.message);
+  // Igual que el análisis individual, intentar guardar también en Drive (sin bloquear si falla)
+  try{
+    var alumnoKey=item.alumno.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/,\s*/g,'_').replace(/\s+/g,'_').replace(/[^a-zA-Z_]/g,'');
+    await guardarAnalisisEnDrive(alumnoKey,item.alumno,fecha,item.titulo,analisis);
+  }catch(eDrive){
+    console.log('No se pudo guardar en Drive (no bloqueante):',eDrive);
+  }
 }
 
 async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBase){
@@ -4908,11 +4982,21 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
     }
     if(statusEl)statusEl.textContent='Audio guardado. Transcribiendo...';
 
-    // Transcripción con la API de Anthropic (Claude puede procesar audio en base64)
-    var apiKey=_sget('huellaed_anthropic_key');
+    // Transcripción con la API de Gemini (Google) — Claude no soporta audio en bloques document,
+    // confirmado con la API real (error 400: el media_type de un bloque document debe ser
+    // application/pdf, sin excepción). Este fix ya se había aplicado una vez (commit 28c7172)
+    // pero se perdió en una subida posterior que partió de una copia vieja del archivo — ver
+    // protocolo HuellaED, Regla 1 (GitHub como única fuente de verdad) y la regla de entrega
+    // del index.html final, ambas pensadas para evitar exactamente este tipo de pérdida.
+    var apiKey=_sget('huellaed_gemini_key');
     if(!apiKey){
-      if(statusEl)statusEl.textContent='Audio guardado (sin clave de API, no se transcribió automáticamente)';
-      return;
+      apiKey=window.prompt('Ingresá tu API Key de Gemini (se guarda en este navegador para la próxima vez):');
+      if(!apiKey){
+        if(statusEl)statusEl.textContent='Audio guardado (sin clave de Gemini, no se transcribió)';
+        return;
+      }
+      _sset('huellaed_gemini_key',apiKey.trim());
+      apiKey=apiKey.trim();
     }
     var audioBase64=await new Promise(function(resolve,reject){
       var reader=new FileReader();
@@ -4921,14 +5005,13 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
       reader.readAsDataURL(ab);
     });
     var mediaType=ab.type||'audio/webm';
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
+    var res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+apiKey,{
       method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'content-type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:1500,
-        messages:[{role:'user',content:[
-          {type:'document',source:{type:'base64',media_type:mediaType,data:audioBase64}},
-          {type:'text',text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'}
+        contents:[{parts:[
+          {text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'},
+          {inline_data:{mime_type:mediaType,data:audioBase64}}
         ]}]
       })
     });
@@ -4937,7 +5020,7 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
       throw new Error((ed.error&&ed.error.message)||'Error '+res.status);
     }
     var data=await res.json();
-    var transcripcion=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var transcripcion=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text)||'';
     if(transcripcion){
       var textoObs='[Grabación de lectura'+(titulo?' · '+titulo:'')+' · '+new Date().toLocaleDateString('es-AR')+']\nTranscripción: '+transcripcion;
       var {error:errObs}=await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObs});
@@ -5147,7 +5230,7 @@ async function subirYAnalizarEvidencia(archivo,nombreAlumno,area,tema,obs,nombre
       +(area?' del área de '+area:'')
       +(tema?' sobre el tema "'+tema+'"':'')
       +(obs?' (observación del docente: "'+obs+'")':'')
-      +' de un alumno de 6to grado de escuela primaria en Argentina.';
+      +' de un alumno de '+(window.__teacherGrade||'6to grado')+' de escuela primaria en Argentina.';
     var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
@@ -5291,7 +5374,7 @@ async function cargarHistorialReuniones(){
       +'</div>';
   }).join('');
 }
-function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">6to Año · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>'+(window.__teacherName||'Docente')+'</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · 6to Año 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
+function generarActa(){var al=document.getElementById('reunion-alumno').value,fecha=document.getElementById('reunion-fecha').value,asist=document.getElementById('reunion-asistentes').value,res=document.getElementById('reunion-resumen').value,comp=document.getElementById('reunion-compromisos').value;if(!res){alert('Completá el resumen');return;}var fechaF=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}):'___/___/______';var html='<div style="text-align:center;border-bottom:2px solid #2D5F4F;padding-bottom:10px;margin-bottom:14px;"><div style="font-size:10px;color:#2D5F4F;text-transform:uppercase;letter-spacing:2px;">Escuela La Concepción</div><div style="font-size:17px;font-weight:bold;">ACTA DE REUNIÓN FAMILIAR</div><div style="font-size:10px;color:#888;margin-top:3px;">'+(window.__teacherGrade||'6to Año')+' · 2026</div></div><table style="width:100%;font-size:12px;margin-bottom:14px;"><tr><td style="color:#888;width:35%;padding:3px 0;">Fecha:</td><td style="font-weight:bold;">'+fechaF+'</td></tr><tr><td style="color:#888;padding:3px 0;">Alumno/a:</td><td style="font-weight:bold;">'+(al||'(Reunión grupal)')+'</td></tr><tr><td style="color:#888;padding:3px 0;">Motivo:</td><td>'+motivoR+'</td></tr><tr><td style="color:#888;padding:3px 0;">Asistentes:</td><td>'+(asist||'—')+'</td></tr></table><div style="margin-bottom:12px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Resumen</div><div style="min-height:55px;">'+res+'</div></div><div style="margin-bottom:20px;"><div style="font-size:10px;font-weight:bold;color:#2D5F4F;text-transform:uppercase;border-bottom:1px solid #EEE;padding-bottom:3px;margin-bottom:5px;">Compromisos</div><div style="min-height:45px;">'+(comp||'Sin compromisos formales.')+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;"><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Docente<br>'+(window.__teacherName||'Docente')+'</div></div><div style="text-align:center;"><div style="border-top:1px solid #333;padding-top:6px;margin-top:36px;font-size:11px;color:#888;">Firma Familia</div></div></div><div style="text-align:center;margin-top:18px;font-size:9px;color:#AAA;">HuellaED · Escuela La Concepción · '+(window.__teacherGrade||'6to Año')+' 2026</div>';document.getElementById('acta-preview').innerHTML=html;document.getElementById('modal-acta').style.display='block';}
 function imprimirActa(){var c=document.getElementById('acta-preview').innerHTML;document.getElementById('print-container').innerHTML='<div style="font-family:Georgia,serif;font-size:13px;line-height:1.8;padding:20px;">'+c+'</div>';window.print();setTimeout(()=>{document.getElementById('print-container').innerHTML='';},1000);}
 function cerrarActa(){document.getElementById('modal-acta').style.display='none';}
 
@@ -5852,7 +5935,7 @@ async function generarLegajoEgreso(studentId,nombre){
   }
   
   var fecha=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
-  var promptIA='Generá el LEGAJO DE EGRESO de '+nombre+', alumno de 6to Año de la Escuela La Concepción, Tigre, 2026.\n\n';
+  var promptIA='Generá el LEGAJO DE EGRESO de '+nombre+', alumno de '+(window.__teacherGrade||'6to Año')+' de la Escuela La Concepción, Tigre, 2026.\n\n';
   promptIA+='INSTRUCCIÓN: Solo usá los datos reales. No inventés información.\n\n';
   promptIA+='NOTAS: '+notasTexto+'\n';
   promptIA+='ASISTENCIA: Presentes: '+att.presente+' / Ausentes: '+att.ausente+' / Tardanzas: '+att.tardanza+' / Justificados: '+att.justificado+'\n';
@@ -6209,7 +6292,7 @@ async function generarDEI(){
   promptIA+='Fecha de nacimiento: '+(g('dei-fnac')||'No informada')+'\n';
   promptIA+='Domicilio: '+(g('dei-domicilio')||'No informado')+'\n';
   promptIA+='Escuela: Escuela La Concepción, Tigre\n';
-  promptIA+='Año que cursa: 6to Año\n';
+  promptIA+='Año que cursa: '+(window.__teacherGrade||'6to Año')+'\n';
   promptIA+='Docente de referencia 2026: '+(window.__teacherName||'Docente')+'\n';
   promptIA+='Fecha de inicio DEI: '+(g('dei-inicio')||'No informada')+'\n\n';
   
@@ -6262,7 +6345,7 @@ async function generarDEI(){
       +'<div style="text-align:center;margin-bottom:20px;">'
       +'<div style="font-size:10px;color:#C05A3A;letter-spacing:2px;text-transform:uppercase;">Escuela La Concepción · Tigre · Provincia de Buenos Aires</div>'
       +'<h1>TRAYECTORIAS EDUCATIVAS Y PROPUESTA PEDAGÓGICA PARA LA INCLUSIÓN</h1>'
-      +'<div style="font-size:11px;color:#888;">'+s.full_name+' · 6to Año · 2026 · '+fecha+'</div>'
+      +'<div style="font-size:11px;color:#888;">'+s.full_name+' · '+(window.__teacherGrade||'6to Año')+' · 2026 · '+fecha+'</div>'
       +'</div>'
       +markdownToHtml(texto)
       +'</body></html>';
@@ -6390,7 +6473,7 @@ async function caGenerarPerfil(){
       }
     }catch(e4){}
   }
-  var promptIA='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de 6to Año, '+(window.__students&&window.__students.length||19)+' alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
+  var promptIA='Generá un PERFIL ÁULICO GRUPAL completo y profesional para un docente de '+(window.__teacherGrade||'6to Año')+', '+(window.__students&&window.__students.length||19)+' alumnos. Escuela La Concepción, Tigre, PBA. Docente: '+(window.__teacherName||'Docente')+'. 2026.\n\nDATOS DEL CUESTIONARIO:\n'+lineas.join('\n')+(obs?'\n- Observación del docente: '+obs:'')+(obsHistoricasTexto?'\n\nOBSERVACIONES GRUPALES PREVIAS DEL DOCENTE (tenelas en cuenta para enriquecer el perfil):\n'+obsHistoricasTexto:'')+'\n\nGenerá el perfil con estas secciones:\n## Caracterización general del grupo\n## Fortalezas colectivas\n## Desafíos pedagógicos\n## Recomendaciones para la planificación\n(incluí: diseño de tiempos, formato de recursos, agrupamientos)\n## Estrategias prioritarias\n\nTono profesional, lenguaje docente argentino, orientado a decisiones didácticas concretas.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
@@ -6443,7 +6526,7 @@ function imprimirPerfilAulicoDoc(){
     var val=_ca[d]?(DIM_VALOR_CORTO[d][_ca[d]]||'—'):'—';
     return '<div class="dim"><div class="dim-icon">'+DIM_ICONOS[d]+'</div><div class="dim-label">'+DIM_LABELS[d]+'</div><div class="dim-valor">'+val+'</div></div>';
   }).join('');
-  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Áulico Grupal — 6to Año</title>'
+  var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil Áulico Grupal — '+(window.__teacherGrade||'6to Año')+'</title>'
     +'<style>@import url(\'https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap\');'
     +'*{box-sizing:border-box;margin:0;padding:0;}body{font-family:\'Nunito Sans\',sans-serif;background:var(--blanco);color:#222;}'
     +'.doc-wrap{max-width:700px;margin:0 auto;}'
@@ -6459,10 +6542,10 @@ function imprimirPerfilAulicoDoc(){
     +'.firma{margin:0 30px 30px;text-align:right;font-size:11px;color:#666;border-top:1px solid #ddd;padding-top:12px;}'
     +'@media print{@page{size:A4;margin:18mm 16mm;}}</style></head><body>'
     +'<div class="doc-wrap">'
-    +'<div class="hero"><div class="hero-tit">6to Año · Perfil del grupo</div><div class="hero-sub">'+(window.__students&&window.__students.length||19)+' alumnos · Escuela La Concepción · Tigre · '+fecha+'</div></div>'
+    +'<div class="hero"><div class="hero-tit">'+(window.__teacherGrade||'6to Año')+' · Perfil del grupo</div><div class="hero-sub">'+(window.__students&&window.__students.length||19)+' alumnos · Escuela La Concepción · Tigre · '+fecha+'</div></div>'
     +'<div class="dims">'+dimsHtml+'</div>'
     +'<div class="cuerpo">'+contenidoTexto+'</div>'
-    +'<div class="firma"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de 6to Año · Escuela La Concepción</div>'
+    +'<div class="firma"><strong>'+(window.__teacherName||'Docente')+'</strong><br>Docente de '+(window.__teacherGrade||'6to Año')+' · Escuela La Concepción</div>'
     +'</div></body></html>';
   var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
   var url=URL.createObjectURL(blob);
@@ -6485,7 +6568,7 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
   }).join('');
   div.innerHTML=''
     +'<div style="background:#EAF2F8;border-bottom:2px solid #3B6E9E;padding:16px 18px;">'
-    +'<div style="font-family:inherit;font-weight:800;font-size:14px;color:#3B6E9E;">6to Año · Perfil del grupo</div>'
+    +'<div style="font-family:inherit;font-weight:800;font-size:14px;color:#3B6E9E;">'+(window.__teacherGrade||'6to Año')+' · Perfil del grupo</div>'
     +'<div style="font-size:10px;color:#5b7fa6;margin-top:2px;">'+(window.__students&&window.__students.length||19)+' alumnos · Escuela La Concepción · '+new Date().toLocaleDateString('es-AR')+'</div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:12px 14px;background:var(--blanco);">'+dimsHtml+'</div>'
@@ -6881,7 +6964,7 @@ async function ajustarPerfilAulico(){
   temp.innerHTML=_perfilAulicoActual;
   var textoPlano=temp.textContent||temp.innerText||'';
 
-  var promptIA='Este es el perfil áulico grupal vigente de un curso de 6to Año, Escuela La Concepción, Tigre, PBA:\n\n'+textoPlano+'\n\n';
+  var promptIA='Este es el perfil áulico grupal vigente de un curso de '+(window.__teacherGrade||'6to Año')+', Escuela La Concepción, Tigre, PBA:\n\n'+textoPlano+'\n\n';
   promptIA+='El docente quiere actualizar o ajustar este perfil con la siguiente observación nueva:\n"'+cambio+'"\n\n';
   promptIA+='Generá una VERSIÓN ACTUALIZADA del perfil áulico completo, incorporando este cambio de forma coherente con el resto. Mantené la misma estructura de secciones (Caracterización general del grupo, Fortalezas colectivas, Desafíos pedagógicos, Recomendaciones para la planificación, Estrategias prioritarias). No repitas literalmente el perfil anterior: actualizalo de verdad reflejando el cambio indicado.';
 
@@ -7731,60 +7814,6 @@ if(document.readyState==='loading'){
       <button onclick="guardarPlanifDesdeArchivo()" class="save-btn" style="margin-top:14px;width:100%;">💾 Guardar todas las secuencias</button>
       <div id="confirmar-planif-resultado" style="text-align:center;font-size:11px;margin-top:8px;"></div>
     </div>
-  </div>
-  <!-- MODAL ONBOARDING -->
-<div id="modal-onboarding" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:5000;padding:14px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:var(--blanco);border-radius:16px;max-width:480px;width:100%;margin:30px auto;overflow:hidden;
-    <!-- Pantalla 1: Bienvenida -->
-    <div id="onb-screen-1" class="onb-screen">
-      <div style="background:var(--verde);padding:30px 24px;text-align:center;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="46" height="54" style="margin-bottom:10px;">
-          <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>
-          <path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>
-          <circle cx="50" cy="9" r="3.5" fill="#C8845A"/>
-        </svg>
-        <div style="font-size:20px;font-weight:700;color:#fff;">Hola, <span id="onb-nombre"></span> 👋</div>
-        <div style="font-size:13px;color:rgba(168,201,188,0.9);margin-top:8px;line-height:1.5;">Tu app para acompañar a tus alumnos, sin perder tiempo en planillas.</div>
-      </div>
-      <div style="padding:20px 24px;">
-        <button onclick="onbSiguiente(2)" class="save-btn" style="margin-bottom:8px;">Empezar</button>
-        <button onclick="onbSaltar()" style="width:100%;background:none;border:none;color:var(--gris);font-size:12px;cursor:pointer;padding:6px;">Ya sé usarla</button>
-      </div>
-    </div>
-
-    <!-- Pantalla 2: Tour de funciones -->
-    <div id="onb-screen-2" class="onb-screen" style="display:none;padding:24px;">
-      <div style="font-size:15px;font-weight:700;color:var(--verde);margin-bottom:4px;">Esto vas a poder hacer</div>
-      <div style="font-size:12px;color:var(--gris);margin-bottom:16px;">Un repaso rápido antes de entrar</div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
-          <span style="font-size:22px;">🏫</span>
-          <div><strong style="font-size:13px;">Perfil Áulico</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Estadísticas y vista general del grupo</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
-          <span style="font-size:22px;">📋</span>
-          <div><strong style="font-size:13px;">Registrar</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Asistencia, evidencias, fotos, reuniones</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
-          <span style="font-size:22px;">✨</span>
-          <div><strong style="font-size:13px;">Generar</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Cuadernillos, fichas e informes con IA</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
-          <span style="font-size:22px;">📊</span>
-          <div><strong style="font-size:13px;">Notas e Inasistencias</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Todo el seguimiento por trimestre</div></div>
-        </div>
-      </div>
-      <button onclick="onbSiguiente(3)" class="save-btn">Entendido, seguir</button>
-    </div>
-
-    <!-- Pantalla 3: Primer perfil real -->
-    <div id="onb-screen-3" class="onb-screen" style="display:none;padding:24px;text-align:center;">
-      <div style="font-size:34px;margin-bottom:8px;">👤</div>
-      <div style="font-size:15px;font-weight:700;color:var(--verde);margin-bottom:6px;">Ya está todo listo</div>
-      <div style="font-size:12px;color:var(--gris);margin-bottom:18px;line-height:1.5;">Te llevamos directo al perfil de uno de tus alumnos para que veas cómo se ve en la práctica.</div>
-      <button onclick="onbFinalizar()" class="save-btn">Ver mi primer perfil</button>
-    </div>
-
   </div>
 </div>
 <div id="print-container"></div>
