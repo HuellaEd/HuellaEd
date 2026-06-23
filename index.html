@@ -4835,12 +4835,17 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
     }
     if(statusEl)statusEl.textContent='Audio guardado. Transcribiendo...';
 
-    // Transcripción con la API de Anthropic (Claude puede procesar audio en base64)
-    var apiKey=_sget('huellaed_anthropic_key');
-    if(!apiKey){
-      if(statusEl)statusEl.textContent='Audio guardado (sin clave de API, no se transcribió automáticamente)';
-      return;
-    }
+    // Transcripción con la API de Gemini (Google) - Claude no soporta audio en bloques document
+    var apiKey=_sget('huellaed_gemini_key');
+if(!apiKey){
+  apiKey=window.prompt('Ingresá tu API Key de Gemini (se guarda en este navegador para la próxima vez):');
+  if(!apiKey){
+    if(statusEl)statusEl.textContent='Audio guardado (sin clave de Gemini, no se transcribió)';
+    return;
+  }
+  _sset('huellaed_gemini_key',apiKey.trim());
+  apiKey=apiKey.trim();
+}
     var audioBase64=await new Promise(function(resolve,reject){
       var reader=new FileReader();
       reader.onload=function(){resolve(reader.result.split(',')[1]);};
@@ -4848,14 +4853,13 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
       reader.readAsDataURL(ab);
     });
     var mediaType=ab.type||'audio/webm';
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
+    var res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+apiKey,{
       method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'content-type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:1500,
-        messages:[{role:'user',content:[
-          {type:'document',source:{type:'base64',media_type:mediaType,data:audioBase64}},
-          {type:'text',text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'}
+        contents:[{parts:[
+          {text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'},
+          {inline_data:{mime_type:mediaType,data:audioBase64}}
         ]}]
       })
     });
@@ -4864,7 +4868,7 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
       throw new Error((ed.error&&ed.error.message)||'Error '+res.status);
     }
     var data=await res.json();
-    var transcripcion=(data.content&&data.content[0]&&data.content[0].text)||'';
+    var transcripcion=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text)||'';
     if(transcripcion){
       var textoObs='[Grabación de lectura'+(titulo?' · '+titulo:'')+' · '+new Date().toLocaleDateString('es-AR')+']\nTranscripción: '+transcripcion;
       var {error:errObs}=await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObs});
@@ -4882,6 +4886,7 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
     if(statusEl)statusEl.textContent='Audio guardado (no se pudo transcribir: '+eTrans.message+')';
   }
 }
+
 
 // ── EVIDENCIA ──
 var evFile=null,evReg=[];
