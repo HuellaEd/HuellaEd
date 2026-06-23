@@ -1903,8 +1903,9 @@ async function initTeacher(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar').eq('id',user.id).maybeSingle();
+ var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar,onboarding_completed').eq('id',user.id).maybeSingle();
   if(!data)return;
+  if(data.onboarding_completed===false)abrirOnboarding(data.full_name||'');
   window.__teacherGrade=data.grade||'';
   window.__teacherName=data.full_name||'';
   // puede_generar default true si la columna todavía no existiera o viniera null (no afecta a nadie por accidente)
