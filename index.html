@@ -1920,7 +1920,42 @@ async function initTeacher(){
   actualizarEstadoApiKeys();
   aplicarVisibilidadGenerador();
 }
+// ── ONBOARDING ──
+function abrirOnboarding(nombre){
+  var primerNombre=(nombre||'').split(',')[0].split(' ')[0]||'';
+  var spanNombre=document.getElementById('onb-nombre');
+  if(spanNombre)spanNombre.textContent=primerNombre;
+  document.getElementById('onb-screen-1').style.display='block';
+  document.getElementById('onb-screen-2').style.display='none';
+  document.getElementById('onb-screen-3').style.display='none';
+  document.getElementById('modal-onboarding').style.display='block';
+}
 
+function onbSiguiente(pantalla){
+  document.getElementById('onb-screen-1').style.display=pantalla===1?'block':'none';
+  document.getElementById('onb-screen-2').style.display=pantalla===2?'block':'none';
+  document.getElementById('onb-screen-3').style.display=pantalla===3?'block':'none';
+}
+
+async function onbMarcarCompleto(){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  await window.__sb.from('teachers').update({onboarding_completed:true}).eq('id',user.id);
+}
+
+async function onbSaltar(){
+  await onbMarcarCompleto();
+  document.getElementById('modal-onboarding').style.display='none';
+}
+
+async function onbFinalizar(){
+  await onbMarcarCompleto();
+  document.getElementById('modal-onboarding').style.display='none';
+  if(window.__students&&window.__students.length){
+    abrirPerfilAcademico(window.__students[0].id);
+  }
+}
 function aplicarVisibilidadGenerador(){
   var oculto=(window.__puedeGenerar===false);
   document.querySelectorAll('.boton-generador').forEach(function(el){
