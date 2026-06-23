@@ -1905,7 +1905,7 @@ async function initTeacher(){
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar').eq('id',user.id).maybeSingle();
+  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar,onboarding_completed').eq('id',user.id).maybeSingle();
   if(!data)return;
   window.__teacherGrade=data.grade||'';
   window.__teacherName=data.full_name||'';
@@ -1920,6 +1920,7 @@ async function initTeacher(){
   if(data.gemini_key){_sset('huellaed_gemini_key',data.gemini_key);}
   actualizarEstadoApiKeys();
   aplicarVisibilidadGenerador();
+  if(data.onboarding_completed===false){abrirOnboarding(data.full_name||'');}
 }
 
 function aplicarVisibilidadGenerador(){
@@ -1927,6 +1928,45 @@ function aplicarVisibilidadGenerador(){
   document.querySelectorAll('.boton-generador').forEach(function(el){
     el.style.display=oculto?'none':'';
   });
+}
+
+// ── ONBOARDING ──
+function onbPantallas(){
+  return document.querySelectorAll('#modal-onboarding .onb-screen');
+}
+
+function abrirOnboarding(nombre){
+  var primerNombre=(nombre||'').split(',')[0].split(' ')[0]||'';
+  var spanNombre=document.getElementById('onb-nombre');
+  if(spanNombre)spanNombre.textContent=primerNombre;
+  var pantallas=onbPantallas();
+  pantallas.forEach(function(p,i){ p.style.display = i===0 ? 'block' : 'none'; });
+  document.getElementById('modal-onboarding').style.display='block';
+}
+
+function onbSiguiente(pantalla){
+  var pantallas=onbPantallas();
+  pantallas.forEach(function(p,i){ p.style.display = (i===pantalla-1) ? 'block' : 'none'; });
+}
+
+async function onbMarcarCompleto(){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  await window.__sb.from('teachers').update({onboarding_completed:true}).eq('id',user.id);
+}
+
+async function onbSaltar(){
+  await onbMarcarCompleto();
+  document.getElementById('modal-onboarding').style.display='none';
+}
+
+async function onbFinalizar(){
+  await onbMarcarCompleto();
+  document.getElementById('modal-onboarding').style.display='none';
+  if(window.__students&&window.__students.length){
+    abrirPerfilAcademico(window.__students[0].id);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); var btn=document.getElementById('btn-config-script'); if(btn && APPS_SCRIPT_URL) btn.textContent='✅ Script activo'; actualizarEstadoApiKeys(); });
@@ -8121,6 +8161,63 @@ if(document.readyState==='loading'){
     </div>
   </div>
 </div>
+<!-- MODAL ONBOARDING -->
+<div id="modal-onboarding" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:5000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:var(--blanco);border-radius:16px;max-width:480px;width:100%;margin:30px auto;overflow:hidden;">
+
+    <!-- Pantalla 1: Bienvenida -->
+    <div id="onb-screen-1" class="onb-screen">
+      <div style="background:var(--verde);padding:30px 24px;text-align:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="46" height="54" style="margin-bottom:10px;">
+          <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>
+          <path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>
+          <circle cx="50" cy="9" r="3.5" fill="#C8845A"/>
+        </svg>
+        <div style="font-size:20px;font-weight:700;color:#fff;">Hola, <span id="onb-nombre"></span> 👋</div>
+        <div style="font-size:13px;color:rgba(168,201,188,0.9);margin-top:8px;line-height:1.5;">Tu app para acompañar a tus alumnos, sin perder tiempo en planillas.</div>
+      </div>
+      <div style="padding:20px 24px;">
+        <button onclick="onbSiguiente(2)" class="save-btn" style="margin-bottom:8px;">Empezar</button>
+        <button onclick="onbSaltar()" style="width:100%;background:none;border:none;color:var(--gris);font-size:12px;cursor:pointer;padding:6px;">Ya sé usarla</button>
+      </div>
+    </div>
+
+    <!-- Pantalla 2: Tour de funciones -->
+    <div id="onb-screen-2" class="onb-screen" style="display:none;padding:24px;">
+      <div style="font-size:15px;font-weight:700;color:var(--verde);margin-bottom:4px;">Esto vas a poder hacer</div>
+      <div style="font-size:12px;color:var(--gris);margin-bottom:16px;">Un repaso rápido antes de entrar</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
+          <span style="font-size:22px;">🏫</span>
+          <div><strong style="font-size:13px;">Perfil Áulico</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Estadísticas y vista general del grupo</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
+          <span style="font-size:22px;">📋</span>
+          <div><strong style="font-size:13px;">Registrar</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Asistencia, evidencias, fotos, reuniones</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
+          <span style="font-size:22px;">✨</span>
+          <div><strong style="font-size:13px;">Generar</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Cuadernillos, fichas e informes con IA</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--crema);border-radius:10px;padding:12px;">
+          <span style="font-size:22px;">📊</span>
+          <div><strong style="font-size:13px;">Notas e Inasistencias</strong><div style="font-size:11px;color:var(--gris);margin-top:2px;">Todo el seguimiento por trimestre</div></div>
+        </div>
+      </div>
+      <button onclick="onbSiguiente(3)" class="save-btn">Entendido, seguir</button>
+    </div>
+
+    <!-- Pantalla 3: Primer perfil real -->
+    <div id="onb-screen-3" class="onb-screen" style="display:none;padding:24px;text-align:center;">
+      <div style="font-size:34px;margin-bottom:8px;">👤</div>
+      <div style="font-size:15px;font-weight:700;color:var(--verde);margin-bottom:6px;">Ya está todo listo</div>
+      <div style="font-size:12px;color:var(--gris);margin-bottom:18px;line-height:1.5;">Te llevamos directo al perfil de uno de tus alumnos para que veas cómo se ve en la práctica.</div>
+      <button onclick="onbFinalizar()" class="save-btn">Ver mi primer perfil</button>
+    </div>
+
+  </div>
+</div>
+
 <div id="print-container"></div>
 </body>
 </html>
