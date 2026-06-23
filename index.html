@@ -1679,6 +1679,14 @@ async function initStudents() {
 }
 
 // ── AVISOS AUTOMÁTICOS: inasistencias, sin observaciones, PAF desactualizado ──
+// Devuelve la fecha de HOY en formato YYYY-MM-DD, en la zona horaria real de Argentina.
+// IMPORTANTE: nunca usar new Date().toISOString().slice(0,10) para esto — toISOString()
+// devuelve la fecha en UTC, que está 3 horas adelantada respecto a Argentina. Eso hace que,
+// después de aprox. las 21hs, los formularios de fecha (asistencia, fichas, reuniones, etc.)
+// se precompleten con la fecha de MAÑANA en vez de la de hoy, sin que el docente lo note.
+function fechaHoyArgentina(){
+  return new Date().toLocaleDateString('en-CA',{timeZone:'America/Argentina/Buenos_Aires'});
+}
 var DIAS_INASISTENCIA_AVISO=3;
 var DIAS_SIN_OBSERVACION_AVISO=14;
 var MESES_PAF_DESACTUALIZADO=3;
@@ -1736,7 +1744,7 @@ async function cargarAvisosAutomaticos(students,teacherId){
     var {data:asistencias}=await window.__sb.from('attendance')
       .select('student_id,date,status')
       .eq('teacher_id',teacherId)
-      .gte('date',hace30.toISOString().slice(0,10))
+      .gte('date',(function(){var h30=new Date();h30.setDate(h30.getDate()-30);return h30.toLocaleDateString('en-CA',{timeZone:'America/Argentina/Buenos_Aires'});})())
       .order('date',{ascending:false});
     if(asistencias&&asistencias.length){
       students.forEach(function(s){
@@ -1791,7 +1799,11 @@ async function cargarAvisosAutomaticos(students,teacherId){
     });
 
     // 4) Asistencia no tomada hoy (solo si hoy es día de clase real, según calendario + días cancelados)
-    var hoyStr=ahora.toISOString().slice(0,10);
+    // IMPORTANTE: usar la fecha real de Argentina, no UTC — toISOString() devuelve la fecha en
+    // UTC, que está 3 horas adelantada respecto a Argentina. Esto hacía que, después de las
+    // 21hs aprox., el código calculara "hoy" como el día siguiente, y la alerta disparaba en
+    // falso aunque la asistencia ya estuviera tomada con la fecha real del día.
+    var hoyStr=fechaHoyArgentina();
     var hoyEsDeClase=await esDiaDeClase(hoyStr,teacherId);
     if(hoyEsDeClase){
       var seTomoHoy=asistencias?asistencias.some(function(a){return a.date===hoyStr;}):false;
@@ -3701,7 +3713,7 @@ async function borrarPlanif(id){
 
 async function abrirFicha(){
   document.getElementById('modal-ficha').style.display='block';
-  document.getElementById('ficha-fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ficha-fecha').value = fechaHoyArgentina();
   document.getElementById('ficha-contenido').style.display='none';
   document.getElementById('ficha-alumno').value='';
   document.getElementById('ficha-prompt-container').style.display='none';
@@ -3982,7 +3994,7 @@ async function renderBoletin2(){
   var asistenciaP2={};
   var hoy=new Date();
   var inicioT2='2026-06-01';
-  var finRango=hoy.toISOString().slice(0,10);
+  var finRango=fechaHoyArgentina();
   if(window.__sb&&window.__students){
     try{
       var user2=(await window.__sb.auth.getUser()).data.user;
@@ -4796,7 +4808,7 @@ function cerrarGrabador(){
   document.getElementById('grab-sesion-modo').checked=false;
   document.getElementById('grab-sesion-panel').style.display='none';
 }
-function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];var mimeTypeG=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';mr=new MediaRecorder(st,mimeTypeG?{mimeType:mimeTypeG}:{});mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+new Date().toISOString().slice(0,10)+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
+function toggleGrabacion(){var al=document.getElementById('grab-alumno').value;if(!al&&!grab){document.getElementById('grab-status').textContent='⚠️ Seleccioná un alumno';return;}if(!grab){navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{ac=[];var mimeTypeG=MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'';mr=new MediaRecorder(st,mimeTypeG?{mimeType:mimeTypeG}:{});mr.ondataavailable=e=>ac.push(e.data);mr.onstop=()=>{ab=new Blob(ac,{type:'audio/webm'});document.getElementById('grab-audio').src=URL.createObjectURL(ab);document.getElementById('grab-resultado').style.display='block';document.getElementById('grab-filename').textContent='Lectura_'+al+'_'+fechaHoyArgentina()+'.webm';};mr.start();grab=true;seg=0;document.getElementById('grab-btn').style.background='#C0392B';document.getElementById('grab-btn').textContent='⏹️';document.getElementById('grab-hint').textContent='Tocá para detener';document.getElementById('grab-status').textContent='Grabando...';document.getElementById('grab-timer').style.display='block';document.getElementById('grab-resultado').style.display='none';ti=setInterval(()=>{seg++;document.getElementById('grab-timer').textContent=String(Math.floor(seg/60)).padStart(2,'0')+':'+String(seg%60).padStart(2,'0');},1000);}).catch(()=>{document.getElementById('grab-status').textContent='⚠️ No se pudo acceder al micrófono.';});}else{mr.stop();mr.stream.getTracks().forEach(t=>t.stop());grab=false;clearInterval(ti);document.getElementById('grab-btn').style.background='var(--terracota)';document.getElementById('grab-btn').textContent='🎙️';document.getElementById('grab-hint').textContent='Tocá para grabar de nuevo';document.getElementById('grab-status').textContent='Listo';}}
 async function descargarAudio(){
   var al=document.getElementById('grab-alumno').value;
   var titulo=document.getElementById('grab-titulo-texto').value;
@@ -4835,17 +4847,12 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
     }
     if(statusEl)statusEl.textContent='Audio guardado. Transcribiendo...';
 
-    // Transcripción con la API de Gemini (Google) - Claude no soporta audio en bloques document
-    var apiKey=_sget('huellaed_gemini_key');
-if(!apiKey){
-  apiKey=window.prompt('Ingresá tu API Key de Gemini (se guarda en este navegador para la próxima vez):');
-  if(!apiKey){
-    if(statusEl)statusEl.textContent='Audio guardado (sin clave de Gemini, no se transcribió)';
-    return;
-  }
-  _sset('huellaed_gemini_key',apiKey.trim());
-  apiKey=apiKey.trim();
-}
+    // Transcripción con la API de Anthropic (Claude puede procesar audio en base64)
+    var apiKey=_sget('huellaed_anthropic_key');
+    if(!apiKey){
+      if(statusEl)statusEl.textContent='Audio guardado (sin clave de API, no se transcribió automáticamente)';
+      return;
+    }
     var audioBase64=await new Promise(function(resolve,reject){
       var reader=new FileReader();
       reader.onload=function(){resolve(reader.result.split(',')[1]);};
@@ -4853,13 +4860,14 @@ if(!apiKey){
       reader.readAsDataURL(ab);
     });
     var mediaType=ab.type||'audio/webm';
-    var res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+apiKey,{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'content-type':'application/json'},
+      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        contents:[{parts:[
-          {text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'},
-          {inline_data:{mime_type:mediaType,data:audioBase64}}
+        model:'claude-sonnet-4-6',max_tokens:1500,
+        messages:[{role:'user',content:[
+          {type:'document',source:{type:'base64',media_type:mediaType,data:audioBase64}},
+          {type:'text',text:'Transcribí textualmente lo que lee en voz alta el alumno en este audio de una clase de lectura. Solo la transcripción literal de lo leído, sin agregar comentarios, valoraciones ni análisis. Si hay errores de lectura, pausas largas o repeticiones notorias, podés indicarlo entre corchetes en el lugar donde ocurren (ej: [se traba en "construcción"], [pausa larga]). Si no se entiende algo, escribí [inaudible].'}
         ]}]
       })
     });
@@ -4868,7 +4876,7 @@ if(!apiKey){
       throw new Error((ed.error&&ed.error.message)||'Error '+res.status);
     }
     var data=await res.json();
-    var transcripcion=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text)||'';
+    var transcripcion=(data.content&&data.content[0]&&data.content[0].text)||'';
     if(transcripcion){
       var textoObs='[Grabación de lectura'+(titulo?' · '+titulo:'')+' · '+new Date().toLocaleDateString('es-AR')+']\nTranscripción: '+transcripcion;
       var {error:errObs}=await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObs});
@@ -4886,7 +4894,6 @@ if(!apiKey){
     if(statusEl)statusEl.textContent='Audio guardado (no se pudo transcribir: '+eTrans.message+')';
   }
 }
-
 
 // ── EVIDENCIA ──
 var evFile=null,evReg=[];
@@ -5149,7 +5156,7 @@ function renderEvidencias(){var l=document.getElementById('ev-registros-lista'),
 
 // ── REUNION ──
 var tipoR='individual',motivoR='',seguimR='';
-function abrirReunion(){document.getElementById('modal-reunion').style.display='block';document.getElementById('reunion-fecha').value=new Date().toISOString().slice(0,10);document.getElementById('reunion-resultado').style.display='none';var sm=document.getElementById('reunion-save-msg');if(sm)sm.style.display='none';cargarHistorialReuniones();}
+function abrirReunion(){document.getElementById('modal-reunion').style.display='block';document.getElementById('reunion-fecha').value=fechaHoyArgentina();document.getElementById('reunion-resultado').style.display='none';var sm=document.getElementById('reunion-save-msg');if(sm)sm.style.display='none';cargarHistorialReuniones();}
 function cerrarReunion(){document.getElementById('modal-reunion').style.display='none';}
 function selTipoReunion(el,t){document.querySelectorAll('#tr-ind,#tr-grp').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoR=t;document.getElementById('reunion-alumno-row').style.display=t==='individual'?'block':'none';}
 function selMotivo(el,m){el.classList.toggle('active');motivoR=m;}
@@ -5185,7 +5192,7 @@ async function guardarReunionSupabase(){
     if(window._reunionActaFile&&studentId){
       try{
         var ext=window._reunionActaFile.type.includes('png')?'.png':'.jpg';
-        var path=user.id+'/'+studentId+'/Acta_Reunion_'+(fecha||new Date().toISOString().slice(0,10))+ext;
+        var path=user.id+'/'+studentId+'/Acta_Reunion_'+(fecha||fechaHoyArgentina())+ext;
         await window.__sb.storage.from('evidencias').upload(path,window._reunionActaFile);
         window._reunionActaFile=null;
         document.getElementById('reunion-acta-foto').value='';
@@ -5244,7 +5251,7 @@ var asistenciaHoy = {};
 
 function abrirAsistencia() {
   document.getElementById('modal-asistencia').style.display = 'block';
-  document.getElementById('asist-fecha').value = new Date().toISOString().slice(0,10);
+  document.getElementById('asist-fecha').value = fechaHoyArgentina();
   document.getElementById('asist-msg').style.display = 'none';
   cargarAsistenciaFecha();
 }
@@ -5625,7 +5632,7 @@ async function guardarObservacionModal(){
 // ── GESTIÓN DE ALUMNOS ──
 function abrirGestionAlumnos(){
   document.getElementById('modal-gestion-alumnos').style.display='block';
-  document.getElementById('alta-fecha').value=new Date().toISOString().slice(0,10);
+  document.getElementById('alta-fecha').value=fechaHoyArgentina();
   document.getElementById('alta-nombre').value='';
   document.getElementById('alta-msg').textContent='';
   cargarListaGestion();
@@ -5855,7 +5862,7 @@ async function subirDocumentoAlumno(){
   if(!user)return;
   var archivoAdj=window._adjFile;
   var ext=archivoAdj.name.split('.').pop();
-  var nombre=(desc||tipo).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').replace(/ /g,'_').substring(0,40)+'_'+new Date().toISOString().slice(0,10)+'.'+ext;
+  var nombre=(desc||tipo).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]/g,'').replace(/ /g,'_').substring(0,40)+'_'+fechaHoyArgentina()+'.'+ext;
   var path=user.id+'/'+studentId+'/docs/'+nombre;
   var {error}=await window.__sb.storage.from('evidencias').upload(path,archivoAdj);
   if(error){msg.style.color='#C0392B';msg.textContent='Error: '+error.message;if(btnGuardar){btnGuardar.disabled=false;btnGuardar.textContent='💾 Guardar en perfil del alumno';}return;}
