@@ -2123,12 +2123,18 @@ function cerrarGeneradorBoletin(){ document.getElementById('modal-gen-boletin').
 
 // ===== ADECUACIONES =====
 var _adec={modo:'materiales',materialSelId:null,materialSelContent:'',dificultades:[],cicloDerived:null,materiales:{},lastSavedId:null};
+var _adecRawText='';
+var _adecHtmlRenderizado='';
 async function abrirAdecuaciones(){
   document.getElementById('modal-adecuaciones').style.display='block';
   document.getElementById('adec-resultado').style.display='none';
   var aprBtn=document.getElementById('adec-btn-aprobar');
   if(aprBtn){aprBtn.textContent='✅ Aprobar';aprBtn.style.background='var(--terracota)';aprBtn.disabled=false;}
   _adec.lastSavedId=null;_adec.materialSelId=null;_adec.materialSelContent='';
+  _adecRawText='';_adecHtmlRenderizado='';
+  var prev=document.getElementById('adec-preview');if(prev)prev.innerHTML='';
+  var edw=document.getElementById('adec-editor-wrap');if(edw)edw.style.display='none';
+  var edb=document.getElementById('adec-btn-editar');if(edb)edb.textContent='📝 Editar';
   var grade=window.__teacherGrade||'';
   _adec.cicloDerived=_adecDeriveCiclo(grade);
   var infoEl=document.getElementById('adec-ciclo-info');
@@ -2241,7 +2247,14 @@ async function generarAdecuacion(){
     var texto=(resData.content&&resData.content[0]&&resData.content[0].text)||'';
     var requierePPI=/\[ALERTA_ADAPTACION:\s*s[íi]\]/i.test(texto);
     var textoLimpio=texto.replace(/\[ALERTA_ADAPTACION:[^\]]*\]/gi,'').trim();
-    document.getElementById('adec-texto-resultado').value=textoLimpio;
+    _adecRawText=textoLimpio;
+    document.getElementById('adec-texto-editar').value=textoLimpio;
+    var previewEl=document.getElementById('adec-preview');
+    renderLibro(textoLimpio,previewEl);
+    _adecHtmlRenderizado=previewEl.innerHTML;
+    previewEl.style.display='block';
+    document.getElementById('adec-editor-wrap').style.display='none';
+    document.getElementById('adec-btn-editar').textContent='📝 Editar';
     document.getElementById('adec-alerta-ppi').style.display=requierePPI?'block':'none';
     var aprBtn=document.getElementById('adec-btn-aprobar');
     aprBtn.textContent='✅ Aprobar';aprBtn.style.background='var(--terracota)';aprBtn.disabled=false;
@@ -2267,7 +2280,9 @@ async function _adecGuardarBorrador(alumnoId,dificultadId,contenido,requierePPI)
 }
 async function aprobarAdecuacion(){
   if(!_adec.lastSavedId){alert('Primero generá una adecuación');return;}
-  var contenidoEditado=document.getElementById('adec-texto-resultado').value.trim();
+  var edw=document.getElementById('adec-editor-wrap');
+  if(edw&&edw.style.display!=='none'){adecAplicarEdicion();}
+  var contenidoEditado=_adecRawText;
   try{
     await window.__sb.from('adecuaciones_generadas').update({estado:'aprobada',contenido_generado:contenidoEditado}).eq('id',_adec.lastSavedId);
     var btn=document.getElementById('adec-btn-aprobar');
@@ -2275,12 +2290,58 @@ async function aprobarAdecuacion(){
   }catch(e){alert('Error al aprobar: '+e.message);}
 }
 async function copiarAdecuacion(){
-  var texto=document.getElementById('adec-texto-resultado').value;
+  var texto=_adecRawText;
   try{
     await navigator.clipboard.writeText(texto);
     var msg=document.getElementById('adec-copy-msg');
     msg.textContent='✓ Copiado';setTimeout(function(){msg.textContent='';},2000);
   }catch(e){alert('Error al copiar');}
+}
+function adecToggleEditar(){
+  var preview=document.getElementById('adec-preview');
+  var editor=document.getElementById('adec-editor-wrap');
+  var btn=document.getElementById('adec-btn-editar');
+  var editando=editor.style.display!=='none';
+  if(editando){
+    editor.style.display='none';preview.style.display='block';btn.textContent='📝 Editar';
+  }else{
+    document.getElementById('adec-texto-editar').value=_adecRawText;
+    editor.style.display='block';preview.style.display='none';btn.textContent='← Previsualizar';
+  }
+}
+function adecAplicarEdicion(){
+  var texto=document.getElementById('adec-texto-editar').value.trim();
+  if(!texto)return;
+  _adecRawText=texto;
+  var preview=document.getElementById('adec-preview');
+  renderLibro(texto,preview);
+  _adecHtmlRenderizado=preview.innerHTML;
+  document.getElementById('adec-editor-wrap').style.display='none';
+  preview.style.display='block';
+  document.getElementById('adec-btn-editar').textContent='📝 Editar';
+}
+function adecDescargarPDF(){
+  if(!_adecHtmlRenderizado){alert('Generá la adecuación primero');return;}
+  var alumnoSel=document.getElementById('adec-alumno');
+  var alumnoNombre=(alumnoSel.selectedIndex>0?alumnoSel.options[alumnoSel.selectedIndex].text:'alumno');
+  var ahora=new Date();
+  var marca=ahora.getFullYear()+String(ahora.getMonth()+1).padStart(2,'0')+String(ahora.getDate()).padStart(2,'0');
+  var nombrePDF='adecuacion-'+alumnoNombre.slice(0,20).replace(/\s+/g,'-').replace(/[^a-z0-9\-]/gi,'').toLowerCase()+'-'+marca+'.pdf';
+  var btnDesc=document.getElementById('adec-btn-descargar');
+  var textoOrig=btnDesc?btnDesc.textContent:'';
+  if(btnDesc){btnDesc.textContent='Generando…';btnDesc.disabled=true;}
+  var preview=document.getElementById('adec-preview');
+  var oldMax=preview.style.maxHeight;var oldOvY=preview.style.overflowY;
+  preview.style.maxHeight='none';preview.style.overflowY='visible';
+  var opciones={margin:0,filename:nombrePDF,image:{type:'jpeg',quality:0.92},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],before:'.lb-pagina'}};
+  html2pdf().set(opciones).from(preview).save().then(function(){
+    preview.style.maxHeight=oldMax;preview.style.overflowY=oldOvY;
+    if(btnDesc){btnDesc.textContent=textoOrig;btnDesc.disabled=false;}
+  }).catch(function(e){
+    alert('No se pudo generar el PDF: '+e.message);
+    preview.style.maxHeight=oldMax;preview.style.overflowY=oldOvY;
+    if(btnDesc){btnDesc.textContent=textoOrig;btnDesc.disabled=false;}
+  });
 }
 
 function selTrimBoletin(el,t){ document.querySelectorAll('#tb-1,#tb-2,#tb-3').forEach(b=>b.classList.remove('active')); el.classList.add('active'); trimBoletin=t; }
@@ -7787,20 +7848,29 @@ if(document.readyState==='loading'){
     <!-- Resultado -->
     <div id="adec-resultado" style="display:none;margin-top:4px;">
 
-      <!-- Alerta PPI -->
+      <!-- Alerta PPI — fuera del cuadernillo renderizado -->
       <div id="adec-alerta-ppi" style="display:none;background:#FDF0E8;border:1.5px solid #D4815A;border-radius:9px;padding:12px;margin-bottom:10px;">
         <div style="font-size:12.5px;font-weight:700;color:#C05A3A;margin-bottom:4px;">⚠️ Posible Adaptación Curricular</div>
         <div style="font-size:11px;color:#8B3A20;line-height:1.55;">Esto podría requerir una <strong>Adaptación Curricular formal</strong>. Según normativa debe documentarse en un <strong>PPI (Proyecto Pedagógico para la Inclusión)</strong>. La decisión es siempre institucional y del docente.</div>
       </div>
 
       <div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Adecuación generada</div>
-      <textarea id="adec-texto-resultado" style="width:100%;padding:12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;color:var(--negro);line-height:1.75;background:var(--crema);min-height:200px;resize:vertical;box-sizing:border-box;font-family:inherit;"></textarea>
-      <div style="font-size:9.5px;color:var(--gris);margin-bottom:8px;margin-top:3px;">Podés editar el texto antes de aprobar. Se guardó automáticamente como borrador.</div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;">
-        <button onclick="copiarAdecuacion()" class="save-btn">📋 Copiar</button>
-        <button id="adec-btn-aprobar" onclick="aprobarAdecuacion()" class="sec-btn">✅ Aprobar</button>
+      <!-- Vista previa renderizada (igual que Material) -->
+      <div id="adec-preview" style="margin-bottom:8px;max-height:440px;overflow-y:auto;"></div>
+
+      <!-- Editor de texto (oculto por default) -->
+      <div id="adec-editor-wrap" style="display:none;">
+        <textarea id="adec-texto-editar" style="width:100%;padding:12px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:12px;color:var(--negro);line-height:1.75;background:var(--crema);min-height:200px;resize:vertical;box-sizing:border-box;font-family:inherit;margin-bottom:6px;"></textarea>
+        <button onclick="adecAplicarEdicion()" class="save-btn" style="width:100%;margin-bottom:8px;">↩ Aplicar cambios</button>
       </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:6px;">
+        <button onclick="copiarAdecuacion()" class="save-btn">📋 Copiar</button>
+        <button id="adec-btn-editar" onclick="adecToggleEditar()" class="sec-btn">📝 Editar</button>
+        <button id="adec-btn-descargar" onclick="adecDescargarPDF()" class="sec-btn">⬇️ PDF</button>
+      </div>
+      <button id="adec-btn-aprobar" onclick="aprobarAdecuacion()" style="width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:6px;">✅ Aprobar</button>
       <div id="adec-copy-msg" style="text-align:center;font-size:11px;color:var(--verde);"></div>
     </div>
 
