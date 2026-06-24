@@ -159,6 +159,26 @@
   <style>
     /* ESTILOS LIBRO */
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap');
+    /* ── Adecuaciones: contenido renderizado dentro de lb-pagina ── */
+    .adec-contenido{font-family:'Nunito Sans',sans-serif;font-size:12.5px;color:#2a3830;line-height:1.65;}
+    .adec-contenido h1{font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;color:#2D5F4F;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #D4EAE4;}
+    .adec-contenido h2{font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:#2D5F4F;margin:14px 0 8px;}
+    .adec-contenido h3{font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#2a3830;margin:12px 0 6px;}
+    .adec-contenido h4{font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#C8973A;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 5px;}
+    .adec-contenido p{margin:0 0 7px;}
+    .adec-contenido ul,.adec-contenido ol{padding-left:18px;margin:0 0 10px;}
+    .adec-contenido li{margin-bottom:4px;line-height:1.55;}
+    .adec-contenido strong{font-weight:700;color:#2D5F4F;}
+    .adec-contenido em{font-style:italic;color:#C8973A;}
+    .adec-contenido hr{border:none;border-top:2px solid #D4EAE4;margin:14px 0;}
+    .adec-contenido blockquote{background:#D4EAE4;border-left:4px solid #2D5F4F;border-radius:8px;padding:10px 14px;margin:10px 0;font-style:normal;}
+    .adec-contenido blockquote p{margin:0;}
+    .adec-contenido table{width:100%;border-collapse:collapse;}
+    .adec-contenido thead th{background:#2D5F4F;color:white;font-weight:800;font-size:11px;padding:7px 8px;text-align:center;}
+    .adec-contenido tbody td{border:1px solid rgba(45,95,79,.15);padding:7px 8px;font-size:11.5px;text-align:center;background:white;min-width:40px;min-height:32px;}
+    .adec-contenido .lb-tabla-wrap{border-radius:8px;overflow:hidden;border:2px solid #2D5F4F;margin-bottom:10px;}
+    .adec-linea-relleno{display:inline-block;min-width:80px;border-bottom:1.5px solid #2D5F4F;margin:0 3px;vertical-align:bottom;color:transparent;}
+    @media print{.adec-contenido table{page-break-inside:avoid;}.adec-linea-relleno{border-bottom-color:#2D5F4F!important;}}
     #libro-preview{font-family:'Nunito Sans',sans-serif;background:#DCE6E2;padding:16px;border-radius:12px;margin-top:8px;}
     .lb-topbar{background:#2D5F4F;color:white;padding:10px 16px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
     .lb-logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;}.lb-logo span{color:#C8973A;}.lb-logo small{display:block;font-size:7px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;}
@@ -348,6 +368,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </head>
 <body>
 
@@ -2250,7 +2271,7 @@ async function generarAdecuacion(){
     _adecRawText=textoLimpio;
     document.getElementById('adec-texto-editar').value=textoLimpio;
     var previewEl=document.getElementById('adec-preview');
-    renderLibro(textoLimpio,previewEl);
+    renderAdecuacion(textoLimpio,previewEl);
     _adecHtmlRenderizado=previewEl.innerHTML;
     previewEl.style.display='block';
     document.getElementById('adec-editor-wrap').style.display='none';
@@ -2314,7 +2335,7 @@ function adecAplicarEdicion(){
   if(!texto)return;
   _adecRawText=texto;
   var preview=document.getElementById('adec-preview');
-  renderLibro(texto,preview);
+  renderAdecuacion(texto,preview);
   _adecHtmlRenderizado=preview.innerHTML;
   document.getElementById('adec-editor-wrap').style.display='none';
   preview.style.display='block';
@@ -4796,6 +4817,31 @@ function renderLibro(respuestaIA,contenedor){
   contenedor.innerHTML=_genHtmlRenderizado;
   if(_picsParaBuscar.length)cargarPictogramasGenerados(_picsParaBuscar);
   if(_fotosParaBuscar.length)cargarFotosGeneradas(_fotosParaBuscar);
+}
+function renderAdecuacion(texto,contenedor){
+  // Pre-process: convert 3+ underscores into a visual fill-in line
+  var proc=texto.replace(/_{3,}/g,'<span class="adec-linea-relleno">        </span>');
+  // Parse markdown with marked.js (GFM = tables + strikethrough)
+  var md=window.marked;
+  var body;
+  if(md&&md.parse){
+    try{body=md.parse(proc,{gfm:true,breaks:true});}
+    catch(e){body=markdownToHtml(proc);}
+  } else {
+    body=markdownToHtml(proc); // fallback if CDN fails
+  }
+  // Wrap markdown tables in lb-tabla-wrap for styled borders
+  body=body
+    .replace(/<table>/g,'<div class="lb-tabla-wrap"><table>')
+    .replace(/<\/table>/g,'</table></div>');
+  // Build cuadernillo frame (lb-topbar + lb-pagina)
+  var html='<div id="libro-preview">'
+    +'<div class="lb-topbar">'
+    +'<div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div>'
+    +'</div>'
+    +'<div class="lb-pagina adec-contenido">'+body+'</div>'
+    +'</div>';
+  contenedor.innerHTML=html;
 }
 function copiarPromptGen(){navigator.clipboard.writeText(document.getElementById('gen-prompt-text').textContent).then(function(){document.getElementById('gen-copy-msg').textContent='✅ Copiado';setTimeout(function(){document.getElementById('gen-copy-msg').textContent='';},3000);});}
 
