@@ -2251,16 +2251,57 @@ async function generarAdecuacion(){
   var btn=document.getElementById('adec-btn-generar');
   btn.disabled=true;btn.textContent='Generando…';
   document.getElementById('adec-resultado').style.display='none';
+  // Cargar contexto del alumno en paralelo: perfil diferencial + PAF más reciente
+  var perfilDifTexto='',pafTexto='';
+  try{
+    var userAdec=(await window.__sb.auth.getUser()).data.user;
+    if(userAdec){
+      var _adecCtxRes=await Promise.all([
+        window.__sb.from('differential_profiles')
+          .select('como_aprende,comprension_consignas,autonomia,matematica,lectura_escritura,descripcion,necesidades')
+          .eq('student_id',alumnoId).eq('teacher_id',userAdec.id).maybeSingle(),
+        window.__sb.from('perfiles_generados')
+          .select('contenido,created_at')
+          .eq('teacher_id',userAdec.id).eq('student_id',alumnoId).eq('tipo','academico')
+          .order('created_at',{ascending:false}).limit(1)
+      ]);
+      var dpRes=_adecCtxRes[0],pgRes=_adecCtxRes[1];
+      if(dpRes.data){
+        var dp=dpRes.data,dparts=[];
+        if(dp.descripcion)dparts.push('Descripción/diagnóstico: '+dp.descripcion);
+        if(dp.necesidades)dparts.push('Necesidades de aprendizaje: '+dp.necesidades);
+        if(dp.como_aprende)dparts.push('Cómo aprende mejor: '+dp.como_aprende);
+        if(dp.comprension_consignas)dparts.push('Comprensión de consignas: '+dp.comprension_consignas);
+        if(dp.autonomia)dparts.push('Autonomía y organización: '+dp.autonomia);
+        if(dp.matematica)dparts.push('Desempeño en matemática: '+dp.matematica);
+        if(dp.lectura_escritura)dparts.push('Lectura y escritura: '+dp.lectura_escritura);
+        if(dparts.length)perfilDifTexto=dparts.join('\n');
+      }
+      if(pgRes.data&&pgRes.data.length){
+        var htmlPaf=pgRes.data[0].contenido||'';
+        var fechaPaf=new Date(pgRes.data[0].created_at).toLocaleDateString('es-AR');
+        var textoPaf=htmlPaf.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+        if(textoPaf)pafTexto='(generado el '+fechaPaf+')\n'+textoPaf;
+      }
+    }
+  }catch(eCtx){console.log('No se pudo cargar contexto del alumno:',eCtx);}
+  var _adecCtxPartes=[];
+  if(perfilDifTexto)_adecCtxPartes.push('PERFIL PEDAGÓGICO DEL ALUMNO (ficha y perfil diferencial):\n'+perfilDifTexto);
+  if(pafTexto)_adecCtxPartes.push('PERFIL ACADÉMICO FUNCIONAL MÁS RECIENTE:\n'+pafTexto);
+  var contextoBloque=_adecCtxPartes.length?'\nCONTEXTO DEL ALUMNO:\n'+_adecCtxPartes.join('\n\n')+'\n\n':'';
   var promptTxt='Eres un asistente pedagógico especializado en educación inclusiva, basado en normativa de la Provincia de Buenos Aires (Res. 1664/17 DGCyE) y principios de Diseño Universal para el Aprendizaje (DUA).\n\n'
-    +'Tarea: Adaptar la siguiente ACTIVIDAD GENERAL para un alumno con la dificultad: '+dif.nombre+'.\n\n'
-    +'Descripción de la dificultad: '+(dif.descripcion_indicadores||'')+'\n'
+    +'Tarea: Adaptar la siguiente ACTIVIDAD GENERAL para el alumno/a seleccionado/a, quien presenta la dificultad: '+dif.nombre+'.\n\n'
+    +'DIFICULTAD — descripción e indicadores: '+(dif.descripcion_indicadores||'')+'\n'
     +'Adecuaciones de referencia ya validadas:\n'+(dif.adecuaciones_base||'')+'\n\n'
+    +contextoBloque
     +'ACTIVIDAD ORIGINAL:\n'+textoActividad+'\n\n'
     +'Instrucciones:\n'
-    +'1. Generá una versión adecuada de la actividad. Mantené el MISMO objetivo de aprendizaje que la actividad original — solo ajustá presentación, formato, consigna, tiempos o apoyos.\n'
-    +'2. Usá como base las adecuaciones de referencia provistas; podés sumar otras coherentes con DUA si es pertinente.\n'
-    +'3. Si considerás que una adecuación NO es suficiente y la situación requeriría modificar objetivos o contenidos (una Adaptación Curricular), indicalo explícitamente al final con la etiqueta [ALERTA_ADAPTACION: sí] seguida de una breve justificación. Si no es el caso, usá [ALERTA_ADAPTACION: no].\n'
-    +'4. No tomes la decisión de adaptar por tu cuenta — solo señalá la alerta. La decisión de adaptar es siempre institucional y del docente.';
+    +'1. FORMATO DE SALIDA: Usá Markdown estándar (##, ###, **negrita**, tablas con |, listas con -). Para espacios en blanco que el alumno debe completar, escribí únicamente ____ (cuatro o más guiones bajos). NUNCA uses etiquetas HTML (<span>, <div>, <br> ni ninguna otra).\n'
+    +'2. Generá una versión adecuada de la actividad. Mantené el MISMO objetivo de aprendizaje — solo ajustá presentación, formato, consigna, tiempos o apoyos.\n'
+    +'3. Usá como base las adecuaciones de referencia provistas; podés sumar otras coherentes con DUA si es pertinente.\n'
+    +'4. Si contás con el CONTEXTO DEL ALUMNO arriba, usalo para personalizar: ajustá ejemplos, nivel de apoyo y formato a sus características reales.\n'
+    +'5. Si considerás que una adecuación NO es suficiente y la situación requeriría modificar objetivos o contenidos (una Adaptación Curricular), indicalo explícitamente al final con la etiqueta [ALERTA_ADAPTACION: sí] seguida de una breve justificación. Si no es el caso, usá [ALERTA_ADAPTACION: no].\n'
+    +'6. No tomes la decisión de adaptar por tu cuenta — solo señalá la alerta. La decisión de adaptar es siempre institucional y del docente.';
   try{
     var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2048,messages:[{role:'user',content:promptTxt}]})});
     if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
@@ -2354,7 +2395,7 @@ function adecDescargarPDF(){
   var preview=document.getElementById('adec-preview');
   var oldMax=preview.style.maxHeight;var oldOvY=preview.style.overflowY;
   preview.style.maxHeight='none';preview.style.overflowY='visible';
-  var opciones={margin:0,filename:nombrePDF,image:{type:'jpeg',quality:0.92},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],before:'.lb-pagina'}};
+  var opciones={margin:0,filename:nombrePDF,image:{type:'jpeg',quality:0.92},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css']}};
   html2pdf().set(opciones).from(preview).save().then(function(){
     preview.style.maxHeight=oldMax;preview.style.overflowY=oldOvY;
     if(btnDesc){btnDesc.textContent=textoOrig;btnDesc.disabled=false;}
@@ -3111,7 +3152,7 @@ async function abrirNuevaAdecuacionParaAlumno(studentId){
   document.getElementById('modal-perfil-academico').style.display='none';
   await abrirAdecuaciones();
   var sel=document.getElementById('adec-alumno');
-  if(sel)sel.value=studentId;
+  if(sel){sel.value=studentId;sel.dispatchEvent(new Event('change'));}
 }
 async function verTrazabilidadPAF(){
   if(!window.__sb||!_perfilStudentId)return;
@@ -3187,7 +3228,7 @@ async function cargarUltimoPerfilAcademico(studentId){
     div.innerHTML=avisoDesactualizado
       +'<div style="font-size:11px;font-weight:700;color:var(--verde);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🤖 Último perfil académico generado · '+fecha+'</div>'
       +'<div id="perfil-guardado-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.75;border:1px solid var(--gris-claro);max-height:300px;overflow-y:auto;">'+data[0].contenido+'</div>'
-      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\\'")+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-guardado-texto\').innerHTML)" class="save-btn" style="margin-top:7px;font-size:12px;width:100%;">⬇️ Descargar PDF</button>'
+      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\\'")+'\',\'Perfil Académico Funcional\',document.getElementById(\'perfil-guardado-texto\').innerHTML)" class="save-btn" style="margin-top:7px;font-size:12px;width:100%;">🖨️ Imprimir / Guardar como PDF</button>'
       +botonComparar;
     body.appendChild(div);
     window.__pafsComparacion=window.__pafsComparacion||{};
@@ -3239,22 +3280,8 @@ async function generarPerfilAcademico(){
     ?notasReales.map(function(a){return areaNames[a]+': '+notas[a];}).join('\n')
     :'Sin notas cargadas en el sistema.';
 
-  // Perfil diferencial (solo si existe en pantalla)
+  // perfilDif se carga desde Supabase más abajo, junto con fichaTexto
   var perfilDif='';
-  if(s.has_differential){
-    var desc=document.getElementById('dif-descripcion');
-    var nec=document.getElementById('dif-necesidades');
-    var ada=document.getElementById('dif-adaptaciones');
-    var tienePerfilDif=(desc&&desc.value.trim())||(nec&&nec.value.trim())||(ada&&ada.value.trim());
-    if(tienePerfilDif){
-      perfilDif='PERFIL DIFERENCIAL (cargado por el docente):\n';
-      if(desc&&desc.value.trim())perfilDif+='Descripción: '+desc.value.trim()+'\n';
-      if(nec&&nec.value.trim())perfilDif+='Necesidades: '+nec.value.trim()+'\n';
-      if(ada&&ada.value.trim())perfilDif+='Adaptaciones: '+ada.value.trim()+'\n';
-    }else{
-      perfilDif='Perfil diferencial: marcado como atención diferenciada pero sin datos cargados aún.\n';
-    }
-  }
 
   // Observaciones del docente (consultadas DIRECTO de Supabase, no desde el DOM —
   // leer del DOM generaba una condición de carrera: si se generaba el perfil antes de que
@@ -3305,7 +3332,7 @@ async function generarPerfilAcademico(){
       if(userFicha){
         try{
           var {data:dataFicha,error:errFicha}=await window.__sb.from('differential_profiles')
-            .select('primera_impresion,como_aprende,comprension_consignas,autonomia,matematica,lectura_escritura,emocional,funciona_no,algo_mas')
+            .select('primera_impresion,como_aprende,comprension_consignas,autonomia,matematica,lectura_escritura,emocional,funciona_no,algo_mas,descripcion,necesidades,adaptaciones')
             .eq('student_id',_perfilStudentId)
             .maybeSingle();
           if(!errFicha&&dataFicha){
@@ -3321,6 +3348,14 @@ async function generarPerfilAcademico(){
             if(dataFicha.algo_mas)camposFicha.push('Otras observaciones: '+dataFicha.algo_mas);
             if(camposFicha.length>0){
               fichaTexto='FICHA DE CONOCIMIENTO (perfil inicial cargado por el docente):\n'+camposFicha.join('\n')+'\n';
+            }
+            if(dataFicha.descripcion||dataFicha.necesidades||dataFicha.adaptaciones){
+              perfilDif='PERFIL DIFERENCIAL (cargado por el docente):\n';
+              if(dataFicha.descripcion)perfilDif+='Descripción: '+dataFicha.descripcion+'\n';
+              if(dataFicha.necesidades)perfilDif+='Necesidades: '+dataFicha.necesidades+'\n';
+              if(dataFicha.adaptaciones)perfilDif+='Adaptaciones: '+dataFicha.adaptaciones+'\n';
+            }else if(s.has_differential){
+              perfilDif='Perfil diferencial: marcado como atención diferenciada pero sin datos cargados aún.\n';
             }
           }
         }catch(eFicha){console.log('No se pudo cargar ficha de conocimiento para el PAF:',eFicha);}
@@ -3532,30 +3567,31 @@ async function generarInforme(){
     'otro':'Informe Académico'
   };
   var tipoInforme=motivoLabels[motivo]||'Informe Académico';
-  // ── SOLO DATOS REALES ──
-  var notas2=gradesData[_perfilStudentId]||{};
-  var areas2=['L','M','CS','CN','I','EA','EF'];
-  var areaNames2={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
-  var notasReales2=areas2.filter(function(a){return notas2[a]!=null;});
+  var notasReales2=areas.filter(function(a){return notas[a]!=null;});
   var notasTexto2=notasReales2.length>0
-    ?notasReales2.map(function(a){return areaNames2[a]+': '+notas2[a];}).join(', ')
+    ?notasReales2.map(function(a){return areaNames[a]+': '+notas[a];}).join(', ')
     :'Sin notas cargadas en el sistema.';
 
   var perfilDif2='';
-  if(s.has_differential){
-    var desc2=document.getElementById('dif-descripcion');
-    var nec2=document.getElementById('dif-necesidades');
-    var ada2=document.getElementById('dif-adaptaciones');
-    var tiene=(desc2&&desc2.value.trim())||(nec2&&nec2.value.trim())||(ada2&&ada2.value.trim());
-    if(tiene){
-      perfilDif2='Perfil diferencial (datos del docente): ';
-      if(desc2&&desc2.value.trim())perfilDif2+=desc2.value.trim()+'. ';
-      if(nec2&&nec2.value.trim())perfilDif2+='Necesidades: '+nec2.value.trim()+'. ';
-      if(ada2&&ada2.value.trim())perfilDif2+='Adaptaciones: '+ada2.value.trim()+'.';
-    }else{
-      perfilDif2='Atención diferenciada indicada pero sin datos específicos cargados aún.';
+  try{
+    if(window.__sb){
+      var userDif2=(await window.__sb.auth.getUser()).data.user;
+      if(userDif2){
+        var {data:dataDif2}=await window.__sb.from('differential_profiles')
+          .select('descripcion,necesidades,adaptaciones')
+          .eq('student_id',_perfilStudentId).eq('teacher_id',userDif2.id).maybeSingle();
+        if(dataDif2&&(dataDif2.descripcion||dataDif2.necesidades||dataDif2.adaptaciones)){
+          var dparts2=[];
+          if(dataDif2.descripcion)dparts2.push(dataDif2.descripcion+'.');
+          if(dataDif2.necesidades)dparts2.push('Necesidades: '+dataDif2.necesidades+'.');
+          if(dataDif2.adaptaciones)dparts2.push('Adaptaciones: '+dataDif2.adaptaciones+'.');
+          perfilDif2='Perfil diferencial (datos del docente): '+dparts2.join(' ');
+        }else if(s.has_differential){
+          perfilDif2='Atención diferenciada indicada pero sin datos específicos cargados aún.';
+        }
+      }
     }
-  }
+  }catch(eDif2){console.log('No se pudo cargar perfil diferencial para el informe:',eDif2);}
 
   var obsTexto2='Sin observaciones cargadas en el sistema.';
   try{
@@ -3620,7 +3656,7 @@ async function generarInforme(){
     resultDiv.innerHTML='<div style="font-size:11px;font-weight:700;color:#C8973A;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">'+tipoInforme+' · '+nombre+'</div>'
       +'<div id="informe-resultado-texto" style="background:#FDF8F0;border-radius:10px;padding:14px;font-size:12px;color:var(--negro);line-height:1.8;border:1px solid #F0E0C0;max-height:420px;overflow-y:auto;font-family:Georgia,serif;">'+htmlTexto+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
-      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\\'")+'\',\''+tipoInforme.replace(/'/g,"\\'")+'\',document.getElementById(\'informe-resultado-texto\').innerHTML)" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
+      +'<button onclick="imprimirInforme(\''+nombre.replace(/'/g,"\\'")+'\',\''+tipoInforme.replace(/'/g,"\\'")+'\',document.getElementById(\'informe-resultado-texto\').innerHTML)" class="save-btn" style="font-size:12px;">🖨️ Imprimir / Guardar como PDF</button>'
       +'<button onclick="abrirModalInforme()" class="sec-btn" style="font-size:12px;">📄 Nuevo informe</button>'
       +'</div>';
     body.appendChild(resultDiv);
@@ -3761,15 +3797,6 @@ async function cargarObservacionesAlumno(){
   }).join('');;
 }
 
-async function borrarObservacionAlumno(id){
-  if(!id)return;
-  if(!confirm('Borrar esta observacion?'))return;
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  var {error}=await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('teacher_id',user.id);
-  if(!error)cargarObservacionesAlumno();
-}
 
 function obsEditar(eid){
   document.getElementById('obe'+eid).style.display='block';
@@ -6615,23 +6642,29 @@ function actualizarEstadoApiKeys(){
 
 // Verificar al cargar
 // ── ASISTENTE DEI ──
-function abrirAsistenteDEI(){
+async function abrirAsistenteDEI(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
   document.getElementById('dei-alumno-label').textContent=s.full_name+' · DEI 2026';
   document.getElementById('modal-dei').style.display='block';
   document.getElementById('dei-msg').textContent='';
   deiTab(1);
-  // Pre-cargar datos del perfil diferencial si existen
-  var desc=document.getElementById('dif-descripcion');
-  var nec=document.getElementById('dif-necesidades');
-  var ada=document.getElementById('dif-adaptaciones');
-  if(desc&&desc.value&&!document.getElementById('dei-perfil').value){
-    document.getElementById('dei-perfil').value=desc.value;
-  }
-  if(ada&&ada.value&&!document.getElementById('dei-apoyo-doc').value){
-    document.getElementById('dei-apoyo-doc').value=ada.value;
-  }
+  try{
+    if(window.__sb){
+      var userDEI=(await window.__sb.auth.getUser()).data.user;
+      if(userDEI){
+        var {data:dataDEI}=await window.__sb.from('differential_profiles')
+          .select('descripcion,adaptaciones')
+          .eq('student_id',_perfilStudentId).eq('teacher_id',userDEI.id).maybeSingle();
+        if(dataDEI){
+          if(dataDEI.descripcion&&!document.getElementById('dei-perfil').value)
+            document.getElementById('dei-perfil').value=dataDEI.descripcion;
+          if(dataDEI.adaptaciones&&!document.getElementById('dei-apoyo-doc').value)
+            document.getElementById('dei-apoyo-doc').value=dataDEI.adaptaciones;
+        }
+      }
+    }
+  }catch(eDEI){console.log('No se pudo pre-cargar perfil diferencial en DEI:',eDEI);}
 }
 
 function cerrarDEI(){
