@@ -2819,9 +2819,11 @@ async function guardarObservacionGrupal(){
 }
 
 async function borrarObsGrupal(btn,id){
+  if(!confirm('¿Borrar esta observación?'))return;
   if(!window.__sb)return;
+  btn.disabled=true;
   var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
+  if(!user){btn.disabled=false;return;}
   await window.__sb.from('observaciones_grupales').delete().eq('id',id).eq('teacher_id',user.id);
   cargarObservacionesGrupales();
 }
@@ -6858,9 +6860,9 @@ function caVerResumen(){
 }
 
 async function caGenerarPerfil(){
-  if(!_ca.ritmo&&!_ca.canal&&!_ca.clima){
+  if(!_ca.ritmo||!_ca.canal||!_ca.clima){
     document.getElementById('ca-msg').style.color='#C0392B';
-    document.getElementById('ca-msg').textContent='Completá al menos 3 dimensiones';
+    document.getElementById('ca-msg').textContent='Completá al menos Ritmo, Canal y Clima para generar el perfil';
     return;
   }
   var apiKey=_sget('huellaed_anthropic_key');
@@ -6988,7 +6990,7 @@ function mostrarPerfilAulicoEnPantalla(htmlTexto){
     +'<div style="padding:4px 16px 16px;background:var(--blanco);">'
     +'<div id="perfil-aulico-texto" style="background:var(--crema);border-radius:10px;padding:14px;font-size:12px;line-height:1.75;border:1px solid var(--gris-claro);max-height:300px;overflow-y:auto;">'+htmlTexto+'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;">'
-    +'<button onclick="imprimirPerfilAulicoDoc()" class="save-btn" style="font-size:12px;">⬇️ Descargar PDF</button>'
+    +'<button onclick="imprimirPerfilAulicoDoc()" class="save-btn" style="font-size:12px;">🖨️ Imprimir / Guardar como PDF</button>'
     +'<button onclick="abrirAjustePerfilAulico()" style="background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Ajustar</button>'
     +'</div>'
     +'<div id="ajuste-aulico-box" style="display:none;margin-top:10px;background:#FDF0EC;border-radius:10px;padding:12px;border:1.5px solid var(--terracota);">'
