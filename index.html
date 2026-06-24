@@ -758,7 +758,7 @@
     </div>
     <div id="ev-preview-container" style="display:none;text-align:center;margin-bottom:10px;"><img id="ev-preview-img" style="max-width:100%;border-radius:9px;border:1px solid var(--gris-claro);max-height:180px;object-fit:contain;"></div>
     <button id="ev-descargar-btn" onclick="descargarEvidencia()" style="display:none;width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;">⬇️ Descargar foto</button>
-    <a href=?authuser=0"https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);">📁 Abrir carpeta de evidencias en Drive</a>
+    <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF?authuser=0" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);">📁 Abrir carpeta de evidencias en Drive</a>
     <div id="ev-registros-container" style="margin-top:14px;display:none;">
       <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Registros</div>
       <div id="ev-registros-lista"></div>
@@ -5397,15 +5397,11 @@ async function subirYTranscribirAudioLectura(nombreAlumno,titulo,nombreArchivoBa
     // pero se perdió en una subida posterior que partió de una copia vieja del archivo — ver
     // protocolo HuellaED, Regla 1 (GitHub como única fuente de verdad) y la regla de entrega
     // del index.html final, ambas pensadas para evitar exactamente este tipo de pérdida.
-    var apiKey=_sget('huellaed_gemini_key');
+    var apiKey=getApiKey();
     if(!apiKey){
-      apiKey=window.prompt('Ingresá tu API Key de Gemini (se guarda en este navegador para la próxima vez):');
-      if(!apiKey){
-        if(statusEl)statusEl.textContent='Audio guardado (sin clave de Gemini, no se transcribió)';
-        return;
-      }
-      _sset('huellaed_gemini_key',apiKey.trim());
-      apiKey=apiKey.trim();
+      if(statusEl)statusEl.textContent='Audio guardado (configurá la clave de Gemini para transcribir)';
+      document.getElementById('modal-gemini-config').style.display='block';
+      return;
     }
     var audioBase64=await new Promise(function(resolve,reject){
       var reader=new FileReader();
