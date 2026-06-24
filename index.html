@@ -6021,26 +6021,19 @@ function copiarPromptNota(){navigator.clipboard.writeText(document.getElementByI
 const TAREAS_INICIALES=[];
 var tareas=JSON.parse(_sget('huellaed_agenda')||'null')||TAREAS_INICIALES;
 var filtroActual='todas';
-function guardarTareas(){
-  // NO guardar en localStorage (compartido entre usuarios)
-  if (!window.__sb) return;
-  (async function() {
-    var user = (await window.__sb.auth.getUser()).data.user;
-    if (!user) return;
-    var {error:errDel} = await window.__sb.from('agenda').delete().eq('user_id', user.id);
-    if (errDel) {
-      alert('No se pudo guardar la agenda: ' + errDel.message);
-      return;
-    }
-    if (tareas.length > 0) {
-      var {error:errIns} = await window.__sb.from('agenda').insert(
-        tareas.map(function(t) { return { id: t.id, user_id: user.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; })
-      );
-      if (errIns) {
-        alert('No se pudo guardar la agenda: ' + errIns.message + '\n\nEs probable que falte configurar permisos (RLS) en la tabla agenda de Supabase.');
-      }
-    }
-  })();
+async function _sbSaveTarea(t){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('agenda').upsert({id:t.id,user_id:user.id,texto:t.texto,cat:t.cat,hecha:t.hecha},{onConflict:'id'});
+  if(error)alert('No se pudo guardar la tarea: '+error.message);
+}
+async function _sbDeleteTarea(id){
+  if(!window.__sb)return;
+  var user=(await window.__sb.auth.getUser()).data.user;
+  if(!user)return;
+  var {error}=await window.__sb.from('agenda').delete().eq('id',id).eq('user_id',user.id);
+  if(error)alert('No se pudo borrar la tarea: '+error.message);
 }
 async function abrirAgenda(){
   document.getElementById('modal-agenda').style.display='block';
@@ -6050,9 +6043,9 @@ async function abrirAgenda(){
   renderAgenda();
 }
 function cerrarAgenda(){document.getElementById('modal-agenda').style.display='none';}
-function agregarTarea(){var txt=document.getElementById('nueva-tarea').value.trim(),cat=document.getElementById('tarea-cat').value;if(!txt)return;tareas.unshift({id:Date.now(),texto:txt,cat:cat,hecha:false});guardarTareas();document.getElementById('nueva-tarea').value='';renderAgenda();}
-function toggleTarea(id){var t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;guardarTareas();renderAgenda();}}
-function borrarTarea(id){tareas=tareas.filter(t=>t.id!==id);guardarTareas();renderAgenda();}
+function agregarTarea(){var txt=document.getElementById('nueva-tarea').value.trim(),cat=document.getElementById('tarea-cat').value;if(!txt)return;tareas.unshift({id:Date.now(),texto:txt,cat:cat,hecha:false});_sbSaveTarea(tareas[0]);document.getElementById('nueva-tarea').value='';renderAgenda();}
+function toggleTarea(id){var t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;_sbSaveTarea(t);renderAgenda();}}
+function borrarTarea(id){tareas=tareas.filter(t=>t.id!==id);_sbDeleteTarea(id);renderAgenda();}
 function filtrarAgenda(f){filtroActual=f;document.querySelectorAll('[id^="filtro-"]').forEach(b=>{b.style.background='#fff';b.style.color='var(--gris)';b.style.borderColor='var(--gris-claro)';});var btn=document.getElementById('filtro-'+f);if(btn){btn.style.background='var(--verde)';btn.style.color='#fff';btn.style.borderColor='var(--verde)';}renderAgenda();}
 function renderAgenda(){var lista=document.getElementById('agenda-lista');var cats={urgente:{label:'🔴 Urgente',bg:'#FDE8E8',border:'#C0392B'},importante:{label:'🟡 Importante',bg:'#FDFAE8',border:'#C8845A'},proceso:{label:'🔵 En proceso',bg:'#E8EEF8',border:'#5A7EB8'},idea:{label:'💡 Ideas',bg:'var(--crema)',border:'var(--gris-claro)'}};var filtradas=tareas.filter(t=>filtroActual==='pendiente'?!t.hecha:filtroActual==='hecha'?t.hecha:true);var grupos={};filtradas.forEach(t=>{if(!grupos[t.cat])grupos[t.cat]=[];grupos[t.cat].push(t);});var html='';['urgente','importante','proceso','idea'].forEach(cat=>{if(!grupos[cat]||!grupos[cat].length)return;var c=cats[cat];html+='<div style="margin-bottom:14px;"><div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">'+c.label+'</div>';grupos[cat].forEach(t=>{html+='<div style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;margin-bottom:5px;background:'+(t.hecha?'var(--crema)':c.bg)+';border:1px solid '+(t.hecha?'var(--gris-claro)':c.border)+';opacity:'+(t.hecha?'0.55':'1')+'"><input type="checkbox" '+(t.hecha?'checked':'')+' onchange="toggleTarea('+t.id+')" style="width:17px;height:17px;cursor:pointer;accent-color:var(--verde);flex-shrink:0;"><span style="flex:1;font-size:12px;'+(t.hecha?'text-decoration:line-through;':'')+'">'+t.texto+'</span><button onclick="borrarTarea('+t.id+')" style="background:none;border:none;color:#CCC;cursor:pointer;font-size:15px;">✕</button></div>';});html+='</div>';});if(!html){
   if(_agendaErrorCarga){
@@ -6154,8 +6147,8 @@ async function guardarObservacionModal(){
 
   if(obsDestino==='agenda'){
     // Guardar en agenda
-    tareas.unshift({id:Date.now(),texto:texto,cat:'importante',hecha:false});
-    guardarTareas();
+    var _t={id:Date.now(),texto:texto,cat:'importante',hecha:false};tareas.unshift(_t);
+    _sbSaveTarea(_t);
     msg.style.color='var(--verde)';msg.textContent='✅ Agregado a la agenda';
     document.getElementById('obs-texto-modal').value='';
     setTimeout(function(){cerrarObservacion();},1500);
