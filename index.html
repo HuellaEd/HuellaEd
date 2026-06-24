@@ -1984,25 +1984,9 @@ async function onbFinalizar(){
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); var btn=document.getElementById('btn-config-script'); if(btn && APPS_SCRIPT_URL) btn.textContent='✅ Script activo'; actualizarEstadoApiKeys(); });
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); actualizarEstadoApiKeys(); });
 
 
-function configurarScriptURL() {
-  var actual = APPS_SCRIPT_URL ? '\nActual: ' + APPS_SCRIPT_URL.substring(0,50) + '...' : '\n(No configurada todavía)';
-  var url = prompt('Pegá la URL del Google Apps Script:' + actual + '\n\nGuía en Drive: HuellaED — Google Apps Script v2');
-  if (!url) return;
-  if (url.startsWith('https://script.google.com')) {
-    _sset('huellaed_script_url', url);
-    APPS_SCRIPT_URL = url;
-    var btn = document.getElementById('btn-config-script');
-    if(btn) btn.textContent = '✅ Script activo';
-    alert('✅ Script configurado. Análisis de lectura y notas dictadas se guardarán directo en Drive.');
-  } else {
-    alert('⚠️ URL inválida. Debe empezar con https://script.google.com');
-  }
-}
-
-// Mostrar estado del script al cargar
 // ── DICTADO CON GEMINI EN NOTA RÁPIDA ──
 var dictadoRecorder = null;
 var dictadoChunks = [];
@@ -2241,7 +2225,7 @@ async function generarAdecuacion(){
   var dif=_adec.dificultades.find(function(d){return d.id===dificultadId;});
   if(!dif){alert('Dificultad no encontrada');return;}
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   var btn=document.getElementById('adec-btn-generar');
   btn.disabled=true;btn.textContent='Generando…';
   document.getElementById('adec-resultado').style.display='none';
@@ -3263,7 +3247,7 @@ async function generarPerfilAcademico(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s){alert('No se encontró el alumno. Cerrá el perfil y volvé a abrirlo.');return;}
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=window.prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   var nombre=s.full_name;
 
   // ── SOLO DATOS REALES DE SUPABASE ──
@@ -3545,7 +3529,7 @@ async function generarInforme(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=window.prompt('Ingresá tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   var motivo=document.getElementById('informe-motivo').value;
   var destinatario=document.getElementById('informe-destinatario').value||'Equipo directivo';
   var nombre=s.full_name;
@@ -4950,12 +4934,7 @@ function quitarAdjuntoGen(){
 
 async function enviarAClaudeConArchivo(promptText){
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){
-    apiKey=window.prompt('Ingresá tu API Key de Anthropic (se guarda solo en este dispositivo):');
-    if(!apiKey)return;
-    _sset('huellaed_anthropic_key',apiKey.trim());
-    apiKey=apiKey.trim();
-  }
+  if(!apiKey){configurarApiKey('anthropic');return;}
   var btn=document.getElementById('gen-btn');
   btn.disabled=true;btn.textContent='⏳ Consultando a Claude…';
   var contentParts=[];
@@ -6321,7 +6300,7 @@ async function reactivarAlumno(id,nombre){
 
 async function generarLegajoEgreso(studentId,nombre){
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   if(!window.__sb)return;
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
@@ -6695,7 +6674,7 @@ async function generarDEI(){
   var s=(window.__students||[]).find(function(st){return st.id===_perfilStudentId;});
   if(!s)return;
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   
   var msg=document.getElementById('dei-msg');
   msg.style.color='var(--gris)';msg.textContent='Generando DEI... puede tardar unos segundos.';
@@ -6875,7 +6854,7 @@ async function caGenerarPerfil(){
     return;
   }
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   var obs=document.getElementById('ca-obs').value.trim();
   _sset('huellaed_ca_v3',JSON.stringify({sel:_ca,obs:obs,fecha:new Date().toLocaleDateString('es-AR')}));
   var msg=document.getElementById('ca-msg');
@@ -7050,7 +7029,7 @@ async function procesarFotoAsistencia(input){
   var file=input.files[0];
   if(!file)return;
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
 
   document.getElementById('modal-confirmar-foto').style.display='block';
   document.getElementById('confirmar-foto-msg').textContent='Leyendo el registro con IA, puede tardar unos segundos...';
@@ -7209,7 +7188,7 @@ async function procesarArchivoPlanif(input){
   var file=input.files[0];
   if(!file)return;
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey){input.value='';return;}_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
 
   document.getElementById('modal-confirmar-planif').style.display='block';
   document.getElementById('confirmar-planif-msg').textContent='Leyendo el archivo...';
@@ -7378,7 +7357,7 @@ async function ajustarPerfilAulico(){
     return;
   }
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
 
   var msg=document.getElementById('ajuste-aulico-msg');
   msg.style.color='var(--gris)';msg.textContent='Ajustando el perfil...';
