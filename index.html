@@ -597,13 +597,7 @@
         Solo diferenciadas <span style="font-size:10px;color:var(--gris);">(sin versión general)</span>
       </label>
       <p id="gen-nota-general" style="font-size:10px;color:var(--gris);margin-bottom:7px;">El prompt incluye la versión general + las que selecciones.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Gamon, Ciro','adaptacion','TDL comprensivo-expresivo e IDN 74 Bajo. Consignas visuales, menos ejercicios, más espacio y tiempo.')"><span class="check-icon">☐</span> Gamon, Ciro<br><small style="color:var(--gris);font-size:10px;">Adaptación (NEE)</small></div>
-        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Nievas, Nicolás','adecuacion','Dificultades en lectoescritura y estrategia de estimación. Necesita recordatorio visual de pasos.')"><span class="check-icon">☐</span> Nievas, Nicolás<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>
-        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Godoy, Katia','adecuacion','Dificultades en lectoescritura y matemática. Necesita estructura clara y guiada.')"><span class="check-icon">☐</span> Godoy, Katia<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>
-        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Carbonel, Tiziano','adecuacion','Dificultades en lectoescritura y timidez. Necesita consignas claras y apoyo visual.')"><span class="check-icon">☐</span> Carbonel, Tiziano<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>
-        <div class="alumno-check" onclick="toggleAlumnoEsp(this,'Cuello, Thomas','adecuacion','Dificultad sostenida de concentración. Necesita consignas cortas y actividades de menor extensión.')"><span class="check-icon">☐</span> Cuello, Thomas<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>
-      </div>
+      <div id="gen-alumnos-dif-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
     </div>
     <div class="form-row"><label style="display:flex;justify-content:space-between;align-items:center;">Detalles (opcional)<button type="button" id="btn-voz-detalles" onclick="toggleDictadoDetalles()" style="background:var(--crema);border:1.5px solid var(--gris-claro);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--negro);display:flex;align-items:center;gap:4px;">🎤 Dictar</button></label><textarea id="gen-detalles" placeholder="Ej: 5 ejercicios, para imprimir, adjunto PDF del libro..." style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;background:var(--crema);height:65px;resize:none;box-sizing:border-box;"></textarea></div>
     <div class="form-row">
@@ -4671,8 +4665,34 @@ var tipoSel='',alumnosEsp=[],soloDif=false;
 var _genAdjuntoBase64=null,_genAdjuntoType=null,_genAdjuntoIsPDF=false,_genAdjuntoTexto=null;
 var _genAiRawText='';
 var _genHtmlRenderizado='';
-function abrirGenerador(){document.getElementById('modal-generador').style.display='block';}
+function abrirGenerador(){document.getElementById('modal-generador').style.display='block';alumnosEsp=[];poblarAlumnosDif();}
 function cerrarGenerador(){document.getElementById('modal-generador').style.display='none';document.getElementById('gen-resultado').style.display='none';document.getElementById('gen-ai-resultado').style.display='none';quitarAdjuntoGen();quitarMapaSeleccionado();}
+var _difPerfilesCache=[];
+async function poblarAlumnosDif(){
+  var grid=document.getElementById('gen-alumnos-dif-grid');
+  if(!grid)return;
+  grid.innerHTML='<div style="font-size:11px;color:var(--gris);padding:8px;grid-column:1/-1;">Cargando...</div>';
+  _difPerfilesCache=[];
+  if(!window.__sb){grid.innerHTML='<div style="font-size:11px;color:var(--gris);padding:8px;grid-column:1/-1;">Sin conexión.</div>';return;}
+  try{
+    var user=(await window.__sb.auth.getUser()).data.user;
+    if(!user){grid.innerHTML='';return;}
+    var{data}=await window.__sb.from('differential_profiles').select('student_id,descripcion,necesidades').eq('teacher_id',user.id);
+    var students=window.__students||[];
+    var items=(data||[]).map(function(p){
+      var st=students.find(function(s){return s.id===p.student_id;});
+      if(!st||st.active===false)return null;
+      var txt=((p.descripcion||p.necesidades||'').replace(/\n/g,' ').trim()).substring(0,200);
+      return{nombre:st.full_name,tipo:'adecuacion',perfil:txt};
+    }).filter(Boolean).sort(function(a,b){return a.nombre.localeCompare(b.nombre,'es');});
+    if(!items.length){grid.innerHTML='<div style="font-size:11px;color:var(--gris);padding:8px;grid-column:1/-1;">Sin alumnos con perfil diferencial. Completá la ficha de conocimiento de cada alumno.</div>';return;}
+    _difPerfilesCache=items;
+    grid.innerHTML=items.map(function(a,i){
+      return'<div class="alumno-check" data-idx="'+i+'" onclick="_toggleDifAlumno(this)"><span class="check-icon">☐</span> '+escHtml(a.nombre)+'<br><small style="color:var(--gris);font-size:10px;">Adecuación</small></div>';
+    }).join('');
+  }catch(e){grid.innerHTML='<div style="font-size:11px;color:var(--gris);padding:8px;grid-column:1/-1;">Error al cargar perfiles.</div>';console.error('poblarAlumnosDif:',e);}
+}
+function _toggleDifAlumno(el){var i=parseInt(el.getAttribute('data-idx'),10);var a=_difPerfilesCache[i];if(a)toggleAlumnoEsp(el,a.nombre,a.tipo,a.perfil);}
 function selTipo(el,t){document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');tipoSel=t;}
 var bloqueAñosSel='12';
 function selBloque(el,b){document.querySelectorAll('.bloque-btn').forEach(function(btn){btn.classList.remove('active');btn.style.background='var(--crema)';btn.style.borderColor='var(--gris-claro)';btn.style.color='var(--negro)';});el.classList.add('active');el.style.background='var(--verde)';el.style.borderColor='var(--verde)';el.style.color='#fff';bloqueAñosSel=b;}
@@ -4738,7 +4758,7 @@ async function generarConIA(){
   if(!p)return;
   document.getElementById('gen-resultado').style.display='none';
   var apiKey=_sget('huellaed_anthropic_key');
-  if(!apiKey){apiKey=prompt('Ingresa tu API Key de Anthropic:');if(!apiKey)return;_sset('huellaed_anthropic_key',apiKey.trim());apiKey=apiKey.trim();}
+  if(!apiKey){configurarApiKey('anthropic');return;}
   var btn=document.getElementById('gen-btn-ia');
   var contenedor=document.getElementById('gen-ai-resultado');
   btn.disabled=true;btn.textContent='Generando...';
