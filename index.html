@@ -2977,14 +2977,26 @@ async function abrirPerfilAcademico(studentId){
   if(!user)return;
   _perfilUserId=user.id;
 
-  var results=await Promise.all([
-    window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
-    window.__sb.from('attendance').select('status').eq('student_id',studentId).eq('teacher_id',user.id),
-    s.has_differential
-      ?window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
-      :Promise.resolve({data:null})
-  ]);
-  var gradesRes=results[0],attendRes=results[1],diffRes=results[2];
+  var gradesRes,attendRes,diffRes;
+  try {
+    var results=await Promise.all([
+      window.__sb.from('grades').select('subject_id,score').eq('student_id',studentId).eq('teacher_id',user.id).eq('period',gradesPeriodo),
+      window.__sb.from('attendance').select('status').eq('student_id',studentId).eq('teacher_id',user.id),
+      s.has_differential
+        ?window.__sb.from('differential_profiles').select('*').eq('student_id',studentId).maybeSingle()
+        :Promise.resolve({data:null})
+    ]);
+    gradesRes=results[0]; attendRes=results[1]; diffRes=results[2];
+  } catch(e) {
+    body.innerHTML='<div style="text-align:center;padding:32px;">'
+      +'<div style="font-size:28px;margin-bottom:12px;">⚠️</div>'
+      +'<div style="font-size:14px;font-weight:600;color:#C0392B;margin-bottom:8px;">No se pudo cargar el perfil</div>'
+      +'<div style="font-size:12px;color:var(--gris);margin-bottom:18px;">Verificá tu conexión y volvé a intentar.</div>'
+      +'<button onclick="abrirPerfilAcademico(\''+studentId+'\')" style="background:var(--verde);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-right:8px;">🔄 Reintentar</button>'
+      +'<button onclick="cerrarPerfilAcademico()" style="background:var(--crema);color:var(--negro);border:1.5px solid var(--gris-claro);border-radius:9px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cerrar</button>'
+      +'</div>';
+    return;
+  }
 
   // Grades
   var sg={};
