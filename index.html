@@ -1357,7 +1357,7 @@
     try {
       const _u = (await window.__sb.auth.getUser()).data.user
       if (!_u) return
-      window.__sb.from('actividad_docente').insert({ teacher_id: _u.id, tipo_accion: tipo, detalle: detalle || null })
+      await window.__sb.from('actividad_docente').insert({ teacher_id: _u.id, tipo_accion: tipo, detalle: detalle || null })
     } catch (_) {}
   }
   document.getElementById('btn-logout').addEventListener('click', async () => {
