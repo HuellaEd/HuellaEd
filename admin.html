@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>HuellaED — Administración</title>
+  <meta name="theme-color" content="#2D5F4F">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    :root{
+      --verde:#2D5F4F;--verde2:#3A7A65;--verde-claro:#7BAE99;--verde-bg:#E8F4EF;
+      --terracota:#C8845A;--terracota-bg:#FDF0E8;
+      --crema:#F5F2EE;--gris-claro:#E8E4DF;--gris:#8A7E6A;
+      --negro:#2D3A35;--blanco:#FFFFFF;
+      --radius:14px;--radius-sm:10px;--shadow:0 1px 4px rgba(0,0,0,0.08);
+      --rojo-bg:#FDE8E8;--rojo:#B04040;
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--crema);min-height:100vh;color:var(--negro);}
+
+    /* ── LOADING ── */
+    #overlay-loading{
+      position:fixed;inset:0;background:var(--crema);display:flex;
+      align-items:center;justify-content:center;z-index:999;
+    }
+    .spinner{
+      width:36px;height:36px;border:3px solid var(--gris-claro);
+      border-top-color:var(--verde);border-radius:50%;
+      animation:spin .75s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* ── HEADER ── */
+    header{
+      background:var(--verde);padding:18px 20px 14px;
+      display:flex;align-items:center;gap:14px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.18);
+      position:sticky;top:0;z-index:100;
+    }
+    .hdr-text h1{font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1;}
+    .hdr-text h1 span{color:var(--verde-claro);font-weight:300;}
+    .hdr-text p{font-size:10px;color:rgba(168,201,188,0.85);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px;}
+    .hdr-admin-badge{
+      margin-left:4px;
+      background:rgba(200,132,90,0.28);border:1px solid rgba(200,132,90,0.55);
+      color:#E8A870;font-size:9px;font-weight:700;letter-spacing:1.5px;
+      text-transform:uppercase;padding:3px 8px;border-radius:20px;
+    }
+    .btn-logout{
+      margin-left:auto;background:rgba(255,255,255,0.12);
+      border:1.5px solid rgba(255,255,255,0.25);color:#fff;
+      border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;
+      font-family:inherit;cursor:pointer;letter-spacing:.5px;transition:background .15s;
+    }
+    .btn-logout:active{background:rgba(255,255,255,0.22);}
+
+    /* ── LOGIN PAGE ── */
+    #page-login{min-height:100vh;display:flex;flex-direction:column;}
+    .login-body{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 16px;}
+    .login-card{
+      background:var(--blanco);border-radius:var(--radius);padding:30px 24px;
+      width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,0.10);
+    }
+    .login-card h2{font-size:18px;font-weight:700;color:var(--negro);margin-bottom:4px;}
+    .login-card .sub{font-size:12px;color:var(--gris);margin-bottom:22px;}
+    .field{margin-bottom:15px;}
+    label{display:block;font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+    input[type=email],input[type=password],input[type=text]{
+      width:100%;padding:11px 14px;border:1.5px solid var(--gris-claro);
+      border-radius:var(--radius-sm);font-size:14px;font-family:inherit;
+      background:#fff;color:var(--negro);transition:border-color .15s;outline:none;
+    }
+    input:focus{border-color:var(--verde);}
+    .btn-primary{
+      width:100%;padding:13px;background:var(--verde);color:#fff;border:none;
+      border-radius:var(--radius-sm);font-size:15px;font-weight:600;
+      font-family:inherit;cursor:pointer;transition:background .15s,transform .1s;margin-top:4px;
+    }
+    .btn-primary:active{transform:scale(.98);background:var(--verde2);}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .error-box{
+      background:var(--rojo-bg);border:1.5px solid #F5C0C0;border-radius:var(--radius-sm);
+      padding:10px 14px;font-size:12px;color:var(--rojo);margin-bottom:14px;
+    }
+    footer{text-align:center;padding:10px;font-size:10px;color:var(--gris);letter-spacing:1px;}
+
+    /* ── DENIED PAGE ── */
+    #page-denied{min-height:100vh;display:flex;flex-direction:column;}
+    .denied-body{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .denied-card{
+      text-align:center;background:var(--blanco);border-radius:var(--radius);
+      padding:44px 32px;max-width:340px;
+      box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);
+    }
+    .denied-icon{font-size:44px;margin-bottom:14px;}
+    .denied-card h2{font-size:19px;font-weight:700;color:var(--negro);margin-bottom:8px;}
+    .denied-card p{font-size:13px;color:var(--gris);line-height:1.55;margin-bottom:24px;}
+    .btn-outline{
+      padding:10px 24px;background:transparent;color:var(--verde);
+      border:2px solid var(--verde);border-radius:var(--radius-sm);
+      font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;
+      transition:background .15s;
+    }
+    .btn-outline:hover{background:var(--verde-bg);}
+
+    /* ── PANEL ── */
+    #page-panel{display:flex;flex-direction:column;min-height:100vh;}
+    main{max-width:960px;margin:0 auto;padding:28px 16px 64px;width:100%;}
+
+    .sec-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .sec-title{
+      font-size:11px;font-weight:700;color:var(--gris);
+      letter-spacing:2px;text-transform:uppercase;
+    }
+    .count-chip{
+      background:var(--verde-bg);color:var(--verde2);
+      font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap{
+      background:var(--blanco);border-radius:var(--radius);
+      border:1.5px solid var(--gris-claro);
+      box-shadow:var(--shadow);overflow-x:auto;
+    }
+    table{width:100%;border-collapse:collapse;min-width:580px;}
+    thead tr{background:var(--crema);}
+    th{
+      text-align:left;padding:11px 16px;
+      font-size:10px;font-weight:700;color:var(--gris);
+      letter-spacing:1.5px;text-transform:uppercase;
+      border-bottom:1.5px solid var(--gris-claro);white-space:nowrap;
+    }
+    td{
+      padding:14px 16px;font-size:13px;
+      border-bottom:1px solid var(--gris-claro);
+      vertical-align:middle;
+    }
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#FAFAF8;}
+
+    .td-nombre{font-weight:600;color:var(--negro);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .td-email{font-size:11px;color:var(--gris);margin-top:2px;}
+    .td-grado{font-size:13px;color:var(--negro);}
+    .td-num{font-size:14px;font-weight:600;color:var(--negro);}
+    .td-fecha{font-size:12px;color:var(--gris);}
+    .td-nunca{font-size:12px;color:var(--gris-claro);font-style:italic;}
+    .td-placeholder{text-align:center;padding:36px 16px;color:var(--gris);font-size:13px;}
+    .td-error{color:var(--rojo);}
+
+    /* chips */
+    .chip{
+      display:inline-block;padding:2px 9px;border-radius:20px;
+      font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap;
+    }
+    .chip-activo{background:var(--verde-bg);color:var(--verde2);}
+    .chip-inactivo{background:#F5EFEF;color:#A05050;}
+    .chip-admin{background:var(--terracota-bg);color:var(--terracota);}
+  </style>
+</head>
+<body>
+
+<!-- ── LOADING ── -->
+<div id="overlay-loading">
+  <div class="spinner"></div>
+</div>
+
+<!-- ── PAGE: LOGIN ── -->
+<div id="page-login" hidden>
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="38" height="46" style="flex-shrink:0">
+      <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.6" stroke-linecap="round" d="M18,35 C18,25 22,19 28,19 C34,19 38,25 38,35 C38,42 35,48 31,52"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.3" stroke-linecap="round" d="M24,36 C24,30 25,25 28,25 C31,25 32,30 32,36 C32,41 30,45 28,48"/>
+      <ellipse cx="28" cy="35" rx="3.5" ry="4.5" fill="none" stroke="#7BAE99" stroke-width="1.2"/>
+      <circle cx="50" cy="9" r="3.5" fill="#C8845A"/>
+    </svg>
+    <div class="hdr-text">
+      <h1>Huella<span>ED</span></h1>
+      <p>administración</p>
+    </div>
+  </header>
+
+  <div class="login-body">
+    <div class="login-card">
+      <h2>Acceso administración</h2>
+      <p class="sub">Solo para administradores autorizados</p>
+      <div id="err-login" class="error-box" hidden></div>
+      <form id="form-login">
+        <div class="field">
+          <label for="inp-email">Email</label>
+          <input type="email" id="inp-email" placeholder="tu@email.com" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="inp-pwd">Contraseña</label>
+          <input type="password" id="inp-pwd" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primary" id="btn-login">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>HUELLAED · ADMINISTRACIÓN</footer>
+</div>
+
+<!-- ── PAGE: ACCESO DENEGADO ── -->
+<div id="page-denied" hidden>
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="38" height="46" style="flex-shrink:0">
+      <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.6" stroke-linecap="round" d="M18,35 C18,25 22,19 28,19 C34,19 38,25 38,35 C38,42 35,48 31,52"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.3" stroke-linecap="round" d="M24,36 C24,30 25,25 28,25 C31,25 32,30 32,36 C32,41 30,45 28,48"/>
+      <ellipse cx="28" cy="35" rx="3.5" ry="4.5" fill="none" stroke="#7BAE99" stroke-width="1.2"/>
+      <circle cx="50" cy="9" r="3.5" fill="#C8845A"/>
+    </svg>
+    <div class="hdr-text">
+      <h1>Huella<span>ED</span></h1>
+      <p>administración</p>
+    </div>
+  </header>
+
+  <div class="denied-body">
+    <div class="denied-card">
+      <div class="denied-icon">🔒</div>
+      <h2>Acceso denegado</h2>
+      <p>Tu cuenta no tiene permisos de administración. Si creés que es un error, contactá al administrador del sistema.</p>
+      <button class="btn-outline" id="btn-denied-logout">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: PANEL ADMIN ── -->
+<div id="page-panel" hidden>
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="38" height="46" style="flex-shrink:0">
+      <path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.6" stroke-linecap="round" d="M18,35 C18,25 22,19 28,19 C34,19 38,25 38,35 C38,42 35,48 31,52"/>
+      <path fill="none" stroke="#7BAE99" stroke-width="1.3" stroke-linecap="round" d="M24,36 C24,30 25,25 28,25 C31,25 32,30 32,36 C32,41 30,45 28,48"/>
+      <ellipse cx="28" cy="35" rx="3.5" ry="4.5" fill="none" stroke="#7BAE99" stroke-width="1.2"/>
+      <circle cx="50" cy="9" r="3.5" fill="#C8845A"/>
+    </svg>
+    <div class="hdr-text">
+      <h1>Huella<span>ED</span></h1>
+      <p>administración</p>
+    </div>
+    <span class="hdr-admin-badge">Admin</span>
+    <button class="btn-logout" id="btn-panel-logout">Salir</button>
+  </header>
+
+  <main>
+    <!-- Sección docentes -->
+    <div class="sec-header">
+      <span class="sec-title">Docentes registrados</span>
+      <span class="count-chip" id="count-docentes">—</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Docente</th>
+            <th>Grado / Año</th>
+            <th>Alumnos</th>
+            <th>Último ingreso</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-docentes">
+          <tr><td colspan="5" class="td-placeholder">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase } from './supabase.js'
+
+  // ── Estado de la UI ──
+  function show(page) {
+    document.getElementById('overlay-loading').style.display = 'none'
+    for (const id of ['page-login', 'page-denied', 'page-panel']) {
+      document.getElementById(id).hidden = (id !== `page-${page}`)
+    }
+  }
+
+  // ── Init: verificar sesión activa ──
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { show('login'); return }
+    await verificarAdmin()
+  }
+
+  // ── Verificar is_admin vía función segura ──
+  async function verificarAdmin() {
+    const { data: esAdmin, error } = await supabase.rpc('check_is_admin')
+    if (error || !esAdmin) { show('denied'); return }
+    show('panel')
+    await cargarDocentes()
+  }
+
+  // ── Login ──
+  document.getElementById('form-login').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const btn = document.getElementById('btn-login')
+    const errEl = document.getElementById('err-login')
+    errEl.hidden = true
+    btn.disabled = true
+    btn.textContent = 'Ingresando…'
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: document.getElementById('inp-email').value.trim(),
+      password: document.getElementById('inp-pwd').value,
+    })
+
+    if (error) {
+      errEl.textContent = error.message === 'Invalid login credentials'
+        ? 'Email o contraseña incorrectos.'
+        : error.message
+      errEl.hidden = false
+      btn.disabled = false
+      btn.textContent = 'Ingresar'
+      return
+    }
+
+    await verificarAdmin()
+  })
+
+  // ── Logout ──
+  async function logout() {
+    await supabase.auth.signOut()
+    show('login')
+  }
+  document.getElementById('btn-denied-logout').addEventListener('click', logout)
+  document.getElementById('btn-panel-logout').addEventListener('click', logout)
+
+  // ── Cargar tabla de docentes ──
+  async function cargarDocentes() {
+    const tbody = document.getElementById('tbody-docentes')
+
+    const { data, error } = await supabase.rpc('admin_get_teachers')
+
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="5" class="td-placeholder td-error">${esc(error.message)}</td></tr>`
+      return
+    }
+
+    document.getElementById('count-docentes').textContent = data.length
+
+    const fmt = new Intl.DateTimeFormat('es-AR', {
+      day: '2-digit', month: '2-digit', year: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+    })
+
+    tbody.innerHTML = data.map(t => {
+      const fechaHtml = t.last_sign_in_at
+        ? `<span class="td-fecha">${fmt.format(new Date(t.last_sign_in_at))}</span>`
+        : `<span class="td-nunca">Sin registros</span>`
+
+      const estadoHtml = t.activo
+        ? `<span class="chip chip-activo">● Activo</span>`
+        : `<span class="chip chip-inactivo">● Inactivo</span>`
+
+      const adminChip = t.is_admin
+        ? `<span class="chip chip-admin">admin</span>`
+        : ''
+
+      return `
+        <tr data-id="${t.id}">
+          <td>
+            <div class="td-nombre">${esc(t.full_name)} ${adminChip}</div>
+            <div class="td-email">${esc(t.email)}</div>
+          </td>
+          <td class="td-grado">${esc(t.grade || '—')}</td>
+          <td class="td-num">${t.student_count}</td>
+          <td>${fechaHtml}</td>
+          <td>${estadoHtml}</td>
+        </tr>`
+    }).join('')
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  }
+
+  init()
+</script>
+</body>
+</html>
