@@ -1669,7 +1669,9 @@ function nameToKey(n) {
 async function initStudents() {
   try {
   if (!window.__sb) return;
-  var user = (await window.__sb.auth.getUser()).data.user;
+  var _authRes = await window.__sb.auth.getUser();
+  if (_authRes.error) { console.error('Auth error en initStudents:', _authRes.error); _mostrarBannerCarga('alumnos'); return; }
+  var user = _authRes.data.user;
   if (!user) return;
   var { data: students, error } = await window.__sb
     .from('students')
@@ -1973,7 +1975,9 @@ aplicarModoOscuroGuardado();
 async function initTeacher(){
   try {
     if(!window.__sb)return;
-    var user=(await window.__sb.auth.getUser()).data.user;
+    var _authRes=await window.__sb.auth.getUser();
+    if(_authRes.error){ console.error('Auth error en initTeacher:', _authRes.error); _mostrarBannerCarga('docente'); return; }
+    var user=_authRes.data.user;
     if(!user)return;
     var {data,error}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar,onboarding_completed').eq('id',user.id).maybeSingle();
     if(error){ console.error('Error cargando datos del docente:', error); _mostrarBannerCarga('docente'); return; }
