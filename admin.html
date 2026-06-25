@@ -155,6 +155,47 @@
     .chip-activo{background:var(--verde-bg);color:var(--verde2);}
     .chip-inactivo{background:#F5EFEF;color:#A05050;}
     .chip-admin{background:var(--terracota-bg);color:var(--terracota);}
+
+    /* ── BOTÓN ACCIÓN EN TABLA ── */
+    .btn-accion{
+      padding:5px 10px;font-size:11px;font-weight:600;font-family:inherit;
+      background:transparent;color:var(--terracota);
+      border:1.5px solid var(--terracota);border-radius:7px;
+      cursor:pointer;transition:background .12s;white-space:nowrap;
+    }
+    .btn-accion:hover{background:var(--terracota-bg);}
+    .btn-accion:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* ── MODAL CONTRASEÑA TEMPORAL ── */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.45);
+      display:flex;align-items:center;justify-content:center;
+      z-index:200;padding:20px;
+    }
+    .modal-box{
+      background:var(--blanco);border-radius:var(--radius);
+      padding:32px 28px;max-width:400px;width:100%;
+      box-shadow:0 8px 40px rgba(0,0,0,0.22);text-align:center;
+    }
+    .modal-icon{font-size:36px;margin-bottom:10px;}
+    .modal-title{font-size:16px;font-weight:700;color:var(--negro);margin-bottom:6px;}
+    .modal-sub{font-size:12px;color:var(--gris);line-height:1.6;margin-bottom:18px;}
+    .modal-sub strong{color:var(--negro);}
+    .pwd-box{
+      background:var(--crema);border:2px dashed var(--verde-claro);
+      border-radius:var(--radius-sm);padding:14px;
+      font-size:22px;font-weight:700;letter-spacing:3px;
+      color:var(--negro);font-family:monospace;
+      margin-bottom:20px;word-break:break-all;
+    }
+    .modal-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+    .btn-copiar{
+      padding:10px 20px;background:var(--verde);color:#fff;
+      border:none;border-radius:var(--radius-sm);
+      font-size:14px;font-weight:600;font-family:inherit;
+      cursor:pointer;transition:background .15s;
+    }
+    .btn-copiar:hover{background:var(--verde2);}
   </style>
 </head>
 <body>
@@ -265,14 +306,32 @@
             <th>Alumnos</th>
             <th>Último ingreso</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="tbody-docentes">
-          <tr><td colspan="5" class="td-placeholder">Cargando…</td></tr>
+          <tr><td colspan="6" class="td-placeholder">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
   </main>
+
+  <!-- ── MODAL: contraseña temporal generada ── -->
+  <div id="modal-pwd" class="modal-overlay" hidden>
+    <div class="modal-box">
+      <div class="modal-icon">🔑</div>
+      <div class="modal-title" id="modal-pwd-nombre"></div>
+      <p class="modal-sub">
+        Contraseña temporal generada. Copiála y pasásela al docente
+        por el medio que prefieras.<br><strong>No se vuelve a mostrar.</strong>
+      </p>
+      <div class="pwd-box" id="modal-pwd-valor"></div>
+      <div class="modal-btns">
+        <button class="btn-copiar" id="btn-copiar-pwd">Copiar contraseña</button>
+        <button class="btn-outline" onclick="document.getElementById('modal-pwd').hidden=true;document.getElementById('modal-pwd-valor').textContent=''">Cerrar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -357,7 +416,7 @@
     }
 
     if (error) {
-      tbody.innerHTML = `<tr><td colspan="5" class="td-placeholder td-error">${esc(error.message)}</td></tr>`
+      tbody.innerHTML = `<tr><td colspan="6" class="td-placeholder td-error">${esc(error.message)}</td></tr>`
       return
     }
 
@@ -391,6 +450,7 @@
           <td class="td-num">${t.student_count}</td>
           <td>${fechaHtml}</td>
           <td>${estadoHtml}</td>
+          <td><button class="btn-accion" data-reset-id="${t.id}" data-reset-name="${esc(t.full_name)}">Restablecer clave</button></td>
         </tr>`
     }).join('')
   }
@@ -398,6 +458,47 @@
   function esc(s) {
     return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   }
+
+  // ── Restablecer contraseña ──
+  document.getElementById('tbody-docentes').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-accion[data-reset-id]')
+    if (!btn) return
+    await restablecerPassword(btn.dataset.resetId, btn.dataset.resetName, btn)
+  })
+
+  async function restablecerPassword(teacherId, teacherName, btn) {
+    const textoOriginal = btn.textContent
+    btn.disabled = true
+    btn.textContent = 'Generando…'
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-reset-password', {
+        body: { teacher_id: teacherId },
+      })
+      if (error) throw new Error(error.message)
+      if (data?.error) throw new Error(data.error)
+      mostrarPasswordTemporal(teacherName, data.password)
+    } catch (err) {
+      alert(`Error al restablecer contraseña: ${err.message}`)
+    } finally {
+      btn.disabled = false
+      btn.textContent = textoOriginal
+    }
+  }
+
+  function mostrarPasswordTemporal(nombre, pwd) {
+    document.getElementById('modal-pwd-nombre').textContent = `Contraseña temporal — ${nombre}`
+    document.getElementById('modal-pwd-valor').textContent = pwd
+    document.getElementById('modal-pwd').hidden = false
+  }
+
+  document.getElementById('btn-copiar-pwd').addEventListener('click', () => {
+    const pwd = document.getElementById('modal-pwd-valor').textContent
+    navigator.clipboard.writeText(pwd).then(() => {
+      const b = document.getElementById('btn-copiar-pwd')
+      b.textContent = '✓ Copiada'
+      setTimeout(() => { b.textContent = 'Copiar contraseña' }, 2000)
+    })
+  })
 
   init()
 </script>
