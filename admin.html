@@ -216,6 +216,10 @@
       margin-left:auto;
     }
     .btn-agregar:hover{background:var(--verde2);}
+    .btn-accion-danger{color:var(--rojo);border-color:var(--rojo);}
+    .btn-accion-danger:hover{background:var(--rojo-bg);}
+    .btn-accion-ok{color:var(--verde2);border-color:var(--verde2);}
+    .btn-accion-ok:hover{background:var(--verde-bg);}
   </style>
 </head>
 <body>
@@ -385,6 +389,8 @@
 <script type="module">
   import { supabase } from './supabase.js'
 
+  let currentUserId = null
+
   // ── Estado de la UI ──
   function show(page) {
     document.getElementById('overlay-loading').style.display = 'none'
@@ -405,6 +411,8 @@
     const { data: esAdmin, error } = await supabase.rpc('check_is_admin')
     if (error) throw new Error(`No se pudo verificar el acceso: ${error.message}`)
     if (!esAdmin) { show('denied'); return }
+    const { data: { session } } = await supabase.auth.getSession()
+    currentUserId = session?.user?.id ?? null
     show('panel')
     await cargarDocentes()
   }
@@ -488,6 +496,11 @@
         ? `<span class="chip chip-admin">admin</span>`
         : ''
 
+      const isOwn = t.id === currentUserId
+      const toggleBtn = isOwn ? '' : t.activo
+        ? `<button class="btn-accion btn-accion-danger" data-toggle-id="${t.id}" data-toggle-name="${esc(t.full_name)}" data-toggle-active="false">Desactivar</button>`
+        : `<button class="btn-accion btn-accion-ok" data-toggle-id="${t.id}" data-toggle-name="${esc(t.full_name)}" data-toggle-active="true">Reactivar</button>`
+
       return `
         <tr data-id="${t.id}">
           <td>
@@ -498,7 +511,10 @@
           <td class="td-num">${t.student_count}</td>
           <td>${fechaHtml}</td>
           <td>${estadoHtml}</td>
-          <td><button class="btn-accion" data-reset-id="${t.id}" data-reset-name="${esc(t.full_name)}">Restablecer clave</button></td>
+          <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button class="btn-accion" data-reset-id="${t.id}" data-reset-name="${esc(t.full_name)}">Restablecer clave</button>
+            ${toggleBtn}
+          </td>
         </tr>`
     }).join('')
   }
@@ -509,9 +525,10 @@
 
   // ── Restablecer contraseña ──
   document.getElementById('tbody-docentes').addEventListener('click', async (e) => {
-    const btn = e.target.closest('.btn-accion[data-reset-id]')
-    if (!btn) return
-    await restablecerPassword(btn.dataset.resetId, btn.dataset.resetName, btn)
+    const resetBtn = e.target.closest('[data-reset-id]')
+    if (resetBtn) { await restablecerPassword(resetBtn.dataset.resetId, resetBtn.dataset.resetName, resetBtn); return }
+    const toggleBtn = e.target.closest('[data-toggle-id]')
+    if (toggleBtn) { await toggleActivoDocente(toggleBtn.dataset.toggleId, toggleBtn.dataset.toggleName, toggleBtn.dataset.toggleActive === 'true', toggleBtn) }
   })
 
   async function restablecerPassword(teacherId, teacherName, btn) {
@@ -557,6 +574,31 @@
       setTimeout(() => { b.textContent = 'Copiar contraseña' }, 2000)
     })
   })
+
+  // ── Desactivar / Reactivar docente ──
+  async function toggleActivoDocente(teacherId, teacherName, setActive, btn) {
+    const confirmMsg = setActive
+      ? `¿Reactivar a ${teacherName}?\nVa a poder volver a ingresar a la app.`
+      : `¿Seguro que querés desactivar a ${teacherName}?\nNo va a poder ingresar a la app hasta que lo reactives.`
+    if (!confirm(confirmMsg)) return
+
+    const textoOriginal = btn.textContent
+    btn.disabled = true
+    btn.textContent = setActive ? 'Reactivando…' : 'Desactivando…'
+
+    try {
+      const { error } = await supabase.rpc('admin_set_teacher_active', {
+        p_teacher_id: teacherId,
+        p_active: setActive,
+      })
+      if (error) throw new Error(error.message)
+      await cargarDocentes()
+    } catch (err) {
+      alert(`Error: ${err.message}`)
+      btn.disabled = false
+      btn.textContent = textoOriginal
+    }
+  }
 
   // ── Agregar docente ──
   document.getElementById('btn-agregar-docente').addEventListener('click', () => {

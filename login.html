@@ -114,6 +114,12 @@
     errorMsg.classList.remove('visible')
   }
 
+  // Si fue redirigido desde index.html por cuenta desactivada, mostrarlo al cargar
+  const _urlParams = new URLSearchParams(window.location.search)
+  if (_urlParams.get('desactivada')) {
+    showError('Tu cuenta está desactivada. Contactá al administrador para reactivarla.')
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
     clearError()
@@ -123,7 +129,7 @@
     const email = document.getElementById('email').value.trim()
     const password = document.getElementById('password').value
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       showError(error.message === 'Invalid login credentials'
@@ -132,6 +138,14 @@
       btnLogin.disabled = false
       btnLogin.textContent = 'Ingresar'
     } else {
+      const { data: teacherStatus } = await supabase.from('teachers').select('activo').eq('id', data.user.id).maybeSingle()
+      if (teacherStatus && teacherStatus.activo === false) {
+        await supabase.auth.signOut()
+        showError('Tu cuenta está desactivada. Contactá al administrador para reactivarla.')
+        btnLogin.disabled = false
+        btnLogin.textContent = 'Ingresar'
+        return
+      }
       window.location.href = 'index.html'
     }
   })
