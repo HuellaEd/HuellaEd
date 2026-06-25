@@ -1667,6 +1667,7 @@ function nameToKey(n) {
 }
 
 async function initStudents() {
+  try {
   if (!window.__sb) return;
   var user = (await window.__sb.auth.getUser()).data.user;
   if (!user) return;
@@ -1675,7 +1676,8 @@ async function initStudents() {
     .select('id, full_name, has_differential, active')
     .eq('teacher_id', user.id)
     .order('full_name');
-  if (error || !students || !students.length) return;
+  if (error) { console.error('Error cargando alumnos:', error); _mostrarBannerCarga('alumnos'); return; }
+  if (!students || !students.length) return;
   // Filtrar alumnos dados de baja (active=false). Si la columna no existe en algún registro legacy, se considera activo.
   students = students.filter(function(s){ return s.active !== false; });
   if (!students.length) return;
@@ -1727,6 +1729,10 @@ async function initStudents() {
   }catch(eQR){console.log('No se pudo abrir el perfil desde el QR:',eQR);}
 
   cargarAvisosAutomaticos(students,user.id);
+  } catch(e) {
+    console.error('initStudents falló:', e);
+    _mostrarBannerCarga('alumnos');
+  }
 }
 
 // ── AVISOS AUTOMÁTICOS: inasistencias, sin observaciones, PAF desactualizado ──
@@ -1894,17 +1900,19 @@ function renderizarAvisosAutomaticos(avisos){
 }
 
 async function initNotas() {
-  if (!window.__sb) return;
-  var user = (await window.__sb.auth.getUser()).data.user;
-  if (!user) return;
-  var { data } = await window.__sb.from('notas_rapidas').select('*')
-    .eq('teacher_id', user.id).like('content', '[NR·%').order('created_at', { ascending: false }).limit(20);
-  if (!data || !data.length) return;
-  notasG = data.map(function(n) {
-    var m = n.content.match(/^\[NR·([^·]+)·([^·]*)·([^\]]+)\] ([\s\S]+)$/);
-    if (m) return { id: n.id, destino: m[1], alumno: m[2], fecha: m[3], texto: m[4] };
-    return { id: n.id, fecha: new Date(n.created_at).toLocaleDateString('es-AR'), destino: 'agenda', alumno: '', texto: n.content };
-  });
+  try {
+    if (!window.__sb) return;
+    var user = (await window.__sb.auth.getUser()).data.user;
+    if (!user) return;
+    var { data } = await window.__sb.from('notas_rapidas').select('*')
+      .eq('teacher_id', user.id).like('content', '[NR·%').order('created_at', { ascending: false }).limit(20);
+    if (!data || !data.length) return;
+    notasG = data.map(function(n) {
+      var m = n.content.match(/^\[NR·([^·]+)·([^·]*)·([^\]]+)\] ([\s\S]+)$/);
+      if (m) return { id: n.id, destino: m[1], alumno: m[2], fecha: m[3], texto: m[4] };
+      return { id: n.id, fecha: new Date(n.created_at).toLocaleDateString('es-AR'), destino: 'agenda', alumno: '', texto: n.content };
+    });
+  } catch(e) { console.error('initNotas falló:', e); }
 }
 
 async function initFichas() {
@@ -1921,25 +1929,27 @@ async function initFichas() {
 
 var _agendaErrorCarga=null;
 async function initAgenda() {
-  _agendaErrorCarga=null;
-  if (!window.__sb) { _agendaErrorCarga='Sin conexión a la base de datos.'; return; }
-  var user = (await window.__sb.auth.getUser()).data.user;
-  if (!user) { _agendaErrorCarga='Sesión no detectada.'; return; }
-  // Limpiar localStorage para que no se mezclen datos entre usuarios
-  _sdel('huellaed_agenda');
-  var { data, error } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
-  if (error) {
-    // IMPORTANTE: si falla la lectura, NO vaciar tareas — mejor dejar lo que ya hubiera en pantalla
-    // que mostrar una agenda vacía y arriesgar que parezca que se perdió información.
-    _agendaErrorCarga='No se pudo cargar la agenda: '+error.message+'. Tus datos siguen guardados, esto es solo un problema para mostrarlos. Recargá la página o avisá si persiste.';
-    return;
-  }
-  if (!data || !data.length) {
-    // Primera vez: cargar tareas iniciales para este usuario
-    tareas = TAREAS_INICIALES.map(function(t){return {id:t.id,texto:t.texto,cat:t.cat,hecha:t.hecha};});
-    return;
-  }
-  tareas = data.map(function(t) { return { id: t.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; });
+  try {
+    _agendaErrorCarga=null;
+    if (!window.__sb) { _agendaErrorCarga='Sin conexión a la base de datos.'; return; }
+    var user = (await window.__sb.auth.getUser()).data.user;
+    if (!user) { _agendaErrorCarga='Sesión no detectada.'; return; }
+    // Limpiar localStorage para que no se mezclen datos entre usuarios
+    _sdel('huellaed_agenda');
+    var { data, error } = await window.__sb.from('agenda').select('*').eq('user_id', user.id).order('created_at');
+    if (error) {
+      // IMPORTANTE: si falla la lectura, NO vaciar tareas — mejor dejar lo que ya hubiera en pantalla
+      // que mostrar una agenda vacía y arriesgar que parezca que se perdió información.
+      _agendaErrorCarga='No se pudo cargar la agenda: '+error.message+'. Tus datos siguen guardados, esto es solo un problema para mostrarlos. Recargá la página o avisá si persiste.';
+      return;
+    }
+    if (!data || !data.length) {
+      // Primera vez: cargar tareas iniciales para este usuario
+      tareas = TAREAS_INICIALES.map(function(t){return {id:t.id,texto:t.texto,cat:t.cat,hecha:t.hecha};});
+      return;
+    }
+    tareas = data.map(function(t) { return { id: t.id, texto: t.texto, cat: t.cat, hecha: t.hecha }; });
+  } catch(e) { console.error('initAgenda falló:', e); }
 }
 
 function toggleModoOscuro(){
@@ -1961,25 +1971,31 @@ function aplicarModoOscuroGuardado(){
 aplicarModoOscuroGuardado();
 
 async function initTeacher(){
-  if(!window.__sb)return;
-  var user=(await window.__sb.auth.getUser()).data.user;
-  if(!user)return;
-  var {data}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar,onboarding_completed').eq('id',user.id).maybeSingle();
-  if(!data)return;
-  window.__teacherGrade=data.grade||'';
-  window.__teacherName=data.full_name||'';
-  // puede_generar default true si la columna todavía no existiera o viniera null (no afecta a nadie por accidente)
-  window.__puedeGenerar=(data.puede_generar!==false);
-  var hdr=document.getElementById('header-docente');
-  if(hdr)hdr.textContent=(data.full_name||'')+(data.grade?' · '+data.grade:'');
-  var banner=document.getElementById('banner-grado');
-  if(banner&&data.grade)banner.textContent=data.grade;
-  // Cargar API keys desde Supabase (sobreescribe localStorage con la key del usuario)
-  if(data.anthropic_key){_sset('huellaed_anthropic_key',data.anthropic_key);}
-  if(data.gemini_key){_sset('huellaed_gemini_key',data.gemini_key);}
-  actualizarEstadoApiKeys();
-  aplicarVisibilidadGenerador();
-  if(data.onboarding_completed===false){abrirOnboarding(data.full_name||'');}
+  try {
+    if(!window.__sb)return;
+    var user=(await window.__sb.auth.getUser()).data.user;
+    if(!user)return;
+    var {data,error}=await window.__sb.from('teachers').select('full_name,grade,anthropic_key,gemini_key,puede_generar,onboarding_completed').eq('id',user.id).maybeSingle();
+    if(error){ console.error('Error cargando datos del docente:', error); _mostrarBannerCarga('docente'); return; }
+    if(!data)return;
+    window.__teacherGrade=data.grade||'';
+    window.__teacherName=data.full_name||'';
+    // puede_generar default true si la columna todavía no existiera o viniera null (no afecta a nadie por accidente)
+    window.__puedeGenerar=(data.puede_generar!==false);
+    var hdr=document.getElementById('header-docente');
+    if(hdr)hdr.textContent=(data.full_name||'')+(data.grade?' · '+data.grade:'');
+    var banner=document.getElementById('banner-grado');
+    if(banner&&data.grade)banner.textContent=data.grade;
+    // Cargar API keys desde Supabase (sobreescribe localStorage con la key del usuario)
+    if(data.anthropic_key){_sset('huellaed_anthropic_key',data.anthropic_key);}
+    if(data.gemini_key){_sset('huellaed_gemini_key',data.gemini_key);}
+    actualizarEstadoApiKeys();
+    aplicarVisibilidadGenerador();
+    if(data.onboarding_completed===false){abrirOnboarding(data.full_name||'');}
+  } catch(e) {
+    console.error('initTeacher falló:', e);
+    _mostrarBannerCarga('docente');
+  }
 }
 
 function aplicarVisibilidadGenerador(){
@@ -2026,6 +2042,19 @@ async function onbFinalizar(){
   if(window.__students&&window.__students.length){
     abrirPerfilAcademico(window.__students[0].id);
   }
+}
+
+function _mostrarBannerCarga(tipo) {
+  if (document.getElementById('banner-error-'+tipo)) return;
+  var msgs = {
+    alumnos: 'No se pudo cargar la lista de alumnos. Recargá la página.',
+    docente: 'No se pudieron cargar los datos del docente. Recargá la página.'
+  };
+  var b = document.createElement('div');
+  b.id = 'banner-error-'+tipo;
+  b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#C0392B;color:#fff;padding:10px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.25);';
+  b.innerHTML = '⚠️ '+(msgs[tipo]||'Error de carga.')+' <button onclick="location.reload()" style="margin-left:auto;background:#fff;color:#C0392B;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Recargar</button>';
+  document.body.appendChild(b);
 }
 
 document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); initTeacher(); actualizarEstadoApiKeys(); });
