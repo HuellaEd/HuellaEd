@@ -1352,7 +1352,15 @@
     }
   }
   window.__sb = supabase
+  window.registrarActividad = async function(tipo, detalle) {
+    try {
+      const _u = (await window.__sb.auth.getUser()).data.user
+      if (!_u) return
+      window.__sb.from('actividad_docente').insert({ teacher_id: _u.id, tipo_accion: tipo, detalle: detalle || null })
+    } catch (_) {}
+  }
   document.getElementById('btn-logout').addEventListener('click', async () => {
+    window.registrarActividad('logout', null)
     await supabase.auth.signOut()
     window.location.replace('login.html')
   })
@@ -4548,7 +4556,7 @@ async function guardarNotas(){
   btn.disabled=false;btn.textContent='Guardar notas';
   msg.style.display='block';
   if(res.error){msg.style.color='#C0392B';msg.textContent='Error: '+res.error.message;}
-  else{msg.style.color='var(--verde)';msg.textContent='✅ Notas guardadas';setTimeout(function(){msg.style.display='none';},3000);}
+  else{msg.style.color='var(--verde)';msg.textContent='✅ Notas guardadas';setTimeout(function(){msg.style.display='none';},3000);window.registrarActividad&&window.registrarActividad('notas',{periodo:gradesPeriodo,cantidad:records.length});}
 }
 
 // ── INASISTENCIAS ──
@@ -5151,7 +5159,7 @@ async function guardarCuadernilloSupabase(){
     content:_genAiRawText
   });
   if(error){msg.style.color='#C0392B';msg.textContent='❌ '+error.message;}
-  else{msg.style.color='var(--verde)';msg.textContent='✅ Guardado';setTimeout(function(){msg.textContent='';},3000);}
+  else{msg.style.color='var(--verde)';msg.textContent='✅ Guardado';setTimeout(function(){msg.textContent='';},3000);window.registrarActividad&&window.registrarActividad('generar_material',{titulo:title,tipo:tipoSel});}
 }
 
 function descargarCuadernillo(){
@@ -6019,6 +6027,7 @@ async function guardarAsistencia() {
     msg.style.color = 'var(--verde)';
     msg.textContent = '✅ Asistencia guardada';
     setTimeout(function(){ msg.style.display = 'none'; }, 3000);
+    window.registrarActividad&&window.registrarActividad('asistencia',{fecha:fecha,cantidad:records.length});
   }
 }
 
@@ -6331,6 +6340,7 @@ async function darAltaAlumno(){
     if(error2){msg.style.color='#C0392B';msg.textContent='Error: '+error2.message;return;}
   }
   msg.style.color='var(--verde)';msg.textContent='✅ '+nombre+' agregado';
+  window.registrarActividad&&window.registrarActividad('alumno_alta',{nombre:nombre,diferencial:dif});
   document.getElementById('alta-nombre').value='';
   await initStudents();
   cargarListaGestion();
@@ -6354,6 +6364,7 @@ async function darBajaAlumno(id,nombre){
     alert(msg);
     return;
   }
+  window.registrarActividad&&window.registrarActividad('alumno_baja',{nombre:nombre,id:id});
   await initStudents();
   cargarListaGestion();
 }

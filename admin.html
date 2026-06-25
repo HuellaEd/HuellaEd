@@ -220,6 +220,33 @@
     .btn-accion-danger:hover{background:var(--rojo-bg);}
     .btn-accion-ok{color:var(--verde2);border-color:var(--verde2);}
     .btn-accion-ok:hover{background:var(--verde-bg);}
+
+    /* ── ACTIVIDAD RECIENTE ── */
+    .act-filters{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+    .act-select{
+      padding:7px 12px;font-size:12px;font-family:inherit;
+      border:1.5px solid var(--gris-claro);border-radius:var(--radius-sm);
+      background:var(--blanco);color:var(--negro);cursor:pointer;min-width:180px;
+    }
+    .act-select:focus{outline:none;border-color:var(--verde);}
+    .btn-refresh{
+      padding:6px 12px;font-size:11px;font-weight:600;font-family:inherit;
+      background:var(--verde-bg);color:var(--verde2);
+      border:1.5px solid var(--verde-claro);border-radius:7px;cursor:pointer;
+      transition:background .12s;margin-left:auto;
+    }
+    .btn-refresh:hover{background:var(--verde-claro);color:#fff;}
+    .chip-accion{
+      display:inline-block;padding:2px 8px;border-radius:12px;
+      font-size:10px;font-weight:700;letter-spacing:.3px;white-space:nowrap;
+    }
+    .chip-login{background:#E8F0FB;color:#3B6E9E;}
+    .chip-logout{background:#F5EFEF;color:#8A5A5A;}
+    .chip-material{background:#F0F7EE;color:#3A7A4A;}
+    .chip-asistencia{background:#FFF3E6;color:#C07820;}
+    .chip-notas{background:#EEF0F7;color:#5050A0;}
+    .chip-alumno{background:#F7EDF7;color:#8A3A8A;}
+    .td-detalle{font-size:11px;color:var(--gris);max-width:220px;}
   </style>
 </head>
 <body>
@@ -339,6 +366,43 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Sección actividad reciente -->
+    <div style="margin-top:36px">
+      <div class="sec-header">
+        <span class="sec-title">Actividad reciente</span>
+        <span class="count-chip" id="count-actividad">—</span>
+        <button class="btn-refresh" id="btn-refresh-actividad">↺ Actualizar</button>
+      </div>
+      <div class="act-filters">
+        <select class="act-select" id="filter-docente-act"><option value="">Todos los docentes</option></select>
+        <select class="act-select" id="filter-tipo-act">
+          <option value="">Todos los tipos</option>
+          <option value="login">Inicio de sesión</option>
+          <option value="logout">Cierre de sesión</option>
+          <option value="generar_material">Generó material</option>
+          <option value="asistencia">Registró asistencia</option>
+          <option value="notas">Guardó notas</option>
+          <option value="alumno_alta">Alta de alumno</option>
+          <option value="alumno_baja">Baja de alumno</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Docente</th>
+              <th>Acción</th>
+              <th>Detalle</th>
+              <th>Fecha y hora</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-actividad">
+            <tr><td colspan="4" class="td-placeholder">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </main>
 
   <!-- ── MODAL: agregar nuevo docente ── -->
@@ -390,6 +454,8 @@
   import { supabase } from './supabase.js'
 
   let currentUserId = null
+  let actividadRows = []
+  let docentesCache = []
 
   // ── Estado de la UI ──
   function show(page) {
@@ -415,6 +481,7 @@
     currentUserId = session?.user?.id ?? null
     show('panel')
     await cargarDocentes()
+    await cargarActividad()
   }
 
   // ── Login ──
@@ -477,6 +544,7 @@
     }
 
     document.getElementById('count-docentes').textContent = data.length
+    docentesCache = data
 
     const fmt = new Intl.DateTimeFormat('es-AR', {
       day: '2-digit', month: '2-digit', year: '2-digit',
@@ -646,6 +714,111 @@
       btn.textContent = 'Crear docente'
     }
   })
+
+  // ── Actividad reciente ──
+  async function cargarActividad() {
+    const tbody = document.getElementById('tbody-actividad')
+    tbody.innerHTML = '<tr><td colspan="4" class="td-placeholder">Cargando…</td></tr>'
+
+    if (!docentesCache.length) {
+      const { data: td } = await supabase.rpc('admin_get_teachers')
+      if (td) docentesCache = td
+    }
+    const nameById = {}
+    docentesCache.forEach(t => { nameById[t.id] = t.full_name })
+
+    const { data, error } = await supabase
+      .from('actividad_docente')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="4" class="td-placeholder td-error">${esc(error.message)}</td></tr>`
+      return
+    }
+
+    actividadRows = data || []
+    llenarFiltroDocentes(nameById)
+    renderActividad(nameById)
+  }
+
+  function llenarFiltroDocentes(nameById) {
+    const sel = document.getElementById('filter-docente-act')
+    const current = sel.value
+    const ids = [...new Set(actividadRows.map(r => r.teacher_id))]
+    sel.innerHTML = '<option value="">Todos los docentes</option>'
+      + ids.map(id => `<option value="${id}">${esc(nameById[id] || id)}</option>`).join('')
+    sel.value = current
+  }
+
+  function renderActividad(nameById) {
+    const tbody = document.getElementById('tbody-actividad')
+    const filtDocente = document.getElementById('filter-docente-act').value
+    const filtTipo = document.getElementById('filter-tipo-act').value
+
+    const filtered = actividadRows.filter(r => {
+      if (filtDocente && r.teacher_id !== filtDocente) return false
+      if (filtTipo && r.tipo_accion !== filtTipo) return false
+      return true
+    })
+
+    document.getElementById('count-actividad').textContent = filtered.length
+
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="td-placeholder">Sin registros para los filtros seleccionados</td></tr>'
+      return
+    }
+
+    const fmtAR = new Intl.DateTimeFormat('es-AR', {
+      day: '2-digit', month: '2-digit', year: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+    })
+
+    const TIPO_CONFIG = {
+      login:           ['Inicio de sesión',   'chip-login'],
+      logout:          ['Cierre de sesión',    'chip-logout'],
+      generar_material:['Generó material',     'chip-material'],
+      asistencia:      ['Registró asistencia', 'chip-asistencia'],
+      notas:           ['Guardó notas',        'chip-notas'],
+      alumno_alta:     ['Alta de alumno',      'chip-alumno'],
+      alumno_baja:     ['Baja de alumno',      'chip-alumno'],
+    }
+
+    tbody.innerHTML = filtered.map(r => {
+      const [label, chipClass] = TIPO_CONFIG[r.tipo_accion] || [r.tipo_accion, 'chip-login']
+      const detalle = formatDetalle(r.tipo_accion, r.detalle)
+      const fecha = fmtAR.format(new Date(r.created_at))
+      return `<tr>
+        <td><div class="td-nombre" style="font-size:13px">${esc(nameById[r.teacher_id] || '—')}</div></td>
+        <td><span class="chip-accion ${chipClass}">${esc(label)}</span></td>
+        <td class="td-detalle">${detalle}</td>
+        <td class="td-fecha">${fecha}</td>
+      </tr>`
+    }).join('')
+  }
+
+  function formatDetalle(tipo, d) {
+    if (!d) return '—'
+    if (tipo === 'generar_material') return esc(d.titulo || '—')
+    if (tipo === 'asistencia') return esc(`${d.fecha || ''} · ${d.cantidad ?? ''} alumnos`)
+    if (tipo === 'notas') return esc(`Trimestre ${d.periodo || ''} · ${d.cantidad ?? ''} notas`)
+    if (tipo === 'alumno_alta' || tipo === 'alumno_baja') return esc(d.nombre || '—')
+    return '—'
+  }
+
+  document.getElementById('btn-refresh-actividad').addEventListener('click', () => {
+    docentesCache = []
+    cargarActividad()
+  })
+
+  function getNameById() {
+    const m = {}
+    docentesCache.forEach(t => { m[t.id] = t.full_name })
+    return m
+  }
+  document.getElementById('filter-docente-act').addEventListener('change', () => renderActividad(getNameById()))
+  document.getElementById('filter-tipo-act').addEventListener('change', () => renderActividad(getNameById()))
 
   init()
 </script>
