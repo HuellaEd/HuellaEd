@@ -774,6 +774,7 @@
     </div>
     <div id="ev-preview-container" style="display:none;text-align:center;margin-bottom:10px;"><img id="ev-preview-img" style="max-width:100%;border-radius:9px;border:1px solid var(--gris-claro);max-height:180px;object-fit:contain;"></div>
     <button id="ev-descargar-btn" onclick="descargarEvidencia()" style="display:none;width:100%;background:var(--terracota);color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;">⬇️ Descargar foto</button>
+    <div id="ev-analisis-preview" style="display:none;background:var(--verde-bg);border-radius:9px;padding:11px 13px;margin-bottom:8px;font-size:12px;"></div>
     <a href="https://drive.google.com/drive/folders/14QcwWnSzZNzt6vhXoN3xhNHpk1iQPspF?authuser=0" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--verde);">📁 Abrir carpeta de evidencias en Drive</a>
     <div id="ev-registros-container" style="margin-top:14px;display:none;">
       <div style="font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;">Registros</div>
@@ -5529,6 +5530,7 @@ function abrirEvidencia(){
   document.getElementById('ev-preview-container').style.display='none';
   document.getElementById('ev-descargar-btn').style.display='none';
   document.getElementById('ev-nombre-preview').style.display='none';
+  var apEl=document.getElementById('ev-analisis-preview');if(apEl){apEl.style.display='none';apEl.innerHTML='';}
   evFile=null;
   renderEvidencias();
   // Llenar alumnos si no están cargados
@@ -5568,6 +5570,10 @@ function procesarFotoMultiple(input){
   }).join('');
   container.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--verde);margin-bottom:8px;">'+files.length+' fotos seleccionadas — '+alumnoNombre+'</div>'
     +previews
+    +'<label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;cursor:pointer;">'
+    +'<input type="checkbox" id="ev-multi-analizar" style="width:15px;height:15px;accent-color:var(--verde);flex-shrink:0;">'
+    +'<span style="font-size:12px;color:var(--negro);">Analizar con IA — guarda descripción pedagógica en el perfil de '+alumnoNombre+'</span>'
+    +'</label>'
     +'<button onclick="guardarFotosMultiples()" class="save-btn" style="margin-top:6px;">💾 Guardar '+files.length+' fotos como evidencia</button>'
     +'<div id="ev-multi-msg" style="font-size:11px;text-align:center;margin-top:5px;"></div>';
   container.style.display='block';
@@ -5586,42 +5592,57 @@ async function guardarFotosMultiples(){
   if(!files||!files.length)return;
   var btn=document.querySelector('#ev-multi-preview .save-btn');
   var msg=document.getElementById('ev-multi-msg');
+  var chkEl=document.getElementById('ev-multi-analizar');
+  var analizarIA=chkEl&&chkEl.checked;
   btn.disabled=true;btn.textContent='Guardando...';
-  var count=0;
-  var errors=0;
-  // Subir cada foto a Supabase Storage
+  var count=0;var errors=0;
+  var alumnoNombre=window._evMultiAlumno;
+  var area=window._evMultiArea;
+  var tema=window._evMultiTema;
+  var fechaSlug=window._evMultiFechaSlug;
+  var alS=window._evMultiAlS;
+  // Obtener usuario y alumno una vez (fuera del loop)
+  var user2=null;var st=null;
+  if(window.__sb){
+    try{user2=(await window.__sb.auth.getUser()).data.user;}catch(_){}
+    st=window.__students?window.__students.find(function(s){return s.full_name===alumnoNombre;}):null;
+  }
   for(var i=0;i<files.length;i++){
     var file=files[i];
     var ext=file.type.includes('png')?'.png':'.jpg';
-    var nombre='Evidencia_'+window._evMultiAlS+'_'+window._evMultiArea.replace(/ /g,'_')+'_'+window._evMultiTema.trim().replace(/ /g,'_').substring(0,20)+'_foto'+(i+1)+'_'+window._evMultiFechaSlug+ext;
-    if(window.__sb){
+    var nombre='Evidencia_'+alS+'_'+area.replace(/ /g,'_')+'_'+tema.trim().replace(/ /g,'_').substring(0,20)+'_foto'+(i+1)+'_'+fechaSlug+ext;
+    if(user2&&st&&window.__sb){
       try{
-        var user2=(await window.__sb.auth.getUser()).data.user;
-        var st=window.__students?window.__students.find(function(s){return s.full_name===window._evMultiAlumno;}):null;
-        if(user2&&st){
-          var path=user2.id+'/'+st.id+'/'+nombre;
-          var res=await window.__sb.storage.from('evidencias').upload(path,file);
-          if(!res.error)count++;else errors++;
-        }else{
-          var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=nombre;a.click();count++;
-        }
+        var path=user2.id+'/'+st.id+'/'+nombre;
+        var res=await window.__sb.storage.from('evidencias').upload(path,file);
+        if(!res.error){
+          count++;
+          if(analizarIA){
+            msg.style.color='var(--gris)';
+            msg.textContent='✅ '+count+'/'+files.length+' guardadas — analizando foto '+(i+1)+' con IA…';
+            await _analizarFotoEvidencia(file,st.id,user2.id,area,tema,'');
+          }
+        }else{errors++;}
       }catch(e2){
-        var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=nombre;a.click();count++;
+        var af=document.createElement('a');af.href=URL.createObjectURL(file);af.download=nombre;af.click();count++;
       }
     }else{
-      var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=nombre;a.click();count++;
+      var af=document.createElement('a');af.href=URL.createObjectURL(file);af.download=nombre;af.click();count++;
     }
   }
-  // Registrar en evReg
-  evReg.unshift({id:Date.now(),alumno:window._evMultiAlumno,area:window._evMultiArea,tema:window._evMultiTema,obs:'',fecha:window._evMultiFecha,archivo:count+' fotos guardadas'});
+  evReg.unshift({id:Date.now(),alumno:alumnoNombre,area:area,tema:tema,obs:'',fecha:window._evMultiFecha,archivo:count+' fotos guardadas'});
   renderEvidencias();
   btn.disabled=false;
   msg.style.color='var(--verde)';
-  msg.textContent='✅ '+count+' fotos guardadas'+(errors>0?' ('+errors+' errores)':'');
+  if(analizarIA&&count>0){
+    msg.textContent='✅ '+count+' fotos guardadas — análisis guardado en el perfil de '+alumnoNombre.split(',')[0]+(errors>0?' ('+errors+' errores)':'');
+  }else{
+    msg.textContent='✅ '+count+' fotos guardadas'+(errors>0?' ('+errors+' errores)':'');
+  }
   setTimeout(function(){
     document.getElementById('ev-multi-preview').style.display='none';
     window._evMultiFiles=null;
-  },2000);
+  },3000);
 }
 
 function procesarFoto(input){
@@ -5640,7 +5661,7 @@ function procesarFoto(input){
   r.readAsDataURL(evFile);
 }
 
-function descargarEvidenciaSesion(){
+async function descargarEvidenciaSesion(){
   if(!evFile)return;
   var nombre=actualizarNombreEv();
   if(!nombre)return;
@@ -5650,19 +5671,24 @@ function descargarEvidenciaSesion(){
   evReg.unshift({id:Date.now(),alumno:alActual,area:area,tema:tema,obs:'',fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});
   if(!evSesionCompletados.includes(alActual)) evSesionCompletados.push(alActual);
   var ext=evFile.type.includes('png')?'.png':'.jpg';
+  var archivoParaAnalizar=evFile;
   var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();
-  // Subir a Supabase y analizar el contenido de la foto en segundo plano
-  subirYAnalizarEvidencia(evFile,alActual,area,tema,'',nombre+ext);
-  // Feedback y reset
   var alumnoNombre=alActual.split(',')[0];
-  document.getElementById('ev-sesion-status').textContent='✅ '+alumnoNombre+' guardado — elegí el siguiente';
+  var statusEl=document.getElementById('ev-sesion-status');
+  if(statusEl)statusEl.textContent='✅ '+alumnoNombre+' guardado — analizando foto…';
   var btnId='ev-btn-'+alActual.replace(/[^a-zA-Z]/g,'_');
-  var btn=document.getElementById(btnId);
-  if(btn){btn.style.background='var(--verde-bg)';btn.style.borderColor='var(--verde)';}
+  var btnSesion=document.getElementById(btnId);
+  if(btnSesion){btnSesion.style.background='var(--verde-bg)';btnSesion.style.borderColor='var(--verde)';}
   document.getElementById('ev-preview-container').style.display='none';
   document.getElementById('ev-descargar-btn').style.display='none';
   evFile=null;
   renderEvidencias();
+  var desc=await subirYAnalizarEvidencia(archivoParaAnalizar,alActual,area,tema,'',nombre+ext);
+  if(statusEl){
+    statusEl.textContent=desc
+      ?'✅ '+alumnoNombre+' — análisis guardado en su perfil'
+      :'✅ '+alumnoNombre+' guardado — elegí el siguiente';
+  }
 }
 async function descargarEvidencia(){
   if(!evFile)return;
@@ -5676,32 +5702,48 @@ async function descargarEvidencia(){
   var ext=evFile.type.includes('png')?'.png':'.jpg';
   var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();
   renderEvidencias();
-  // Subir a Supabase y analizar el contenido de la foto en segundo plano
-  subirYAnalizarEvidencia(evFile,alumno,area,tema,obs,nombre+ext);
+  var prevEl=document.getElementById('ev-analisis-preview');
+  if(prevEl){prevEl.style.display='block';prevEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:var(--verde);"><span>⏳</span> Analizando la foto con IA…</div>';}
+  var descripcion=await subirYAnalizarEvidencia(evFile,alumno,area,tema,obs,nombre+ext);
+  if(prevEl){
+    if(descripcion){
+      prevEl.innerHTML='<div style="font-weight:700;color:var(--verde);margin-bottom:5px;">🤖 Análisis de la foto (guardado en el perfil del alumno):</div><div style="white-space:pre-wrap;color:var(--negro);">'+descripcion+'</div>';
+    }else{
+      prevEl.innerHTML='<div style="color:var(--terracota);">⚠️ La foto se guardó en el perfil. No se pudo generar el análisis automático (sin clave de API o error de conexión).</div>';
+    }
+  }
 }
 var evSesionActivo=false;
 var evSesionAlumnoActual='';
 var EV_ALUMNOS=[];
 
 async function subirYAnalizarEvidencia(archivo,nombreAlumno,area,tema,obs,nombreArchivo){
-  if(!window.__sb||!nombreAlumno)return;
+  if(!window.__sb||!nombreAlumno)return null;
   var st=(window.__students||[]).find(function(s){return s.full_name===nombreAlumno;});
-  if(!st)return;
+  if(!st)return null;
   try{
     var user=(await window.__sb.auth.getUser()).data.user;
-    if(!user)return;
+    if(!user)return null;
     var path=user.id+'/'+st.id+'/evidencias/'+nombreArchivo;
     var {error:errUpload}=await window.__sb.storage.from('evidencias').upload(path,archivo);
-    if(errUpload){console.log('No se pudo guardar la evidencia en la base:',errUpload.message);return;}
-
-    // Analizar el contenido de la foto con IA
+    if(errUpload){console.log('No se pudo guardar la evidencia en la base:',errUpload.message);return null;}
     var apiKey=_sget('huellaed_anthropic_key');
     if(!apiKey){
-      // Sin clave: al menos guardar el registro genérico como observación
       var textoObsSimple='[Evidencia'+(area?' · '+area:'')+(tema?' · '+tema:'')+' · '+new Date().toLocaleDateString('es-AR')+'] Foto archivada en el perfil del alumno.'+(obs?' Obs: '+obs:'');
       await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObsSimple});
-      return;
+      return null;
     }
+    return await _analizarFotoEvidencia(archivo,st.id,user.id,area,tema,obs);
+  }catch(eEv){
+    console.log('No se pudo subir/analizar la evidencia:',eEv);
+    return null;
+  }
+}
+
+async function _analizarFotoEvidencia(archivo,studentId,teacherId,area,tema,obs){
+  var apiKey=_sget('huellaed_anthropic_key');
+  if(!apiKey)return null;
+  try{
     var mimeType=archivo.type||'image/jpeg';
     var base64=await new Promise(function(resolve,reject){
       var reader=new FileReader();
@@ -5728,10 +5770,14 @@ async function subirYAnalizarEvidencia(archivo,nombreAlumno,area,tema,obs,nombre
     if(!res.ok){throw new Error('Error '+res.status);}
     var data=await res.json();
     var descripcion=(data.content&&data.content[0]&&data.content[0].text)||'';
-    var textoObs='[Evidencia'+(area?' · '+area:'')+(tema?' · '+tema:'')+' · '+new Date().toLocaleDateString('es-AR')+']\n'+descripcion+(obs?'\nObservación docente: '+obs:'');
-    await window.__sb.from('notas_rapidas').insert({student_id:st.id,teacher_id:user.id,content:textoObs});
-  }catch(eEv){
-    console.log('No se pudo subir/analizar la evidencia:',eEv);
+    if(descripcion&&window.__sb){
+      var textoObs='[Evidencia'+(area?' · '+area:'')+(tema?' · '+tema:'')+' · '+new Date().toLocaleDateString('es-AR')+']\n'+descripcion+(obs?'\nObservación docente: '+obs:'');
+      await window.__sb.from('notas_rapidas').insert({student_id:studentId,teacher_id:teacherId,content:textoObs});
+    }
+    return descripcion||null;
+  }catch(eAn){
+    console.log('No se pudo analizar la foto con IA:',eAn);
+    return null;
   }
 }
 
