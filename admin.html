@@ -296,7 +296,8 @@
   // ── Verificar is_admin vía función segura ──
   async function verificarAdmin() {
     const { data: esAdmin, error } = await supabase.rpc('check_is_admin')
-    if (error || !esAdmin) { show('denied'); return }
+    if (error) throw new Error(`No se pudo verificar el acceso: ${error.message}`)
+    if (!esAdmin) { show('denied'); return }
     show('panel')
     await cargarDocentes()
   }
@@ -310,22 +311,29 @@
     btn.disabled = true
     btn.textContent = 'Ingresando…'
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: document.getElementById('inp-email').value.trim(),
-      password: document.getElementById('inp-pwd').value,
-    })
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: document.getElementById('inp-email').value.trim(),
+        password: document.getElementById('inp-pwd').value,
+      })
 
-    if (error) {
-      errEl.textContent = error.message === 'Invalid login credentials'
-        ? 'Email o contraseña incorrectos.'
-        : error.message
+      if (error) {
+        errEl.textContent = error.message === 'Invalid login credentials'
+          ? 'Email o contraseña incorrectos.'
+          : error.message
+        errEl.hidden = false
+        btn.disabled = false
+        btn.textContent = 'Ingresar'
+        return
+      }
+
+      await verificarAdmin()
+    } catch (err) {
+      errEl.textContent = err.message || 'Error inesperado. Revisá tu conexión e intentá de nuevo.'
       errEl.hidden = false
       btn.disabled = false
       btn.textContent = 'Ingresar'
-      return
     }
-
-    await verificarAdmin()
   })
 
   // ── Logout ──
@@ -340,7 +348,13 @@
   async function cargarDocentes() {
     const tbody = document.getElementById('tbody-docentes')
 
-    const { data, error } = await supabase.rpc('admin_get_teachers')
+    let data, error
+    try {
+      ;({ data, error } = await supabase.rpc('admin_get_teachers'))
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" class="td-placeholder td-error">Error de red al cargar docentes: ${esc(err.message)}</td></tr>`
+      return
+    }
 
     if (error) {
       tbody.innerHTML = `<tr><td colspan="5" class="td-placeholder td-error">${esc(error.message)}</td></tr>`
