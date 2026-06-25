@@ -5654,11 +5654,38 @@ function procesarFoto(input){
     document.getElementById('ev-preview-container').style.display='block';
     document.getElementById('ev-descargar-btn').style.display='block';
     if(evSesionActivo){
-      // En modo sesión descarga automáticamente
       setTimeout(()=>descargarEvidenciaSesion(),300);
+    }else{
+      setTimeout(()=>_autoGuardarEvidencia(),300);
     }
   };
   r.readAsDataURL(evFile);
+}
+
+async function _autoGuardarEvidencia(){
+  if(!evFile)return;
+  var alumno=document.getElementById('ev-alumno').value;
+  var area=document.getElementById('ev-area').value;
+  var tema=document.getElementById('ev-tema').value;
+  var obs=document.getElementById('ev-obs').value;
+  var nombre=actualizarNombreEv();
+  var prevEl=document.getElementById('ev-analisis-preview');
+  if(!nombre){
+    if(prevEl){prevEl.style.display='block';prevEl.innerHTML='<div style="color:var(--gris);font-size:11px;">Completá el alumno y el tema para que la foto se guarde automáticamente.</div>';}
+    return;
+  }
+  var ext=evFile.type.includes('png')?'.png':'.jpg';
+  evReg.unshift({id:Date.now(),alumno:alumno,area:area,tema:tema,obs:obs,fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+ext});
+  if(prevEl){prevEl.style.display='block';prevEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:var(--verde);"><span>⏳</span> Guardando y analizando la foto con IA…</div>';}
+  var descripcion=await subirYAnalizarEvidencia(evFile,alumno,area,tema,obs,nombre+ext);
+  if(prevEl){
+    if(descripcion){
+      prevEl.innerHTML='<div style="font-weight:700;color:var(--verde);margin-bottom:5px;">🤖 Análisis de la foto (guardado en el perfil del alumno):</div><div style="white-space:pre-wrap;color:var(--negro);">'+descripcion+'</div>';
+    }else{
+      prevEl.innerHTML='<div style="color:var(--terracota);">⚠️ La foto se guardó en el perfil. No se pudo generar el análisis automático (sin clave de API o error de conexión).</div>';
+    }
+  }
+  renderEvidencias();
 }
 
 async function descargarEvidenciaSesion(){
@@ -5690,28 +5717,12 @@ async function descargarEvidenciaSesion(){
       :'✅ '+alumnoNombre+' guardado — elegí el siguiente';
   }
 }
-async function descargarEvidencia(){
+function descargarEvidencia(){
   if(!evFile)return;
   var nombre=actualizarNombreEv();
   if(!nombre){alert('Completá el alumno y el tema');return;}
-  var alumno=document.getElementById('ev-alumno').value;
-  var area=document.getElementById('ev-area').value;
-  var tema=document.getElementById('ev-tema').value;
-  var obs=document.getElementById('ev-obs').value;
-  evReg.unshift({id:Date.now(),alumno:alumno,area:area,tema:tema,obs:obs,fecha:new Date().toLocaleDateString('es-AR'),archivo:nombre+'.jpg'});
   var ext=evFile.type.includes('png')?'.png':'.jpg';
   var a=document.createElement('a');a.href=URL.createObjectURL(evFile);a.download=nombre+ext;a.click();
-  renderEvidencias();
-  var prevEl=document.getElementById('ev-analisis-preview');
-  if(prevEl){prevEl.style.display='block';prevEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:var(--verde);"><span>⏳</span> Analizando la foto con IA…</div>';}
-  var descripcion=await subirYAnalizarEvidencia(evFile,alumno,area,tema,obs,nombre+ext);
-  if(prevEl){
-    if(descripcion){
-      prevEl.innerHTML='<div style="font-weight:700;color:var(--verde);margin-bottom:5px;">🤖 Análisis de la foto (guardado en el perfil del alumno):</div><div style="white-space:pre-wrap;color:var(--negro);">'+descripcion+'</div>';
-    }else{
-      prevEl.innerHTML='<div style="color:var(--terracota);">⚠️ La foto se guardó en el perfil. No se pudo generar el análisis automático (sin clave de API o error de conexión).</div>';
-    }
-  }
 }
 var evSesionActivo=false;
 var evSesionAlumnoActual='';
