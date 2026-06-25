@@ -474,9 +474,19 @@
       const { data, error } = await supabase.functions.invoke('admin-reset-password', {
         body: { teacher_id: teacherId },
       })
-      if (error) throw new Error(error.message)
-      if (data?.error) throw new Error(data.error)
-      mostrarPasswordTemporal(teacherName, data.password)
+      if (error) throw new Error(error.message || 'Error al invocar función (sin mensaje)')
+
+      // Algunas versiones del SDK devuelven el body como string sin parsear
+      let resultado = data
+      if (typeof data === 'string') {
+        try { resultado = JSON.parse(data) } catch { /* no era JSON */ }
+      }
+
+      if (resultado?.error) throw new Error(resultado.error)
+      if (!resultado?.password) {
+        throw new Error('La función no devolvió contraseña. Respuesta recibida: ' + JSON.stringify(data))
+      }
+      mostrarPasswordTemporal(teacherName, resultado.password)
     } catch (err) {
       alert(`Error al restablecer contraseña: ${err.message}`)
     } finally {
