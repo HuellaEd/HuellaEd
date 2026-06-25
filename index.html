@@ -1895,10 +1895,12 @@ async function initNotas() {
   var user = (await window.__sb.auth.getUser()).data.user;
   if (!user) return;
   var { data } = await window.__sb.from('notas_rapidas').select('*')
-    .eq('user_id', user.id).order('created_at', { ascending: false }).limit(20);
+    .eq('teacher_id', user.id).like('content', '[NR·%').order('created_at', { ascending: false }).limit(20);
   if (!data || !data.length) return;
   notasG = data.map(function(n) {
-    return { id: n.id, fecha: n.fecha, destino: n.destino, alumno: n.alumno, texto: n.texto };
+    var m = n.content.match(/^\[NR·([^·]+)·([^·]*)·([^\]]+)\] ([\s\S]+)$/);
+    if (m) return { id: n.id, destino: m[1], alumno: m[2], fecha: m[3], texto: m[4] };
+    return { id: n.id, fecha: new Date(n.created_at).toLocaleDateString('es-AR'), destino: 'agenda', alumno: '', texto: n.content };
   });
 }
 
@@ -6109,10 +6111,19 @@ async function guardarNotaLocal(){
   if (window.__sb) {
     var user = (await window.__sb.auth.getUser()).data.user;
     if (user) {
-      var { error } = await window.__sb.from('notas_rapidas').insert({
-        id: nota.id, user_id: user.id, fecha: fecha, destino: destN, alumno: al||'', texto: t
-      });
-      if (!error) {
+      var studentId = null;
+      if (destN === 'alumno' && al) {
+        var st = (window.__students || []).find(function(s) { return s.full_name === al; });
+        if (st) studentId = st.id;
+      }
+      var content = '[NR·' + destN + '·' + (al||'') + '·' + fecha + '] ' + t;
+      var { data: ins, error } = await window.__sb.from('notas_rapidas').insert({
+        teacher_id: user.id,
+        student_id: studentId,
+        content: content
+      }).select('id').single();
+      if (!error && ins) {
+        nota.id = ins.id;
         notasG.unshift(nota);
         document.getElementById('nota-texto').value='';
         document.getElementById('nota-save-msg').textContent='✅ Guardada';
@@ -6136,7 +6147,7 @@ async function borrarNota(id){
     (async function(){
       var user=(await window.__sb.auth.getUser()).data.user;
       if (!user) return;
-      var {error}=await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('user_id',user.id);
+      var {error}=await window.__sb.from('notas_rapidas').delete().eq('id',id).eq('teacher_id',user.id);
       if(error){alert('No se pudo borrar la nota (error de conexión). Probá de nuevo.');return;}
       notasG=notasG.filter(n=>n.id!==id);
       renderNotasGuardadas();
