@@ -1369,6 +1369,7 @@
     window.location.replace('login.html')
   })
 </script>
+<script src="core.js"></script>
 <script>
 // ── ICONOGRAFÍA PROPIA (Lucide, línea fina, color institucional) ──
 // Reemplaza los emojis de Registrar y Generar por íconos SVG consistentes.
@@ -4307,11 +4308,9 @@ const APROBADO=7;
 var AREAS=['L','M','CS','CN','I','EA','EF'];
 var AREA_NAMES={L:'Lengua',M:'Matemática',CS:'Cs.Sociales',CN:'Cs.Naturales',I:'Inglés',EA:'Ed.Artística',EF:'Ed.Física'};
 var AREA_ICONS={L:'📖',M:'🔢',CS:'🌍',CN:'🔬',I:'🇬🇧',EA:'🎨',EF:'⚽'};
-var _perfilStudentId=null,_perfilUserId=null;
 var _planifEditing=null,_planifFiltroArea='',_planifData=[];
 var SUBJECT_IDS={L:'10000000-0000-0000-0000-000000000001',M:'10000000-0000-0000-0000-000000000002',CS:'10000000-0000-0000-0000-000000000003',CN:'10000000-0000-0000-0000-000000000004',I:'10000000-0000-0000-0000-000000000005',EA:'10000000-0000-0000-0000-000000000006',EF:'10000000-0000-0000-0000-000000000007'};
 var SUBJECT_CODES={};Object.keys(SUBJECT_IDS).forEach(function(c){SUBJECT_CODES[SUBJECT_IDS[c]]=c;});
-var gradesData={};
 var gradesPeriodo='1';
 
 // ── GRUPOS EXPANDIBLES ──
