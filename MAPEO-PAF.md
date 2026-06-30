@@ -168,3 +168,7 @@ Al separar en módulos, estas dependencias cruzadas requieren atención:
 3. **`window.__sb` (cliente Supabase global)** — todas las funciones de escritura dependen de él. Debe inicializarse en `core.js` antes que cualquier otro módulo.
 
 4. **`notas_rapidas` como bus de datos** — 12 funciones de 4 módulos distintos (registro, evidencia, perfil-alumno, generador) escriben en la misma tabla, que es la principal fuente del PAF. Cualquier cambio en el esquema de esa tabla afecta a todos los módulos simultáneamente.
+
+5. **`gradesPeriodo` (global)** — definida en `index.html` L4313 (`var gradesPeriodo='1'`). La leen `abrirPerfilAcademico()` y `generarPerfilAcademico()` (en `perfil-alumno.js`) y también funciones de `registro.js`. **No se movió a `core.js` en la sesión de registro.js ni en la de perfil-alumno.js** — se deja en `index.html` como global hasta que se limpie el inline. Mover a `core.js` cuando llegue esa sesión.
+
+6. **`generarInforme()` — candidata a `generador.js`** — actualmente en `perfil-alumno.js` (Bloque C, ~L3619–3738). Llama a Claude API igual que `generarPerfilAcademico()`. Se dejó en `perfil-alumno.js` porque está acoplada al DOM del modal de perfil (`perf-body`, `modal-informe`, `_perfilStudentId`). Mover a `generador.js` cuando se cree ese módulo.
