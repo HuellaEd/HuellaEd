@@ -551,6 +551,8 @@ async function generarPrompt(){
   }
 }
 
+const instrCheckbox=' CELDAS DE TABLA: los valores de "columnas" y "filas" deben ser siempre texto plano, NUNCA HTML. En particular, para tablas de tipo "Marcá con una X" (donde el alumno indica si una opción aplica o no), usá exactamente el carácter "☐" para una celda vacía (opción no marcada) y "☑" para una celda marcada (opción sí marcada). Ejemplo correcto: {"tipo":"tabla","consigna":"PASO 1 - ¿Qué datos nos da el problema?","columnas":["Marcá con una X","Dato del problema"],"filas":[["☐","La cantidad de caramelos"],["☑","El precio de cada caramelo"],["☐","El nombre del negocio"]]}. NUNCA uses <input>, <span>, ni ningún tag HTML como valor de celda.';
+
 async function generarConIA(){
   var p=await new Promise(function(resolve){
     var area=document.getElementById('gen-area').value,tema=document.getElementById('gen-tema').value,det=document.getElementById('gen-detalles').value;
@@ -603,7 +605,7 @@ async function generarConIA(){
   // (tabla de datos, descripción informativa, etc.) antes de las consignas de trabajo.
   var esCienciasNoAdj=areaLower.indexOf('social')>-1||areaLower.indexOf('natural')>-1;
   var instrSoporteNoAdj=esCienciasNoAdj?' Como no hay archivo adjunto, generá vos mismo el soporte informativo necesario usando tu conocimiento: antes de las consignas de trabajo, incluí al menos una sección con datos relevantes del tema — por ejemplo una tabla comparativa, una descripción breve de los conceptos centrales, o la descripción de qué mostraría un mapa o imagen clave. Nunca generes consignas que dependan de un recurso externo que el alumno no pueda ver en el material.':'';
-  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada. IMPORTANTE: NUNCA incluyas el texto completo de un cuento, fabula o relato literario en ningun campo — la docente entrega esos textos por separado, en papel. El material que generes es solo actividades (preguntas, ejercicios, espacios para responder), nunca el texto fuente. Tampoco incluyas ninguna nota, aclaracion o seccion dirigida a la docente (como "nota pedagogica" o similar) — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+instrSoporteNoAdj+' Lenguaje directo al alumno.';
+  var SISTEMA='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: '+estructuraJSON+'\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada. IMPORTANTE: NUNCA incluyas el texto completo de un cuento, fabula o relato literario en ningun campo — la docente entrega esos textos por separado, en papel. El material que generes es solo actividades (preguntas, ejercicios, espacios para responder), nunca el texto fuente. Tampoco incluyas ninguna nota, aclaracion o seccion dirigida a la docente (como "nota pedagogica" o similar) — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO[formatoHojaSel]||LIMITES_FORMATO.entera)+instrPictogramas+instrIconosMate+instrFotos+instrClipart+instrSoporteNoAdj+instrCheckbox+' Lenguaje directo al alumno.';
   var contentParts=[];
   if(_genAdjuntoBase64){if(_genAdjuntoIsPDF){contentParts.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_genAdjuntoBase64}});}else{contentParts.push({type:'image',source:{type:'base64',media_type:_genAdjuntoType,data:_genAdjuntoBase64}});}}
   var textoConAdjunto=_genAdjuntoTexto?(p+'\n\nCONTENIDO DEL ARCHIVO ADJUNTO:\n'+_genAdjuntoTexto):p;
@@ -682,7 +684,7 @@ function renderLibro(respuestaIA,contenedor){
     }
     var esCajaOTabla=(tipo==='caja'||tipo==='reflexion'||tipo==='conclusion'||tipo==='cierre'||tipo==='tabla'||s.columnas);
     if(!esCajaOTabla&&(tipo==='grilla'||tipo==='celdas'||s.items)){var items=s.items||[];var cols=s.cols||(items.length<=4?items.length:items.length<=6?3:4);var gc=cols<=2?'lb-g2':cols===3?'lb-g3':'lb-g4';h+='<div class="lb-grilla '+gc+'">'+items.map(function(it,i){return '<div class="lb-celda">'+(typeof it==='string'?it:it.texto||it)+'</div>';}).join('')+'</div>';}
-    else if(tipo==='tabla'||s.columnas){var c2=s.columnas||[];var f=s.filas||[];h+='<div class="lb-tabla-wrap"><table><thead><tr>'+c2.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+f.map(function(r){var cs=Array.isArray(r)?r:Object.values(r);return '<tr>'+cs.map(function(c){return '<td>'+(c!=null?c:'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
+    else if(tipo==='tabla'||s.columnas){var c2=s.columnas||[];var f=s.filas||[];h+='<div class="lb-tabla-wrap"><table><thead><tr>'+c2.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+f.map(function(r){var cs=Array.isArray(r)?r:Object.values(r);return '<tr>'+cs.map(function(c){return '<td>'+(c!=null?escHtml(String(c)):'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
     else if(tipo==='caja'||tipo==='reflexion'||tipo==='conclusion'||tipo==='cierre'){var cl=s.color==='dorado'?'lb-caja-dorada':'lb-caja-verde';var ti2=s.titulo||'Para reflexionar';var ic=s.color==='dorado'?'👥':'✍️';var pi=s.items||s.puntos||[];h+='<div class="lb-caja '+cl+'"><div class="lb-caja-titulo">'+ic+' '+ti2+'</div>'+(s.texto?'<p style="font-size:11.5px">'+s.texto+'</p>':'')+(pi.length?'<ul>'+pi.map(function(i){return '<li>'+i+'</li>';}).join('')+'</ul>':'')+'</div>';}
     else{h+='<div class="lb-area" style="min-height:'+(s.alto||52)+'px"></div>';}
     return h+'</div>';
@@ -863,7 +865,7 @@ async function enviarAClaudeConArchivo(promptText){
   }else{
     instrSoporteAdj=' Si el usuario adjuntó un archivo, usalo como referencia para entender el tema. Si alguna consigna requiere que el alumno vea o lea algo del adjunto para poder resolverla, incluí ese contenido necesario en el material — no generes consignas irresolubles por falta de soporte.';
   }
-  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada.'+instrSoporteAdj+' Tampoco incluyas ninguna nota dirigida a la docente — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+' Lenguaje directo al alumno.';
+  var SISTEMA_ADJ='Sos un generador de material educativo para nivel primario argentino. Respondé UNICAMENTE con un JSON valido, sin texto antes ni despues, sin backticks.\n\nEstructura: {"titulo":"...","subtitulo":"...","paginas":[{"titulo":"...","secciones":[{"tipo":"grilla|tabla|escritura|caja","consigna":"...","items":[],"cols":3,"columnas":[],"filas":[],"alto":58,"titulo":"...","color":"verde|dorado","grupal":false}]}]}\n\nTipos: grilla=celdas (items=array strings), tabla=tabla con columnas y filas, escritura=area en blanco, caja=recuadro de reflexion o consigna destacada.'+instrSoporteAdj+' Tampoco incluyas ninguna nota dirigida a la docente — el documento es exclusivamente para el alumno. '+(LIMITES_FORMATO_ADJ[formatoHojaSel]||LIMITES_FORMATO_ADJ.entera)+instrIconosMateAdj+instrCheckbox+' Lenguaje directo al alumno.';
   var headers={
     'x-api-key':apiKey,
     'anthropic-version':'2023-06-01',
@@ -956,6 +958,154 @@ async function guardarCuadernilloSupabase(){
   else{msg.style.color='var(--verde)';msg.textContent='✅ Guardado';setTimeout(function(){msg.textContent='';},3000);window.registrarActividad&&window.registrarActividad('generar_material',{titulo:title,tipo:tipoSel});}
 }
 
+// ── Repaginado preventivo: evita pérdida de contenido si una .lb-pagina
+// supera los 297mm antes de que html2canvas capture el iframe ──────────
+function splitOverflowingPages(doc){
+  var paginas=Array.from(doc.querySelectorAll('.lb-pagina:not(.lb-caratula)'));
+  paginas.forEach(function(pagina){
+    if(pagina.closest&&pagina.closest('.lb-hoja-recortable'))return;
+    splitPaginaSiDesborda(doc,pagina);
+  });
+}
+function splitPaginaSiDesborda(doc,pagina){
+  var rect=pagina.getBoundingClientRect();
+  var win=doc.defaultView;
+  var estilos=win.getComputedStyle(pagina);
+  var padTop=parseFloat(estilos.paddingTop);
+  var padBot=parseFloat(estilos.paddingBottom);
+  var alturaA4px=rect.width*(297/210);
+  var alturaUtil=alturaA4px-padTop-padBot;
+  var contenidoTop=rect.top+padTop;
+  var hijos=Array.from(pagina.children);
+  var nuevaPagina,j,resultado;
+  for(var i=0;i<hijos.length;i++){
+    var hijo=hijos[i];
+    var hijoRect=hijo.getBoundingClientRect();
+    var hijoTop=hijoRect.top-contenidoTop;
+    var hijoBottom=hijoRect.bottom-contenidoTop;
+    var hijoAltura=hijoRect.height;
+    if(hijoBottom<=alturaUtil)continue;
+    if(hijoAltura>alturaUtil){
+      var espacioRestante=alturaUtil-hijoTop;
+      if(espacioRestante>60){
+        resultado=intentarPartirBloqueInterno(doc,hijo,espacioRestante);
+        if(resultado.exito){
+          nuevaPagina=crearPaginaContinuacion(doc,pagina);
+          nuevaPagina.appendChild(resultado.continuacion);
+          for(j=i+1;j<hijos.length;j++)nuevaPagina.appendChild(hijos[j]);
+          splitPaginaSiDesborda(doc,nuevaPagina);
+          return;
+        }
+      }
+    }
+    nuevaPagina=crearPaginaContinuacion(doc,pagina);
+    for(j=i;j<hijos.length;j++)nuevaPagina.appendChild(hijos[j]);
+    if(hijoAltura<=alturaUtil)splitPaginaSiDesborda(doc,nuevaPagina);
+    return;
+  }
+}
+function intentarPartirBloqueInterno(doc,bloque,espacioDisponible){
+  var tablaWrap=bloque.querySelector('.lb-tabla-wrap');
+  if(tablaWrap)return partirTabla(doc,bloque,tablaWrap,espacioDisponible);
+  var grilla=bloque.querySelector('.lb-grilla');
+  if(grilla)return partirGrilla(doc,bloque,grilla,espacioDisponible);
+  var caja=bloque.querySelector('.lb-caja');
+  if(caja)return partirCaja(doc,bloque,caja,espacioDisponible);
+  return{exito:false};
+}
+function partirTabla(doc,bloque,tablaWrap,espacioDisponible){
+  var consigna=bloque.querySelector('.lb-consigna');
+  var thead=tablaWrap.querySelector('thead');
+  var filas=Array.from(tablaWrap.querySelectorAll('tbody > tr'));
+  var consignaAltura=consigna?consigna.getBoundingClientRect().height:0;
+  var theadAltura=thead.getBoundingClientRect().height;
+  var espacioParaFilas=espacioDisponible-consignaAltura-theadAltura;
+  if(espacioParaFilas<=0)return{exito:false};
+  var acum=0,cortarEn=0;
+  for(var i=0;i<filas.length;i++){
+    var filaH=filas[i].getBoundingClientRect().height;
+    if(acum+filaH>espacioParaFilas){cortarEn=i;break;}
+    acum+=filaH;
+    cortarEn=i+1;
+  }
+  if(cortarEn===0||cortarEn===filas.length)return{exito:false};
+  for(var i=cortarEn;i<filas.length;i++)filas[i].parentNode.removeChild(filas[i]);
+  var nuevoBloque=doc.createElement('div');
+  nuevoBloque.className='lb-bloque';
+  var nuevoWrap=doc.createElement('div');
+  nuevoWrap.className=tablaWrap.className;
+  var nuevaTabla=doc.createElement('table');
+  nuevaTabla.appendChild(thead.cloneNode(true));
+  var nuevoTbody=doc.createElement('tbody');
+  for(var i=cortarEn;i<filas.length;i++)nuevoTbody.appendChild(filas[i]);
+  nuevaTabla.appendChild(nuevoTbody);
+  nuevoWrap.appendChild(nuevaTabla);
+  nuevoBloque.appendChild(nuevoWrap);
+  return{exito:true,continuacion:nuevoBloque};
+}
+function partirGrilla(doc,bloque,grilla,espacioDisponible){
+  var consigna=bloque.querySelector('.lb-consigna');
+  var celdas=Array.from(grilla.querySelectorAll('.lb-celda'));
+  var consignaAltura=consigna?consigna.getBoundingClientRect().height:0;
+  var espacioParaCeldas=espacioDisponible-consignaAltura;
+  if(espacioParaCeldas<=0)return{exito:false};
+  var acum=0,cortarEn=0;
+  for(var i=0;i<celdas.length;i++){
+    var celdaH=celdas[i].getBoundingClientRect().height;
+    if(acum+celdaH>espacioParaCeldas){cortarEn=i;break;}
+    acum+=celdaH;
+    cortarEn=i+1;
+  }
+  if(cortarEn===0||cortarEn===celdas.length)return{exito:false};
+  for(var i=cortarEn;i<celdas.length;i++)celdas[i].parentNode.removeChild(celdas[i]);
+  var nuevoBloque=doc.createElement('div');
+  nuevoBloque.className='lb-bloque';
+  var nuevaGrilla=doc.createElement('div');
+  nuevaGrilla.className=grilla.className;
+  for(var i=cortarEn;i<celdas.length;i++)nuevaGrilla.appendChild(celdas[i]);
+  nuevoBloque.appendChild(nuevaGrilla);
+  return{exito:true,continuacion:nuevoBloque};
+}
+function partirCaja(doc,bloque,caja,espacioDisponible){
+  var consigna=bloque.querySelector('.lb-consigna');
+  var cajaTitulo=caja.querySelector('.lb-caja-titulo');
+  var parrafo=caja.querySelector('p');
+  var lista=caja.querySelector('ul');
+  if(!lista)return{exito:false};
+  var liItems=Array.from(lista.querySelectorAll('li'));
+  if(!liItems.length)return{exito:false};
+  var consignaAltura=consigna?consigna.getBoundingClientRect().height:0;
+  var cajaTituloAltura=cajaTitulo?cajaTitulo.getBoundingClientRect().height:0;
+  var parrafoAltura=parrafo?parrafo.getBoundingClientRect().height:0;
+  var espacioParaItems=espacioDisponible-consignaAltura-cajaTituloAltura-parrafoAltura;
+  if(espacioParaItems<=0)return{exito:false};
+  var acum=0,cortarEn=0;
+  for(var i=0;i<liItems.length;i++){
+    var liH=liItems[i].getBoundingClientRect().height;
+    if(acum+liH>espacioParaItems){cortarEn=i;break;}
+    acum+=liH;
+    cortarEn=i+1;
+  }
+  if(cortarEn===0||cortarEn===liItems.length)return{exito:false};
+  var nuevoBloque=doc.createElement('div');
+  nuevoBloque.className='lb-bloque';
+  var nuevaCaja=doc.createElement('div');
+  nuevaCaja.className=caja.className;
+  nuevaCaja.appendChild(cajaTitulo.cloneNode(true));
+  if(parrafo)nuevaCaja.appendChild(parrafo.cloneNode(true));
+  var nuevaLista=doc.createElement('ul');
+  for(var i=cortarEn;i<liItems.length;i++)nuevaLista.appendChild(liItems[i]);
+  nuevaCaja.appendChild(nuevaLista);
+  nuevoBloque.appendChild(nuevaCaja);
+  return{exito:true,continuacion:nuevoBloque};
+}
+function crearPaginaContinuacion(doc,paginaOrigen){
+  var nueva=doc.createElement('div');
+  nueva.className=paginaOrigen.className;
+  paginaOrigen.parentNode.insertBefore(nueva,paginaOrigen.nextSibling);
+  return nueva;
+}
+
 function descargarCuadernillo(){
   if(!_genHtmlRenderizado){alert('Generá el material primero');return;}
   var area=document.getElementById('gen-area').value;
@@ -995,6 +1145,7 @@ function descargarCuadernillo(){
     // Esperar un instante extra para que terminen de pintarse mapas/imágenes dentro del iframe
     setTimeout(function(){
       var contenidoIframe=iframeTmp.contentDocument.body;
+      splitOverflowingPages(iframeTmp.contentDocument);
       var opciones={
         margin:0,
         filename:nombreArchivoPdf,
