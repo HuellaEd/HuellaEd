@@ -56,20 +56,20 @@ Esto captura automáticamente todo lo que escriben las funciones de abajo, porqu
 
 **Funciones que escriben (INSERT) — 12 implementaciones:**
 
-| # | Función | Línea | Qué registra |
-|---|---|---|---|
-| 1 | `analizarConGemini()` | L1524 | Análisis de texto de lectura con Gemini |
-| 2 | `guardarObservacionAlumno()` | L3908 | Observación manual desde perfil del alumno |
-| 3 | `transcribirYGuardarLecturaPendiente()` | L5495 | Análisis de grabación de lectura (de la cola) |
-| 4 | `subirYTranscribirAudioLectura()` | L5560 | Transcripción de grabación de lectura en tiempo real |
-| 5 | `subirYAnalizarEvidencia()` | L5794 | Evidencia de foto archivada (aviso genérico) |
-| 6 | `_analizarFotoEvidencia()` | L5836 | Análisis IA de foto de evidencia |
-| 7 | `guardarReunionSupabase()` | L5923 | Acta/resumen de reunión familiar |
-| 8 | `guardarNotaLocal()` | L6168 | Nota rápida desde modal Notas (prefijo `[NR·]`) |
-| 9 | `guardarObservacionModal()` | L6356 | Nota rápida desde card del dashboard |
-| 10 | `subirDocumentoAlumno()` | L6611 | Documento adjunto archivado (aviso genérico) |
-| 11 | `analizarDocumentoAdjunto()` | L6703 | Análisis IA del contenido de documento adjunto |
-| 12 | `generarDEI()` | L6968 | DEI generado y descargado |
+| # | Función | Línea (original, pre-modularización) | Qué registra | Módulo (verificado sesión 7) |
+|---|---|---|---|---|
+| 1 | `analizarConGemini()` | L1524 | Análisis de texto de lectura con Gemini | `evidencia.js` |
+| 2 | `guardarObservacionAlumno()` | L3908 | Observación manual desde perfil del alumno | `perfil-alumno.js` |
+| 3 | `transcribirYGuardarLecturaPendiente()` | L5495 | Análisis de grabación de lectura (de la cola) | `evidencia.js` |
+| 4 | `subirYTranscribirAudioLectura()` | L5560 | Transcripción de grabación de lectura en tiempo real | `evidencia.js` |
+| 5 | `subirYAnalizarEvidencia()` | L5794 | Evidencia de foto archivada (aviso genérico) | `evidencia.js` |
+| 6 | `_analizarFotoEvidencia()` | L5836 | Análisis IA de foto de evidencia | `evidencia.js` |
+| 7 | `guardarReunionSupabase()` | L5923 | Acta/resumen de reunión familiar | `evidencia.js` |
+| 8 | `guardarNotaLocal()` | L6168 | Nota rápida desde modal Notas (prefijo `[NR·]`) | `index.html` (sin modularizar) |
+| 9 | `guardarObservacionModal()` | L6356 | Nota rápida desde card del dashboard | `index.html` (sin modularizar) |
+| 10 | `subirDocumentoAlumno()` | L6611 | Documento adjunto archivado (aviso genérico) | `evidencia.js` |
+| 11 | `analizarDocumentoAdjunto()` | L6703 | Análisis IA del contenido de documento adjunto | `evidencia.js` |
+| 12 | `generarDEI()` | L6968 | DEI generado y descargado | `perfil-alumno.js` |
 
 **Otras operaciones sobre `notas_rapidas`:**
 - UPDATE: `obsGuardar()` L3884 — edición de observación existente
@@ -168,3 +168,7 @@ Al separar en módulos, estas dependencias cruzadas requieren atención:
 3. **`window.__sb` (cliente Supabase global)** — todas las funciones de escritura dependen de él. Debe inicializarse en `core.js` antes que cualquier otro módulo.
 
 4. **`notas_rapidas` como bus de datos** — 12 funciones de 4 módulos distintos (registro, evidencia, perfil-alumno, generador) escriben en la misma tabla, que es la principal fuente del PAF. Cualquier cambio en el esquema de esa tabla afecta a todos los módulos simultáneamente.
+
+5. **`gradesPeriodo` (global)** — definida en `index.html` L4313 (`var gradesPeriodo='1'`). La leen `abrirPerfilAcademico()` y `generarPerfilAcademico()` (en `perfil-alumno.js`) y también funciones de `registro.js`. **No se movió a `core.js` en la sesión de registro.js ni en la de perfil-alumno.js** — se deja en `index.html` como global hasta que se limpie el inline. Mover a `core.js` cuando llegue esa sesión.
+
+6. **`generarInforme()` — candidata a `generador.js`** — actualmente en `perfil-alumno.js` (Bloque C, ~L3619–3738). Llama a Claude API igual que `generarPerfilAcademico()`. Se dejó en `perfil-alumno.js` porque está acoplada al DOM del modal de perfil (`perf-body`, `modal-informe`, `_perfilStudentId`). Mover a `generador.js` cuando se cree ese módulo.
