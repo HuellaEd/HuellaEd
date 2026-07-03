@@ -1122,6 +1122,7 @@ function descargarCuadernillo(){
   var cssCaratula='.lb-caratula{padding:0!important;display:flex;flex-direction:column;min-height:297mm;}.lb-caratula-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 32px;text-align:center;}.lb-car-logo{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:30px;color:#2D3A35;margin-bottom:5px;}.lb-car-logo span{color:#C8973A;}.lb-car-tagline{font-size:8px;font-weight:700;color:#9B9486;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:44px;}.lb-car-icono{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 18px;}.lb-car-area{font-family:\'Nunito\',sans-serif;font-weight:900;font-size:22px;color:#2D3A35;margin-bottom:6px;}.lb-car-grado{font-size:13px;font-weight:700;margin-bottom:22px;}.lb-car-linea{width:54px;height:2.5px;background:#C8973A;border-radius:2px;margin:0 auto 26px;}.lb-car-recuadro{background:#F5F2EE;border-radius:12px;padding:20px 24px;width:100%;max-width:360px;margin:0 auto;}.lb-car-tipo{font-size:8px;font-weight:700;color:#8A7E6A;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}.lb-car-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;text-align:left;}.lb-car-item:last-child{margin-bottom:0;}.lb-car-num{width:20px;height:20px;border-radius:50%;color:white;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}.lb-car-titulo-item{font-size:12px;font-weight:600;color:#2D3A35;line-height:1.4;}.lb-car-footer{padding:10px 16px;font-size:9px;color:#9B9486;text-align:center;}.lb-car-franja{height:8px;width:100%;flex-shrink:0;}@media print{.lb-caratula{padding:0!important;min-height:297mm!important;}}';
   var nombreArchivoPdf=nombreArchivo.replace(/\.html$/,'.pdf');
   var doc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+escHtml(tituloLabel)+'</title>'
+    +'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap">'
     +'<style>'+cssLibro+'</style>'
     +'<style>'+cssImpresion+'</style>'
     +'<style>'+cssCaratula+'</style>'
@@ -1142,10 +1143,20 @@ function descargarCuadernillo(){
   iframeTmp.srcdoc=doc;
 
   iframeTmp.onload=function(){
-    // Esperar un instante extra para que terminen de pintarse mapas/imágenes dentro del iframe
-    setTimeout(function(){
-      var contenidoIframe=iframeTmp.contentDocument.body;
-      splitOverflowingPages(iframeTmp.contentDocument);
+    var idoc=iframeTmp.contentDocument;
+    var fontsListas=(idoc.fonts&&idoc.fonts.ready)?idoc.fonts.ready:Promise.resolve();
+    var esperaRecursos=fontsListas.then(function(){
+      var imgs=Array.from(idoc.images);
+      return Promise.all(imgs.map(function(img){
+        if(img.complete)return Promise.resolve();
+        if(img.decode)return img.decode().catch(function(){});
+        return new Promise(function(resolve){img.onload=img.onerror=resolve;});
+      }));
+    });
+    var timeoutMax=new Promise(function(resolve){setTimeout(resolve,8000);});
+    Promise.race([esperaRecursos,timeoutMax]).then(function(){
+      var contenidoIframe=idoc.body;
+      splitOverflowingPages(idoc);
       var opciones={
         margin:0,
         filename:nombreArchivoPdf,
@@ -1163,7 +1174,7 @@ function descargarCuadernillo(){
         document.body.removeChild(iframeTmp);
         if(btnDescargar){btnDescargar.textContent=textoOriginalBtn;btnDescargar.disabled=false;}
       });
-    },600);
+    });
   };
 }
 // ── GENERAR MATERIAL DESDE PLANIFICACIÓN ──
