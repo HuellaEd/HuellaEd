@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>HuellaED — Panel Directivo</title>
+  <meta name="theme-color" content="#2D5F4F">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    :root{
+      --verde:#2D5F4F;--verde2:#3A7A65;--verde-claro:#7BAE99;--verde-bg:#E8F4EF;
+      --terracota:#C8845A;--terracota-bg:#FDF0E8;
+      --crema:#F5F2EE;--gris-claro:#E8E4DF;--gris:#8A7E6A;
+      --negro:#2D3A35;--blanco:#FFFFFF;
+      --radius:14px;--radius-sm:10px;--shadow:0 1px 4px rgba(0,0,0,0.08);
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--crema);min-height:100vh;color:var(--negro);}
+
+    header{background:var(--verde);padding:18px 20px 14px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);}
+    .btn-logout{margin-left:auto;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.5px;}
+    .logo-svg{flex-shrink:0;}
+    .header-text h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1;}
+    .header-text h1 span{color:var(--verde-claro);font-weight:300;}
+    .header-text p{font-size:10px;color:rgba(168,201,188,0.85);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+
+    main{max-width:960px;margin:0 auto;padding:20px 14px 48px;}
+    .section-label{font-size:10px;font-weight:700;color:var(--gris);letter-spacing:2px;text-transform:uppercase;margin:20px 0 8px 2px;}
+
+    .filtros{display:flex;gap:10px;flex-wrap:wrap;background:var(--blanco);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);}
+    .filtros label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--gris);font-weight:600;flex:1;min-width:180px;}
+    .filtros select{padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;font-family:inherit;background:var(--crema);color:var(--negro);}
+
+    .tabla-wrap{background:var(--blanco);border-radius:var(--radius);box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);overflow-x:auto;margin-top:14px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{background:var(--verde);color:#fff;font-weight:700;padding:10px 12px;text-align:left;white-space:nowrap;position:sticky;top:0;}
+    td{padding:9px 12px;border-bottom:1px solid var(--gris-claro);white-space:nowrap;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:var(--crema);}
+    .num{text-align:center;font-weight:600;}
+    .estado-msg{text-align:center;padding:24px;color:var(--gris);font-size:13px;}
+  </style>
+</head>
+<body>
+
+<div id="cargando" class="estado-msg" style="padding:60px 20px;">Verificando acceso…</div>
+<div id="app" hidden></div>
+
+<script type="module">
+  import { supabase } from './supabase.js'
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    window.location.replace('login.html')
+  } else {
+    const { data: _tsData } = await supabase.from('teachers').select('activo,rol').eq('id', session.user.id).maybeSingle()
+    if (!_tsData || _tsData.activo === false || _tsData.rol !== 'directivo') {
+      window.location.replace('login.html')
+    } else {
+      await iniciarPanel()
+    }
+  }
+
+  async function iniciarPanel() {
+    document.getElementById('app').innerHTML = renderShell()
+    document.getElementById('cargando').hidden = true
+    document.getElementById('app').hidden = false
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      window.location.replace('login.html')
+    })
+
+    const resultados = await Promise.all([
+      supabase.rpc('directivo_lista_docentes'),
+      supabase.from('students').select('id,full_name'),
+      supabase.from('attendance').select('student_id,teacher_id,status'),
+      supabase.from('grades').select('student_id,teacher_id,period,score'),
+    ])
+    const docentes = resultados[0].data
+    const alumnos = resultados[1].data
+    const asistencias = resultados[2].data
+    const notas = resultados[3].data
+
+    poblarSelectDocentes(docentes || [])
+
+    const estado = {
+      alumnos: alumnos || [],
+      asistencias: asistencias || [],
+      notas: notas || [],
+    }
+
+    document.getElementById('sel-docente').addEventListener('change', () => renderTabla(estado))
+    document.getElementById('sel-periodo').addEventListener('change', () => renderTabla(estado))
+
+    renderTabla(estado)
+  }
+
+  function renderShell() {
+    return '<header>'
+      + '<svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="34" height="40">'
+      + '<path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>'
+      + '<path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>'
+      + '<ellipse cx="28" cy="35" rx="3.5" ry="4.5" fill="none" stroke="#7BAE99" stroke-width="1.2"/>'
+      + '<circle cx="50" cy="9" r="3.5" fill="#C8845A"/>'
+      + '</svg>'
+      + '<div class="header-text">'
+      + '<h1>Huella<span>ED</span></h1>'
+      + '<p>Panel Directivo &middot; solo lectura</p>'
+      + '</div>'
+      + '<button class="btn-logout" id="btn-logout">Salir</button>'
+      + '</header>'
+      + '<main>'
+      + '<div class="filtros">'
+      + '<label>Docente / grado'
+      + '<select id="sel-docente"><option value="">Todos los docentes</option></select>'
+      + '</label>'
+      + '<label>Periodo (notas)'
+      + '<select id="sel-periodo">'
+      + '<option value="">Todos los periodos</option>'
+      + '<option value="1">1er periodo</option>'
+      + '<option value="2">2do periodo</option>'
+      + '<option value="3">3er periodo</option>'
+      + '<option value="4">4to periodo</option>'
+      + '</select>'
+      + '</label>'
+      + '</div>'
+      + '<div class="section-label">Alumnos</div>'
+      + '<div class="tabla-wrap">'
+      + '<table>'
+      + '<thead><tr>'
+      + '<th>Alumno</th>'
+      + '<th class="num">Presente</th>'
+      + '<th class="num">Ausente</th>'
+      + '<th class="num">Tardanza</th>'
+      + '<th class="num">Justificado</th>'
+      + '<th class="num">Promedio notas</th>'
+      + '</tr></thead>'
+      + '<tbody id="tbody-alumnos"></tbody>'
+      + '</table>'
+      + '</div>'
+      + '</main>'
+  }
+
+  function poblarSelectDocentes(docentes) {
+    var sel = document.getElementById('sel-docente')
+    docentes.forEach(function (d) {
+      var opt = document.createElement('option')
+      opt.value = d.id
+      opt.textContent = d.full_name + (d.grade ? ' (' + d.grade + ')' : '')
+      sel.appendChild(opt)
+    })
+  }
+
+  function renderTabla(estado) {
+    var docenteId = document.getElementById('sel-docente').value
+    var periodo = document.getElementById('sel-periodo').value
+
+    var idsDelDocente = null
+    if (docenteId) {
+      idsDelDocente = new Set()
+      estado.asistencias.forEach(function (a) { if (a.teacher_id === docenteId) idsDelDocente.add(a.student_id) })
+      estado.notas.forEach(function (n) { if (n.teacher_id === docenteId) idsDelDocente.add(n.student_id) })
+    }
+
+    var alumnosVisibles = estado.alumnos.filter(function (a) {
+      return !idsDelDocente || idsDelDocente.has(a.id)
+    })
+
+    var tbody = document.getElementById('tbody-alumnos')
+    if (!alumnosVisibles.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="estado-msg">Sin alumnos para este filtro.</td></tr>'
+      return
+    }
+
+    var filas = alumnosVisibles.map(function (al) {
+      var asistAlumno = estado.asistencias.filter(function (a) { return a.student_id === al.id })
+      var presente = asistAlumno.filter(function (a) { return a.status === 'presente' }).length
+      var ausente = asistAlumno.filter(function (a) { return a.status === 'ausente' }).length
+      var tardanza = asistAlumno.filter(function (a) { return a.status === 'tardanza' }).length
+      var justificado = asistAlumno.filter(function (a) { return a.status === 'justificado' }).length
+
+      var notasAlumno = estado.notas.filter(function (n) { return n.student_id === al.id && n.score != null })
+      if (periodo) notasAlumno = notasAlumno.filter(function (n) { return String(n.period) === periodo })
+      var promedio = '—'
+      if (notasAlumno.length) {
+        var suma = notasAlumno.reduce(function (acc, n) { return acc + Number(n.score) }, 0)
+        promedio = (suma / notasAlumno.length).toFixed(1)
+      }
+
+      return '<tr>'
+        + '<td>' + escapeHtml(al.full_name) + '</td>'
+        + '<td class="num">' + presente + '</td>'
+        + '<td class="num">' + ausente + '</td>'
+        + '<td class="num">' + tardanza + '</td>'
+        + '<td class="num">' + justificado + '</td>'
+        + '<td class="num">' + promedio + '</td>'
+        + '</tr>'
+    })
+
+    tbody.innerHTML = filas.join('')
+  }
+
+  function escapeHtml(s) {
+    var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return map[c] })
+  }
+</script>
+
+</body>
+</html>

@@ -1350,10 +1350,14 @@
   if (!session) {
     window.location.replace('login.html')
   } else {
-    const { data: _tsData } = await supabase.from('teachers').select('activo').eq('id', session.user.id).maybeSingle()
+    const { data: _tsData } = await supabase.from('teachers').select('activo,rol').eq('id', session.user.id).maybeSingle()
     if (_tsData && _tsData.activo === false) {
       await supabase.auth.signOut()
       window.location.replace('login.html?desactivada=1')
+    } else if (_tsData && _tsData.rol === 'directivo') {
+      window.location.replace('directivo.html')
+    } else if (_tsData && _tsData.rol === 'eoe') {
+      window.location.replace('eoe.html')
     }
   }
   window.registrarActividad = async function(tipo, detalle) {

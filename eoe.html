@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>HuellaED — Panel EoE</title>
+  <meta name="theme-color" content="#2D5F4F">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    :root{
+      --verde:#2D5F4F;--verde2:#3A7A65;--verde-claro:#7BAE99;--verde-bg:#E8F4EF;
+      --terracota:#C8845A;--terracota-bg:#FDF0E8;
+      --crema:#F5F2EE;--gris-claro:#E8E4DF;--gris:#8A7E6A;
+      --negro:#2D3A35;--blanco:#FFFFFF;
+      --radius:14px;--radius-sm:10px;--shadow:0 1px 4px rgba(0,0,0,0.08);
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--crema);min-height:100vh;color:var(--negro);}
+
+    header{background:var(--verde);padding:18px 20px 14px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);}
+    .btn-logout{margin-left:auto;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.5px;}
+    .logo-svg{flex-shrink:0;}
+    .header-text h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1;}
+    .header-text h1 span{color:var(--verde-claro);font-weight:300;}
+    .header-text p{font-size:10px;color:rgba(168,201,188,0.85);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+
+    main{max-width:640px;margin:0 auto;padding:20px 14px 48px;}
+    .section-label{font-size:10px;font-weight:700;color:var(--gris);letter-spacing:2px;text-transform:uppercase;margin:24px 0 8px 2px;}
+
+    .card{background:var(--blanco);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);}
+
+    #buscador{width:100%;padding:11px 13px;border:1.5px solid var(--gris-claro);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--blanco);color:var(--negro);}
+    #resultados{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+    .resultado-item{background:var(--blanco);border:1.5px solid var(--gris-claro);border-radius:var(--radius-sm);padding:10px 13px;font-size:13px;cursor:pointer;color:var(--negro);}
+    .resultado-item:active{background:var(--verde-bg);border-color:var(--verde-claro);}
+
+    .alumno-sel{background:var(--verde-bg);border:1.5px solid var(--verde-claro);border-radius:var(--radius-sm);padding:10px 13px;font-size:13px;font-weight:700;color:var(--verde);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+    .alumno-sel button{background:none;border:none;color:var(--verde);font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;}
+
+    textarea{width:100%;min-height:110px;padding:11px 13px;border:1.5px solid var(--gris-claro);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;resize:vertical;background:var(--blanco);color:var(--negro);}
+    .btn-primary{margin-top:10px;background:var(--verde);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px 16px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;}
+    .btn-primary:disabled{opacity:0.6;cursor:default;}
+    .msg-envio{margin-top:8px;font-size:12.5px;text-align:center;}
+    .msg-ok{color:var(--verde);}
+    .msg-err{color:#C0392B;}
+
+    .obs-item{border-bottom:1px solid var(--gris-claro);padding:11px 2px;}
+    .obs-item:last-child{border-bottom:none;}
+    .obs-alumno{font-size:12.5px;font-weight:700;color:var(--negro);}
+    .obs-texto{font-size:12.5px;color:var(--negro);margin-top:3px;line-height:1.5;}
+    .obs-meta{margin-top:5px;display:flex;gap:8px;align-items:center;}
+    .obs-fecha{font-size:10.5px;color:var(--gris);}
+    .badge-estado{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-radius:5px;padding:2px 7px;}
+    .badge-pendiente{background:var(--terracota-bg);color:var(--terracota);}
+    .badge-aceptada{background:var(--verde-bg);color:var(--verde);}
+    .badge-rechazada{background:#FDE8E8;color:#C0392B;}
+
+    .estado-msg{text-align:center;padding:18px;color:var(--gris);font-size:12.5px;}
+  </style>
+</head>
+<body>
+
+<div id="cargando" class="estado-msg" style="padding:60px 20px;">Verificando acceso…</div>
+<div id="app" hidden></div>
+
+<script type="module">
+  import { supabase } from './supabase.js'
+
+  var estudiantesCache = []
+  var alumnoSeleccionado = null
+
+  var sesionData = await supabase.auth.getSession()
+  var session = sesionData.data.session
+  if (!session) {
+    window.location.replace('login.html')
+  } else {
+    var teacherRes = await supabase.from('teachers').select('activo,rol').eq('id', session.user.id).maybeSingle()
+    var _tsData = teacherRes.data
+    if (!_tsData || _tsData.activo === false || _tsData.rol !== 'eoe') {
+      window.location.replace('login.html')
+    } else {
+      await iniciarPanel()
+    }
+  }
+
+  async function iniciarPanel() {
+    document.getElementById('app').innerHTML = renderShell()
+    document.getElementById('cargando').hidden = true
+    document.getElementById('app').hidden = false
+
+    document.getElementById('btn-logout').addEventListener('click', async function () {
+      await supabase.auth.signOut()
+      window.location.replace('login.html')
+    })
+
+    var studentsRes = await supabase.from('students').select('id,full_name')
+    estudiantesCache = studentsRes.data || []
+
+    document.getElementById('buscador').addEventListener('input', onBuscar)
+
+    await cargarMisObservaciones()
+  }
+
+  function renderShell() {
+    return '<header>'
+      + '<svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 66" width="34" height="40">'
+      + '<path fill="none" stroke="#7BAE99" stroke-width="2.2" stroke-linecap="round" d="M6,33 C6,17 16,7 28,7 C40,7 50,17 50,33 C50,44 45,53 38,58"/>'
+      + '<path fill="none" stroke="#7BAE99" stroke-width="1.9" stroke-linecap="round" d="M12,34 C12,20 19,13 28,13 C37,13 44,20 44,34 C44,43 40,50 34,55"/>'
+      + '<ellipse cx="28" cy="35" rx="3.5" ry="4.5" fill="none" stroke="#7BAE99" stroke-width="1.2"/>'
+      + '<circle cx="50" cy="9" r="3.5" fill="#C8845A"/>'
+      + '</svg>'
+      + '<div class="header-text">'
+      + '<h1>Huella<span>ED</span></h1>'
+      + '<p>Panel EoE</p>'
+      + '</div>'
+      + '<button class="btn-logout" id="btn-logout">Salir</button>'
+      + '</header>'
+      + '<main>'
+      + '<div class="section-label">Buscar alumno</div>'
+      + '<input type="text" id="buscador" placeholder="Escribí el nombre del alumno...">'
+      + '<div id="resultados"></div>'
+      + '<div id="panel-observacion"></div>'
+      + '<div class="section-label">Mis observaciones enviadas</div>'
+      + '<div class="card"><div id="lista-obs"></div></div>'
+      + '</main>'
+  }
+
+  function onBuscar() {
+    var q = document.getElementById('buscador').value.trim().toLowerCase()
+    var cont = document.getElementById('resultados')
+    if (!q) {
+      cont.innerHTML = ''
+      return
+    }
+    var coincidencias = estudiantesCache.filter(function (a) {
+      return a.full_name && a.full_name.toLowerCase().indexOf(q) > -1
+    }).slice(0, 30)
+
+    if (!coincidencias.length) {
+      cont.innerHTML = '<div class="estado-msg">Sin resultados.</div>'
+      return
+    }
+
+    cont.innerHTML = coincidencias.map(function (a) {
+      return '<div class="resultado-item" data-id="' + a.id + '">' + escapeHtml(a.full_name) + '</div>'
+    }).join('')
+
+    var items = cont.querySelectorAll('.resultado-item')
+    items.forEach(function (item) {
+      item.addEventListener('click', function () {
+        var id = item.getAttribute('data-id')
+        var alumno = estudiantesCache.find(function (a) { return a.id === id })
+        if (alumno) seleccionarAlumno(alumno)
+      })
+    })
+  }
+
+  function seleccionarAlumno(alumno) {
+    alumnoSeleccionado = alumno
+    document.getElementById('buscador').value = ''
+    document.getElementById('resultados').innerHTML = ''
+    renderPanelObservacion()
+  }
+
+  function renderPanelObservacion() {
+    var cont = document.getElementById('panel-observacion')
+    if (!alumnoSeleccionado) {
+      cont.innerHTML = ''
+      return
+    }
+    cont.innerHTML = '<div class="alumno-sel">'
+      + '<span>' + escapeHtml(alumnoSeleccionado.full_name) + '</span>'
+      + '<button id="btn-quitar-sel">cambiar</button>'
+      + '</div>'
+      + '<textarea id="texto-obs" placeholder="Escribí la observación para este alumno..."></textarea>'
+      + '<button class="btn-primary" id="btn-enviar-obs">Enviar observación</button>'
+      + '<div class="msg-envio" id="msg-envio"></div>'
+
+    document.getElementById('btn-quitar-sel').addEventListener('click', function () {
+      alumnoSeleccionado = null
+      renderPanelObservacion()
+    })
+    document.getElementById('btn-enviar-obs').addEventListener('click', enviarObservacion)
+  }
+
+  async function enviarObservacion() {
+    var textoEl = document.getElementById('texto-obs')
+    var btn = document.getElementById('btn-enviar-obs')
+    var msgEl = document.getElementById('msg-envio')
+    var texto = textoEl.value.trim()
+
+    if (!texto) {
+      msgEl.textContent = 'Escribí una observación antes de enviar.'
+      msgEl.className = 'msg-envio msg-err'
+      return
+    }
+    if (!alumnoSeleccionado) {
+      msgEl.textContent = 'Seleccioná un alumno primero.'
+      msgEl.className = 'msg-envio msg-err'
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Enviando…'
+    msgEl.textContent = ''
+    msgEl.className = 'msg-envio'
+
+    var res = await supabase.from('observaciones_eoe').insert({
+      alumno_id: alumnoSeleccionado.id,
+      contenido: texto
+    })
+
+    btn.disabled = false
+    btn.textContent = 'Enviar observación'
+
+    if (res.error) {
+      msgEl.textContent = 'No se pudo enviar: ' + res.error.message
+      msgEl.className = 'msg-envio msg-err'
+    } else {
+      msgEl.textContent = 'Observación enviada correctamente.'
+      msgEl.className = 'msg-envio msg-ok'
+      textoEl.value = ''
+      await cargarMisObservaciones()
+    }
+  }
+
+  async function cargarMisObservaciones() {
+    var cont = document.getElementById('lista-obs')
+    cont.innerHTML = '<div class="estado-msg">Cargando…</div>'
+
+    var res = await supabase.from('observaciones_eoe')
+      .select('id,alumno_id,contenido,estado,created_at')
+      .order('created_at', { ascending: false })
+
+    if (res.error || !res.data || !res.data.length) {
+      cont.innerHTML = '<div class="estado-msg">Todavía no enviaste observaciones.</div>'
+      return
+    }
+
+    cont.innerHTML = res.data.map(function (o) {
+      var alumno = estudiantesCache.find(function (a) { return a.id === o.alumno_id })
+      var nombre = alumno ? alumno.full_name : 'Alumno'
+      var fecha = o.created_at ? new Date(o.created_at).toLocaleDateString('es-AR') : ''
+      var badgeClase = 'badge-estado badge-' + o.estado
+      return '<div class="obs-item">'
+        + '<div class="obs-alumno">' + escapeHtml(nombre) + '</div>'
+        + '<div class="obs-texto">' + escapeHtml(o.contenido) + '</div>'
+        + '<div class="obs-meta">'
+        + '<span class="' + badgeClase + '">' + escapeHtml(o.estado) + '</span>'
+        + '<span class="obs-fecha">' + fecha + '</span>'
+        + '</div>'
+        + '</div>'
+    }).join('')
+  }
+
+  function escapeHtml(s) {
+    var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return map[c] })
+  }
+</script>
+
+</body>
+</html>
