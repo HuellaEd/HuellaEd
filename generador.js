@@ -1144,6 +1144,8 @@ function descargarCuadernillo(){
 
   iframeTmp.onload=function(){
     var idoc=iframeTmp.contentDocument;
+    var topbarIframe=idoc.querySelector('.lb-topbar');
+    if(topbarIframe)topbarIframe.remove();
     var fontsListas=(idoc.fonts&&idoc.fonts.ready)?idoc.fonts.ready:Promise.resolve();
     var esperaRecursos=fontsListas.then(function(){
       var imgs=Array.from(idoc.images);
