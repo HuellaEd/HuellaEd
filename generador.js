@@ -1187,6 +1187,17 @@ function descargarCuadernillo(){
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
         pagebreak:{mode:['css'],before:'.lb-pagina:not(.lb-caratula)'}
       };
+      var _dbgWin=idoc.defaultView;
+      console.log('[DEBUG-PDF] idoc.defaultView.scrollX='+(_dbgWin?_dbgWin.scrollX:'N/A'),'scrollY='+(_dbgWin?_dbgWin.scrollY:'N/A'));
+      console.log('[DEBUG-PDF] idoc.documentElement.scrollTop='+idoc.documentElement.scrollTop,'idoc.body.scrollTop='+idoc.body.scrollTop);
+      var _dbgLibroPreview2=idoc.querySelector('#libro-preview');
+      var _dbgOffsetVsBody=0;
+      if(_dbgLibroPreview2){
+        var _dbgEl=_dbgLibroPreview2;
+        while(_dbgEl&&_dbgEl!==idoc.body){_dbgOffsetVsBody+=_dbgEl.offsetTop;_dbgEl=_dbgEl.offsetParent;}
+      }
+      console.log('[DEBUG-PDF] #libro-preview offsetTop acumulado respecto a idoc.body='+_dbgOffsetVsBody);
+      console.log('[DEBUG-PDF] opciones.html2canvas.scrollX='+opciones.html2canvas.scrollX,'opciones.html2canvas.scrollY='+opciones.html2canvas.scrollY);
       html2pdf().set(opciones).from(contenidoIframe).save().then(function(){
         document.body.removeChild(iframeTmp);
         if(btnDescargar){btnDescargar.textContent=textoOriginalBtn;btnDescargar.disabled=false;}
