@@ -1158,6 +1158,26 @@ function descargarCuadernillo(){
     var timeoutMax=new Promise(function(resolve){setTimeout(resolve,8000);});
     Promise.race([esperaRecursos,timeoutMax]).then(function(){
       var contenidoIframe=idoc.body;
+      var _dbgLibroPreview=idoc.querySelector('#libro-preview');
+      if(_dbgLibroPreview){
+        console.log('[DEBUG-PDF] hijos directos de #libro-preview:');
+        Array.from(_dbgLibroPreview.children).forEach(function(el,i){
+          console.log('[DEBUG-PDF]',i,el.tagName,el.className,'offsetTop='+el.offsetTop,'offsetHeight='+el.offsetHeight);
+        });
+        var _dbgCaratula=_dbgLibroPreview.querySelector('.lb-caratula');
+        if(_dbgCaratula){
+          console.log('[DEBUG-PDF] .lb-caratula offsetTop='+_dbgCaratula.offsetTop);
+          if(_dbgCaratula.offsetTop>0){
+            Array.from(_dbgLibroPreview.children).forEach(function(el){
+              if(el!==_dbgCaratula&&el.offsetTop<_dbgCaratula.offsetTop){
+                console.log('[DEBUG-PDF] elemento previo ocupando espacio:',el.tagName,el.className,'offsetHeight='+el.offsetHeight);
+              }
+            });
+          }
+        }else{
+          console.log('[DEBUG-PDF] no se encontró .lb-caratula');
+        }
+      }
       splitOverflowingPages(idoc);
       var opciones={
         margin:0,
