@@ -7,6 +7,8 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+const ROLES_VALIDOS = ['maestro', 'directivo', 'eoe']
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: CORS })
@@ -37,9 +39,15 @@ serve(async (req) => {
     }
 
     // 2. Leer datos del body
-    const { full_name, email, grade } = await req.json()
+    const { full_name, email, grade, rol } = await req.json()
     if (!full_name?.trim() || !email?.trim()) {
       return new Response(JSON.stringify({ error: 'Nombre y email son requeridos' }), {
+        status: 400, headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
+    }
+    const rolFinal = rol?.trim() || 'maestro'
+    if (!ROLES_VALIDOS.includes(rolFinal)) {
+      return new Response(JSON.stringify({ error: `Rol inválido: ${rolFinal}. Debe ser uno de: ${ROLES_VALIDOS.join(', ')}` }), {
         status: 400, headers: { ...CORS, 'Content-Type': 'application/json' },
       })
     }
@@ -75,6 +83,7 @@ serve(async (req) => {
       email: email.trim(),
       full_name: full_name.trim(),
       grade: grade?.trim() || null,
+      rol: rolFinal,
     })
     if (teacherError) {
       // Rollback: eliminar el usuario Auth si falla la inserción en teachers
