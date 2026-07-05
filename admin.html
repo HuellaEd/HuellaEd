@@ -421,7 +421,15 @@
           <label class="form-label" for="inp-nuevo-email">Email</label>
           <input class="form-input" id="inp-nuevo-email" type="email" placeholder="docente@escuela.edu.ar" required>
         </div>
-        <div class="form-group" style="margin-bottom:22px">
+        <div class="form-group">
+          <label class="form-label" for="inp-nuevo-rol">Rol</label>
+          <select class="form-input" id="inp-nuevo-rol">
+            <option value="maestro" selected>Maestro</option>
+            <option value="directivo">Directivo</option>
+            <option value="eoe">EOE</option>
+          </select>
+        </div>
+        <div class="form-group" id="grupo-nuevo-grado" style="margin-bottom:22px">
           <label class="form-label" for="inp-nuevo-grado">Grado / Año <span style="font-weight:400;text-transform:none">(opcional)</span></label>
           <input class="form-input" id="inp-nuevo-grado" type="text" placeholder="Ej: 4to grado">
         </div>
@@ -671,9 +679,18 @@
   }
 
   // ── Agregar docente ──
+  function actualizarVisibilidadGrado() {
+    const rol = document.getElementById('inp-nuevo-rol').value
+    const grupoGrado = document.getElementById('grupo-nuevo-grado')
+    grupoGrado.hidden = rol !== 'maestro'
+    if (grupoGrado.hidden) document.getElementById('inp-nuevo-grado').value = ''
+  }
+  document.getElementById('inp-nuevo-rol').addEventListener('change', actualizarVisibilidadGrado)
+
   document.getElementById('btn-agregar-docente').addEventListener('click', () => {
     document.getElementById('form-agregar').reset()
     document.getElementById('err-agregar').hidden = true
+    actualizarVisibilidadGrado()
     document.getElementById('modal-agregar').hidden = false
   })
 
@@ -687,6 +704,7 @@
     const errEl = document.getElementById('err-agregar')
     const full_name = document.getElementById('inp-nuevo-nombre').value.trim()
     const email = document.getElementById('inp-nuevo-email').value.trim()
+    const rol = document.getElementById('inp-nuevo-rol').value
     const grade = document.getElementById('inp-nuevo-grado').value.trim()
 
     btn.disabled = true
@@ -695,7 +713,7 @@
 
     try {
       const { data, error } = await supabase.functions.invoke('admin-create-teacher', {
-        body: { full_name, email, grade },
+        body: { full_name, email, grade, rol },
       })
       if (error) throw new Error(error.message || 'Error al invocar función')
       let resultado = data
