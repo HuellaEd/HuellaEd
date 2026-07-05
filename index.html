@@ -426,6 +426,9 @@
     </div>
   </div>
 
+  <!-- OBSERVACIONES DEL EOE PENDIENTES -->
+  <div id="badge-obs-eoe" style="display:none;margin-bottom:14px;"></div>
+
   <!-- AVISOS AUTOMÁTICOS (inasistencias, sin observaciones, PAF desactualizado) -->
   <div id="panel-avisos" style="display:none;margin-bottom:14px;"></div>
 
@@ -650,6 +653,15 @@
       </div>
       <div id="gen-ai-copy-msg" style="text-align:center;font-size:11px;margin-top:2px;"></div>
     </div>
+  </div>
+</div>
+
+<!-- OBSERVACIONES EOE -->
+<div id="modal-obs-eoe" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1000;padding:14px;box-sizing:border-box;overflow-y:auto;">
+  <div style="background:var(--blanco);border-radius:16px;padding:18px;max-width:480px;margin:16px auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><strong style="font-size:15px;color:var(--verde);">📋 Observaciones del EoE</strong><button onclick="cerrarObsEoe()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button></div>
+    <div id="obs-eoe-alumno-nombre" style="font-size:13px;font-weight:700;color:var(--negro);margin-bottom:10px;"></div>
+    <div id="obs-eoe-lista"></div>
   </div>
 </div>
 
@@ -1479,6 +1491,8 @@ async function initStudents() {
   var countEl = document.getElementById('students-count');
   if (countEl) countEl.textContent = students.length;
 
+  await cargarObservacionesEoePendientes(user.id);
+
   var panel = document.getElementById('panel-perfiles');
   if (panel) {
     panel.innerHTML = students.map(function(s) {
@@ -1486,7 +1500,7 @@ async function initStudents() {
       var badge = s.has_differential
         ? '<span class="subcard-sub" style="color:var(--terracota);font-weight:600;margin-top:2px;">⚡ Dif.</span>'
         : '';
-      return '<div class="subcard" onclick="abrirPerfilAcademico(\'' + s.id + '\')" style="cursor:pointer;"><div class="alumno-ini" style="margin:0 auto 4px;">' + ini + '</div>'
+      return '<div class="subcard" data-sid="' + s.id + '" onclick="abrirPerfilAcademico(\'' + s.id + '\')" style="cursor:pointer;position:relative;">' + renderMarcaObsEoe(s.id) + '<div class="alumno-ini" style="margin:0 auto 4px;">' + ini + '</div>'
         + '<span class="subcard-label">' + s.full_name + '</span>' + badge + '</div>';
     }).join('');
   }
@@ -1689,6 +1703,84 @@ function renderizarAvisosAutomaticos(avisos){
     }).join('')
     +'</div>';
   panel.style.display='block';
+}
+
+// ── OBSERVACIONES DEL EOE (pendientes de revisión por el maestro) ──
+async function cargarObservacionesEoePendientes(teacherId){
+  window.__obsEoePorAlumno={};
+  if(!window.__sb)return;
+  try{
+    var {data,error}=await window.__sb.from('observaciones_eoe')
+      .select('id,alumno_id,contenido,created_at')
+      .eq('teacher_id',teacherId).eq('estado','pendiente')
+      .order('created_at',{ascending:true});
+    if(error){console.log('Error cargando observaciones EoE:',error);return;}
+    (data||[]).forEach(function(o){
+      if(!window.__obsEoePorAlumno[o.alumno_id])window.__obsEoePorAlumno[o.alumno_id]=[];
+      window.__obsEoePorAlumno[o.alumno_id].push(o);
+    });
+    renderizarBadgeObsEoe();
+  }catch(e){console.log('Error cargando observaciones EoE:',e);}
+}
+
+function renderMarcaObsEoe(studentId){
+  var obs=window.__obsEoePorAlumno&&window.__obsEoePorAlumno[studentId];
+  var n=obs?obs.length:0;
+  if(!n)return '<span id="obs-marker-'+studentId+'"></span>';
+  return '<span id="obs-marker-'+studentId+'" onclick="event.stopPropagation();abrirObsEoeAlumno(\''+studentId+'\')" title="Observaciones del EoE pendientes" style="position:absolute;top:6px;right:6px;background:var(--terracota);color:#fff;font-size:9px;font-weight:800;border-radius:10px;padding:2px 7px;cursor:pointer;z-index:1;">📋 '+n+'</span>';
+}
+
+function renderizarBadgeObsEoe(){
+  var el=document.getElementById('badge-obs-eoe');
+  if(!el)return;
+  var total=0;
+  for(var k in window.__obsEoePorAlumno)total+=window.__obsEoePorAlumno[k].length;
+  if(!total){el.style.display='none';el.innerHTML='';return;}
+  el.innerHTML='<div style="background:var(--verde-bg);border:1.5px solid var(--verde-claro);border-radius:14px;padding:12px 16px;font-size:12.5px;font-weight:700;color:var(--verde);cursor:pointer;" onclick="toggleGrupo(\'perfiles\')">'
+    +'📋 '+total+' observaci'+(total>1?'ones':'ón')+' nueva'+(total>1?'s':'')+' del EoE'
+    +'</div>';
+  el.style.display='block';
+}
+
+function abrirObsEoeAlumno(studentId){
+  var obs=(window.__obsEoePorAlumno&&window.__obsEoePorAlumno[studentId])||[];
+  var alumno=(window.__students||[]).find(function(s){return s.id===studentId;});
+  document.getElementById('obs-eoe-alumno-nombre').textContent=alumno?alumno.full_name:'';
+  renderizarListaObsEoe(studentId,obs);
+  document.getElementById('modal-obs-eoe').style.display='block';
+}
+
+function renderizarListaObsEoe(studentId,obs){
+  var cont=document.getElementById('obs-eoe-lista');
+  if(!obs.length){cont.innerHTML='<div style="text-align:center;padding:16px;color:var(--gris);font-size:12.5px;">Sin observaciones pendientes.</div>';return;}
+  cont.innerHTML=obs.map(function(o){
+    var fecha=o.created_at?new Date(o.created_at).toLocaleDateString('es-AR'):'';
+    return '<div style="background:var(--crema);border-radius:10px;padding:12px 14px;margin-bottom:10px;">'
+      +'<div style="font-size:12.5px;color:var(--negro);line-height:1.55;margin-bottom:8px;">'+escHtml(o.contenido)+'</div>'
+      +'<div style="font-size:10px;color:var(--gris);margin-bottom:8px;">'+fecha+'</div>'
+      +'<div style="display:flex;gap:8px;">'
+      +'<button onclick="revisarObsEoe(\''+o.id+'\',\''+studentId+'\',\'aceptada\')" style="flex:1;background:var(--verde);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✅ Aceptar</button>'
+      +'<button onclick="revisarObsEoe(\''+o.id+'\',\''+studentId+'\',\'rechazada\')" style="flex:1;background:#FDE8E8;color:#C0392B;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">❌ Rechazar</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+async function revisarObsEoe(obsId,studentId,estado){
+  if(!window.__sb)return;
+  try{
+    var {error}=await window.__sb.rpc('revisar_observacion_eoe',{p_id:obsId,p_estado:estado});
+    if(error){alert('No se pudo actualizar la observación: '+error.message);return;}
+    window.__obsEoePorAlumno[studentId]=(window.__obsEoePorAlumno[studentId]||[]).filter(function(o){return o.id!==obsId;});
+    if(!window.__obsEoePorAlumno[studentId].length)delete window.__obsEoePorAlumno[studentId];
+    renderizarListaObsEoe(studentId,window.__obsEoePorAlumno[studentId]||[]);
+    var marker=document.getElementById('obs-marker-'+studentId);
+    if(marker)marker.outerHTML=renderMarcaObsEoe(studentId);
+    renderizarBadgeObsEoe();
+  }catch(e){alert('No se pudo actualizar la observación: '+e.message);}
+}
+
+function cerrarObsEoe(){
+  document.getElementById('modal-obs-eoe').style.display='none';
 }
 
 async function initNotas() {
