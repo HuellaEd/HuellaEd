@@ -1144,6 +1144,8 @@ function descargarCuadernillo(){
 
   iframeTmp.onload=function(){
     var idoc=iframeTmp.contentDocument;
+    var topbarIframe=idoc.querySelector('.lb-topbar');
+    if(topbarIframe)topbarIframe.remove();
     var fontsListas=(idoc.fonts&&idoc.fonts.ready)?idoc.fonts.ready:Promise.resolve();
     var esperaRecursos=fontsListas.then(function(){
       var imgs=Array.from(idoc.images);
@@ -1163,7 +1165,7 @@ function descargarCuadernillo(){
         image:{type:'jpeg',quality:0.92},
         html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-        pagebreak:{mode:['css','legacy'],before:'.lb-pagina'}
+        pagebreak:{mode:['css'],before:'.lb-pagina:not(.lb-caratula)'}
       };
       html2pdf().set(opciones).from(contenidoIframe).save().then(function(){
         document.body.removeChild(iframeTmp);
