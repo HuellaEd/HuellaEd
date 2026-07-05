@@ -1158,26 +1158,6 @@ function descargarCuadernillo(){
     var timeoutMax=new Promise(function(resolve){setTimeout(resolve,8000);});
     Promise.race([esperaRecursos,timeoutMax]).then(function(){
       var contenidoIframe=idoc.body;
-      var _dbgLibroPreview=idoc.querySelector('#libro-preview');
-      if(_dbgLibroPreview){
-        console.log('[DEBUG-PDF] hijos directos de #libro-preview:');
-        Array.from(_dbgLibroPreview.children).forEach(function(el,i){
-          console.log('[DEBUG-PDF]',i,el.tagName,el.className,'offsetTop='+el.offsetTop,'offsetHeight='+el.offsetHeight);
-        });
-        var _dbgCaratula=_dbgLibroPreview.querySelector('.lb-caratula');
-        if(_dbgCaratula){
-          console.log('[DEBUG-PDF] .lb-caratula offsetTop='+_dbgCaratula.offsetTop);
-          if(_dbgCaratula.offsetTop>0){
-            Array.from(_dbgLibroPreview.children).forEach(function(el){
-              if(el!==_dbgCaratula&&el.offsetTop<_dbgCaratula.offsetTop){
-                console.log('[DEBUG-PDF] elemento previo ocupando espacio:',el.tagName,el.className,'offsetHeight='+el.offsetHeight);
-              }
-            });
-          }
-        }else{
-          console.log('[DEBUG-PDF] no se encontró .lb-caratula');
-        }
-      }
       splitOverflowingPages(idoc);
       var opciones={
         margin:0,
@@ -1187,17 +1167,6 @@ function descargarCuadernillo(){
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
         pagebreak:{mode:['css'],before:'.lb-pagina:not(.lb-caratula)'}
       };
-      var _dbgWin=idoc.defaultView;
-      console.log('[DEBUG-PDF] idoc.defaultView.scrollX='+(_dbgWin?_dbgWin.scrollX:'N/A'),'scrollY='+(_dbgWin?_dbgWin.scrollY:'N/A'));
-      console.log('[DEBUG-PDF] idoc.documentElement.scrollTop='+idoc.documentElement.scrollTop,'idoc.body.scrollTop='+idoc.body.scrollTop);
-      var _dbgLibroPreview2=idoc.querySelector('#libro-preview');
-      var _dbgOffsetVsBody=0;
-      if(_dbgLibroPreview2){
-        var _dbgEl=_dbgLibroPreview2;
-        while(_dbgEl&&_dbgEl!==idoc.body){_dbgOffsetVsBody+=_dbgEl.offsetTop;_dbgEl=_dbgEl.offsetParent;}
-      }
-      console.log('[DEBUG-PDF] #libro-preview offsetTop acumulado respecto a idoc.body='+_dbgOffsetVsBody);
-      console.log('[DEBUG-PDF] opciones.html2canvas.scrollX='+opciones.html2canvas.scrollX,'opciones.html2canvas.scrollY='+opciones.html2canvas.scrollY);
       html2pdf().set(opciones).from(contenidoIframe).save().then(function(){
         document.body.removeChild(iframeTmp);
         if(btnDescargar){btnDescargar.textContent=textoOriginalBtn;btnDescargar.disabled=false;}
