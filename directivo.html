@@ -38,6 +38,14 @@
     tr:hover td{background:var(--crema);}
     .num{text-align:center;font-weight:600;}
     .estado-msg{text-align:center;padding:24px;color:var(--gris);font-size:13px;}
+
+    .banner-asist-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+    .card-grado{background:var(--blanco);border-radius:var(--radius-sm);box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);padding:12px 14px;}
+    .card-grado .grado-nombre{font-size:12px;font-weight:700;color:var(--negro);margin-bottom:6px;}
+    .card-grado .grado-conteo{display:flex;gap:10px;font-size:14px;font-weight:700;margin-bottom:4px;}
+    .card-grado .ok{color:var(--verde2);}
+    .card-grado .bad{color:#C0392B;}
+    .card-grado .grado-tomada{font-size:10.5px;color:var(--gris);}
   </style>
 </head>
 <body>
@@ -93,6 +101,64 @@
     document.getElementById('sel-periodo').addEventListener('change', () => renderTabla(estado))
 
     renderTabla(estado)
+    iniciarPollingAsistencia()
+  }
+
+  async function cargarAsistenciaHoy() {
+    var cont = document.getElementById('banner-asistencia')
+    if (!cont) return
+    var { data, error } = await supabase.rpc('get_attendance_today_by_grade')
+    if (error) {
+      cont.innerHTML = '<div class="estado-msg" style="padding:14px;">No se pudo cargar la asistencia de hoy: ' + escapeHtml(error.message) + '</div>'
+      return
+    }
+    renderBannerAsistencia(data || [])
+  }
+
+  function renderBannerAsistencia(filas) {
+    var cont = document.getElementById('banner-asistencia')
+    if (!filas.length) {
+      cont.innerHTML = '<div class="estado-msg" style="padding:14px;">Sin grados para mostrar.</div>'
+      return
+    }
+
+    var cards = filas.map(function (g) {
+      var tomada = g.total_alumnos - g.sin_tomar
+      return '<div class="card-grado">'
+        + '<div class="grado-nombre">' + escapeHtml(g.grade) + '</div>'
+        + '<div class="grado-conteo"><span class="ok">' + g.presentes + ' P</span><span class="bad">' + g.ausentes + ' A</span></div>'
+        + '<div class="grado-tomada">' + tomada + '/' + g.total_alumnos + ' tomada' + (g.sin_tomar > 0 ? ' ⚠️' : ' ✅') + '</div>'
+        + '</div>'
+    }).join('')
+
+    var filasTabla = filas.map(function (g) {
+      return '<tr>'
+        + '<td>' + escapeHtml(g.grade) + '</td>'
+        + '<td class="num">' + g.total_alumnos + '</td>'
+        + '<td class="num">' + g.presentes + '</td>'
+        + '<td class="num">' + g.ausentes + '</td>'
+        + '<td class="num">' + g.justificados + '</td>'
+        + '<td class="num">' + g.tardanzas + '</td>'
+        + '<td class="num">' + g.sin_tomar + '</td>'
+        + '</tr>'
+    }).join('')
+
+    cont.innerHTML = '<div class="banner-asist-cards">' + cards + '</div>'
+      + '<div class="tabla-wrap" style="margin-top:10px;">'
+      + '<table><thead><tr>'
+      + '<th>Grado</th><th class="num">Total</th><th class="num">Presente</th><th class="num">Ausente</th><th class="num">Justificado</th><th class="num">Tardanza</th><th class="num">Sin tomar</th>'
+      + '</tr></thead><tbody>' + filasTabla + '</tbody></table>'
+      + '</div>'
+  }
+
+  function iniciarPollingAsistencia() {
+    cargarAsistenciaHoy()
+    setInterval(function () {
+      if (document.visibilityState === 'visible') cargarAsistenciaHoy()
+    }, 15000)
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') cargarAsistenciaHoy()
+    })
   }
 
   function renderShell() {
@@ -110,6 +176,8 @@
       + '<button class="btn-logout" id="btn-logout">Salir</button>'
       + '</header>'
       + '<main>'
+      + '<div class="section-label">Asistencia de hoy</div>'
+      + '<div id="banner-asistencia"><div class="estado-msg" style="padding:14px;">Cargando asistencia de hoy…</div></div>'
       + '<div class="filtros">'
       + '<label>Docente / grado'
       + '<select id="sel-docente"><option value="">Todos los docentes</option></select>'
