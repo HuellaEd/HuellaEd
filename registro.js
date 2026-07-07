@@ -4,22 +4,26 @@ var INASIST_DATA=[];
 // ── NOTAS ──
 async function renderBoletin1(){
   var areas=AREAS;
+  var esPrimerCiclo=_cicloActual==='primer_ciclo';
   var rowList=window.__students&&Object.keys(gradesData).length>0
-    ?window.__students.map(function(s){return {a:s.full_name,n:areas.map(function(area){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;})};})
+    ?window.__students.map(function(s){return {a:s.full_name,n:areas.map(function(area){
+        var v=gradesData[s.id]&&gradesData[s.id][area]!=null?gradesData[s.id][area]:null;
+        return v==null?null:(esPrimerCiclo?v:parseFloat(v));
+      })};})
     :NOTAS_DATA.map(function(r){return {a:r.a,n:r.n.slice()};});
   var html='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:480px;">';
   html+='<thead><tr style="background:var(--verde);color:#fff;">';
   html+='<th style="padding:7px 5px;text-align:left;">Alumno</th>';
   areas.forEach(a=>{html+=`<th style="padding:7px 3px;text-align:center;">${a}</th>`;});
-  html+='<th style="padding:7px 3px;text-align:center;">Prom</th>';
+  if(!esPrimerCiclo)html+='<th style="padding:7px 3px;text-align:center;">Prom</th>';
   html+='<th style="padding:7px 3px;text-align:center;">Faltas</th>';
   html+='<th style="padding:7px 5px;text-align:left;">Estado</th>';
   html+='</tr></thead><tbody>';
 
   rowList.forEach((r,i)=>{
     var validScores=r.n.filter(function(v){return v!=null;});
-    var prom=validScores.length?(validScores.reduce((a,b)=>a+b,0)/validScores.length).toFixed(1):'—';
-    var desap=validScores.filter(n=>n<APROBADO).length;
+    var prom=(!esPrimerCiclo&&validScores.length)?(validScores.reduce((a,b)=>a+b,0)/validScores.length).toFixed(1):'—';
+    var desap=esPrimerCiclo?validScores.filter(function(v){return v==='R'||v==='D';}).length:validScores.filter(n=>n<APROBADO).length;
     var inasist=INASIST_DATA.find(x=>x.a===r.a)||{m:0,ab:0,my:0};
     var totalF=inasist.m+inasist.ab+inasist.my;
     var bg=i%2===0?'#fff':'#F5F2EE';
@@ -28,14 +32,22 @@ async function renderBoletin1(){
     var alertaN=desap>0?`✗${desap}`:'';
     var estado=(alertaF||alertaN)?[alertaF,alertaN].filter(Boolean).join(' '):'✅';
 
-    var cells=r.n.map(n=>n!=null?`<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`:'<td style="padding:5px 3px;text-align:center;color:var(--gris);">—</td>').join('');
+    var cells=r.n.map(n=>{
+      if(n==null)return '<td style="padding:5px 3px;text-align:center;color:var(--gris);">—</td>';
+      if(esPrimerCiclo){
+        var low=n==='R'||n==='D';
+        return `<td style="padding:5px 3px;text-align:center;color:${low?'#C0392B':'var(--negro)'};font-weight:${low?'bold':'normal'};background:${low?'#FDE8E8':'transparent'};">${n}</td>`;
+      }
+      return `<td style="padding:5px 3px;text-align:center;color:${n>=APROBADO?'var(--negro)':'#C0392B'};font-weight:${n<APROBADO?'bold':'normal'};background:${n<APROBADO?'#FDE8E8':'transparent'};">${n}</td>`;
+    }).join('');
     var pc=prom!=='—'&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
     var fcol=totalF>=10?'#C0392B':totalF>=7?'var(--terracota)':totalF>=5?'#B7950B':'var(--negro)';
+    var promCell=esPrimerCiclo?'':`<td style="padding:5px 3px;text-align:center;font-weight:bold;color:${pc};">${prom}</td>`;
 
     html+=`<tr style="background:${bg};">
       <td style="padding:5px;font-size:10px;">${r.a}</td>
       ${cells}
-      <td style="padding:5px 3px;text-align:center;font-weight:bold;color:${pc};">${prom}</td>
+      ${promCell}
       <td style="padding:5px 3px;text-align:center;font-weight:bold;color:${fcol};">${totalF}</td>
       <td style="padding:5px;font-size:10px;">${estado}</td>
     </tr>`;
@@ -170,27 +182,45 @@ async function renderBoletin2(){
   cont.innerHTML=html;
 }
 
-function renderNotas(){
+var CONCEPTUALES=['S','MB','B','R','D'];
+var _cicloActual=null;
+
+function renderNotas(ciclo){
+  _cicloActual=ciclo;
   var tb=document.getElementById('notas-tbody');
   if(!tb||!window.__students)return;
+  var esPrimerCiclo=ciclo==='primer_ciclo';
+  var promTh=document.querySelector('#tabla-notas [data-col="prom"]');
+  if(promTh)promTh.style.display=esPrimerCiclo?'none':'';
+  var statsWrap=document.getElementById('stats-areas-wrap');
+  if(statsWrap)statsWrap.style.display=esPrimerCiclo?'none':'';
   tb.innerHTML=window.__students.map(function(s,i){
     var bg=i%2===0?'#fff':'#F5F2EE';
     var cells=AREAS.map(function(area){
       var sc=gradesData[s.id]&&gradesData[s.id][area]!=null?gradesData[s.id][area]:'';
+      if(esPrimerCiclo){
+        var low=sc==='R'||sc==='D';
+        var opts=['<option value=""></option>'].concat(CONCEPTUALES.map(function(o){return '<option value="'+o+'"'+(o===sc?' selected':'')+'>'+o+'</option>';})).join('');
+        return '<td style="padding:3px 2px;text-align:center;"><select data-sid="'+s.id+'" data-area="'+area+'" onchange="updateGrade(this)" style="width:40px;padding:3px 1px;text-align:center;border:1.5px solid '+(low?'#C0392B':'var(--gris-claro)')+';border-radius:6px;font-size:12px;background:'+(low?'#FDE8E8':'transparent')+';font-weight:'+(low?'bold':'normal')+';font-family:inherit;color:inherit;">'+opts+'</select></td>';
+      }
       var low=sc!==''&&parseFloat(sc)<APROBADO;
       return '<td style="padding:3px 2px;text-align:center;"><input type="number" min="1" max="10" step="0.5" value="'+sc+'" data-sid="'+s.id+'" data-area="'+area+'" onchange="updateGrade(this)" style="width:36px;padding:3px 2px;text-align:center;border:1.5px solid '+(low?'#C0392B':'var(--gris-claro)')+';border-radius:6px;font-size:12px;background:'+(low?'#FDE8E8':'transparent')+';font-weight:'+(low?'bold':'normal')+';font-family:inherit;color:inherit;"></td>';
     }).join('');
+    if(esPrimerCiclo){
+      return '<tr style="background:'+bg+'"><td style="padding:5px;font-size:10px;white-space:nowrap;">'+s.full_name+'</td>'+cells+'</tr>';
+    }
     var vals=AREAS.map(function(area){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;}).filter(function(v){return v!==null;});
     var prom=vals.length?(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1):'—';
     var pc=vals.length&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
     return '<tr style="background:'+bg+'"><td style="padding:5px;font-size:10px;white-space:nowrap;">'+s.full_name+'</td>'+cells+'<td style="padding:5px 3px;text-align:center;font-weight:bold;color:'+pc+';font-size:12px;">'+prom+'</td></tr>';
   }).join('');
-  renderStatsAreas();
+  if(!esPrimerCiclo)renderStatsAreas();
 }
 
 function renderStatsAreas(){
   var sd=document.getElementById('stats-areas');
   if(!sd||!window.__students)return;
+  if(_cicloActual==='primer_ciclo'){sd.innerHTML='';return;}
   sd.innerHTML=AREAS.map(function(area){
     var vals=window.__students.map(function(s){return gradesData[s.id]&&gradesData[s.id][area]!=null?parseFloat(gradesData[s.id][area]):null;}).filter(function(v){return v!==null;});
     if(!vals.length)return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="width:26px;font-size:10px;font-weight:700;">'+area+'</div><div style="font-size:10px;color:var(--gris);">—</div></div>';
@@ -205,15 +235,16 @@ function renderStatsAreas(){
 async function updateGrade(input){
   var sid=input.dataset.sid;
   var area=input.dataset.area;
-  var val=input.value!==''?parseFloat(input.value):null;
+  var esPrimerCiclo=_cicloActual==='primer_ciclo';
+  var val=input.value===''?null:(esPrimerCiclo?input.value:parseFloat(input.value));
   if(!gradesData[sid])gradesData[sid]={};
   gradesData[sid][area]=val;
-  var low=val!==null&&val<APROBADO;
+  var low=esPrimerCiclo?(val==='R'||val==='D'):(val!==null&&val<APROBADO);
   input.style.borderColor=low?'#C0392B':'var(--gris-claro)';
   input.style.background=low?'#FDE8E8':'transparent';
   input.style.fontWeight=low?'bold':'normal';
   var row=input.closest('tr');
-  if(row){
+  if(row&&_cicloActual!=='primer_ciclo'){
     var vals=AREAS.map(function(a){return gradesData[sid]&&gradesData[sid][a]!=null?parseFloat(gradesData[sid][a]):null;}).filter(function(v){return v!==null;});
     var prom=vals.length?(vals.reduce(function(a,b){return a+b;},0)/vals.length).toFixed(1):'—';
     var pc=vals.length&&parseFloat(prom)>=APROBADO?'var(--verde)':'#C0392B';
@@ -232,17 +263,19 @@ function cambiarPeriodoNotas(p){
 
 async function initGrades(){
   if(!window.__students)return;
+  if(window.__teacherReadyPromise)await window.__teacherReadyPromise;
+  var ciclo=_adecDeriveCiclo(window.__teacherGrade);
   if(!window.__sb){
     if(gradesPeriodo==='1'){
       var nameMap={};window.__students.forEach(function(s){nameMap[s.full_name]=s.id;});
       gradesData={};
       NOTAS_DATA.forEach(function(r){var sid=nameMap[r.a];if(!sid)return;gradesData[sid]={};AREAS.forEach(function(area,i){gradesData[sid][area]=r.n[i];});});
     }else{gradesData={};}
-    renderNotas();return;
+    renderNotas(ciclo);return;
   }
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user)return;
-  var res=await window.__sb.from('grades').select('student_id,subject_id,score').eq('teacher_id',user.id).eq('period',gradesPeriodo);
+  var res=await window.__sb.from('grades').select('student_id,subject_id,score,grade_conceptual').eq('teacher_id',user.id).eq('period',gradesPeriodo);
   if(res.error){
     // CRÍTICO: si falla, NO vaciar gradesData — dejar lo que ya hubiera en pantalla en vez de un boletín en blanco.
     alert('⚠️ No se pudieron cargar las notas guardadas (error de conexión). Tus datos siguen guardados — recargá la página para reintentar.');
@@ -250,12 +283,12 @@ async function initGrades(){
   }
   gradesData={};
   if(res.data&&res.data.length){
-    res.data.forEach(function(g){if(!gradesData[g.student_id])gradesData[g.student_id]={};var code=SUBJECT_CODES[g.subject_id];if(code)gradesData[g.student_id][code]=g.score;});
+    res.data.forEach(function(g){if(!gradesData[g.student_id])gradesData[g.student_id]={};var code=SUBJECT_CODES[g.subject_id];if(code)gradesData[g.student_id][code]=g.score!=null?g.score:g.grade_conceptual;});
   }else if(gradesPeriodo==='1'){
     var nameMap={};window.__students.forEach(function(s){nameMap[s.full_name]=s.id;});
     NOTAS_DATA.forEach(function(r){var sid=nameMap[r.a];if(!sid)return;gradesData[sid]={};AREAS.forEach(function(area,i){gradesData[sid][area]=r.n[i];});});
   }
-  renderNotas();
+  renderNotas(ciclo);
 }
 
 async function guardarNotas(){
@@ -265,12 +298,17 @@ async function guardarNotas(){
   btn.disabled=true;btn.textContent='Guardando…';
   var user=(await window.__sb.auth.getUser()).data.user;
   if(!user){btn.disabled=false;btn.textContent='Guardar notas';return;}
+  var esPrimerCiclo=_cicloActual==='primer_ciclo';
   var records=[];
   window.__students.forEach(function(s){
     AREAS.forEach(function(area){
       var score=gradesData[s.id]&&gradesData[s.id][area]!=null?gradesData[s.id][area]:null;
       if(score===null)return;
-      records.push({student_id:s.id,teacher_id:user.id,subject_id:SUBJECT_IDS[area],period:gradesPeriodo,score:parseFloat(score),updated_at:new Date().toISOString()});
+      if(esPrimerCiclo){
+        records.push({student_id:s.id,teacher_id:user.id,subject_id:SUBJECT_IDS[area],period:gradesPeriodo,score:null,grade_conceptual:score,updated_at:new Date().toISOString()});
+      }else{
+        records.push({student_id:s.id,teacher_id:user.id,subject_id:SUBJECT_IDS[area],period:gradesPeriodo,score:parseFloat(score),grade_conceptual:null,updated_at:new Date().toISOString()});
+      }
     });
   });
   var res=await window.__sb.from('grades').upsert(records,{onConflict:'student_id,subject_id,period'});
