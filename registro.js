@@ -262,7 +262,12 @@ function cambiarPeriodoNotas(p){
 }
 
 async function initGrades(){
-  if(!window.__students)return;
+  if(window.__studentsReadyPromise)await window.__studentsReadyPromise;
+  if(!window.__students){
+    var tb=document.getElementById('notas-tbody');
+    if(tb)tb.innerHTML='<tr><td colspan="'+(AREAS.length+2)+'" style="text-align:center;padding:14px;color:var(--gris);font-size:11px;">No se pudieron cargar los alumnos. Recargá la página para reintentar.</td></tr>';
+    return;
+  }
   if(window.__teacherReadyPromise)await window.__teacherReadyPromise;
   var ciclo=_adecDeriveCiclo(window.__teacherGrade);
   if(!window.__sb){

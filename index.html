@@ -1943,7 +1943,7 @@ function _mostrarBannerCarga(tipo) {
   document.body.appendChild(b);
 }
 
-document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); initStudents(); initNotas(); initAgenda(); window.__teacherReadyPromise=initTeacher(); actualizarEstadoApiKeys(); });
+document.addEventListener('DOMContentLoaded', function() { checkAnalisisPendientes(); window.__studentsReadyPromise=initStudents(); initNotas(); initAgenda(); window.__teacherReadyPromise=initTeacher(); actualizarEstadoApiKeys(); });
 
 
 // ── DICTADO CON GEMINI EN NOTA RÁPIDA ──
