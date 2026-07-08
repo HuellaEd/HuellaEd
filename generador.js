@@ -622,8 +622,8 @@ async function generarConIA(){
     var data=await res.json();
     var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
     _genAiRawText=texto;
-    await renderLibro(texto,document.getElementById('gen-ai-text'),async function(){
-      var res2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,system:SISTEMA+' IMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.',messages:[{role:'user',content:contentParts}]})});
+    await renderLibro(texto,document.getElementById('gen-ai-text'),async function(mensajeExtra){
+      var res2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,system:SISTEMA+(mensajeExtra||' IMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.'),messages:[{role:'user',content:contentParts}]})});
       if(!res2.ok){var ed2=await res2.json();throw new Error((ed2.error&&ed2.error.message)||'Error '+res2.status);}
       var data2=await res2.json();
       return (data2.content&&data2.content[0]&&data2.content[0].text)||'';
@@ -716,17 +716,108 @@ async function renderLibro(respuestaIA,contenedor,reintentarFn){
       +'<div class="lb-pagina"><div style="font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div></div></div>';
     return;
   }
-  _mapasParaInicializar=[];
-  _fotosParaBuscar=[];
   var MAP_AREA_GENERADOR={'Matemática':'M','Prácticas del Lenguaje':'L','Ciencias Sociales':'CS','Ciencias Naturales':'CN'};
   var MAP_AREA_EMOJI={'M':'🔢','L':'📖','CS':'🗺️','CN':'🌿'};
   var MAP_AREA_COLOR={'M':'#3B6E9E','L':'#C8845A','CS':'#5B7FA6','CN':'#5A9B6F'};
+
+  // construye pags/ph a partir del JSON parseado — se reusa tanto para el
+  // intento original como para el reintento "más corto" y para el truncado
+  // final, así que resetea acá (no afuera) los arrays que sec() va llenando.
+  function construirPaginas(d){
+    _picsParaBuscar=[];_fotosParaBuscar=[];_mapasParaInicializar=[];
+    var areaActual=document.getElementById('gen-area').value;
+    var areaClaseLB=MAP_AREA_GENERADOR[areaActual]||'';
+    var iconoSeccion=MAP_AREA_EMOJI[areaClaseLB]||'📚';
+    var colorSeccion=MAP_AREA_COLOR[areaClaseLB]||'#2D5F4F';
+    var pags=d.paginas||[{titulo:d.titulo,secciones:d.secciones||[]}];
+    var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?d.titulo:'');var sub=pag.subtitulo||(pi2===0?d.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+colorSeccion+'">'+iconoSeccion+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';if(pi2===0&&_mapaSeleccionActual)cp+=construirHtmlMapaParaMaterial();(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina">'+cp+'</div>';}).join('');
+    return {pags:pags,ph:ph,areaClaseLB:areaClaseLB};
+  }
+
+  // Mide, en un iframe oculto forzado a 210mm (el mismo ancho real que usa
+  // descargarCuadernillo()), si el contenido de cada .lb-pagina desborda la
+  // hoja A4 mucho más de lo que splitOverflowingPages() puede repaginar sin
+  // colgarse (ver diagnóstico: 6.6x/9.3x la altura útil colgó el navegador
+  // >10min; casos normales entran cómodos en 2-3x). Umbral: 4x, con margen
+  // real de sobra respecto a ambos extremos observados.
+  function medirDesbordePaginas(ph){
+    return new Promise(function(resolve){
+      var iframe=document.createElement('iframe');
+      iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:210mm;border:none;';
+      document.body.appendChild(iframe);
+      iframe.srcdoc='<!DOCTYPE html><html><head><style>.lb-pagina{width:210mm;box-sizing:border-box;padding:16mm 14mm 10mm 18mm;}</style></head><body>'+ph+'</body></html>';
+      iframe.onload=function(){
+        var idoc=iframe.contentDocument;
+        var fontsListas=(idoc.fonts&&idoc.fonts.ready)?idoc.fonts.ready:Promise.resolve();
+        fontsListas.then(function(){
+          var paginas=Array.from(idoc.querySelectorAll('.lb-pagina'));
+          var detalle=paginas.map(function(p){
+            var r=p.getBoundingClientRect();
+            var estilos=idoc.defaultView.getComputedStyle(p);
+            var padTop=parseFloat(estilos.paddingTop),padBot=parseFloat(estilos.paddingBottom);
+            var alturaUtil=r.width*(297/210)-padTop-padBot;
+            var hijos=Array.from(p.children);
+            var ultimoHijo=hijos[hijos.length-1];
+            var alturaContenido=ultimoHijo?(ultimoHijo.getBoundingClientRect().bottom-r.top-padTop):0;
+            return {alturaUtil:alturaUtil,alturaContenido:alturaContenido,excede:alturaContenido>alturaUtil*4};
+          });
+          document.body.removeChild(iframe);
+          resolve({excede:detalle.some(function(d){return d.excede;}),detalle:detalle});
+        });
+      };
+    });
+  }
+
+  // Recorta secciones de las páginas que desbordan, proporcional al exceso
+  // medido — aproximado (no vuelve a medir), pero suficiente: lo que quede
+  // de desborde remanente lo absorbe splitOverflowingPages() como siempre.
+  function truncarPaginas(d,medicion){
+    var pags=d.paginas||[{titulo:d.titulo,secciones:d.secciones||[]}];
+    medicion.detalle.forEach(function(det,idx){
+      if(!det.excede)return;
+      var pag=pags[idx];
+      if(!pag)return;
+      var esBloques=!pag.secciones&&pag.bloques;
+      var secciones=pag.secciones||pag.bloques||[];
+      if(!secciones.length)return;
+      var factor=(det.alturaUtil*4)/det.alturaContenido;
+      var cantidad=Math.max(1,Math.floor(secciones.length*factor));
+      if(esBloques)pag.bloques=secciones.slice(0,cantidad);else pag.secciones=secciones.slice(0,cantidad);
+    });
+    if(!d.paginas)d.paginas=pags;
+    return d;
+  }
+
+  var construido=construirPaginas(data);
+  var medicion=await medirDesbordePaginas(construido.ph);
+  var recortado=false;
+
+  if(medicion.excede&&reintentarFn){
+    try{
+      var mensajeContenidoLargo=' IMPORTANTE: tu respuesta anterior generó demasiado contenido y no entra en el formato solicitado. Generá una versión más breve, respetando estrictamente el límite de secciones indicado.';
+      // Timeout propio sobre el reintento: es una 2da llamada real a la IA (puede
+      // tardar tanto como la 1ra), y si la red se cuelga acá no queremos que
+      // renderLibro() quede esperando para siempre — mejor truncar el contenido
+      // que ya teníamos que trabar el generador entero.
+      var timeoutReintento=new Promise(function(resolve){setTimeout(function(){resolve(null);},60000);});
+      var respuestaCorta=await Promise.race([reintentarFn(mensajeContenidoLargo),timeoutReintento]);
+      var dataCorta=respuestaCorta?intentarParsearLibro(respuestaCorta):null;
+      if(dataCorta){
+        var construidoCorta=construirPaginas(dataCorta);
+        var medicionCorta=await medirDesbordePaginas(construidoCorta.ph);
+        data=dataCorta;construido=construidoCorta;medicion=medicionCorta;
+      }
+    }catch(e){/* el reintento por contenido largo falló (red) — seguimos con lo que ya teníamos y truncamos abajo si hace falta */}
+  }
+
+  if(medicion.excede){
+    data=truncarPaginas(data,medicion);
+    construido=construirPaginas(data);
+    recortado=true;
+  }
+
   var areaActual=document.getElementById('gen-area').value;
-  var areaClaseLB=MAP_AREA_GENERADOR[areaActual]||'';
-  var iconoSeccion=MAP_AREA_EMOJI[areaClaseLB]||'📚';
-  var colorSeccion=MAP_AREA_COLOR[areaClaseLB]||'#2D5F4F';
-  var pags=data.paginas||[{titulo:data.titulo,secciones:data.secciones||[]}];
-  var ph=pags.map(function(pag,pi2){var cp='';var ti3=pag.titulo||(pi2===0?data.titulo:'');var sub=pag.subtitulo||(pi2===0?data.subtitulo:'');if(ti3)cp+='<div class="lb-seccion"><div class="lb-sec-icono" style="background:'+colorSeccion+'">'+iconoSeccion+'</div><h2 class="lb-sec-titulo">'+ti3+(sub?' <em>'+sub+'</em>':'')+'</h2></div>';if(pi2===0&&_mapaSeleccionActual)cp+=construirHtmlMapaParaMaterial();(pag.secciones||pag.bloques||[]).forEach(function(s,si){cp+=sec(s,si);});return '<div class="lb-pagina">'+cp+'</div>';}).join('');
+  var pags=construido.pags,ph=construido.ph,areaClaseLB=construido.areaClaseLB;
   var clasesExtra=(areaClaseLB?' lb-area-'+areaClaseLB:'')+' lb-bloque-'+bloqueAñosSel;
   var formatoClaseLB=formatoHojaSel!=='entera'?(' lb-formato-'+formatoHojaSel):'';
   function copiaConIdsUnicos(html,copiaNum){
@@ -741,7 +832,8 @@ async function renderLibro(respuestaIA,contenedor,reintentarFn){
   }
   var _listaContenidos=pags.map(function(p){return p.titulo||'';}).filter(Boolean);
   var _caratulaHtml=generarCaratulaLibro(areaActual,bloqueAñosSel,tipoSel,_listaContenidos,data.fuente||'');
-  _genHtmlRenderizado='<div id="libro-preview" class="'+clasesExtra.trim()+formatoClaseLB+'"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">Exportar PDF</button></div>'+_caratulaHtml+ph+'</div>';
+  var avisoRecorte=recortado?'<div style="text-align:center;color:#C0392B;padding:10px 14px;font-size:12px;background:#FDE8E8;border-radius:9px;margin:10px 14px 0;line-height:1.6;">⚠️ El contenido generado era muy extenso y se recortó para poder generarlo. Revisá el resultado — puede faltar la parte final de alguna página.</div>':'';
+  _genHtmlRenderizado='<div id="libro-preview" class="'+clasesExtra.trim()+formatoClaseLB+'"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">Exportar PDF</button></div>'+avisoRecorte+_caratulaHtml+ph+'</div>';
   contenedor.innerHTML=_genHtmlRenderizado;
   if(_picsParaBuscar.length)cargarPictogramasGenerados(_picsParaBuscar);
   if(_fotosParaBuscar.length)cargarFotosGeneradas(_fotosParaBuscar);
@@ -915,14 +1007,14 @@ async function enviarAClaudeConArchivo(promptText){
     var data=await res.json();
     var text=(data.content&&data.content[0]&&data.content[0].text)||'';
     _genAiRawText=text;
-    await renderLibro(text,document.getElementById('gen-ai-text'),async function(){
+    await renderLibro(text,document.getElementById('gen-ai-text'),async function(mensajeExtra){
       var res2=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:headers,
         body:JSON.stringify({
           model:'claude-sonnet-4-6',
           max_tokens:4096,
-          system:SISTEMA_ADJ+' IMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.',
+          system:SISTEMA_ADJ+(mensajeExtra||' IMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.'),
           messages:[{role:'user',content:contentParts}]
         })
       });
@@ -999,13 +1091,20 @@ async function guardarCuadernilloSupabase(){
 // ── Repaginado preventivo: evita pérdida de contenido si una .lb-pagina
 // supera los 297mm antes de que html2canvas capture el iframe ──────────
 function splitOverflowingPages(doc){
+  // Tope duro de páginas físicas: red de contención ante contenido patológico
+  // que Parte 1 (medirDesbordePaginas en renderLibro) no haya atajado — sin
+  // esto, contenido muy desbordado puede colgar el navegador varios minutos
+  // recorriendo getBoundingClientRect() recursivamente (visto en diagnóstico).
+  var contador={paginas:0,limite:20};
   var paginas=Array.from(doc.querySelectorAll('.lb-pagina:not(.lb-caratula)'));
+  contador.paginas=paginas.length;
   paginas.forEach(function(pagina){
     if(pagina.closest&&pagina.closest('.lb-hoja-recortable'))return;
-    splitPaginaSiDesborda(doc,pagina);
+    splitPaginaSiDesborda(doc,pagina,contador);
   });
 }
-function splitPaginaSiDesborda(doc,pagina){
+function splitPaginaSiDesborda(doc,pagina,contador){
+  if(contador.paginas>=contador.limite)return;
   var rect=pagina.getBoundingClientRect();
   var win=doc.defaultView;
   var estilos=win.getComputedStyle(pagina);
@@ -1029,16 +1128,18 @@ function splitPaginaSiDesborda(doc,pagina){
         resultado=intentarPartirBloqueInterno(doc,hijo,espacioRestante);
         if(resultado.exito){
           nuevaPagina=crearPaginaContinuacion(doc,pagina);
+          contador.paginas++;
           nuevaPagina.appendChild(resultado.continuacion);
           for(j=i+1;j<hijos.length;j++)nuevaPagina.appendChild(hijos[j]);
-          splitPaginaSiDesborda(doc,nuevaPagina);
+          splitPaginaSiDesborda(doc,nuevaPagina,contador);
           return;
         }
       }
     }
     nuevaPagina=crearPaginaContinuacion(doc,pagina);
+    contador.paginas++;
     for(j=i;j<hijos.length;j++)nuevaPagina.appendChild(hijos[j]);
-    if(hijoAltura<=alturaUtil)splitPaginaSiDesborda(doc,nuevaPagina);
+    if(hijoAltura<=alturaUtil)splitPaginaSiDesborda(doc,nuevaPagina,contador);
     return;
   }
 }
@@ -1205,15 +1306,35 @@ function descargarCuadernillo(){
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
         pagebreak:{mode:['css'],before:'.lb-pagina:not(.lb-caratula)'}
       };
-      html2pdf().set(opciones).from(contenidoIframe).save().then(function(){
-        document.body.removeChild(iframeTmp);
+      // Red de contención: si html2canvas+jsPDF tarda demasiado (compu lenta,
+      // conexión lenta bajando fuentes/imágenes, o contenido igual muy pesado
+      // pese a Parte 1), no dejamos el botón/iframe colgados para siempre.
+      var yaResuelto=false;
+      function limpiarYRehabilitar(){
+        if(iframeTmp.parentNode)document.body.removeChild(iframeTmp);
         if(btnDescargar){btnDescargar.textContent=textoOriginalBtn;btnDescargar.disabled=false;}
+      }
+      var timeoutPdf=new Promise(function(resolve){
+        setTimeout(function(){
+          if(yaResuelto)return;
+          yaResuelto=true;
+          limpiarYRehabilitar();
+          alert('La generación tardó demasiado. Puede ser que el contenido sea muy extenso o la conexión esté lenta — probá de nuevo o generá el tema en partes más chicas.');
+          resolve();
+        },45000);
+      });
+      var generacionPdf=html2pdf().set(opciones).from(contenidoIframe).save().then(function(){
+        if(yaResuelto)return;
+        yaResuelto=true;
+        limpiarYRehabilitar();
       }).catch(function(e){
+        if(yaResuelto)return;
+        yaResuelto=true;
         console.log('Error al generar el PDF:',e);
         alert('No se pudo generar el PDF. Probá de nuevo. Detalle: '+e.message);
-        document.body.removeChild(iframeTmp);
-        if(btnDescargar){btnDescargar.textContent=textoOriginalBtn;btnDescargar.disabled=false;}
+        limpiarYRehabilitar();
       });
+      Promise.race([generacionPdf,timeoutPdf]);
     });
   };
 }
