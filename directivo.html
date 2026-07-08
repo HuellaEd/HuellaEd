@@ -39,13 +39,14 @@
     .num{text-align:center;font-weight:600;}
     .estado-msg{text-align:center;padding:24px;color:var(--gris);font-size:13px;}
 
-    .banner-asist-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-    .card-grado{background:var(--blanco);border-radius:var(--radius-sm);box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);padding:12px 14px;}
-    .card-grado .grado-nombre{font-size:12px;font-weight:700;color:var(--negro);margin-bottom:6px;}
-    .card-grado .grado-conteo{display:flex;gap:10px;font-size:14px;font-weight:700;margin-bottom:4px;}
-    .card-grado .ok{color:var(--verde2);}
-    .card-grado .bad{color:#C0392B;}
-    .card-grado .grado-tomada{font-size:10.5px;color:var(--gris);}
+    .banner-asist-strip{display:flex;overflow-x:auto;gap:12px;padding-bottom:4px;}
+    .card-grado-v2{position:relative;flex:0 0 auto;width:150px;background:var(--blanco);border-radius:var(--radius);box-shadow:var(--shadow);border:1.5px solid var(--gris-claro);padding:14px 14px 12px;}
+    .card-grado-v2 .grado-nombre{font-size:12px;font-weight:700;color:var(--negro);margin-bottom:10px;}
+    .card-grado-v2 .grado-conteo-v2{display:flex;gap:12px;}
+    .card-grado-v2 .stat-num{font-size:19px;font-weight:800;line-height:1;}
+    .card-grado-v2 .stat-lbl{font-size:9px;color:var(--gris);letter-spacing:0.5px;text-transform:uppercase;margin-top:3px;}
+    .badge-alerta{position:absolute;top:-7px;right:-7px;background:#C0392B;color:#fff;font-size:10.5px;font-weight:800;min-width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;padding:0 5px;box-shadow:0 1px 4px rgba(0,0,0,0.25);}
+    .badge-ok{position:absolute;top:-7px;right:-7px;background:var(--verde2);color:#fff;font-size:12px;font-weight:800;width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.25);}
   </style>
 </head>
 <body>
@@ -123,11 +124,15 @@
     }
 
     var cards = filas.map(function (g) {
-      var tomada = g.total_alumnos - g.sin_tomar
-      return '<div class="card-grado">'
+      var badge = g.sin_tomar > 0
+        ? '<div class="badge-alerta">' + g.sin_tomar + '</div>'
+        : '<div class="badge-ok">✓</div>'
+      return '<div class="card-grado-v2">' + badge
         + '<div class="grado-nombre">' + escapeHtml(g.grade) + '</div>'
-        + '<div class="grado-conteo"><span class="ok">' + g.presentes + ' P</span><span class="bad">' + g.ausentes + ' A</span></div>'
-        + '<div class="grado-tomada">' + tomada + '/' + g.total_alumnos + ' tomada' + (g.sin_tomar > 0 ? ' ⚠️' : ' ✅') + '</div>'
+        + '<div class="grado-conteo-v2">'
+        + '<div><div class="stat-num" style="color:var(--verde2);">' + g.presentes + '</div><div class="stat-lbl">Present.</div></div>'
+        + '<div><div class="stat-num" style="color:#C0392B;">' + g.ausentes + '</div><div class="stat-lbl">Ausent.</div></div>'
+        + '</div>'
         + '</div>'
     }).join('')
 
@@ -143,8 +148,8 @@
         + '</tr>'
     }).join('')
 
-    cont.innerHTML = '<div class="banner-asist-cards">' + cards + '</div>'
-      + '<div class="tabla-wrap" style="margin-top:10px;">'
+    cont.innerHTML = '<div class="banner-asist-strip">' + cards + '</div>'
+      + '<div class="tabla-wrap" style="margin-top:12px;">'
       + '<table><thead><tr>'
       + '<th>Grado</th><th class="num">Total</th><th class="num">Presente</th><th class="num">Ausente</th><th class="num">Justificado</th><th class="num">Tardanza</th><th class="num">Sin tomar</th>'
       + '</tr></thead><tbody>' + filasTabla + '</tbody></table>'
