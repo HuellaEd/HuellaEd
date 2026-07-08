@@ -81,7 +81,7 @@
 
     const resultados = await Promise.all([
       supabase.rpc('directivo_lista_docentes'),
-      supabase.from('students').select('id,full_name'),
+      supabase.from('students').select('id,full_name,teacher_id'),
       supabase.from('attendance').select('student_id,teacher_id,status'),
       supabase.from('grades').select('student_id,teacher_id,period,score,grade_conceptual'),
     ])
@@ -242,15 +242,8 @@
     var docenteId = document.getElementById('sel-docente').value
     var periodo = document.getElementById('sel-periodo').value
 
-    var idsDelDocente = null
-    if (docenteId) {
-      idsDelDocente = new Set()
-      estado.asistencias.forEach(function (a) { if (a.teacher_id === docenteId) idsDelDocente.add(a.student_id) })
-      estado.notas.forEach(function (n) { if (n.teacher_id === docenteId) idsDelDocente.add(n.student_id) })
-    }
-
     var alumnosVisibles = estado.alumnos.filter(function (a) {
-      return !idsDelDocente || idsDelDocente.has(a.id)
+      return !docenteId || a.teacher_id === docenteId
     })
 
     var tbody = document.getElementById('tbody-alumnos')
@@ -262,10 +255,6 @@
     var gradoPorDocente = {}
     estado.docentes.forEach(function (d) { gradoPorDocente[d.id] = d.grade })
 
-    var docentePorAlumno = {}
-    estado.asistencias.forEach(function (a) { if (!docentePorAlumno[a.student_id]) docentePorAlumno[a.student_id] = a.teacher_id })
-    estado.notas.forEach(function (n) { if (!docentePorAlumno[n.student_id]) docentePorAlumno[n.student_id] = n.teacher_id })
-
     var filas = alumnosVisibles.map(function (al) {
       var asistAlumno = estado.asistencias.filter(function (a) { return a.student_id === al.id })
       var presente = asistAlumno.filter(function (a) { return a.status === 'presente' }).length
@@ -273,8 +262,7 @@
       var tardanza = asistAlumno.filter(function (a) { return a.status === 'tardanza' }).length
       var justificado = asistAlumno.filter(function (a) { return a.status === 'justificado' }).length
 
-      var teacherIdAlumno = docentePorAlumno[al.id]
-      var gradoAlumno = teacherIdAlumno ? gradoPorDocente[teacherIdAlumno] : null
+      var gradoAlumno = al.teacher_id ? gradoPorDocente[al.teacher_id] : null
       var cicloAlumno = _adecDeriveCiclo(gradoAlumno)
 
       var promedio
