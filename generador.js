@@ -336,14 +336,18 @@ async function armarPromptBoletin(){
     });
   }
 
-  var {data:notas}=await window.__sb.from('grades').select('student_id,score').eq('teacher_id',user.id).eq('period',trimBoletin).in('student_id',ids);
+  var {data:notas}=await window.__sb.from('grades').select('student_id,score,grade_conceptual').eq('teacher_id',user.id).eq('period',trimBoletin).in('student_id',ids);
   var promediosTexto='';
   if(notas&&notas.length){
     seleccionados.forEach(function(s){
-      var notasAlumno=notas.filter(function(n){return n.student_id===s.id&&n.score!=null;});
-      if(notasAlumno.length){
-        var prom=notasAlumno.reduce(function(a,n){return a+Number(n.score);},0)/notasAlumno.length;
+      var notasAlumno=notas.filter(function(n){return n.student_id===s.id;});
+      var numericas=notasAlumno.filter(function(n){return n.score!=null;});
+      var conceptuales=notasAlumno.filter(function(n){return n.grade_conceptual!=null;});
+      if(numericas.length){
+        var prom=numericas.reduce(function(a,n){return a+Number(n.score);},0)/numericas.length;
         promediosTexto+=s.full_name+' '+prom.toFixed(1)+' - ';
+      }else if(conceptuales.length){
+        promediosTexto+=s.full_name+': '+conceptuales.map(function(n){return n.grade_conceptual;}).join(', ')+' - ';
       }
     });
     promediosTexto=promediosTexto.replace(/ - $/,'');

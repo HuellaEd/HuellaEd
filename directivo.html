@@ -83,7 +83,7 @@
       supabase.rpc('directivo_lista_docentes'),
       supabase.from('students').select('id,full_name'),
       supabase.from('attendance').select('student_id,teacher_id,status'),
-      supabase.from('grades').select('student_id,teacher_id,period,score'),
+      supabase.from('grades').select('student_id,teacher_id,period,score,grade_conceptual'),
     ])
     const docentes = resultados[0].data
     const alumnos = resultados[1].data
@@ -96,6 +96,7 @@
       alumnos: alumnos || [],
       asistencias: asistencias || [],
       notas: notas || [],
+      docentes: docentes || [],
     }
 
     document.getElementById('sel-docente').addEventListener('change', () => renderTabla(estado))
@@ -224,6 +225,19 @@
     })
   }
 
+  // Duplicado de generador.js:69-77 — directivo.html no carga ningún script
+  // externo, y acá el ciclo se resuelve por-alumno (via el grade del docente
+  // correspondiente), no con un window.__teacherGrade global como en generador.js.
+  function _adecDeriveCiclo(grade) {
+    if (!grade) return null
+    var m = (grade.match(/\d+/) || [])[0]
+    if (!m) return null
+    var n = parseInt(m)
+    if (n >= 1 && n <= 3) return 'primer_ciclo'
+    if (n >= 4 && n <= 7) return 'segundo_ciclo'
+    return null
+  }
+
   function renderTabla(estado) {
     var docenteId = document.getElementById('sel-docente').value
     var periodo = document.getElementById('sel-periodo').value
@@ -245,6 +259,13 @@
       return
     }
 
+    var gradoPorDocente = {}
+    estado.docentes.forEach(function (d) { gradoPorDocente[d.id] = d.grade })
+
+    var docentePorAlumno = {}
+    estado.asistencias.forEach(function (a) { if (!docentePorAlumno[a.student_id]) docentePorAlumno[a.student_id] = a.teacher_id })
+    estado.notas.forEach(function (n) { if (!docentePorAlumno[n.student_id]) docentePorAlumno[n.student_id] = n.teacher_id })
+
     var filas = alumnosVisibles.map(function (al) {
       var asistAlumno = estado.asistencias.filter(function (a) { return a.student_id === al.id })
       var presente = asistAlumno.filter(function (a) { return a.status === 'presente' }).length
@@ -252,12 +273,28 @@
       var tardanza = asistAlumno.filter(function (a) { return a.status === 'tardanza' }).length
       var justificado = asistAlumno.filter(function (a) { return a.status === 'justificado' }).length
 
-      var notasAlumno = estado.notas.filter(function (n) { return n.student_id === al.id && n.score != null })
-      if (periodo) notasAlumno = notasAlumno.filter(function (n) { return String(n.period) === periodo })
-      var promedio = '—'
-      if (notasAlumno.length) {
-        var suma = notasAlumno.reduce(function (acc, n) { return acc + Number(n.score) }, 0)
-        promedio = (suma / notasAlumno.length).toFixed(1)
+      var teacherIdAlumno = docentePorAlumno[al.id]
+      var gradoAlumno = teacherIdAlumno ? gradoPorDocente[teacherIdAlumno] : null
+      var cicloAlumno = _adecDeriveCiclo(gradoAlumno)
+
+      var promedio
+      if (cicloAlumno === 'primer_ciclo') {
+        var notasConceptuales = estado.notas.filter(function (n) { return n.student_id === al.id && n.grade_conceptual != null })
+        if (periodo) notasConceptuales = notasConceptuales.filter(function (n) { return String(n.period) === periodo })
+        if (!notasConceptuales.length) {
+          promedio = '—'
+        } else {
+          var alertas = notasConceptuales.filter(function (n) { return n.grade_conceptual === 'R' || n.grade_conceptual === 'D' }).length
+          promedio = alertas > 0 ? ('⚠ ' + alertas) : '✓'
+        }
+      } else {
+        var notasAlumno = estado.notas.filter(function (n) { return n.student_id === al.id && n.score != null })
+        if (periodo) notasAlumno = notasAlumno.filter(function (n) { return String(n.period) === periodo })
+        promedio = '—'
+        if (notasAlumno.length) {
+          var suma = notasAlumno.reduce(function (acc, n) { return acc + Number(n.score) }, 0)
+          promedio = (suma / notasAlumno.length).toFixed(1)
+        }
       }
 
       return '<tr>'
