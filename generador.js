@@ -618,7 +618,12 @@ async function generarConIA(){
     var data=await res.json();
     var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
     _genAiRawText=texto;
-    renderLibro(texto,document.getElementById('gen-ai-text'));
+    await renderLibro(texto,document.getElementById('gen-ai-text'),async function(){
+      var res2=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,system:SISTEMA+' IMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.',messages:[{role:'user',content:contentParts}]})});
+      if(!res2.ok){var ed2=await res2.json();throw new Error((ed2.error&&ed2.error.message)||'Error '+res2.status);}
+      var data2=await res2.json();
+      return (data2.content&&data2.content[0]&&data2.content[0].text)||'';
+    });
     contenedor.style.display='block';
     contenedor.scrollIntoView({behavior:'smooth'});
   }catch(e){
@@ -656,9 +661,13 @@ function generarCaratulaLibro(area,bloque,tipoMaterial,listaContenidos,fuente){
     +'<div class="lb-car-franja" style="background:#C8973A"></div>'
     +'</div>';
 }
-function renderLibro(respuestaIA,contenedor){
+async function renderLibro(respuestaIA,contenedor,reintentarFn){
   var _picsParaBuscar=[];
   var _fotosParaBuscar=[];
+  function intentarParsearLibro(texto){
+    try{var t=texto.trim();var m=t.match(/```(?:json)?\s*([\s\S]*?)```/)||t.match(/(\{[\s\S]*\})/);return JSON.parse(m?m[1]:t);}
+    catch(e){return null;}
+  }
   function sec(s,idx){
     var tipo=(s.tipo||'').toLowerCase(),h='<div class="lb-bloque">';
     if(s.grupal)h+='<div class="lb-badge">👥 De a dos</div>';
@@ -689,9 +698,20 @@ function renderLibro(respuestaIA,contenedor){
     else{h+='<div class="lb-area" style="min-height:'+(s.alto||52)+'px"></div>';}
     return h+'</div>';
   }
-  var data;
-  try{var t=respuestaIA.trim();var m=t.match(/```(?:json)?\s*([\s\S]*?)```/)||t.match(/(\{[\s\S]*\})/);data=JSON.parse(m?m[1]:t);}
-  catch(e){contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">PDF</button></div><div class="lb-pagina"><div style="font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div></div></div>';return;}
+  var data=intentarParsearLibro(respuestaIA);
+  if(!data&&reintentarFn){
+    try{
+      var respuestaReintento=await reintentarFn();
+      var dataReintento=intentarParsearLibro(respuestaReintento);
+      if(dataReintento){data=dataReintento;respuestaIA=respuestaReintento;}
+    }catch(e){/* el reintento en sí falló (red) — cae al fallback de abajo con el texto original */}
+  }
+  if(!data){
+    contenedor.innerHTML='<div id="libro-preview"><div class="lb-topbar"><div class="lb-logo">Huella<span>ED</span><small>cada alumno, su trayecto</small></div><button class="lb-btn-print" onclick="window.print()">PDF</button></div>'
+      +'<div style="text-align:center;color:#C0392B;padding:10px 14px;font-size:12px;background:#FDE8E8;border-radius:9px;margin:10px 14px 0;line-height:1.6;">⚠️ El formato no salió como se esperaba, revisá el resultado.</div>'
+      +'<div class="lb-pagina"><div style="font-size:13px;line-height:1.7">'+markdownToHtml(respuestaIA)+'</div></div></div>';
+    return;
+  }
   _mapasParaInicializar=[];
   _fotosParaBuscar=[];
   var MAP_AREA_GENERADOR={'Matemática':'M','Prácticas del Lenguaje':'L','Ciencias Sociales':'CS','Ciencias Naturales':'CN'};
@@ -891,7 +911,21 @@ async function enviarAClaudeConArchivo(promptText){
     var data=await res.json();
     var text=(data.content&&data.content[0]&&data.content[0].text)||'';
     _genAiRawText=text;
-    renderLibro(text,document.getElementById('gen-ai-text'));
+    await renderLibro(text,document.getElementById('gen-ai-text'),async function(){
+      var res2=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:headers,
+        body:JSON.stringify({
+          model:'claude-sonnet-4-6',
+          max_tokens:4096,
+          system:SISTEMA_ADJ+' IMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.',
+          messages:[{role:'user',content:contentParts}]
+        })
+      });
+      if(!res2.ok){var errData2=await res2.json();throw new Error((errData2.error&&errData2.error.message)||'Error '+res2.status);}
+      var data2=await res2.json();
+      return (data2.content&&data2.content[0]&&data2.content[0].text)||'';
+    });
     document.getElementById('gen-ai-resultado').style.display='block';
     document.getElementById('gen-resultado').style.display='none';
     document.getElementById('gen-ai-resultado').scrollIntoView({behavior:'smooth'});

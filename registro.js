@@ -592,22 +592,38 @@ async function procesarFotoAsistencia(input){
     promptTexto+='{"mes":1-12,"anio":YYYY,"dias":[numero_dia1,numero_dia2,...],"alumnos":[{"nombre":"nombre exacto de la lista","valores":["presente","ausente",null,...]}]}\n\n';
     promptTexto+='El array "valores" debe tener la MISMA cantidad de elementos que "dias", en el mismo orden (una entrada por columna/día). Usá "presente" para el código 1, "ausente" para el código 3, "tardanza" o "justificado" si detectás otro código distinto, y null si la celda está vacía o no se puede leer con certeza. Mejor poner null que inventar.';
 
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:4000,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:mediaType,data:base64Data}},
-          {type:'text',text:promptTexto}
-        ]}]
-      })
-    });
-    if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
-    var data=await res.json();
-    var texto=(data.content&&data.content[0]&&data.content[0].text)||'';
-    var m=texto.match(/```json([\s\S]*?)```/)||texto.match(/(\{[\s\S]*\})/);
-    var parsed=JSON.parse(m?m[1]:texto);
+    async function llamarIAFoto(sufijoExtra){
+      var res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'x-api-key':apiKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-6',max_tokens:4000,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:mediaType,data:base64Data}},
+            {type:'text',text:promptTexto+(sufijoExtra||'')}
+          ]}]
+        })
+      });
+      if(!res.ok){var ed=await res.json();throw new Error((ed.error&&ed.error.message)||'Error '+res.status);}
+      var data=await res.json();
+      return (data.content&&data.content[0]&&data.content[0].text)||'';
+    }
+    function intentarParsearFoto(texto){
+      try{var m=texto.match(/```json([\s\S]*?)```/)||texto.match(/(\{[\s\S]*\})/);return JSON.parse(m?m[1]:texto);}
+      catch(e){return null;}
+    }
+
+    var texto=await llamarIAFoto('');
+    var parsed=intentarParsearFoto(texto);
+    if(!parsed){
+      texto=await llamarIAFoto('\n\nIMPORTANTE: tu respuesta anterior no pudo leerse como JSON válido. Respondé ÚNICAMENTE con el JSON, sin texto adicional ni backticks.');
+      parsed=intentarParsearFoto(texto);
+    }
+    if(!parsed){
+      document.getElementById('confirmar-foto-msg').innerHTML='<span style="color:#C0392B;">No se pudo leer el resultado, probá de nuevo.</span>';
+      input.value='';
+      return;
+    }
 
     if(!parsed.dias||!parsed.dias.length||!parsed.alumnos||!parsed.alumnos.length){
       document.getElementById('confirmar-foto-msg').innerHTML='<span style="color:#C0392B;">No se pudo leer el registro con certeza. Probá con una foto más clara, con buena luz y sin sombras sobre la tabla.</span>';
