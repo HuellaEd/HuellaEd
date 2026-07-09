@@ -67,6 +67,7 @@
 
   var estudiantesCache = []
   var alumnoSeleccionado = null
+  var docentesCache = []
 
   var sesionData = await supabase.auth.getSession()
   var session = sesionData.data.session
@@ -95,7 +96,15 @@
     var studentsRes = await supabase.from('students').select('id,full_name')
     estudiantesCache = studentsRes.data || []
 
+    var docentesRes = await supabase.rpc('eoe_lista_docentes')
+    docentesCache = docentesRes.data || []
+    document.getElementById('select-docente').innerHTML = '<option value="">Elegí un docente...</option>'
+      + docentesCache.map(function (d) {
+        return '<option value="' + d.id + '">' + escapeHtml(d.full_name) + (d.grade ? ' (' + escapeHtml(d.grade) + ')' : '') + '</option>'
+      }).join('')
+
     document.getElementById('buscador').addEventListener('input', onBuscar)
+    document.getElementById('btn-agendar').addEventListener('click', agendarTareaDocente)
 
     await cargarMisObservaciones()
   }
@@ -121,6 +130,13 @@
       + '<div id="panel-observacion"></div>'
       + '<div class="section-label">Mis observaciones enviadas</div>'
       + '<div class="card"><div id="lista-obs"></div></div>'
+      + '<div class="section-label">Agendar algo a un docente</div>'
+      + '<div class="card">'
+      + '<select id="select-docente" style="width:100%;padding:11px 13px;border:1.5px solid var(--gris-claro);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;background:var(--blanco);color:var(--negro);margin-bottom:10px;"><option value="">Cargando docentes...</option></select>'
+      + '<textarea id="texto-agenda" placeholder="Qué querés agendarle a este docente..."></textarea>'
+      + '<button class="btn-primary" id="btn-agendar">Agendar</button>'
+      + '<div class="msg-envio" id="msg-agenda"></div>'
+      + '</div>'
       + '</main>'
   }
 
@@ -220,6 +236,46 @@
       msgEl.className = 'msg-envio msg-ok'
       textoEl.value = ''
       await cargarMisObservaciones()
+    }
+  }
+
+  async function agendarTareaDocente() {
+    var selectEl = document.getElementById('select-docente')
+    var textoEl = document.getElementById('texto-agenda')
+    var btn = document.getElementById('btn-agendar')
+    var msgEl = document.getElementById('msg-agenda')
+    var teacherId = selectEl.value
+    var texto = textoEl.value.trim()
+
+    if (!teacherId) {
+      msgEl.textContent = 'Elegí un docente antes de agendar.'
+      msgEl.className = 'msg-envio msg-err'
+      return
+    }
+    if (!texto) {
+      msgEl.textContent = 'Escribí qué agendarle antes de enviar.'
+      msgEl.className = 'msg-envio msg-err'
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Agendando…'
+    msgEl.textContent = ''
+    msgEl.className = 'msg-envio'
+
+    var res = await supabase.rpc('asignar_tarea_agenda', { p_teacher_id: teacherId, p_texto: texto })
+
+    btn.disabled = false
+    btn.textContent = 'Agendar'
+
+    if (res.error) {
+      msgEl.textContent = 'No se pudo agendar: ' + res.error.message
+      msgEl.className = 'msg-envio msg-err'
+    } else {
+      msgEl.textContent = 'Agendado correctamente.'
+      msgEl.className = 'msg-envio msg-ok'
+      textoEl.value = ''
+      selectEl.value = ''
     }
   }
 

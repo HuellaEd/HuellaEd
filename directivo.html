@@ -91,6 +91,8 @@
     const notas = resultados[3].data
 
     poblarSelectDocentes(docentes || [])
+    poblarSelectDocentesAgenda(docentes || [])
+    document.getElementById('btn-agendar-directivo').addEventListener('click', agendarTareaDocenteDirectivo)
 
     const estado = {
       alumnos: alumnos || [],
@@ -198,6 +200,13 @@
       + '</select>'
       + '</label>'
       + '</div>'
+      + '<div class="section-label">Agendar tarea a un docente</div>'
+      + '<div class="tabla-wrap" style="padding:14px 16px;">'
+      + '<select id="sel-docente-agenda" style="width:100%;padding:9px 11px;border:1.5px solid var(--gris-claro);border-radius:9px;font-size:13px;font-family:inherit;background:var(--crema);color:var(--negro);margin-bottom:10px;"><option value="">Elegí un docente...</option></select>'
+      + '<textarea id="texto-agenda-directivo" style="width:100%;min-height:90px;padding:11px 13px;border:1.5px solid var(--gris-claro);border-radius:10px;font-size:13.5px;font-family:inherit;resize:vertical;" placeholder="Qué querés agendarle a este docente..."></textarea>'
+      + '<button id="btn-agendar-directivo" style="margin-top:10px;background:var(--verde);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Agendar</button>'
+      + '<div id="msg-agenda-directivo" style="margin-top:8px;font-size:12.5px;text-align:center;"></div>'
+      + '</div>'
       + '<div class="section-label">Alumnos</div>'
       + '<div class="tabla-wrap">'
       + '<table>'
@@ -223,6 +232,55 @@
       opt.textContent = d.full_name + (d.grade ? ' (' + d.grade + ')' : '')
       sel.appendChild(opt)
     })
+  }
+
+  function poblarSelectDocentesAgenda(docentes) {
+    var sel = document.getElementById('sel-docente-agenda')
+    docentes.forEach(function (d) {
+      var opt = document.createElement('option')
+      opt.value = d.id
+      opt.textContent = d.full_name + (d.grade ? ' (' + d.grade + ')' : '')
+      sel.appendChild(opt)
+    })
+  }
+
+  async function agendarTareaDocenteDirectivo() {
+    var selectEl = document.getElementById('sel-docente-agenda')
+    var textoEl = document.getElementById('texto-agenda-directivo')
+    var btn = document.getElementById('btn-agendar-directivo')
+    var msgEl = document.getElementById('msg-agenda-directivo')
+    var teacherId = selectEl.value
+    var texto = textoEl.value.trim()
+
+    if (!teacherId) {
+      msgEl.textContent = 'Elegí un docente antes de agendar.'
+      msgEl.style.color = '#C0392B'
+      return
+    }
+    if (!texto) {
+      msgEl.textContent = 'Escribí qué agendarle antes de enviar.'
+      msgEl.style.color = '#C0392B'
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Agendando…'
+    msgEl.textContent = ''
+
+    var res = await supabase.rpc('asignar_tarea_agenda', { p_teacher_id: teacherId, p_texto: texto })
+
+    btn.disabled = false
+    btn.textContent = 'Agendar'
+
+    if (res.error) {
+      msgEl.textContent = 'No se pudo agendar: ' + res.error.message
+      msgEl.style.color = '#C0392B'
+    } else {
+      msgEl.textContent = 'Agendado correctamente.'
+      msgEl.style.color = 'var(--verde)'
+      textoEl.value = ''
+      selectEl.value = ''
+    }
   }
 
   // Duplicado de generador.js:69-77 — directivo.html no carga ningún script
